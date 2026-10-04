@@ -40,7 +40,6 @@ const MONEY_STEPS = [
 
 const RESOURCES = [
   { title: "Live system status", body: "Real-time uptime and incident history.", href: "/system-status", external: false },
-  { title: "Wallet security model", body: "How keys, signing and custody work.", href: "/wallet-security", external: false },
   { title: "AML policy", body: "Our anti-money-laundering commitments.", href: "/aml-policy", external: false },
   { title: "Privacy policy", body: "What we collect and how we protect it.", href: "/privacy-policy", external: false },
   { title: "Terms & conditions", body: "The agreement that governs your account.", href: "/terms-conditions", external: false },
@@ -76,8 +75,8 @@ const TrustCentre: React.FC = () => {
             <PrimaryBtn data-testid="trust-hero-status" href="/system-status" endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
               View live status
             </PrimaryBtn>
-            <SecondaryBtn onDark={s.dark} data-testid="trust-hero-wallet" href="/wallet-security">
-              Wallet security model
+            <SecondaryBtn onDark={s.dark} data-testid="trust-hero-docs" href="/documentation">
+              Read the docs
             </SecondaryBtn>
           </>
         }

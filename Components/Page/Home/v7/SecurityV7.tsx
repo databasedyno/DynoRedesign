@@ -56,9 +56,6 @@ const SecurityV7: React.FC = () => {
         <ArrowLink href="/system-status" testId="security-status-link">
           {t("v7.trust.statusLink")} <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
         </ArrowLink>
-        <ArrowLink href="/wallet-security" testId="security-wallet-link">
-          {t("v7.security.walletLink", { defaultValue: "Wallet security model" })} <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
-        </ArrowLink>
       </Box>
     </Section>
   );

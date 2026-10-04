@@ -125,11 +125,10 @@ const HomeFooter: FC = () => {
       {
         heading: t("v6.footer.legal"),
         links: [
-          { label: t("v6.footer.trustCentre", { defaultValue: "Trust Centre" }), link: "/trust" },
           { label: t("footerTerms"), link: "/terms-conditions" },
           { label: t("footerPrivacy"), link: "/privacy-policy" },
           { label: t("v6.footer.aml"), link: "/aml-policy" },
-          { label: t("v6.footer.walletSecurity"), link: "/wallet-security" },
+          { label: t("v6.footer.trustCentre", { defaultValue: "Trust Centre" }), link: "/trust" },
         ],
       },
     ],
