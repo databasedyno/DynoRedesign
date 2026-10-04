@@ -50,6 +50,9 @@ const SecurityV7: React.FC = () => {
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 2, md: 4 }, mt: { xs: 3, md: 4 } }}>
+        <ArrowLink href="/trust" testId="security-trust-link">
+          {t("v7.security.trustLink", { defaultValue: "Visit the Trust Centre" })} <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
+        </ArrowLink>
         <ArrowLink href="/system-status" testId="security-status-link">
           {t("v7.trust.statusLink")} <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
         </ArrowLink>

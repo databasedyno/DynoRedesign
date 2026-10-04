@@ -31,7 +31,7 @@ export const PAPER_ALT = PUB_LIGHT.pageAlt;
 export const INK = PUB_LIGHT.t1;
 export const OBSIDIAN = PUB_DARK.page;
 
-export const FONT_HERO = "var(--font-inter)";
+export const FONT_HERO = "var(--font-hero)";
 export const FONT_BODY = "var(--font-body)";
 export const FONT_TECH = "var(--font-tech)";
 
@@ -67,26 +67,50 @@ export interface AuroraTokens {
 export const useAurora = (): AuroraTokens => {
   const theme = useTheme();
   const dark = theme.palette.mode === "dark";
-  const p = dark ? PUB_DARK : PUB_LIGHT;
-  const accent = dark ? GOLD : GOLD_DEEP;
+  // 2026-10 Trust & Clarity — public pages adopt the signed-in app's warm
+  // "operations-console" palette (see /app/design_guidelines.json) so the whole
+  // product reads as one surface. Field names are unchanged for back-compat.
+  if (dark) {
+    return {
+      dark: true,
+      bg: "#131312",
+      bgAlt: "#1A1A19",
+      surface: "#1A1A19",
+      surfaceElev: "#222221",
+      ink: "#F2F2F0",
+      ink2: "#A3A3A0",
+      ink3: "#70706E",
+      line: "rgba(255,255,255,0.07)",
+      lineStrong: "rgba(255,255,255,0.15)",
+      accent: GOLD,
+      accentSoft: "rgba(255,209,0,0.10)",
+      indigo: GOLD,
+      coral: GOLD,
+      violet: VIOLET,
+      volt: VOLT,
+      voltInk: VOLT,
+      aurora: AURORA_GRADIENT,
+      auroraSoft: AURORA_GRADIENT_SOFT,
+    };
+  }
   return {
-    dark,
-    bg: p.page,
-    bgAlt: p.pageAlt,
-    surface: p.card,
-    surfaceElev: p.container,
-    ink: p.t1,
-    ink2: p.t2,
-    ink3: p.t3,
-    line: p.line,
-    lineStrong: p.border,
-    accent,
-    accentSoft: dark ? "rgba(255,209,0,0.12)" : "rgba(255,209,0,0.18)",
-    indigo: accent,
-    coral: accent, // deprecated alias
+    dark: false,
+    bg: "#F9F9F8",
+    bgAlt: "#FFFFFF",
+    surface: "#FFFFFF",
+    surfaceElev: "#FFFFFF",
+    ink: "#1A1A19",
+    ink2: "#666664",
+    ink3: "#999996",
+    line: "rgba(0,0,0,0.08)",
+    lineStrong: "rgba(0,0,0,0.14)",
+    accent: GOLD_DEEP,
+    accentSoft: "rgba(255,209,0,0.16)",
+    indigo: GOLD_DEEP,
+    coral: GOLD_DEEP,
     violet: VIOLET,
     volt: VOLT,
-    voltInk: dark ? VOLT : VOLT_INK,
+    voltInk: VOLT_INK,
     aurora: AURORA_GRADIENT,
     auroraSoft: AURORA_GRADIENT_SOFT,
   };

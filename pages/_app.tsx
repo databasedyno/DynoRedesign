@@ -294,6 +294,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       "/press",
       "/referral-program",
       "/how-to",
+      "/trust",
     ]);
 
     if (
@@ -916,7 +917,8 @@ App.getInitialProps = async (appContext: AppContext) => {
       const publicPrefixes = ["/fees", "/help-support", "/blog", "/for", "/about",
         "/press", "/documentation", "/how-to", "/referral-program", "/system-status",
         "/accept-crypto-payments-in", "/auth", "/pay", "/terms-conditions",
-        "/privacy-policy", "/aml-policy", "/reset-password", "/creator", "/order"];
+        "/privacy-policy", "/aml-policy", "/reset-password", "/creator", "/order",
+        "/products", "/trust", "/wallet-security"];
       const isPublicPage = pathname === "/" ||
         publicPrefixes.some((p) => pathname === p || pathname.startsWith(p + "/"));
       const activeNS = isPublicPage ? NS.filter((ns) => !APP_ONLY_NS.has(ns)) : NS;

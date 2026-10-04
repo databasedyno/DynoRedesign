@@ -2,7 +2,6 @@ import React, { memo } from "react";
 import { Box } from "@mui/material";
 import { FONT_BODY, FONT_TECH, useAurora } from "../v3/theme.v3";
 import { Body, Eyebrow, HeadlineXL } from "../v3/styled.v3";
-import { BRAND_ACCENT } from "../v3/theme.v3";
 import { Stagger, StaggerItem } from "../motion/Stagger";
 
 interface Props {
@@ -27,8 +26,6 @@ const PublicPageHero: React.FC<Props> = ({ eyebrow, title, body, actions, note, 
   const s = useAurora();
   return (
     <Box component="section" data-testid={testId || "public-page-hero"} sx={{ position: "relative", overflow: "hidden", background: s.bg, pt: { xs: 13, md: 17 }, pb: compact ? { xs: 4, md: 6 } : { xs: 7, md: 10 } }}>
-      <Box aria-hidden sx={{ position: "absolute", top: "-34%", right: "-12%", width: { xs: 640, md: 1000 }, height: { xs: 640, md: 1000 }, borderRadius: "50%", background: `radial-gradient(circle, ${BRAND_ACCENT} 0%, ${BRAND_ACCENT}99 30%, transparent 70%)`, opacity: s.dark ? 0.10 : 0.07, pointerEvents: "none" }} />
-      <Box aria-hidden sx={{ position: "absolute", bottom: "-40%", left: "-14%", width: { xs: 520, md: 820 }, height: { xs: 520, md: 820 }, borderRadius: "50%", background: "radial-gradient(circle, #FFB300 0%, #4FD1FF88 34%, transparent 70%)", opacity: s.dark ? 0.09 : 0.05, pointerEvents: "none" }} />
       <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1280, mx: "auto", px: { xs: 3, md: 5 } }}>
         {topSlot ? <Box sx={{ mb: { xs: 3, md: 4 } }}>{topSlot}</Box> : null}
         <Box sx={{ display: "grid", gridTemplateColumns: aside ? { xs: "1fr", md: "minmax(0, 1.1fr) minmax(0, 0.9fr)" } : "1fr", gap: { xs: 5, md: 8 }, alignItems: "center" }}>

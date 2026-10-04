@@ -82,7 +82,7 @@ export const SecondaryBtn: React.FC<ButtonProps & { small?: boolean; onDark?: bo
 export const Section: React.FC<React.PropsWithChildren<{ id?: string; alt?: boolean; testId?: string; narrow?: boolean; sx?: object }>> = ({ id, alt, testId, narrow, children, sx }) => {
   const s = useAurora();
   return (
-    <Box component="section" id={id} data-testid={testId} sx={{ background: alt ? s.bgAlt : s.bg, py: { xs: 9, md: 13 }, scrollMarginTop: "88px", ...sx }}>
+    <Box component="section" id={id} data-testid={testId} sx={{ background: alt ? s.bgAlt : s.bg, borderTop: `1px solid ${s.line}`, py: { xs: 9, md: 13 }, scrollMarginTop: "88px", ...sx }}>
       <Box sx={{ maxWidth: narrow ? 1080 : 1280, mx: "auto", px: { xs: 3, md: 5 } }}>{children}</Box>
     </Box>
   );
