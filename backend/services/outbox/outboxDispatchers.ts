@@ -66,9 +66,13 @@ export function registerDefaultOutboxDispatchers(): void {
     const result = await callMerchantWebhook(customerData, eventData, { skipUrls: alreadyDelivered });
 
     const delivered: string[] = [...alreadyDelivered, ...(result?.delivered || [])];
-    const failures: Array<{ url: string; error: string }> = result?.failed || [];
-    const transient = failures.filter((f) => !PERMANENT_SKIP.test(f.error));
-    for (const f of failures.filter((x) => PERMANENT_SKIP.test(x.error))) {
+    const failures: Array<{ url: string; error: string; permanent?: boolean }> = result?.failed || [];
+    // PERMANENT = explicit per-target flag (merchant-side 4xx / SSRF-blocked /
+    // bad redirect, set in webhooks/index.ts) OR a known permanent-skip string.
+    const isPermanent = (f: { url: string; error: string; permanent?: boolean }) =>
+      f.permanent === true || PERMANENT_SKIP.test(f.error);
+    const transient = failures.filter((f) => !isPermanent(f));
+    for (const f of failures.filter(isPermanent)) {
       webhookLogs.warn(`[Outbox:merchant.webhook] permanent skip event=${evt.eventId} (${eventName}) ${f.url}: ${f.error}`);
     }
 
@@ -81,7 +85,7 @@ export function registerDefaultOutboxDispatchers(): void {
       }
       // Legacy shape (no per-target detail) and not successful → generic transient error.
       const err = String(result?.error || "unknown webhook delivery error");
-      if (PERMANENT_SKIP.test(err)) return;
+      if (result?.permanent === true || PERMANENT_SKIP.test(err)) return;
       throw new Error(`merchant webhook delivery failed (${eventName}): ${err}`);
     }
 

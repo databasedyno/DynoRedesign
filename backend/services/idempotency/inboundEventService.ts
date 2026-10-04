@@ -112,4 +112,38 @@ export async function markSkipped(id: number, reason: string): Promise<void> {
   } catch { /* best-effort */ }
 }
 
-export default { recordInbound, markProcessed, markFailed, markSkipped };
+/**
+ * Age out inbound-event rows left in 'received' with no processed_at — i.e. ones
+ * the worker or a receiver-level skip never finalized (e.g. rows that pre-dated
+ * the markProcessed/markSkipped wiring: prod sweep 2026-10 found 531 frozen
+ * ADDRESS_EVENT rows from 2026-08-29→09-29, none newer, polluting the
+ * "unprocessed backlog" metric). Marks them 'skipped' with a reason so the
+ * backlog reflects reality. Idempotent, bounded, best-effort; returns the count.
+ */
+export async function reconcileStaleReceivedInboundEvents(maxAgeHours = 24): Promise<number> {
+  try {
+    const sequelize = (await import("../../utils/dbInstance")).default;
+    const { QueryTypes } = await import("sequelize");
+    const rows = (await sequelize.query(
+      `UPDATE tbl_inbound_events
+          SET status = 'skipped',
+              processed_at = NOW(),
+              error = COALESCE(error, 'auto-reconciled: stale ''received'' — never finalized within ' || :h || 'h')
+        WHERE status = 'received'
+          AND processed_at IS NULL
+          AND received_at < NOW() - (:h || ' hours')::interval
+        RETURNING id`,
+      { replacements: { h: maxAgeHours }, type: QueryTypes.SELECT }
+    )) as Array<{ id: number }>;
+    const affected = Array.isArray(rows) ? rows.length : 0;
+    if (affected > 0) {
+      webhookLogs.info(`[InboundEvent] reconciled ${affected} stale 'received' row(s) older than ${maxAgeHours}h → skipped`);
+    }
+    return affected;
+  } catch (err) {
+    webhookLogs.warn(`[InboundEvent] stale reconcile failed (best-effort): ${(err as Error).message}`);
+    return 0;
+  }
+}
+
+export default { recordInbound, markProcessed, markFailed, markSkipped, reconcileStaleReceivedInboundEvents };

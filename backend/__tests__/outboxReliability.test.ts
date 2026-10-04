@@ -149,6 +149,41 @@ describe("per-target merchant webhook retries", () => {
     expect(r).toEqual({ dispatched: 1, retried: 0 });
   });
 
+  it("merchant-side 4xx flagged permanent → NOT retried (2026-10 sweep: 400s stuck 12 rows)", async () => {
+    // Sole failure is a permanent 4xx (webhooks/index.ts sets permanent:true).
+    // The error STRING is a plain axios message that does NOT match PERMANENT_SKIP,
+    // so only the explicit flag can stop the retry storm.
+    wireQueries([], [claimed()]);
+    callMerchantWebhook.mockResolvedValue({
+      success: false,
+      error: "Request failed with status code 400",
+      permanent: true,
+      delivered: [],
+      failed: [{ url: B, error: "Request failed with status code 400", permanent: true }],
+    });
+    const r = await relayPendingBatch(10);
+    expect(r).toEqual({ dispatched: 1, retried: 0 });
+  });
+
+  it("legacy shape with top-level permanent:true (no per-target arrays) → NOT retried", async () => {
+    wireQueries([], [claimed()]);
+    callMerchantWebhook.mockResolvedValue({ success: false, error: "Request failed with status code 422", permanent: true });
+    const r = await relayPendingBatch(10);
+    expect(r).toEqual({ dispatched: 1, retried: 0 });
+  });
+
+  it("merchant 5xx is NOT permanent → still retried (transient server error)", async () => {
+    wireQueries([], [claimed()]);
+    callMerchantWebhook.mockResolvedValue({
+      success: false,
+      error: "Request failed with status code 500",
+      delivered: [],
+      failed: [{ url: B, error: "Request failed with status code 500", permanent: false }],
+    });
+    const r = await relayPendingBatch(10);
+    expect(r).toEqual({ dispatched: 0, retried: 1 });
+  });
+
   it("all endpoints failing transiently → plain retry (no deliveredTargets)", async () => {
     wireQueries([], [claimed()]);
     callMerchantWebhook.mockResolvedValue({ success: false, error: "timeout of 10000ms exceeded", url: A, delivered: [], failed: [{ url: A, error: "timeout of 10000ms exceeded" }, { url: B, error: "timeout of 10000ms exceeded" }] });

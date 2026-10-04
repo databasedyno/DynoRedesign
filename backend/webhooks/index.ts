@@ -112,9 +112,11 @@ interface WebhookResult {
   success: boolean;
   error?: string;
   url?: string;
+  /** Delivery permanently failed (merchant-side 4xx / SSRF-blocked / bad redirect) — the outbox must NOT retry. */
+  permanent?: boolean;
   /** Per-target outcome (fan-out only) — lets the outbox retry just the endpoints that failed. */
   delivered?: string[];
-  failed?: Array<{ url: string; error: string }>;
+  failed?: Array<{ url: string; error: string; permanent?: boolean }>;
 }
 
 interface CallMerchantWebhookOptions {
@@ -207,7 +209,7 @@ const callMerchantWebhook = async (
       } catch (guardErr) {
         const errorMsg = guardErr instanceof Error ? guardErr.message : String(guardErr);
         webhookLogs.error(`[callMerchantWebhook] ❌ Skipping ${tgt.source} ${tgt.type}: ${errorMsg}`);
-        results.push({ success: false, error: errorMsg, url: tgt.url });
+        results.push({ success: false, error: errorMsg, url: tgt.url, permanent: true });
         continue;
       }
       webhookLogs.info(`[callMerchantWebhook] → ${tgt.source} ${tgt.type} target: ${tgt.url}`);
@@ -220,10 +222,10 @@ const callMerchantWebhook = async (
     // direct callers; the per-target `delivered` / `failed` lists let the outbox
     // dispatcher retry ONLY the endpoints that failed (no double delivery).
     const delivered = results.filter(r => r.success && r.url).map(r => r.url as string);
-    const failed = results.filter(r => !r.success).map(r => ({ url: r.url || "", error: r.error || "webhook delivery failed" }));
+    const failed = results.filter(r => !r.success).map(r => ({ url: r.url || "", error: r.error || "webhook delivery failed", permanent: r.permanent === true }));
     if (results.some(r => r.success)) return { success: true, delivered, failed };
     const firstErr = results.find(r => !r.success);
-    return { success: false, error: firstErr?.error || "webhook delivery failed", url: firstErr?.url, delivered, failed };
+    return { success: false, error: firstErr?.error || "webhook delivery failed", url: firstErr?.url, permanent: firstErr?.permanent === true, delivered, failed };
 
   } catch (error: unknown) {
     // Log but don't throw - webhook failure shouldn't block payment processing
@@ -407,6 +409,7 @@ const callUrlWithPayload = async (
     const maxRetries = 3;
     let lastError: Error | null = null;
     let finalResponseStatus: number | null = null;
+    let permanentFailure = false;
     let totalRetries = 0;
     const startTime = Date.now();
     
@@ -478,11 +481,17 @@ const callUrlWithPayload = async (
         // retrying is pointless and would just re-hit the same broken hop.
         if ((error as { noRetry?: boolean }).noRetry) {
           webhookLogs.error(`[callMerchantWebhook] ❌ ${urlType} to ${url} not retrying (redirect problem): ${errorMessage}`);
+          permanentFailure = true;
           break;
         }
         
         // Don't retry on client errors (4xx) except 429 (rate limit)
         if (finalResponseStatus && finalResponseStatus >= 400 && finalResponseStatus < 500 && finalResponseStatus !== 429) {
+          // Merchant-side rejection (their endpoint refused our payload) — retrying
+          // the SAME body won't help, so flag it PERMANENT so the outbox relay
+          // stops re-queuing it on backoff (prod sweep 2026-10: a dev endpoint
+          // returning 400 kept 12 outbox rows retrying for hours).
+          permanentFailure = true;
           webhookLogs.error(`[callMerchantWebhook] ❌ Client error ${finalResponseStatus}, not retrying: ${errorMessage}`);
           if (responseBodyStr) {
             webhookLogs.error(`[callMerchantWebhook] ❌ Response body: ${responseBodyStr.substring(0, 500)}`);
@@ -627,7 +636,7 @@ const callUrlWithPayload = async (
       );
     }
     
-    return { success: false, error: finalErrorMessage, url };
+    return { success: false, error: finalErrorMessage, url, permanent: permanentFailure };
     
   } catch (error: unknown) {
     const err = error as { message?: string };

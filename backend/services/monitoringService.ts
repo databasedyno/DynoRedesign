@@ -24,6 +24,46 @@ interface HealthCheckResult {
 const WEBHOOK_MIN_SAMPLE = 10;
 const WEBHOOK_WINDOW_MINUTES = 60;
 
+export interface WebhookDeliveryStats {
+  /** Successful deliveries in the window (webhook.test excluded). */
+  okTotal: number;
+  /** success + SERVER-side failures (5xx / timeout / conn). Merchant 4xx excluded. */
+  deliverableTotal: number;
+  /** Distinct companies with ≥1 deliverable attempt in the window. */
+  companiesActive: number;
+  /** Distinct companies whose deliverable attempts ALL failed. */
+  companiesDown: number;
+}
+
+/**
+ * Decide the "Webhook Delivery" service status from recent delivery outcomes.
+ *
+ * Fix (2026-10 prod sweep): a SINGLE misbehaving merchant endpoint used to flip
+ * the GLOBAL status to "outage" because the metric was a raw ok/total across all
+ * merchants (one dev endpoint returning HTTP 400 at high volume dragged everyone
+ * down even though the delivery backbone and every other merchant were fine).
+ * Now:
+ *   - merchant-side 4xx rejections are EXCLUDED upstream (we delivered; THEIR app
+ *     rejected the payload — that's their bug, not our delivery health), and
+ *   - health is the MORE FORGIVING of the raw volume rate and the per-company
+ *     rate, so one noisy (even high-volume) merchant cannot drag the global
+ *     signal down while the rest receive fine. A genuine system-wide failure
+ *     (all/most distinct companies failing) still surfaces as degraded/outage,
+ *     and a Redis-down backbone failure is caught separately as an outage.
+ */
+export function classifyWebhookDeliveryHealth(
+  s: WebhookDeliveryStats
+): "operational" | "degraded" | "outage" {
+  if (s.deliverableTotal < WEBHOOK_MIN_SAMPLE) return "operational";
+  const volumeRate = s.okTotal / s.deliverableTotal;
+  const companyRate =
+    s.companiesActive > 0 ? (s.companiesActive - s.companiesDown) / s.companiesActive : 1;
+  // ≥2 active companies: don't let one dominate — healthy if EITHER most
+  // deliveries OR most distinct merchants succeed. Single merchant: use volume.
+  const healthRate = s.companiesActive >= 2 ? Math.max(volumeRate, companyRate) : volumeRate;
+  return healthRate >= 0.9 ? "operational" : healthRate >= 0.5 ? "degraded" : "outage";
+}
+
 // Service definitions with actual health check implementations
 const MONITORED_SERVICES = [
   {
@@ -105,27 +145,46 @@ const MONITORED_SERVICES = [
       //    proxy spike could falsely flag as "degraded"). Source of truth is the
       //    same tbl_webhook_delivery_log the developer-health panel reads.
       try {
+        // Per-company aggregation so ONE noisy merchant can't dominate, and
+        // merchant-side 4xx rejections (their endpoint rejected our payload)
+        // are excluded from "deliverable" — those are a merchant bug, not a
+        // failure of OUR delivery backbone. webhook.test (SSRF suite) excluded.
         const rows = (await sequelize.query(
-          `SELECT COUNT(*)::int AS total,
-                  COUNT(*) FILTER (WHERE status = 'success')::int AS ok,
-                  COALESCE(ROUND(AVG(response_time_ms) FILTER (WHERE status = 'success'))::int, 0) AS avg_ms
-             FROM tbl_webhook_delivery_log
-            WHERE created_at > NOW() - (:mins || ' minutes')::interval`,
+          `WITH raw AS (
+             SELECT company_id, status, response_status, response_time_ms
+               FROM tbl_webhook_delivery_log
+              WHERE created_at > NOW() - (:mins || ' minutes')::interval
+                AND COALESCE(event_type, '') <> 'webhook.test'
+           ),
+           per_company AS (
+             SELECT company_id,
+                    COUNT(*) FILTER (WHERE status = 'success')::int AS ok,
+                    COUNT(*) FILTER (
+                      WHERE status <> 'success'
+                        AND (response_status IS NULL OR response_status < 400 OR response_status >= 500)
+                    )::int AS server_fail
+               FROM raw
+              GROUP BY company_id
+           )
+           SELECT
+             (SELECT COALESCE(SUM(ok), 0) FROM per_company)::int AS ok_total,
+             (SELECT COALESCE(SUM(ok + server_fail), 0) FROM per_company)::int AS deliverable_total,
+             (SELECT COUNT(*) FROM per_company WHERE ok + server_fail > 0)::int AS companies_active,
+             (SELECT COUNT(*) FROM per_company WHERE ok + server_fail > 0 AND ok = 0)::int AS companies_down,
+             (SELECT COALESCE(ROUND(AVG(response_time_ms) FILTER (WHERE status = 'success'))::int, 0) FROM raw) AS avg_ms`,
           { replacements: { mins: WEBHOOK_WINDOW_MINUTES }, type: QueryTypes.SELECT }
-        )) as Array<{ total: number; ok: number; avg_ms: number }>;
-        const total = Number(rows[0]?.total || 0);
-        const ok = Number(rows[0]?.ok || 0);
-        const avgMs = Number(rows[0]?.avg_ms || 0);
+        )) as Array<{ ok_total: number; deliverable_total: number; companies_active: number; companies_down: number; avg_ms: number }>;
+        const r = rows[0] || { ok_total: 0, deliverable_total: 0, companies_active: 0, companies_down: 0, avg_ms: 0 };
+        const avgMs = Number(r.avg_ms || 0);
         // Report a MEANINGFUL latency: the average successful delivery round-trip
         // (external HTTP POST to the merchant), not the local Redis ping.
         const latency = avgMs > 0 ? avgMs : Date.now() - start;
-        // Idle / very low volume → nothing to worry about.
-        if (total < WEBHOOK_MIN_SAMPLE) {
-          return { healthy: true, latency, status: "operational" };
-        }
-        const successRate = ok / total;
-        const status: HealthCheckResult["status"] =
-          successRate >= 0.9 ? "operational" : successRate >= 0.5 ? "degraded" : "outage";
+        const status = classifyWebhookDeliveryHealth({
+          okTotal: Number(r.ok_total || 0),
+          deliverableTotal: Number(r.deliverable_total || 0),
+          companiesActive: Number(r.companies_active || 0),
+          companiesDown: Number(r.companies_down || 0),
+        });
         return { healthy: true, latency, status };
       } catch (error: unknown) {
         // The delivery-log probe failed but Redis is up — don't fabricate a
@@ -567,6 +626,7 @@ export const computeLiveHealth = async (): Promise<Array<{
 export default {
   runHealthChecks,
   computeLiveHealth,
+  classifyWebhookDeliveryHealth,
   getDailyServiceStatus,
   getCurrentServiceStatus,
   calculateServiceUptime,

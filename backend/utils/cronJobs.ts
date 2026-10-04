@@ -418,6 +418,24 @@ export const setupHealthCheckCron = () => {
     }
   });
 
+  // Run ONE snapshot shortly after boot (leader only — this cron is leader-gated).
+  // Fix (prod sweep 2026-10): the */15 cron fires only at :00/:15/:30/:45, so a
+  // deploy/container-swap that lands mid-interval skipped the next tick and left
+  // a 15–30 min gap in tbl_service_health (looked like an incident). Kicking off
+  // immediately on boot fills that gap. 8s delay lets DB/Redis/SSH-tunnel settle
+  // so the first probe isn't a false "degraded".
+  setTimeout(() => {
+    (async () => {
+      try {
+        const monitoringService = require("../services/monitoringService").default;
+        await monitoringService.runHealthChecks();
+        cronLogger.info("[Monitor] Boot health snapshot written (fills post-deploy gap)");
+      } catch (e) {
+        log(`Boot Health Snapshot Error: ${e}`, "error");
+      }
+    })();
+  }, 8000);
+
   // Prune health check records older than 7 days — runs daily at 3:00 AM UTC
   // Prevents unbounded tbl_service_health growth (~480 rows/day × 7 days = ~3,360 rows max)
   cron.schedule("0 3 * * *", async () => {
@@ -427,6 +445,21 @@ export const setupHealthCheckCron = () => {
     } catch (e) {
       log(`Health Check Pruning Error: ${e}`, "error");
       captureError(e, 'cron', { extraContext: 'pruneOldHealthChecks' });
+    }
+  });
+
+  // Reconcile stale 'received' inbound-event rows daily at 3:15 AM UTC. Fix
+  // (prod sweep 2026-10): rows that pre-dated the markProcessed/markSkipped
+  // wiring sit in 'received' forever and inflate the "unprocessed backlog"
+  // metric. This ages out anything stuck > 24h so monitoring reflects reality.
+  cron.schedule("15 3 * * *", async () => {
+    try {
+      const { reconcileStaleReceivedInboundEvents } = require("../services/idempotency/inboundEventService");
+      const n = await reconcileStaleReceivedInboundEvents(24);
+      if (n > 0) cronLogger.info(`[InboundEvent] daily reconcile marked ${n} stale 'received' row(s) as skipped`);
+    } catch (e) {
+      log(`Inbound Event Reconcile Error: ${e}`, "error");
+      captureError(e, 'cron', { extraContext: 'reconcileStaleReceivedInboundEvents' });
     }
   });
 
