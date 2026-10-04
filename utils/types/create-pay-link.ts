@@ -109,7 +109,7 @@ export interface PaymentSettingsBasicProps {
   currencies: string[];
   expireOpen: boolean;
   blockchainFees: string;
-  disable: any;
+  disable?: boolean;
   handlePaymentSettingsChange: (field: string, value: string) => void;
   handlePaymentSettingsBlur: (field: string) => void;
   handleCurrencyOpen: (e: React.MouseEvent<HTMLButtonElement>) => void;
