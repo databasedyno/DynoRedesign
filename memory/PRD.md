@@ -1,3 +1,39 @@
+# 2026-10-04 (same pod, later) — REDEPLOY-SURVIVING STATE (all 6) + GITHUB BUILD/DEPLOY RED FIX
+# USER: "implement all 6 (restart-surviving state) also fix why build and deploy failed on github" (gave a classic PAT).
+# GITHUB RED (runs 37188147406 Deploy + 37188147418 Preflight on f37e2831, repo databasedyno/DynoRedesign): BOTH failed on
+#   `tsc` → `__tests__/feeWalletMonitorDigest.test.ts(20,105): error TS2556` (my own test from the morning: `jest.fn(() => …)`
+#   spread with `...a`). Backend tsconfig INCLUDES __tests__, Dockerfile `yarn build` = `tsc`, so a test type error blocks the
+#   image build. FIX: `jest.fn((..._args: unknown[]) => …)`. LESSON: run `./node_modules/.bin/tsc --noEmit` in backend AFTER
+#   adding test files (I had run it before creating the test). Docker/Deploy itself is fine; it fails only when tsc fails.
+#   Not pushed by me (platform rule) → user must "Save to GitHub" → Preflight + Deploy to Droplet re-run. Token was used only
+#   in-shell for the Actions API (read); advised rotation since it was pasted in chat.
+# DEPLOY MODEL: droplet /opt/dynopay `docker compose up -d --force-recreate` after a canary (ENABLE_BACKGROUND_JOBS=false on
+#   :8002). Container memory wiped each deploy; Postgres + Redis (Railway, REDIS_PUBLIC_URL; preview uses DB index /1) external.
+# AUDIT (module-level state) — survives already: checkout sessions, Redis locks/leader election, Redis sliding-window rate
+#   limiter, account lockout, BullMQ email/webhook/brand-welcome queues, error-digest buffer (Redis), volatility state, Binance
+#   price cache (synced), fee-wallet alert state (morning), graceful SIGTERM. Fine to lose: caches (fee rates, minimums, FX,
+#   landing), platform settings (DB reload), conversion fast-poll, WS reconnect, SSE, 200-line log ring.
+# IMPLEMENTED (new utils/durableState.ts: countHit [atomic Lua INCR+EXPIRE], claimOnce [SET NX EX], loadJson/saveJson/remove/
+#   loadAllJson [SCAN]; prefix `dynopay:durable:`; all degrade to null/false when Redis is down, throttled warn):
+#   1 botProtection: hits `bot:hits:<ip>` (10 min) + block `bot:blocked:<ip>` (1h) in Redis; hydrateBlockedIps() restores blocks
+#     — called in server.ts right after connectRedis() AND lazily in the middleware (hydration at import time failed with
+#     "The client is closed" → loadAllJson now returns null on failure so a failed hydration is RETRIED, not memoised).
+#     Middleware is async now. 2 errorMonitoringService: memory cooldown + durable claimOnce `error:immediate:<fp>` 6h before
+#     sendImmediateAlert. 3 rpcHealthMonitor: hydrate/persist `rpc:health` (sha1-hashed URL keys, 24h) around checkRpcHealth.
+#   4 slackAlertService.shouldSuppress async via countHit `alert:dedupe:<hash>` 5 min (cap 3). 5 orderController resend:
+#     countHit `order:resend:<ref>` 24h (cap 5). 6 routes/index unsigned Tatum webhooks: countHit `webhook:unsigned:<ip>` 1h
+#     (cap 100); verifyTatumWebhookSource async.
+# TESTS: __tests__/durableState.test.ts (fake node-redis with NX/EX/INCR semantics; mock path uses "../utils/redisInstance.ts"
+#   because the unit moduleNameMapper rewrites the bare specifier to the shared mock) + __tests__/durableRestartSurvival.test.ts
+#   (module reload = new container; Redis store kept in test scope): bot block + hit counts survive, works in memory when Redis
+#   down and hydrates later; critical-error alert not re-sent after reload; RPC outage not re-paged + RECOVERED announced;
+#   Slack burst capped at 3 across reload. Full unit project: 44 suites / 772 tests green. tsc BE+FE 0, eslint 0.
+# LIVE VERIFIED on preview (testing_agent iteration_262 + self): 5 probes from X-Forwarded-For 203.0.113.91 → 403, normal path
+#   403, Redis keys present (TTL 3600), `supervisorctl restart backend` → still 403, other IP 200, log "Restored 1 auto-blocked
+#   IP(s) from Redis"; QA keys cleaned. Note: ingress appends its IP but middleware takes FIRST XFF entry (spoofable → test aid).
+# OPEN: payout-digest per-brand breakdown (offered, not built); owner to confirm the 0.031 ETH fee-wallet transfer; droplet SSH key.
+
+
 # 2026-10-04 (vault pod 0b940d6a, SAFE MODE, LIVE prod DB + SEPARATE preview Redis) — 3 INVESTIGATIONS + FIXES
 # USER: (1) locate+investigate merchant emmanuelniyongabo54@gmail.com's USDT complaint; (2) ETH gas alerts send two
 #   conflicting emails ($80 vs almost empty) → unify; (3) error digest with 3 errors (BullMQ "Custom Id cannot contain :",

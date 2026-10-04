@@ -1,5 +1,10 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-04 (later) — redeploy-surviving state (6 items) + GitHub red fix — COMMITTED by platform (531660415), NOT pushed
+- GitHub Actions (repo `databasedyno/DynoRedesign`) went red on f37e2831 because `backend/__tests__/feeWalletMonitorDigest.test.ts` had a TS2556 error and backend `yarn build` = `tsc` includes `__tests__`. Fixed. User must **Save to GitHub** to re-run Preflight + "Deploy to Droplet (Option C)". ALWAYS run `cd /app/backend && ./node_modules/.bin/tsc --noEmit` after touching any test file.
+- New `backend/utils/durableState.ts` + Redis persistence in botProtection, errorMonitoringService, rpcHealthMonitor, slackAlertService, orderController (resend), routes/index (unsigned webhooks). Details + test files in PRD.md top block. Redis keys live under `dynopay:durable:*`.
+- Bot-protection QA recipe (preview only): 5× GET /api/pay/creator/wp-json with `User-Agent: node` + `X-Forwarded-For: <TEST-NET ip>` → blocked; restart backend → still 403. Clean up `dynopay:durable:bot:hits:<ip>` and `bot:blocked:<ip>` in preview Redis afterwards.
+
 ## 2026-10-04 session (pod 0b940d6a) — merchant complaint RCA + gas-alert unification + error-digest fixes (UNCOMMITTED)
 - Full write-up at the top of `memory/PRD.md` (2026-10-04 block). Code: `pages/pay/index.tsx` (activeRef), `Components/Page/Pay3Components/CleanCheckoutV2.tsx` (amount<=0 message), `backend/services/feeWalletMonitor.ts` (consolidated email + Redis alert state), `backend/controller/paymentController.ts` (checkFeeBalance = DB refresh only), `backend/services/email/brandWelcomeScheduler.ts` (jobId), `backend/middleware/botProtection.ts` (no captureError), new `backend/__tests__/feeWalletMonitorDigest.test.ts`, `backend/scripts/render_gas_alert_digest.ts`.
 - **Preview Redis is NOT prod Redis** (prod checkout refs 404 on preview). Seed QA sessions with `node ../memory/tmp/qa/seed_preview_donation_sessions.js` (from /app/backend; 6h TTL) → `/pay?d=QAPAR1` (campaign) / `QACHD1` ($50 child). Mock `POST /api/pay/startDonation` + abort `addPayment` in browser tests so nothing is written to the LIVE prod DB.
