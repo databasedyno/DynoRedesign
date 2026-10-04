@@ -1,5 +1,9 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-04 (latest) — payout digest inbox notification + all-brands indication — NOT pushed
+- Sunday payout digest now (a) says "covers all N brands" + per-brand table when the account has >1 brand and (b) creates a `payout_digest_weekly` inbox notification per brand (idempotent/week) on every send incl. the Payouts "Send me a preview" button. Details in PRD.md top block; test `__tests__/payoutDigestAllBrands.test.ts`; harness `backend/scripts/render_payout_digest.ts <userId>` (read-only).
+- User must **Save to GitHub** → deploy. Then press "Send me a preview" (Payouts page) once to surface this week's digest in the inbox.
+
 ## 2026-10-04 (later) — redeploy-surviving state (6 items) + GitHub red fix — COMMITTED by platform (531660415), NOT pushed
 - GitHub Actions (repo `databasedyno/DynoRedesign`) went red on f37e2831 because `backend/__tests__/feeWalletMonitorDigest.test.ts` had a TS2556 error and backend `yarn build` = `tsc` includes `__tests__`. Fixed. User must **Save to GitHub** to re-run Preflight + "Deploy to Droplet (Option C)". ALWAYS run `cd /app/backend && ./node_modules/.bin/tsc --noEmit` after touching any test file.
 - New `backend/utils/durableState.ts` + Redis persistence in botProtection, errorMonitoringService, rpcHealthMonitor, slackAlertService, orderController (resend), routes/index (unsigned webhooks). Details + test files in PRD.md top block. Redis keys live under `dynopay:durable:*`.

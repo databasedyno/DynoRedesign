@@ -1,0 +1,21 @@
+{
+  "summary": "Backend-only verification of payout-digest all-brands fix. All 5 request items pass: (1) Jest unit suite __tests__/payoutDigestAllBrands.test.ts → 6/6 pass (aggregation, multi-brand email note+table, single-brand no-note, notification text, one-notif-per-brand, idempotency). (2) Read-only render harness scripts/render_payout_digest.ts 1 → subject 'Your week on Dynopay: $2,050.40 USD settled', totalBrands=6, brands list contains 'The Dev Store' ($1,394.17/23) and 'SMADAV' ($656.23/9), notification.message contains 'This digest covers all 6 brands on your account.' and 'Brands with settled payments:', htmlHasAllBrandsNote=true, htmlHasPerBrand=true. (3) Backend tsc --noEmit exit 0; root tsc --noEmit -p tsconfig.json exit 0. (4) Regression: localhost:8001/health 200 (database+redis connected), preview /api/kb/articles 200, preview /notifications 200 (no login performed). (5) Static review confirmed: notificationController NOTIFICATION_TYPES.PAYOUT_DIGEST_WEEKLY='payout_digest_weekly' (line 30) and typeToPreference maps it to 'payout_digest_weekly' (line 470); NotificationPage.tsx targetFor has /payout_digest/ branch (line 232) BEFORE /weekly|summary/ branch (line 233) so routing is correct. No preview DB writes were performed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/__tests__/payoutDigestAllBrands.test.ts",
+    "/app/backend/scripts/render_payout_digest.ts",
+    "/tmp/payout_digest_1.html"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Routing order in NotificationPage.targetFor is correct: /payout_digest/ precedes /weekly|summary/ — don't let future edits reorder these (would swallow payout_digest_weekly into the generic weekly route)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "skipped (per request)"},
+  "test_credentials": "none used — live prod DB, read-only verification only",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Payout-digest all-brands fix fully verified via unit tests + SELECT-only render harness against live DB. Preview backend is wired to LIVE PROD PostgreSQL — do NOT exercise write endpoints (no login, no POST payout-digest/preview). Outbound email is suppressed in preview (DISABLE_OUTBOUND_EMAIL=true) and crons are off. The one-notif-per-brand + idempotency path is covered only by the unit test; do not call the live endpoint to re-verify."
+}

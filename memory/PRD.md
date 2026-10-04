@@ -1,3 +1,29 @@
+# 2026-10-04 (same pod, later still) — PAYOUT DIGEST: in-app notification + "covers all N brands" (platform-committed, NOT pushed)
+# USER: "the recent weekly payout digest did not appear in dashboard notification page for onarrival21@gmail.com and there
+#   should be indication that it applies to all brands on the account if that's true".
+# FINDINGS: two different weekly things exist — (a) utils/cronJobs.ts Monday 09:00Z "Your Weekly Summary" in-app notification
+#   (type weekly_summary, per company, last 09-28) and (b) payoutDigestService Sunday 08:00Z EMAIL (no inbox row at all).
+#   buildPayoutDigest(userId) has no company filter → sums all brands; the email never said so. Inbox is company-scoped
+#   (frontend passes company_id), so a single company_id=NULL row would never show.
+# FIX (backend/services/payoutDigestService.ts): PayoutDigest.brands (per-brand settled split via tbl_company LEFT JOIN
+#   tbl_user_transaction) + totalBrands; renderPayoutDigestEmail() split out of sendPayoutDigestEmail (pure, exported); when
+#   !companyId && totalBrands>1 the email shows a green scope note "This digest covers all N brands on your account." + a
+#   "Settled per brand" feeTable (rows per active brand, total "All brands combined"); top-coins table titled "Top coins by
+#   volume" (was the default "Fee Breakdown" header). After a successful send (cron AND the Payouts "Send me a preview"
+#   button) createPayoutDigestNotifications() creates ONE tbl_notification per brand of the user, type `payout_digest_weekly`
+#   (NOTIFICATION_TYPES.PAYOUT_DIGEST_WEEKLY → preference payout_digest_weekly), title = email subject, message = period +
+#   count + fees + net + all-brands note + "Brands with settled payments: A $x · B $y.", data {all_brands,total_brands,brands,
+#   …}; idempotent per brand per 6 days (SELECT 1 FROM tbl_notification … created_at >= NOW()-6 days). i18n keys added to
+#   locales/en/emails.json (other langs fall back to EN). Frontend NotificationPage.targetFor: /payout_digest/ → /transactions
+#   ?range=7d placed BEFORE the /weekly|summary/ branch. kindOf → "payments" tab, familyOf → chart icon (regex /weekly/).
+# VERIFIED: __tests__/payoutDigestAllBrands.test.ts 6/6; read-only harness backend/scripts/render_payout_digest.ts <userId>
+#   (user 1: $2,050.40, totalBrands 6, Dev Store $1,394.17/23 + SMADAV $656.23/9; screenshot OK); tsc BE+FE 0; eslint 0;
+#   FE prod build rebuilt+swapped; testing_agent iteration_263 PASS (backend-only, no prod writes).
+# BACKFILL for THIS week: not done from the pod (prod DB write). After deploy the owner can click Payouts → DigestCard
+#   "Send me a preview" once → email + 6 inbox rows (idempotent). On preview the same endpoint would create the rows but
+#   suppress the email (DISABLE_OUTBOUND_EMAIL) — only with explicit owner permission.
+
+
 # 2026-10-04 (same pod, later) — REDEPLOY-SURVIVING STATE (all 6) + GITHUB BUILD/DEPLOY RED FIX
 # USER: "implement all 6 (restart-surviving state) also fix why build and deploy failed on github" (gave a classic PAT).
 # GITHUB RED (runs 37188147406 Deploy + 37188147418 Preflight on f37e2831, repo databasedyno/DynoRedesign): BOTH failed on
