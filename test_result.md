@@ -1,4 +1,32 @@
 # ============================================================================
+# >>> 2026-10-04 (test-account purge, vault pod) — PROD DATA CLEANUP (no app code)
+# ============================================================================
+#  POD: current preview. SAFE MODE, LIVE prod DB. Owner/admin: onarrival21@gmail.com.
+#  WHAT: user asked to identify + remove test MERCHANT accounts. Removed 40 QA
+#  signups on the @dynopay-test.com / @dynopaytest.com domains (ALL $0 volume),
+#  using the app's OWN softDeleteAccount()->purgeAccount() cascade (guards intact).
+#  user_ids: 2,3,4,5,6,7,8,11,12,30,31,107,108,109,110,111,114,115,116,117,168,
+#  169,170,171,172,173,194,195,196,197,274,275,339,340,341,342,345,346,347,348.
+#   - 39 purged directly; user 8 needed its merchant_temp_address (16 rows, 0 pool
+#     sweeps/txns) + merchant_wallet (2) cleared first (FK = NO ACTION) — done in a txn.
+#   - Also cleared 48 orphaned tbl_login_activities rows (that table has a user_id
+#     column but NO FK, so the purge cascade missed it).
+#  EXPLICITLY EXCLUDED (left intact, per user): onarrival21+...@gmail.com (87-96),
+#  testerm678@gmail.com (165), testdyno@dyno.pt (9), @example.com (71,97,221,306),
+#  @mailinator.com (312,313). onarrival21@gmail.com (user 1) KEPT ALWAYS.
+#  RESULT: 0 remaining @dynopay-test* accounts; tbl_user 355 -> 316 (a +1 real
+#  signup arrived on the live DB meanwhile). The 7 pre-existing soft-deleted
+#  accounts were untouched. Outbound email suppressed (DISABLE_OUTBOUND_EMAIL).
+#  REUSABLE TOOL (dry-run by default, --apply to execute):
+#    backend/scripts/purge_test_accounts.ts   (edit ALLOWED_DOMAINS to target more)
+#  Identity backup of the 40: backend/scripts/purge_test_accounts_backup_*.json
+#  GOTCHA for future account-deletion work: app's purgeAccount() cascade does NOT
+#  clean tbl_login_activities (no FK) nor tbl_merchant_temp_address/-wallet (NO
+#  ACTION FKs) — accounts with those rows get left soft-deleted.
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-10-04 (fee-payer selector bug, vault pod) — FRONTEND CHANGE
 #     Awaiting testing_agent verification.
 # ============================================================================
