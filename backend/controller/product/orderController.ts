@@ -223,10 +223,26 @@ export const downloadAsset = async (
 
 /**
  * Regenerate signed URLs + resend receipt email. Rate-limit 5/day/order.
- * Uses a simple in-memory counter (per-instance, ok for MVP).
+ * Counter lives in Redis (fixed 24h window) so a redeploy does not reset it;
+ * the in-memory map is only the fallback when Redis is unavailable.
  */
 const resendCounter = new Map<string, { count: number; resetAt: number }>();
 const RESEND_LIMIT_PER_DAY = 5;
+const RESEND_WINDOW_MS = 24 * 3600_000;
+
+const countResendAttempt = async (ref: string): Promise<number> => {
+  const { countHit } = await import("../../utils/durableState");
+  const durable = await countHit(`order:resend:${ref}`, RESEND_WINDOW_MS / 1000);
+  if (durable !== null) return durable;
+  const now = Date.now();
+  const entry = resendCounter.get(ref);
+  if (entry && entry.resetAt > now) {
+    entry.count += 1;
+    return entry.count;
+  }
+  resendCounter.set(ref, { count: 1, resetAt: now + RESEND_WINDOW_MS });
+  return 1;
+};
 
 export const resendDownloadLinks = async (
   req: express.Request,
@@ -244,19 +260,12 @@ export const resendDownloadLinks = async (
       return errorResponseHelper(res, 400, "Order is not paid.");
     }
 
-    const now = Date.now();
-    const entry = resendCounter.get(ref);
-    if (entry && entry.resetAt > now) {
-      entry.count += 1;
-      if (entry.count > RESEND_LIMIT_PER_DAY) {
-        return errorResponseHelper(
-          res,
-          429,
-          "Too many resend attempts. Please try again tomorrow."
-        );
-      }
-    } else {
-      resendCounter.set(ref, { count: 1, resetAt: now + 24 * 3600_000 });
+    if ((await countResendAttempt(ref)) > RESEND_LIMIT_PER_DAY) {
+      return errorResponseHelper(
+        res,
+        429,
+        "Too many resend attempts. Please try again tomorrow."
+      );
     }
 
     // Re-run the fan-out with idempotency — handleCartPaymentSettled early-returns

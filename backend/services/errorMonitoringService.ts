@@ -220,6 +220,18 @@ const shouldSendImmediate = (fingerprint: string): boolean => {
   return true;
 };
 
+/**
+ * Durable second gate: the cooldown above lives in process memory, so every
+ * redeploy used to re-page the SAME critical error within minutes. Redis
+ * SET NX EX remembers the claim across restarts; when Redis is unreachable the
+ * in-memory decision stands (null → allow).
+ */
+const claimImmediateAlertDurable = async (fingerprint: string): Promise<boolean> => {
+  const { claimOnce } = await import("../utils/durableState");
+  const claimed = await claimOnce(`error:immediate:${fingerprint}`, Math.ceil(IMMEDIATE_ALERT_COOLDOWN_MS / 1000));
+  return claimed !== false;
+};
+
 export const captureError = (
   error: unknown,
   component: ErrorComponent,
@@ -287,9 +299,19 @@ export const captureError = (
           `[ErrorMonitor] Immediate alert throttled (duplicate within cooldown) — buffered for digest: ${entry.message.substring(0, 80)}`
         );
       } else {
-        sendImmediateAlert(entry).catch((e) => {
-          cronLogger.error(`[ErrorMonitor] Failed to send immediate alert: ${(e as Error).message}`);
-        });
+        claimImmediateAlertDurable(entry.fingerprint)
+          .then((allowed) => {
+            if (!allowed) {
+              cronLogger.warn(
+                `[ErrorMonitor] Immediate alert throttled (already sent before restart, within cooldown) — buffered for digest: ${entry.message.substring(0, 80)}`
+              );
+              return;
+            }
+            return sendImmediateAlert(entry);
+          })
+          .catch((e) => {
+            cronLogger.error(`[ErrorMonitor] Failed to send immediate alert: ${(e as Error).message}`);
+          });
       }
     }
   } catch (captureErr) {

@@ -19,6 +19,8 @@ import { captureError } from "./errorMonitoringService";
 import { sendAlert } from "./slackAlertService";
 import { cronLogger } from "../utils/loggers";
 import { getTatumApiKey } from "../utils/tatumAuth";
+import { createHash } from "crypto";
+import { loadJson, saveJson } from "../utils/durableState";
 
 type Chain = "ETH" | "POLYGON";
 const CHAINS: Chain[] = ["ETH", "POLYGON"];
@@ -35,10 +37,44 @@ const FAILURE_THRESHOLD = Number(process.env.RPC_HEALTH_FAILURE_THRESHOLD || 2);
 const failStreak = new Map<string, number>();
 const alerted = new Map<string, boolean>();
 
+// ── Durable outage memory (survives redeploys) ────────────────────────────────
+// Without this a deploy mid-outage reset the streak: the admin was paged AGAIN
+// two cycles later and the "RECOVERED" line could be skipped. Keys are hashed so
+// no RPC URL (which may embed an API key) is written to Redis.
+const HEALTH_STATE_KEY = "rpc:health";
+const HEALTH_STATE_TTL_SEC = 24 * 3600;
+type PersistedHealth = Record<string, { streak: number; alerted: boolean }>;
+const urlKey = (url: string): string => createHash("sha1").update(url).digest("hex").slice(0, 16);
+let healthHydrated = false;
+
+async function hydrateHealthState(): Promise<void> {
+  if (healthHydrated) return;
+  healthHydrated = true;
+  const saved = await loadJson<PersistedHealth>(HEALTH_STATE_KEY);
+  if (!saved) return;
+  for (const chain of CHAINS) {
+    for (const url of getRpcUrls(chain)) {
+      const s = saved[urlKey(url)];
+      if (!s || failStreak.has(url)) continue;
+      failStreak.set(url, s.streak);
+      alerted.set(url, s.alerted);
+    }
+  }
+}
+
+async function persistHealthState(): Promise<void> {
+  const out: PersistedHealth = {};
+  for (const [url, streak] of failStreak) {
+    if (streak > 0 || alerted.get(url)) out[urlKey(url)] = { streak, alerted: alerted.get(url) === true };
+  }
+  await saveJson(HEALTH_STATE_KEY, out, HEALTH_STATE_TTL_SEC);
+}
+
 /** Test hook: clear all health state. */
 export function resetRpcHealthState(): void {
   failStreak.clear();
   alerted.clear();
+  healthHydrated = false;
 }
 
 /** Current consecutive-failure streak for an endpoint. */
@@ -132,6 +168,7 @@ async function pingRpc(chain: Chain, url: string, attempt = 1): Promise<PingResu
  */
 export async function checkRpcHealth(): Promise<void> {
   try {
+    await hydrateHealthState();
     for (const chain of CHAINS) {
       const urls = getRpcUrls(chain);
       if (urls.length === 0) continue;
@@ -192,6 +229,7 @@ export async function checkRpcHealth(): Promise<void> {
         cronLogger.info(`[RPCHealth] ${chain}: ${healthy.length}/${urls.length} endpoints healthy`);
       }
     }
+    await persistHealthState();
   } catch (e) {
     cronLogger.error(`[RPCHealth] check failed: ${(e as Error).message}`);
   }

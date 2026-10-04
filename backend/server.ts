@@ -9,7 +9,7 @@ import router from "./routes";
 import { setupSwagger } from "./swagger";
 import sanitizeInputMiddleware from "./middleware/sanitizeInput";
 import requestLoggerMiddleware from "./middleware/requestLogger";
-import botProtectionMiddleware from "./middleware/botProtection";
+import botProtectionMiddleware, { hydrateBlockedIps } from "./middleware/botProtection";
 import adminAuthMiddleware from "./middleware/adminAuthMiddleware";
 
 // Load environment variables FIRST
@@ -1553,6 +1553,8 @@ const startServer = async () => {
   log('Connecting to Redis...', 'info');
   await connectRedis();
   log('Redis connected successfully', 'info');
+  // Restore restart-surviving state that lives in Redis (auto-blocked scanner IPs).
+  await hydrateBlockedIps();
   
   // Clean up stale locks from dead processes (prevents "stuck cron" after unclean restart)
   await cleanupStaleLocks();

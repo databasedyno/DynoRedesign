@@ -4,7 +4,7 @@
  * escalation bypass, 2-read empty confirmation, and Redis-persisted alert state
  * surviving a module reload (restart/redeploy).
  */
-const sendMock = jest.fn(() => Promise.resolve({ ok: true }));
+const sendMock = jest.fn((..._args: unknown[]) => Promise.resolve({ ok: true }));
 const balances: Record<string, string> = {};
 
 jest.mock("../apis/tatumApi", () => ({

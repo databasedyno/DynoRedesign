@@ -6,6 +6,7 @@
  */
 import { raw as envRaw } from "../utils/config";
 import axios from "axios";
+import { createHash } from "crypto";
 import { apiLogger } from "../utils/loggers";
 
 const SLACK_WEBHOOK_URL = envRaw("SLACK_WEBHOOK_URL");
@@ -176,13 +177,25 @@ const dedupKey = (payload: AlertPayload): string =>
   `${payload.severity}:${payload.title}:${payload.message}`.substring(0, 200);
 
 /**
- * Check if alert should be suppressed (dedup + rate limit)
+ * Check if alert should be suppressed (dedup + rate limit).
+ * The count lives in Redis (fixed 5-min window) so a redeploy inside a burst
+ * does not reset it; the in-memory map is the fallback when Redis is down.
  */
-const shouldSuppress = (payload: AlertPayload): boolean => {
+const shouldSuppress = async (payload: AlertPayload): Promise<boolean> => {
   const key = dedupKey(payload);
   const now = Date.now();
-  const entry = alertHistory.get(key);
 
+  const { countHit } = await import("../utils/durableState");
+  const durable = await countHit(
+    `alert:dedupe:${createHash("sha1").update(key).digest("hex").slice(0, 16)}`,
+    Math.ceil(DEDUP_WINDOW_MS / 1000)
+  );
+  if (durable !== null) {
+    alertHistory.set(key, { count: durable, firstSeen: now, lastSent: now });
+    return durable > MAX_ALERTS_PER_WINDOW;
+  }
+
+  const entry = alertHistory.get(key);
   if (!entry || now - entry.firstSeen > DEDUP_WINDOW_MS) {
     alertHistory.set(key, { count: 1, firstSeen: now, lastSent: now });
     return false;
@@ -231,7 +244,7 @@ const sendWithRetry = async (
  * Send alert to all configured channels (with dedup + retry)
  */
 export const sendAlertSafe = async (payload: AlertPayload): Promise<{ slack: boolean; discord: boolean; suppressed: boolean }> => {
-  if (shouldSuppress(payload)) {
+  if (await shouldSuppress(payload)) {
     apiLogger.warn(`[Alert] Suppressed duplicate: ${payload.title}`);
     return { slack: false, discord: false, suppressed: true };
   }

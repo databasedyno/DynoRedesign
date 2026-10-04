@@ -73,11 +73,26 @@ const TATUM_KNOWN_IPS = new Set([
   '34.107.0.0',      // GCP additional webhook IPs
 ]);
 
-// Track unsigned webhook counts per IP (sliding window)
+// Track unsigned webhook counts per IP (fixed window). Redis is the source of
+// truth so a redeploy does not reset the limit; memory is the fallback only.
 const unsignedWebhookCounts = new Map<string, { count: number; resetAt: number }>();
 const UNSIGNED_RATE_LIMIT = 100; // max unsigned webhooks per IP per hour
 const UNSIGNED_RATE_WINDOW = 3600000; // 1 hour in ms
 const UNSIGNED_CLEANUP_INTERVAL = 600000; // Clean up stale entries every 10 minutes
+
+const countUnsignedWebhook = async (clientIp: string): Promise<number> => {
+  const { countHit } = await import("../utils/durableState");
+  const durable = await countHit(`webhook:unsigned:${clientIp}`, UNSIGNED_RATE_WINDOW / 1000);
+  if (durable !== null) return durable;
+  const now = Date.now();
+  const counter = unsignedWebhookCounts.get(clientIp);
+  if (counter && counter.resetAt > now) {
+    counter.count++;
+    return counter.count;
+  }
+  unsignedWebhookCounts.set(clientIp, { count: 1, resetAt: now + UNSIGNED_RATE_WINDOW });
+  return 1;
+};
 
 // Periodic cleanup to prevent memory leak from accumulating IPs
 setInterval(() => {
@@ -89,7 +104,7 @@ setInterval(() => {
   }
 }, UNSIGNED_CLEANUP_INTERVAL);
 
-const verifyTatumWebhookSource = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const verifyTatumWebhookSource = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const secret = config.raw("TATUM_WEBHOOK_SECRET");
   if (!secret) {
     // No secret configured — skip verification (backward compatible)
@@ -104,17 +119,11 @@ const verifyTatumWebhookSource = (req: express.Request, res: express.Response, n
     const isTatumIp = TATUM_KNOWN_IPS.has(clientIp);
 
     // Rate-limit unsigned webhooks per IP
-    const now = Date.now();
-    const counter = unsignedWebhookCounts.get(clientIp);
-    if (counter && counter.resetAt > now) {
-      counter.count++;
-      if (counter.count > UNSIGNED_RATE_LIMIT) {
-        apiLogger.warn(`[WebhookAuth] Rate-limited unsigned webhook from ${clientIp} (${counter.count} in window)`);
-        logWebhookValidationFailure('tatum', clientIp, 'Unsigned webhook rate limit exceeded');
-        return res.status(429).json({ error: "Too many unsigned requests" });
-      }
-    } else {
-      unsignedWebhookCounts.set(clientIp, { count: 1, resetAt: now + UNSIGNED_RATE_WINDOW });
+    const hits = await countUnsignedWebhook(clientIp);
+    if (hits > UNSIGNED_RATE_LIMIT) {
+      apiLogger.warn(`[WebhookAuth] Rate-limited unsigned webhook from ${clientIp} (${hits} in window)`);
+      logWebhookValidationFailure('tatum', clientIp, 'Unsigned webhook rate limit exceeded');
+      return res.status(429).json({ error: "Too many unsigned requests" });
     }
 
     if (isTatumIp) {

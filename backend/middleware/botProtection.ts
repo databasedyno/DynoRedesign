@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { apiLogger } from "../utils/loggers";
+import { countHit, saveJson, remove as removeDurable, loadAllJson } from "../utils/durableState";
 
 /**
  * Bot & Scanner Protection Middleware
@@ -127,6 +128,47 @@ setInterval(() => {
   }
 }, CLEANUP_INTERVAL_MS).unref();
 
+// ── Durable blocklist (survives redeploys) ────────────────────────────────────
+// The in-memory map is the hot path (zero Redis calls on normal requests). Hit
+// counts and the 1h block are ALSO kept in Redis so a container restart does
+// not hand every auto-blocked scanner a fresh start. Scanner hits are rare, so
+// the one Redis round-trip on that 403 path is negligible.
+const BLOCK_KEY_PREFIX = "bot:blocked:";
+let blocklistHydrated = false;
+let blocklistHydration: Promise<void> | null = null;
+
+/**
+ * Load still-active blocks from Redis into memory. Succeeds once; a failed
+ * attempt (e.g. Redis not connected yet at import time) is retried on the next
+ * call — server.ts invokes this right after connectRedis(), and the middleware
+ * re-invokes it on the first request as a safety net.
+ */
+export const hydrateBlockedIps = (): Promise<void> => {
+  if (blocklistHydrated) return Promise.resolve();
+  if (!blocklistHydration) {
+    blocklistHydration = (async () => {
+      const saved = await loadAllJson<{ since: number; hits: number }>(BLOCK_KEY_PREFIX);
+      if (saved === null) throw new Error("Redis unavailable");
+      const now = Date.now();
+      let restored = 0;
+      for (const [ip, rec] of Object.entries(saved)) {
+        if (now - rec.since >= BLOCK_DURATION_MS || ipTracker.get(ip)?.blocked) continue;
+        ipTracker.set(ip, { hits: rec.hits, firstSeen: rec.since, blocked: true });
+        restored++;
+      }
+      blocklistHydrated = true;
+      if (restored > 0) apiLogger.info(`[BotProtection] Restored ${restored} auto-blocked IP(s) from Redis`);
+    })()
+      .catch((err) => {
+        apiLogger.warn(`[BotProtection] blocklist hydration failed (will retry): ${(err as Error).message}`);
+      })
+      .finally(() => {
+        blocklistHydration = null;
+      });
+  }
+  return blocklistHydration;
+};
+
 // ============================================
 // Middleware
 // ============================================
@@ -158,7 +200,7 @@ function isInternalIp(ip: string): boolean {
   return false;
 }
 
-const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+const botProtectionMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.ip || "unknown";
   const path = req.originalUrl || req.url || "";
   const ua = (req.headers["user-agent"] || "") as string;
@@ -180,12 +222,16 @@ const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction
     return next();
   }
 
+  // Safety net: make sure the Redis blocklist has been loaded (no-op once done).
+  if (!blocklistHydrated) await hydrateBlockedIps();
+
   // Check 1: Is this IP already auto-blocked?
   const ipRecord = ipTracker.get(ip);
   if (ipRecord?.blocked) {
     // Check if block has expired
     if (Date.now() - ipRecord.firstSeen > BLOCK_DURATION_MS) {
       ipTracker.delete(ip); // Unblock
+      void removeDurable(BLOCK_KEY_PREFIX + ip);
     } else {
       // Still blocked — silent 403 (don't even log to reduce noise)
       res.status(403).end();
@@ -200,13 +246,12 @@ const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction
   const uaMatch = SCANNER_UA_PATTERNS.some(pattern => pattern.test(ua));
 
   if (pathMatch || uaMatch) {
-    // Record hit for IP tracking
-    recordScannerHit(ip, path, ua);
+    // Record hit for IP tracking (memory + Redis so the count survives restarts)
+    const record = await recordScannerHit(ip);
 
     // Log once per IP (first hit or when auto-blocked). Blocked probes are
     // expected traffic, not application errors — they are deliberately NOT
     // sent to the error monitor (they were cluttering the admin error digest).
-    const record = ipTracker.get(ip)!;
     if (record.hits === 1 || record.hits === AUTO_BLOCK_THRESHOLD) {
       const action = record.blocked ? "🚫 AUTO-BLOCKED" : "⚠️ SCANNER DETECTED";
       apiLogger.warn(
@@ -227,29 +272,37 @@ const botProtectionMiddleware = (req: Request, res: Response, next: NextFunction
 
 /**
  * Record a scanner hit for an IP and auto-block if threshold exceeded.
+ * The hit count comes from Redis when available (shared across restarts and
+ * instances); memory is the fallback and always mirrors the decision.
  */
-function recordScannerHit(ip: string, path: string, ua: string): void {
+async function recordScannerHit(ip: string): Promise<IPRecord> {
   const now = Date.now();
   const existing = ipTracker.get(ip);
-
-  if (existing) {
-    // Reset if outside tracking window
-    if (now - existing.firstSeen > TRACKING_WINDOW_MS && !existing.blocked) {
-      ipTracker.set(ip, { hits: 1, firstSeen: now, blocked: false });
-    } else {
-      existing.hits++;
-      // Auto-block after threshold
-      if (existing.hits >= AUTO_BLOCK_THRESHOLD && !existing.blocked) {
-        existing.blocked = true;
-        existing.firstSeen = now; // Reset timer for block duration
-        apiLogger.warn(
-          `🚫 IP auto-blocked for 1h: ${ip} (${existing.hits} scanner hits in ${TRACKING_WINDOW_MS / 60000}min)`
-        );
-      }
-    }
-  } else {
-    ipTracker.set(ip, { hits: 1, firstSeen: now, blocked: false });
+  if (existing?.blocked) {
+    existing.hits++;
+    return existing;
   }
+
+  const durableHits = await countHit(`bot:hits:${ip}`, Math.ceil(TRACKING_WINDOW_MS / 1000));
+  let record: IPRecord;
+  if (existing && now - existing.firstSeen <= TRACKING_WINDOW_MS) {
+    existing.hits = durableHits ?? existing.hits + 1;
+    record = existing;
+  } else {
+    record = { hits: durableHits ?? 1, firstSeen: now, blocked: false };
+    ipTracker.set(ip, record);
+  }
+
+  // Auto-block after threshold
+  if (record.hits >= AUTO_BLOCK_THRESHOLD && !record.blocked) {
+    record.blocked = true;
+    record.firstSeen = now; // Reset timer for block duration
+    apiLogger.warn(
+      `🚫 IP auto-blocked for 1h: ${ip} (${record.hits} scanner hits in ${TRACKING_WINDOW_MS / 60000}min)`
+    );
+    void saveJson(BLOCK_KEY_PREFIX + ip, { since: now, hits: record.hits }, Math.ceil(BLOCK_DURATION_MS / 1000));
+  }
+  return record;
 }
 
 /**
