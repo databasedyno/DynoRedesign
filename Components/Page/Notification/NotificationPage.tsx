@@ -229,6 +229,7 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
     if (/team/.test(type)) return { kind: "route", href: "/settings?section=team" };
     if (/api_key/.test(type)) return { kind: "route", href: "/developer-keys" };
     if (/company/.test(type)) return { kind: "route", href: "/settings?section=company" };
+    if (/payout_digest/.test(type)) return { kind: "route", href: "/transactions?range=7d" };
     if (/weekly|summary/.test(type)) return { kind: "route", href: "/transactions" };
     return null;
   };

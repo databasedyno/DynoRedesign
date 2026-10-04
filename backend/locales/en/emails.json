@@ -1182,7 +1182,15 @@
   "feesPaidRow": "Dynopay fees",
   "netReceived": "Net received in your wallets",
   "downloadStatement": "Receipts & Tax → download the CSV statement",
-  "statementBody": "Need this for your books? Every payment's gross, fee and net is in {{link}}."
+  "statementBody": "Need this for your books? Every payment's gross, fee and net is in {{link}}.",
+  "allBrandsNote": "This digest covers all {{count}} brands on your account.",
+  "allBrandsHint": "Totals below are combined across every brand; the per-brand split is further down.",
+  "perBrandTitle": "Settled per brand",
+  "perBrandTotal": "All brands combined",
+  "topCoinsTitle": "Top coins by volume",
+  "notifBody": "{{period}}: {{count}} payments settled. Dynopay fees {{fees}}, net received {{net}}.",
+  "notifBodyQuiet": "{{period}}: nothing settled this week.",
+  "notifSplitPrefix": "Brands with settled payments:"
  },
  "referral": {
   "emails": {

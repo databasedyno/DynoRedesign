@@ -58,6 +58,14 @@ export interface CoinBucket {
   txCount: number;
 }
 
+export interface BrandBucket {
+  companyId: number;
+  name: string;
+  volumeUsd: number;
+  volumeDisplay: number;
+  txCount: number;
+}
+
 export interface PayoutDigest {
   userId: number;
   companyId?: number | null;
@@ -78,6 +86,12 @@ export interface PayoutDigest {
   countDelta: number; // absolute
   // Top coins
   topCoins: CoinBucket[]; // up to 3
+  // Account-wide digests (no companyId override) sum EVERY brand the merchant
+  // owns. `brands` is the per-brand split of settledVolume for this period and
+  // `totalBrands` how many brands the account has, so the email/notification
+  // can say "covers all N brands" instead of silently merging them.
+  brands: BrandBucket[];
+  totalBrands: number;
   // Fee tier context
   feeTier: {
     name: string; // "Starter" / "Growth" / ...
@@ -230,7 +244,41 @@ export async function buildPayoutDigest(
     }),
   );
 
-  // 6. Fee tier
+  // 6. Per-brand split + brand count (account-wide digests only)
+  const brandRows = (await sequelize.query(
+    `SELECT c.company_id, c.company_name,
+            COALESCE(SUM(ut.usd_value), 0) AS volume_usd,
+            COUNT(ut.transaction_id) FILTER (
+              WHERE ut."createdAt" >= :start AND ut."createdAt" < :end AND ut.status IN (${statusList})
+            ) AS tx_count
+     FROM tbl_company c
+     LEFT JOIN tbl_user_transaction ut
+       ON ut.company_id = c.company_id
+      AND ut."createdAt" >= :start AND ut."createdAt" < :end
+      AND ut.status IN (${statusList})
+     WHERE c.user_id = :userId
+       ${companyId ? "AND c.company_id = :companyId" : ""}
+     GROUP BY c.company_id, c.company_name
+     ORDER BY volume_usd DESC, c.company_id ASC`,
+    { replacements: { userId, companyId, start, end }, type: QueryTypes.SELECT },
+  )) as Array<Record<string, unknown>>;
+  const totalBrands = brandRows.length;
+  const brands: BrandBucket[] = await Promise.all(
+    brandRows
+      .filter((r) => Number(r.tx_count || 0) > 0)
+      .map(async (r) => {
+        const volumeUsd = Number(r.volume_usd || 0);
+        return {
+          companyId: Number(r.company_id),
+          name: String(r.company_name || `Brand #${r.company_id}`),
+          volumeUsd,
+          volumeDisplay: await usdToDisplay(volumeUsd, displayCurrency),
+          txCount: Number(r.tx_count || 0),
+        };
+      }),
+  );
+
+  // 7. Fee tier
   let feeTier: PayoutDigest["feeTier"] = null;
   try {
     const { getVolumeTiers } = await import("../utils/volumeTierUtils");
@@ -257,7 +305,7 @@ export async function buildPayoutDigest(
     feeTier = null;
   }
 
-  // 7. Convert volumes to display currency for the email numbers
+  // 8. Convert volumes to display currency for the email numbers
   const settledVolume = await usdToDisplay(curVolumeUsd, displayCurrency);
   const feesPaid = await usdToDisplay(feesPaidUsd, displayCurrency);
   const prevVolume = await usdToDisplay(prevVolumeUsd, displayCurrency);
@@ -287,6 +335,8 @@ export async function buildPayoutDigest(
     volumeDeltaPct,
     countDelta,
     topCoins,
+    brands,
+    totalBrands,
     feeTier,
     hasActivity: curCount > 0 || curVolumeUsd > 0,
     hasPriorActivity: prevCount > 0 || prevVolumeUsd > 0,
@@ -304,16 +354,79 @@ function fmtMoney(amount: number, symbol: string, currency: string): string {
   return `${symbol}${formatted} ${currency}`;
 }
 
+const escapeHtmlText = (s: string): string =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+export const PAYOUT_DIGEST_NOTIFICATION_TYPE = "payout_digest_weekly";
+
+/** Plain-text summary used for the in-app notification (no HTML). */
+export function buildPayoutDigestNotificationText(d: PayoutDigest, lang: string): { title: string; message: string } {
+  const money = (n: number) => fmtMoney(n, d.currencySymbol, d.displayCurrency);
+  const dtLocale =
+    ({ en: "en-GB", pt: "pt-PT", es: "es-ES", fr: "fr-FR", de: "de-DE", nl: "nl-NL" } as Record<string, string>)[lang] || "en-GB";
+  const period = `${new Date(d.periodStart).toLocaleDateString(dtLocale, { day: "2-digit", month: "short" })} – ${new Date(d.periodEnd).toLocaleDateString(dtLocale, { day: "2-digit", month: "short" })}`;
+  const isAccountWide = !d.companyId && d.totalBrands > 1;
+  const title = d.hasActivity
+    ? t("payoutDigest.subjectActive", lang, { amount: money(d.settledVolume) })
+    : t("payoutDigest.subjectQuiet", lang);
+  const parts: string[] = [];
+  parts.push(
+    d.hasActivity
+      ? t("payoutDigest.notifBody", lang, { period, count: d.settledCount, fees: money(d.feesPaid), net: money(Math.max(0, d.settledVolume - d.feesPaid)) })
+      : t("payoutDigest.notifBodyQuiet", lang, { period }),
+  );
+  if (isAccountWide) {
+    const split = d.brands.map((b) => `${b.name} ${money(b.volumeDisplay)}`).join(" · ");
+    parts.push(t("payoutDigest.allBrandsNote", lang, { count: d.totalBrands }) + (split ? ` ${t("payoutDigest.notifSplitPrefix", lang)} ${split}.` : ""));
+  }
+  return { title, message: parts.join(" ") };
+}
+
+async function createPayoutDigestNotifications(d: PayoutDigest, lang: string): Promise<void> {
+  try {
+    const { createNotification } = await import("../controller/notificationController");
+    const { title, message } = buildPayoutDigestNotificationText(d, lang);
+    const targets = d.companyId
+      ? [d.companyId]
+      : ((await sequelize.query(`SELECT company_id FROM tbl_company WHERE user_id = :userId`, {
+          replacements: { userId: d.userId },
+          type: QueryTypes.SELECT,
+        })) as Array<{ company_id: number }>).map((r) => Number(r.company_id));
+    const data = {
+      period_start: d.periodStart,
+      period_end: d.periodEnd,
+      settled_volume: d.settledVolume,
+      settled_count: d.settledCount,
+      fees_paid: d.feesPaid,
+      display_currency: d.displayCurrency,
+      all_brands: !d.companyId && d.totalBrands > 1,
+      total_brands: d.totalBrands,
+      brands: d.brands.map((b) => ({ company_id: b.companyId, name: b.name, settled: b.volumeDisplay, count: b.txCount })),
+    };
+    for (const companyId of targets) {
+      const [existing] = (await sequelize.query(
+        `SELECT 1 FROM tbl_notification
+         WHERE user_id = :userId AND company_id = :companyId AND type = :type
+           AND created_at >= NOW() - INTERVAL '6 days'
+         LIMIT 1`,
+        { replacements: { userId: d.userId, companyId, type: PAYOUT_DIGEST_NOTIFICATION_TYPE }, type: QueryTypes.SELECT },
+      )) as unknown[];
+      if (existing) continue; // already surfaced this week's digest for this brand
+      await createNotification(d.userId, PAYOUT_DIGEST_NOTIFICATION_TYPE, title, message, data, companyId);
+    }
+  } catch (e) {
+    apiLogger.error("[PayoutDigest] in-app notification failed", e);
+  }
+}
+
 /**
  * Render + send the digest email for one aggregated payload.
  * Never throws — errors are captured and logged; returns { sent: boolean }.
  */
-export async function sendPayoutDigestEmail(
+/** Pure render (no send) — exported so the digest can be previewed/tested offline. */
+export async function renderPayoutDigestEmail(
   d: PayoutDigest,
-  opts?: { fanout?: boolean },
-): Promise<{ sent: boolean; skipped?: string }> {
-  try {
-    if (!d.email) return { sent: false, skipped: "no-email" };
+): Promise<{ subject: string; html: string; lang: string }> {
     // Zero-activity accounts still receive the digest but with a "no volume this
     // week" note — Coinbase pattern: keep engagement even on quiet weeks.
     const lang = await resolveLangByEmail(d.email);
@@ -381,7 +494,7 @@ export async function sendPayoutDigestEmail(
           d.displayCurrency,
         ),
       );
-      topCoinsSection = feeTable(rows + totalRow);
+      topCoinsSection = feeTable(rows + totalRow, t("payoutDigest.topCoinsTitle", lang));
     }
 
     // Comparison row
@@ -424,11 +537,33 @@ export async function sendPayoutDigestEmail(
       ? t("payoutDigest.headingActive", lang)
       : t("payoutDigest.headingQuiet", lang);
 
+    // Account-wide scope note + per-brand split. Only shown when the account has
+    // more than one brand — a single-brand merchant sees the email unchanged.
+    const isAccountWide = !d.companyId && d.totalBrands > 1;
+    const scopeNote = isAccountWide
+      ? p(
+          `<strong>${t("payoutDigest.allBrandsNote", lang, { count: d.totalBrands })}</strong> ${t("payoutDigest.allBrandsHint", lang)}`,
+          `background:${EMAIL_TOKENS.greenSurface};border-radius:8px;padding:10px 12px;font-size:13px;`,
+        )
+      : "";
+    let brandsSection = "";
+    if (isAccountWide && d.brands.length > 0) {
+      const rows = d.brands
+        .map((b) => feeRow(`<strong>${escapeHtmlText(b.name)}</strong> — ${paymentsLabel(b.txCount)}`, fmtMoney(b.volumeDisplay, d.currencySymbol, d.displayCurrency), false))
+        .join("");
+      brandsSection = feeTable(
+        rows + feeTotalRow(t("payoutDigest.perBrandTotal", lang), fmtMoney(d.settledVolume, d.currencySymbol, d.displayCurrency)),
+        t("payoutDigest.perBrandTitle", lang),
+      );
+    }
+
     const content = `
       ${p(d.name ? t("common.greeting", lang, { name: d.name }) : t("common.greetingDefault", lang))}
       ${p(t("payoutDigest.intro", lang))}
+      ${scopeNote}
       ${statsRow}
       ${heroInfo}
+      ${brandsSection}
       ${topCoinsSection}
       ${compareRow}
       ${d.hasActivity ? p(t("payoutDigest.statementBody", lang, { link: statementLink }), "font-size:13px;color:#6b7280;") : ""}
@@ -444,6 +579,16 @@ export async function sendPayoutDigestEmail(
       buttonText: t("payoutDigest.openDashboard", lang),
       buttonLink: `${FRONTEND_BASE_URL}/transactions?range=7d`,
     });
+    return { subject, html, lang };
+}
+
+export async function sendPayoutDigestEmail(
+  d: PayoutDigest,
+  opts?: { fanout?: boolean },
+): Promise<{ sent: boolean; skipped?: string }> {
+  try {
+    if (!d.email) return { sent: false, skipped: "no-email" };
+    const { subject, html, lang } = await renderPayoutDigestEmail(d);
 
     // Cron path fans the company digest out to team members (deduped + RBAC via
     // notificationRecipients); the manual "send me a preview" path stays single.
@@ -465,6 +610,11 @@ export async function sendPayoutDigestEmail(
     apiLogger.info(
       `[PayoutDigest] sent to ${d.email} — settled=${d.settledVolume} ${d.displayCurrency}, count=${d.settledCount}`,
     );
+    // Mirror the email in the dashboard inbox of EVERY brand on the account, so
+    // the digest is visible no matter which brand is selected (the inbox is
+    // company-scoped). Idempotent per brand per week, so the manual "send me a
+    // preview" button can be used to (re)surface this week's digest safely.
+    await createPayoutDigestNotifications(d, lang);
     return { sent: true };
   } catch (e) {
     apiLogger.error("[PayoutDigest] send error", e);

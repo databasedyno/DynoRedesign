@@ -27,6 +27,7 @@ export const NOTIFICATION_TYPES = {
   PAYMENT_PARTIAL_EXPIRED: "payment_partial_expired", // Partial payment expired
   PAYMENT_OVERPAID: "payment_overpaid",         // Customer paid more than due (excess credited to the merchant)
   WEEKLY_SUMMARY: "weekly_summary",
+  PAYOUT_DIGEST_WEEKLY: "payout_digest_weekly",      // Sunday payout digest email mirrored into the inbox (all brands)
   SECURITY_ALERT: "security_alert",
   KYC_REQUIRED: "kyc_required",
   KYC_APPROVED: "kyc_approved",
@@ -466,6 +467,7 @@ export const createNotification = async (
         [NOTIFICATION_TYPES.TRANSACTION_CONFIRMED]: 'transaction_updates',
         [NOTIFICATION_TYPES.PAYMENT_RECEIVED]: 'payment_received',
         [NOTIFICATION_TYPES.WEEKLY_SUMMARY]: 'weekly_summary',
+        [NOTIFICATION_TYPES.PAYOUT_DIGEST_WEEKLY]: 'payout_digest_weekly',
         [NOTIFICATION_TYPES.SECURITY_ALERT]: 'security_alerts',
       };
 
