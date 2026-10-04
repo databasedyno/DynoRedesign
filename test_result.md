@@ -1,4 +1,43 @@
 # ============================================================================
+# >>> 2026-10-04 (purge-gap fix, vault pod) — BACKEND CHANGE (verified via
+#     self-cleaning integration test on the live DB; no API testing_agent run
+#     because this internal path has no safe API trigger on prod)
+# ============================================================================
+#  POD: current preview. SAFE MODE, LIVE prod DB. Backend = ts-node (restarted).
+#  WHY: account hard-purge (accountPurgeService.purgeAccount) got STUCK — the final
+#  tbl_user delete failed whenever the account had rows in tables whose FK to
+#  tbl_user is ON DELETE NO ACTION (tbl_merchant_wallet.user_id,
+#  tbl_merchant_temp_address.owner_user_id) or has NO FK at all
+#  (tbl_login_activities.user_id). Such accounts were left permanently soft-deleted.
+#
+#  FIX (backend, 2 files):
+#   - services/accountPurgeService.ts: purgeAccount() now clears these children
+#     before the final userModel.destroy — merchantTempAddressModel (owner_user_id),
+#     merchantWalletModel (user_id), loginActivityModel (user_id). Added imports.
+#   - helper/protectedEntities.ts: added userMerchantPoolRecordCount(userId) and
+#     extended canPurgeAccount() to REFUSE accounts still holding merchant-pool
+#     financial records (pool transactions/sweeps on their temp addresses), mirroring
+#     the escrow-deal guard. This guarantees the new temp-address delete only ever
+#     removes UNUSED deposit addresses — accounts with pool money stay safely
+#     soft-deleted with a clear reason (the DB NO ACTION FK is the backstop).
+#   GATES: tsc --noEmit = 0 errors; backend reboots clean with the new imports.
+#
+#  VERIFICATION (live DB):
+#   - Read-only: canPurgeAccount(1)=refused (SafeDeal brand; poolRecords=611);
+#     canPurgeAccount(389/390/391)=allowed (poolRecords=0).
+#   - Self-cleaning integration test: created a throwaway @dynopaytest.com user +
+#     merchant_temp_address + merchant_wallet + login_activities + a notification
+#     (CASCADE control), ran softDeleteAccount()+purgeAccount() -> user=0, login=0,
+#     wallet=0, temp=0, notif=0. PASS. (nets to zero rows; nothing left behind.)
+#
+#  KNOWN REMAINING (NOT in this fix): the referral tables also FK tbl_user with
+#  NO ACTION (tbl_referral, tbl_referee_code, tbl_referral_payout, tbl_referral_reward).
+#  Accounts with referral history can still block a purge. Left untouched because
+#  referral_payout/reward are financial (preserve-vs-delete is a product decision).
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-10-04 (test-account purge, vault pod) — PROD DATA CLEANUP (no app code)
 # ============================================================================
 #  POD: current preview. SAFE MODE, LIVE prod DB. Owner/admin: onarrival21@gmail.com.

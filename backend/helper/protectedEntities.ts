@@ -1,5 +1,6 @@
 import { companyModel } from "../models";
 import escrowDealModel from "../models/escrowDealModel";
+import { merchantTempAddressModel, merchantPoolTransactionModel, merchantPoolSweepModel } from "../models/merchantPoolModels";
 
 /**
  * Purge guard rails.
@@ -68,6 +69,33 @@ export const canPurgeCompany = async (
 };
 
 /**
+ * Count merchant-pool financial records (pool transactions + sweeps) that hang
+ * off a user's generated deposit addresses. Like escrow deals, these are
+ * financial records that must survive the AML/KYC retention window, so an
+ * account that still holds any is not eligible for a hard purge. (The DB also
+ * enforces this: tbl_merchant_pool_transaction/_sweep -> tbl_merchant_temp_address
+ * is ON DELETE NO ACTION, so the address delete in purgeAccount would be blocked
+ * anyway — this makes the refusal explicit and graceful.)
+ */
+export const userMerchantPoolRecordCount = async (userId: number | string): Promise<number> => {
+  try {
+    const addrs = await merchantTempAddressModel.findAll({
+      where: { owner_user_id: userId },
+      attributes: ["temp_address_id"],
+    });
+    const ids = addrs.map((a: any) => a.dataValues.temp_address_id);
+    if (ids.length === 0) return 0;
+    const [txns, sweeps] = await Promise.all([
+      merchantPoolTransactionModel.count({ where: { temp_address_id: ids } }),
+      merchantPoolSweepModel.count({ where: { temp_address_id: ids } }),
+    ]);
+    return Number(txns) + Number(sweeps);
+  } catch {
+    return 0;
+  }
+};
+
+/**
  * Decide whether a user account may be permanently purged. Refuses if the user
  * owns the SafeDeal brand or any brand that still holds escrow deals (the user
  * hard-delete cascades to their companies and then to those deals).
@@ -85,6 +113,10 @@ export const canPurgeAccount = async (
     if (!check.allowed) {
       return { allowed: false, reason: `user ${userId}: ${check.reason}` };
     }
+  }
+  const poolRecords = await userMerchantPoolRecordCount(userId);
+  if (poolRecords > 0) {
+    return { allowed: false, reason: `user ${userId} still holds ${poolRecords} merchant-pool financial record(s); financial history is retained and cannot be purged` };
   }
   return { allowed: true };
 };

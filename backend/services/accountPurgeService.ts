@@ -1,6 +1,8 @@
 import { Op } from "sequelize";
 import { userModel, userWalletModel, companyModel, apiModel, paymentLinkModel } from "../models";
 import { userWalletAddressModel } from "../models/userModels";
+import { merchantWalletModel, merchantTempAddressModel } from "../models/merchantPoolModels";
+import loginActivityModel from "../models/loginActivityModel";
 import notificationModel from "../models/notificationModel";
 import notificationPreferencesModel from "../models/notificationPreferencesModel";
 import kycModel from "../models/kycModel";
@@ -111,6 +113,18 @@ export const purgeAccount = async (user: {
 
   try { await revokeAllUserSessions(Number(userId), "account_purged"); } catch (_e) { /* non-fatal */ }
   await invalidateUserAuthCache(userId);
+
+  // Clear children that would otherwise block the final user-row delete because
+  // their FK to tbl_user is ON DELETE NO ACTION (merchant wallets + generated
+  // deposit addresses) or absent entirely (the login-activity log has a user_id
+  // column but no FK, so the cascade never reaches it). canPurgeAccount() has
+  // already refused any account still holding merchant-pool financial records
+  // (pool transactions/sweeps), so these deposit addresses are unused and safe
+  // to remove here. Without this, accounts with any of these rows got stuck
+  // permanently soft-deleted.
+  await merchantTempAddressModel.destroy({ where: { owner_user_id: userId } });
+  await merchantWalletModel.destroy({ where: { user_id: userId } });
+  await loginActivityModel.destroy({ where: { user_id: userId } });
 
   const rows = await userModel.destroy({ where: { user_id: userId } });
   if (rows === 0) {
