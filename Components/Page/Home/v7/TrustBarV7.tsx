@@ -1,18 +1,18 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { useLandingMetrics, formatInt } from "../v5/useLandingMetrics";
 import { useTranslation } from "react-i18next";
+import { ArrowLink, Eyebrow, FONT_DISPLAY, FONT_MONO, useConsole } from "./kit";
+import { useLandingMetrics, formatInt } from "../v5/useLandingMetrics";
 
 /**
- * Section 2 of 9 — TRUST BAR (answers: "Can I trust it?").
- * Three live proof metrics + a "View live status" link. Numbers come from
- * /api/status/landing-metrics (SSR-seeded); the fallbacks keep the strip honest
- * if the backend is briefly unreachable.
+ * Section 2 — LIVE PROOF ("Can I trust it?"). A calm KPI band of three live
+ * figures + a link to the live status page. Numbers come from
+ * /api/status/landing-metrics (SSR-seeded); fallbacks keep the strip honest if
+ * the backend is briefly unreachable.
  */
 const TrustBarV7: React.FC = () => {
-  const s = useAurora();
+  const s = useConsole();
   const { t } = useTranslation("landing");
   const m = useLandingMetrics();
   const payments = m?.payments_settled_this_month ?? 1076;
@@ -26,66 +26,52 @@ const TrustBarV7: React.FC = () => {
   ];
 
   return (
-    <Box
-      component="section"
-      id="trust"
-      data-testid="trust-bar"
-      sx={{ background: s.bgAlt, borderTop: `1px solid ${s.line}`, borderBottom: `1px solid ${s.line}` }}
-    >
-      <Box
-        sx={{
-          maxWidth: 1280,
-          mx: "auto",
-          px: { xs: 3, md: 5 },
-          py: { xs: 4, md: 5 },
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: "center",
-          justifyContent: { xs: "center", md: "space-between" },
-          gap: { xs: 3, md: 4 },
-        }}
-      >
+    <Box component="section" id="trust" data-testid="trust-bar" sx={{ background: s.canvas, borderTop: `1px solid ${s.line}` }}>
+      <Box sx={{ maxWidth: 1200, mx: "auto", px: { xs: 3, md: 6 }, py: { xs: 5, md: 6 } }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 2, mb: { xs: 3, md: 3.5 } }}>
+          <Eyebrow>{t("v7.trust.eyebrow", { defaultValue: "Live proof" })}</Eyebrow>
+          <ArrowLink href="/system-status" testId="trust-status-link">
+            {t("v7.trust.statusLink")} <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
+          </ArrowLink>
+        </Box>
+
         <Box
           sx={{
-            // Mobile: a centered 3-up grid. Desktop: `display:contents` dissolves
-            // this wrapper so the three stats become direct flex children of the
-            // row above and share the space-between distribution WITH the link —
-            // no more single large gap between the stats and "View live status".
-            display: { xs: "grid", md: "contents" },
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: { xs: 2 },
-            width: { xs: "100%", md: "auto" },
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+            border: `1px solid ${s.line}`,
+            borderRadius: "14px",
+            overflow: "hidden",
           }}
         >
-          {stats.map((st) => (
-            <Box key={st.label} data-testid="trust-stat" sx={{ textAlign: { xs: "center", md: "left" } }}>
-              <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 23, md: 34 }, letterSpacing: "-0.02em", color: s.ink, lineHeight: 1 }}>
+          {stats.map((st, i) => (
+            <Box
+              key={st.label}
+              data-testid="trust-stat"
+              sx={{
+                p: { xs: 3, md: 3.5 },
+                borderTop: { xs: i > 0 ? `1px solid ${s.line}` : "none", sm: "none" },
+                borderLeft: { xs: "none", sm: i > 0 ? `1px solid ${s.line}` : "none" },
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 500,
+                  fontSize: { xs: 30, md: 38 },
+                  letterSpacing: "-0.02em",
+                  color: s.ink,
+                  lineHeight: 1,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
                 {st.value}
               </Typography>
-              <Typography sx={{ fontFamily: FONT_TECH, fontSize: { xs: 10.5, md: 12.5 }, letterSpacing: "0.04em", color: s.ink3, mt: 1 }}>
+              <Typography sx={{ fontFamily: FONT_MONO, fontSize: { xs: 11, md: 12 }, letterSpacing: "0.04em", color: s.ink3, mt: 1.25 }}>
                 {st.label}
               </Typography>
             </Box>
           ))}
-        </Box>
-        <Box
-          component="a"
-          href="/system-status"
-          data-testid="trust-status-link"
-          sx={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 0.6,
-            fontFamily: FONT_BODY,
-            fontSize: 14.5,
-            fontWeight: 600,
-            color: s.accent,
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-            "&:hover": { textDecoration: "underline" },
-          }}
-        >
-          {t("v7.trust.statusLink")} <ArrowForwardIcon sx={{ fontSize: 16 }} />
         </Box>
       </Box>
     </Box>

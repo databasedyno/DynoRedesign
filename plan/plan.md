@@ -1,58 +1,67 @@
-# Dynopay In-App Redesign — The Operations Console
+# Dynopay Landing Page — Trust & Clarity Restructure
 
-A system-wide visual redesign of the signed-in Dynopay app into a calm, premium financial-operations console inspired by Mercury, tuned for reading dense data without fatigue.
-It replaces today's flat, utilitarian in-app styling with one disciplined design language applied across every page, rolled out starting with the most-used screens.
+A rebuild of the public homepage so it reads like a transparent, well-run payments company: calm, evidence-led, and visually identical in spirit to the signed-in app.
+It replaces today's glow-heavy, centered "exchange-style" landing with a left-aligned, flat, hairline-separated page where every section answers one buyer question and backs it with proof.
 
 ## Who it's for
-People who log into Dynopay every day to run money: merchants and their team members monitoring payments, reconciling settlements, managing payment links and customers, and running payouts — plus internal admins. These are operators scanning financial data quickly, not first-time visitors, so legibility, consistency and speed matter more than marketing flourish.
+Prospective merchants deciding whether to accept crypto with Dynopay — online sellers, creators, freelancers and developers who are skeptical by default and trust-sensitive about money. Secondary audiences: a merchant's own customers who land on dynopay.com after paying, journalists/partners checking legitimacy, and search engines reading the page.
 
 ## The problem being solved
-The public-facing pages (creator profile, shop, checkout) already have a lush, premium editorial design. The signed-in app does not: it uses a flat, hairline-card, spreadsheet-like style that gets noisy when populated with real data — walls of monospace figures, low-contrast secondary text, many competing chips/badges, thin visual hierarchy, and little depth or rhythm. Each page was also styled somewhat independently, so the app lacks a single coherent voice. The result reads as "rough when there's data."
+The current landing (v7) borrows a crypto-exchange aesthetic: large centered statements, yellow aurora glows, gradient text, a perspective-tilted mockup and an expressive display font. The signed-in app has since moved to a quiet, Mercury-style operations console — flat surfaces, hairline borders, Manrope + IBM Plex Sans, gold used only for the primary action, left-aligned data. The two no longer feel like the same company: the landing promises "hype", the product delivers "calm". Visitors evaluating a payments provider read that mismatch as risk. Trust signals (live metrics, status, policies, fees) also sit scattered or below the fold instead of being the backbone of the page.
 
 ## Core features and experience
-One design language, applied everywhere, expressed through a small set of shared building blocks so every page looks and behaves like part of the same product:
+One visual language shared with the app, and a page structure organised around trust:
 
-- **A single design system** — one set of color, type, spacing, elevation, radius and motion rules. Every screen inherits it, so pages stop drifting apart.
-- **Redesigned app chrome** — a quieter, more confident left navigation, a cleaner top bar, a refined brand/company switcher, and one consistent page-header pattern (title, short context line, primary action) used on every page.
-- **"Financial-statement" data tables** — the core of the app. Airy rows with comfortable height, numbers treated as first-class UI (tabular, right-aligned, balances styled distinctly from amounts), transactions grouped by date (Today / Yesterday / This week), a pinned header, calm hover, and quiet handling of empty cells. Clicking a row opens a right-side slide-over detail panel instead of a dense modal, so you keep your place in the list.
-- **Summary strips** — each data page opens with a small band of key figures (e.g. volume, net, pending) presented as large, confident numbers, so the headline is readable at a glance before the table.
-- **Restrained status system** — a low-chroma dot-plus-label style for payment/payout states, replacing the current mix of loud chips, so status is scannable without shouting.
-- **Consistent supporting pieces** — one filter/toolbar pattern, graceful empty states, and skeleton loaders while data arrives, so the "with data", "no data" and "loading" states all feel intentional.
-- **Dark-first, with a polished light mode** — a deep, warm near-black canvas as the hero, and a refined warm-neutral light theme, both carried by the same tokens.
+- **Same design system as the app** — the app's canvas/surface/ink colours, Manrope headings, IBM Plex Sans body, tabular numerals for every figure, hairline separators instead of cards-on-cards, 12–16px radii, gold strictly for the primary CTA and key highlights. No aurora glows, no gradient text, no tilted mockups, no display-face headlines.
+- **Left-aligned editorial layout** — a consistent content column with eyebrow → headline → one-sentence explanation → proof/visual, repeated section after section so the page is predictable and scannable.
+- **Hero that shows the real product** — plain-language promise ("accept crypto payments, get paid in the coin you choose, see every payment in one place" tone), one primary CTA (Start free) and one quiet secondary (See a live checkout), and beside it the actual hosted-checkout mock restyled to the app's system — no illustration, no stock imagery.
+- **Live proof strip directly under the hero** — the existing real, server-rendered metrics (uptime, median settlement time, payments this month, countries) shown as a quiet "ledger" with a link to the public status page. Numbers are what the system reports; placeholders when unavailable.
+- **How it works — 3 numbered steps** with small product UI vignettes in app styling (create a link / customer pays / funds and record appear).
+- **Transparent pricing block** — the headline fee stated plainly, what is and isn't charged, and a link to the fee calculator and chain-time table. No marketing qualifiers.
+- **New: Security & compliance section** — how customer funds flow, what Dynopay does and does not hold, verification (KYC/AML), and direct links to the existing AML policy, wallet-security, terms and privacy pages. Only statements already published on the site are used; nothing is invented.
+- **Three ways to use Dynopay** — No-code (payment links, storefront), Hosted checkout, API — each with a short description and a real code/UI sample; links to Products and Documentation.
+- **Merchant stories** — the two existing testimonials, re-set as quiet quotes with name, business and outcome, no decorative cards.
+- **FAQ** — the existing four questions, restyled as a hairline accordion; structured-data markup preserved.
+- **Final CTA** — a restrained closing band with Start free and a reassurance line (no card required / takes minutes — matching today's copy).
+- **Public header/footer alignment** — the sticky top bar becomes the app's glass top-bar style with one clear CTA; footer link groups restyled to the same tokens.
 
-MVP surfaces (redesigned first, in Phase 1): **Dashboard, Transactions, Payment links, Customers** — the screens operators live in — plus the shared foundation and chrome that every later page reuses.
+Preserved behaviour: signed-in visitors still redirect straight to the dashboard; `?view=landing` still forces the marketing page; anchor links (#how-it-works, #products, #pricing, #faq) keep working; SEO/structured data, server-rendered metrics, visitor tracking and all translations continue to work.
 
 ## User flow
-1. A merchant signs in and lands on the **Dashboard**: a calm pulse line, a summary strip of key figures, a "needs attention" area, a trend chart, and a recent-payments list — all in the new voice.
-2. They open **Transactions**: a statement-style table grouped by date, with a consistent filter bar; they scan amounts and statuses, then click a row to open a **slide-over detail panel** with the full timeline and actions.
-3. They move to **Payment links** and **Customers**: the same header, filter bar, table and detail-panel patterns, so there is nothing new to learn — only the data differs.
-4. They switch brand/theme/density from the same chrome everywhere; the whole app responds consistently.
+1. Visitor lands → reads one clear promise and sees the real checkout UI; primary CTA is unmistakable.
+2. Eyes drop to the live proof strip → real uptime/settlement/volume numbers and a link to the status page answer "is this real and running?".
+3. Scrolls through **How it works** → understands the product in three steps without jargon.
+4. Reaches **Pricing** → sees the fee stated plainly; can open the calculator for their exact case.
+5. Reaches **Security & compliance** → sees how funds are handled and the policies that govern it; can read the full documents.
+6. Picks a path in **Three ways to use** (no-code / checkout / API) → goes to Products or Docs, or
+7. Reads merchant stories and FAQ → closes remaining doubts → **Start free**.
 
 ## UI/UX feel
-Calm, cinematic, data-first — closer to a financial operations console than a typical dashboard. A deep near-black canvas (not pure black) with off-white ink in dark mode; a warm cream/off-white surface with deep graphite text in light mode. A single reserved accent (Dynopay gold) used sparingly for primary actions and active states; a graphite neutral scale as the backbone; a small semantic palette (green/amber/red/blue) only for meaning like status. A clean grotesk at intermediate weights with generous line-height; figures in tabular numerals so columns align; a mono reserved strictly for IDs, hashes and wallet addresses. Generous whitespace and clear hierarchy. Depth is subtle — hairline separators, soft shadows, 12–16px radii; glass/blur is reserved for overlays and sticky bars, not sprayed across cards. Motion is fast and functional (≈150–200ms): slide-over panels, gentle hovers, skeletons — nothing bouncy. One consistent icon set replaces today's mix of custom SVGs and framework icons.
+Calm, confident, financial. Dark-first (deep warm near-black canvas, off-white ink) with the refined light mode following the site's existing theme toggle. Manrope for headlines at medium weight with tight tracking; IBM Plex Sans for body at generous line-height; IBM Plex Mono only for code samples and hashes. Sections are separated by hairlines and whitespace, not by alternating coloured bands. Gold appears on the primary button, the active nav item and one or two key figures — nowhere else. Visuals are the product itself (checkout, dashboard rows, a payment link) rendered in the app's own component style, so what the visitor sees on the landing is what they'll see after signing up. Motion is fast and functional: staggered fade-up on scroll, 150–200ms hovers, counting numbers in the proof strip; nothing bouncy, no parallax. Icons are a single consistent set (Lucide). Fully responsive; on mobile the hero stacks (copy, CTA, then product UI) and every section remains readable in one column.
 
 ## Implementation phases
 
-**Phase 1 — MVP (built now): foundation + the most-used pages**
-- The shared design system (tokens, type, color, elevation, spacing, motion) and the reusable building blocks (page header, summary tile, data table, status, detail slide-over, filter bar, empty state, skeletons).
-- The redesigned app chrome (navigation, top bar, brand/company switcher, page-header pattern).
-- Four surfaces fully redesigned on the new system: **Dashboard, Transactions, Payment links, Customers** — in both dark and light themes, desktop and mobile.
+**Phase 1 — MVP (built now): the homepage, end to end**
+- New landing design system layer mapped to the app's tokens (colours, type, spacing, radii, motion).
+- All eleven homepage sections rebuilt in the new structure and style: Hero, Live proof, How it works, Pricing, Security & compliance (new), Three ways, Merchant stories, FAQ, Final CTA, plus header and footer alignment.
+- Dark and light themes, desktop and mobile. Existing redirects, anchors, SEO markup, metrics feed and translations preserved; new copy added in English and to the other supported languages.
 
-**Phase 2 — roll the system across the rest of the merchant app**
-- Wallet / Payout addresses, Payouts, Invoices & Tax, Developer keys, Notifications, Referrals, and Settings/Profile — re-skinned onto the Phase-1 system and components.
+**Phase 2 — carry the system across the public marketing pages**
+- Fees, Products, Documentation landing, About, Company, Press, the industry pages (/for/*) and comparison pages (/compare/*) re-skinned onto the Phase-1 system so the whole public site matches the homepage and the app.
 
-**Phase 3 — admin suite + advanced console affordances + cohesion polish**
-- The admin console pages (Overview, Merchants, Transactions, Escrow, Fee reconciliation, Chain readiness, Platform settings, Support).
-- Power-user features that suit a console: a command palette, saved filters/views, bulk row actions, and richer data-visualisation.
-- Final polish so the signed-in app and the public pages feel like one family.
+**Phase 3 — deeper trust assets**
+- A dedicated Trust Centre page combining live status, security practices, compliance documents and incident history.
+- Expanded merchant case-study pages behind the homepage quotes.
+- Inline fee calculator in the Pricing section and a short embedded product walkthrough in the Hero.
 
 ## Assumptions
-- **Scope answer "g" is read as:** redesign the whole app, but build only the most-used pages now — Dashboard, Transactions, Payment links, Customers — as the MVP, with the shared foundation they all reuse. The rest follow in Phases 2–3.
-- **Direction is Mercury-style "data console" (answer b):** restrained, airy, legible; not the public pages' expressive editorial-glass look. The public pages are left unchanged.
-- **Accent handling ("best option"):** the app chrome stays neutrally Dynopay-branded with a single reserved accent (gold) for primary actions and active states; a merchant's custom accent colour appears only on the brand/identity element (switcher/avatar), **not** across tables, charts or statuses — so dense data reads consistently regardless of brand. (This differs from the public pages, which are fully merchant-themed.)
-- **Typography:** a clean grotesk at intermediate weights across the app (keeping the existing body typeface, used more deliberately), with tabular numerals for all figures and a mono reserved for IDs/hashes/addresses. The expressive display face used on public pages is intentionally kept **out** of the in-app chrome.
-- **Theme:** dark-first is the hero; a refined light mode ships alongside it. The existing theme toggle and density preference are preserved.
-- **Behaviour is preserved:** this is a presentation-layer redesign. Page logic, data, routes, permissions and existing automation hooks are kept as-is; detail views keep their current actions (re-housed into slide-over panels where that improves scanning). No changes to backends or data.
-- **Detail pattern:** list rows open a right-side slide-over panel rather than a centered modal, except where a modal is clearly better (e.g. confirmations).
-- **Known data-heavy niceties included in the MVP tables:** date grouping, a summary strip, quiet empty/loading states, and the restrained status style. Command palette, saved views and bulk actions are deferred to Phase 3.
-- **No new third-party integrations** are required for the redesign.
+- "In-app pages" means the app's current Mercury-style operations-console design system (flat hairline surfaces, Manrope + IBM Plex Sans, warm near-black canvas, gold reserved for primary actions, left-aligned). The landing adopts that system rather than creating a third look.
+- The rebuild is a restructure and re-skin, not a repositioning: the product promise, CTAs (Start free / live checkout demo), pricing facts and the two merchant stories stay; copy is tightened for plain language and one new section (Security & compliance) is added.
+- Section order is changed so proof sits directly under the hero and pricing precedes the usage paths; the nine existing questions are kept and one ("Is my money safe?") is added — eleven sections including header/footer alignment.
+- The Security & compliance section uses only claims already published on existing Dynopay pages (AML policy, wallet security, terms, privacy, status). No new guarantees (insurance, licences, audits) are asserted.
+- Hero and step visuals are the real product UI rendered in the app's component style — no stock photography or abstract illustration.
+- Dark mode is the default presentation, as in the app; light mode follows the existing site toggle.
+- The live metrics continue to come from the existing server-rendered feed; when a figure is unavailable the strip shows a neutral placeholder rather than a fabricated number.
+- Header and footer are shared public components; they are restyled to match in Phase 1, but other marketing pages that use them are only fully aligned in Phase 2.
+- Existing behaviours are retained unchanged: signed-in redirect to dashboard, `?view=landing` override, anchor ids, FAQ structured data, visitor tracking, multi-language support.
+- No new third-party integrations are needed.

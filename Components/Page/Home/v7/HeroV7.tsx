@@ -1,92 +1,86 @@
 import React, { memo } from "react";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
-import { FONT_BODY, FONT_TECH, useAurora, BRAND_ACCENT } from "../v3/theme.v3";
-import { HeadlineXL, AuroraInk, Body, Eyebrow } from "../v3/styled.v3";
-import { PrimaryBtn, SecondaryBtn, goStart } from "../v5/shared";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import { Display, Eyebrow, FONT_BODY, FONT_MONO, PrimaryBtn, SecondaryBtn, goStart, useConsole } from "./kit";
 import CheckoutMock from "./mock/CheckoutMock";
 import { MockPlinth } from "./mock/MockPlinth";
 import { HOME_PAYMENTS } from "./mock/payments";
 
 /**
- * Section 1 of 9 — HERO (answers: "What is it?").
- * Centered statement headline on the dark Bybit ground with a soft yellow glow,
- * two CTAs (Start free / See how it works) and, below them, the real hosted
- * checkout as a glossy product mockup cycling through a payment being received.
+ * Section 1 — HERO ("What is it?"). Mercury-style operations-console look:
+ * left-aligned editorial headline block beside the REAL hosted checkout as a
+ * live product panel (no stock imagery, no aurora glow, no gradient text).
  */
 const HeroV7: React.FC = () => {
-  const s = useAurora();
+  const s = useConsole();
   const router = useRouter();
   const { t } = useTranslation("landing");
+
   return (
     <Box
       component="section"
       id="hero"
       data-testid="hero"
-      sx={{ position: "relative", overflow: "hidden", background: s.bg, pt: { xs: 12, md: 18 }, pb: { xs: 8, md: 11 } }}
+      sx={{ background: s.canvas, pt: { xs: 5, md: 8 }, pb: { xs: 7, md: 11 } }}
     >
       <Box
-        aria-hidden
         sx={{
-          position: "absolute",
-          top: "-32%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: { xs: 700, md: 1100 },
-          height: { xs: 700, md: 1100 },
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${BRAND_ACCENT} 0%, ${BRAND_ACCENT}88 26%, transparent 68%)`,
-          opacity: s.dark ? 0.16 : 0.08,
-          pointerEvents: "none",
+          maxWidth: 1200,
+          mx: "auto",
+          px: { xs: 3, md: 6 },
+          display: "grid",
+          gridTemplateColumns: { xs: "minmax(0, 1fr)", lg: "minmax(0, 1fr) minmax(0, 1.05fr)" },
+          gap: { xs: 6, lg: 7 },
+          alignItems: "center",
         }}
-      />
-      <Box sx={{ position: "relative", zIndex: 1, maxWidth: 900, mx: "auto", px: { xs: 3, md: 5 }, textAlign: "center" }}>
-        <Eyebrow component="p" sx={{ mb: 3 }}>
-          {t("v7.hero.eyebrow")}
-        </Eyebrow>
-        <HeadlineXL component="h1" data-testid="hero-headline" sx={{ color: s.ink }}>
-          {t("v7.hero.headline1")}
-          <br />
-          <AuroraInk>{t("v7.hero.headline2")}</AuroraInk>
-        </HeadlineXL>
-        <Body sx={{ color: s.ink2, fontSize: { xs: 17, md: 20 }, mt: 3.5, mx: "auto", maxWidth: 640, fontFamily: FONT_BODY }}>
-          {t("v7.hero.body")}
-        </Body>
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.5, mt: 4.5 }}>
-          <PrimaryBtn data-testid="hero-primary-cta" onClick={() => goStart(router, "hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-            {t("v7.hero.primary")}
-          </PrimaryBtn>
-          <SecondaryBtn data-testid="hero-secondary-cta" onDark={s.dark} href="/pay/demo" startIcon={<PlayArrowRoundedIcon sx={{ fontSize: 20 }} />}>
-            {t("v7.hero.secondary")}
-          </SecondaryBtn>
-        </Box>
-        <Body sx={{ fontFamily: FONT_TECH, fontSize: 12.5, letterSpacing: "0.06em", textTransform: "uppercase", color: s.ink3, mt: 3 }}>
-          {t("v7.hero.note")}
-        </Body>
-        <Box data-testid="hero-mock-wrap" sx={{ position: "relative", mt: { xs: 7, md: 9 }, mx: "auto", maxWidth: 760, textAlign: "left" }}>
-          <Box
-            aria-hidden
-            sx={{
-              position: "absolute",
-              left: "8%",
-              right: "8%",
-              bottom: "-18%",
-              height: "55%",
-              borderRadius: "50%",
-              background: `radial-gradient(ellipse at center, ${BRAND_ACCENT}66 0%, transparent 70%)`,
-              filter: "blur(36px)",
-              opacity: s.dark ? 0.55 : 0.35,
-              pointerEvents: "none",
-            }}
-          />
-          <Box sx={{ position: "relative", transform: { md: "perspective(1800px) rotateX(3deg)" }, transformOrigin: "top center" }}>
-            <MockPlinth>
-              <CheckoutMock payments={HOME_PAYMENTS} />
-            </MockPlinth>
+      >
+        {/* Left — editorial copy */}
+        <Box sx={{ maxWidth: 560, minWidth: 0 }}>
+          <Eyebrow sx={{ mb: 3 }}>{t("v7.hero.eyebrow")}</Eyebrow>
+          <Display testId="hero-headline">
+            {t("v7.hero.headline1")} {t("v7.hero.headline2")}
+          </Display>
+          <Typography
+            sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: { xs: 16, md: 18 }, lineHeight: 1.6, mt: 3, maxWidth: 520 }}
+          >
+            {t("v7.hero.body")}
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 4 }}>
+            <PrimaryBtn
+              data-testid="hero-primary-cta"
+              onClick={() => goStart(router, "hero")}
+              endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}
+            >
+              {t("v7.hero.primary")}
+            </PrimaryBtn>
+            <SecondaryBtn
+              data-testid="hero-secondary-cta"
+              href="/pay/demo"
+              startIcon={<PlayArrowRoundedIcon sx={{ fontSize: 20 }} />}
+            >
+              {t("v7.hero.secondary")}
+            </SecondaryBtn>
           </Box>
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, mt: 3.5 }}>
+            <LockRoundedIcon sx={{ fontSize: 13, color: s.ink3 }} />
+            <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.04em", color: s.ink3 }}>
+              {t("v7.hero.note")}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Right — live product panel */}
+        <Box
+          data-testid="hero-mock-wrap"
+          sx={{ position: "relative", width: "100%", minWidth: 0, maxWidth: { xs: 480, lg: "none" }, mx: { xs: "auto", lg: 0 } }}
+        >
+          <MockPlinth>
+            <CheckoutMock payments={HOME_PAYMENTS} />
+          </MockPlinth>
         </Box>
       </Box>
     </Box>

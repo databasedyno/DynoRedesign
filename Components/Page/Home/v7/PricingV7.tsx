@@ -3,50 +3,49 @@ import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { Section, SectionHead, PrimaryBtn, cardSx } from "../v5/shared";
-import { Stagger, StaggerItem } from "../motion/Stagger";
+import { FONT_BODY, FONT_DISPLAY, FONT_MONO, PrimaryBtn, Section, SectionHead, cardSx, useConsole } from "./kit";
 
-/** Section 7 of 9 — PRICING (answers: "What does it cost?"). Full table lives on /fees. */
+/** Section 4 — PRICING ("What does it cost?"). The full table lives on /fees. */
 const PERKS = ["free", "noMonthly", "noChargebacks", "volume"];
 
 const PricingV7: React.FC = () => {
-  const s = useAurora();
+  const s = useConsole();
   const { t } = useTranslation("landing");
   return (
     <Section id="pricing" testId="pricing">
-      <SectionHead
-        center
-        eyebrow={t("v7.pricing.eyebrow")}
-        headline={t("v7.pricing.headline")}
-        body={t("v7.pricing.body")}
-        maxWidth={720}
-        testId="pricing-head"
-      />
-      <Stagger step={0.1} sx={{ maxWidth: 620, mx: "auto" }}>
-        <StaggerItem i={0} y={18}>
-          <Box sx={{ ...cardSx(s, { hover: false }), p: { xs: 3.5, md: 5 }, textAlign: "center" }}>
-            <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12.5, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1 }}>
-              {t("v7.pricing.startsAt")}
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: { xs: 4, lg: 7 }, alignItems: "center" }}>
+        <Box>
+          <SectionHead eyebrow={t("v7.pricing.eyebrow")} title={t("v7.pricing.headline")} lead={t("v7.pricing.body")} testId="pricing-head" sx={{ mb: 0 }} />
+        </Box>
+
+        <Box sx={{ ...cardSx(s, { hover: false }), p: { xs: 3.5, md: 4.5 } }}>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: s.ink3 }}>
+            {t("v7.pricing.startsAt")}
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, mt: 1 }}>
+            <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 500, fontSize: { xs: 52, md: 64 }, lineHeight: 1, letterSpacing: "-0.03em", color: s.ink, fontVariantNumeric: "tabular-nums" }}>
+              1.5
             </Typography>
-            <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 56, md: 72 }, lineHeight: 1, letterSpacing: "-0.03em", color: s.ink }}>
-              1.5<Box component="span" sx={{ fontSize: { xs: 26, md: 32 }, color: s.accent }}>%</Box>
-            </Typography>
-            <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, color: s.ink2, mt: 1.5 }}>{t("v7.pricing.perPayment")}</Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1.5, textAlign: "left", mt: 4, mb: 4 }}>
-              {PERKS.map((p) => (
-                <Box key={p} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <CheckRoundedIcon sx={{ fontSize: 18, color: s.accent }} />
-                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink }}>{t(`v7.pricing.perks.${p}`)}</Typography>
-                </Box>
-              ))}
-            </Box>
-            <PrimaryBtn href="/fees" data-testid="pricing-fees-cta" endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-              {t("v7.pricing.cta")}
-            </PrimaryBtn>
+            <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 500, fontSize: { xs: 26, md: 30 }, color: s.accent, letterSpacing: "-0.02em" }}>%</Typography>
           </Box>
-        </StaggerItem>
-      </Stagger>
+          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, color: s.ink2, mt: 1 }}>{t("v7.pricing.perPayment")}</Typography>
+
+          <Box sx={{ height: 1, background: s.line, my: 3 }} />
+
+          <Box sx={{ display: "grid", gap: 1.5 }}>
+            {PERKS.map((p) => (
+              <Box key={p} sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                <CheckRoundedIcon sx={{ fontSize: 18, color: s.accent, flexShrink: 0 }} />
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: s.ink }}>{t(`v7.pricing.perks.${p}`)}</Typography>
+              </Box>
+            ))}
+          </Box>
+
+          <PrimaryBtn href="/fees" data-testid="pricing-fees-cta" endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ mt: 4 }}>
+            {t("v7.pricing.cta")}
+          </PrimaryBtn>
+        </Box>
+      </Box>
     </Section>
   );
 };

@@ -16,24 +16,8 @@ export const FooterWrapper = styled("footer")(({ theme }) => {
     paddingBottom: "calc(40px + var(--dp-lang-bar, 0px))",
     display: "flex",
     justifyContent: "center",
-    backgroundColor: dark ? "#000000" : "#F5F7FA",
-    borderTop: `1px solid ${dark ? "rgba(255,255,255,0.08)" : "rgba(10,10,10,0.07)"}`,
-
-    // Subtle indigo bloom at the top edge (dark mode only) to echo the header.
-    "&::before": dark
-      ? {
-          content: '""',
-          position: "absolute",
-          top: -150,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: 720,
-          height: 300,
-          borderRadius: "50%",
-          background: "radial-gradient(closest-side, rgba(255,209,0,0.10), transparent)",
-          pointerEvents: "none",
-        }
-      : {},
+    backgroundColor: dark ? "#0E0E0D" : "#F9F9F8",
+    borderTop: `1px solid ${dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}`,
 
     [theme.breakpoints.down("md")]: {
       paddingTop: 48,

@@ -1,27 +1,21 @@
 import React, { memo, useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import { FONT_TECH, useAurora } from "../v3/theme.v3";
 import { useTranslation } from "react-i18next";
+import { FONT_MONO, useConsole } from "./kit";
 
 /**
- * Subtle supported-coins marquee shown directly under the hero. Two identical
- * tracks scroll left and loop seamlessly at -50%; motion is disabled for users
- * who prefer reduced motion and pauses on hover. Icons come from the same
- * Iconify "cryptocurrency-color" set the checkout uses.
- *
- * The coin set is now LIVE: it is built from the public price feed
- * (GET /api/public/tickers) so the strip always mirrors the assets the platform
- * currently tracks. Stablecoins (USDT/USDC) are always surfaced for a payments
- * brand, and a curated static list is the fallback before data arrives or if the
- * feed is empty/unavailable.
+ * Quiet supported-assets band directly under the hero. The coin set is LIVE —
+ * built from the public price feed (GET /api/public/tickers) so it mirrors the
+ * assets the platform actually tracks; a curated static list is the fallback.
+ * Two identical tracks scroll left and loop at -50%; paused on hover and for
+ * users who prefer reduced motion.
  */
 interface Coin {
   id: string;
   label: string;
 }
 
-// Ticker symbol (from /api/public/tickers) -> Iconify "cryptocurrency-color" glyph.
 const SYMBOL_ICON: Record<string, string> = {
   BTC: "btc",
   ETH: "eth",
@@ -45,13 +39,10 @@ const toCoin = (sym: string): Coin | null => {
   return { id: `cryptocurrency-color:${icon}`, label: key === "MATIC" ? "POL" : key };
 };
 
-// Curated fallback shown before live data arrives (or if the feed is empty).
 const FALLBACK: Coin[] = (["BTC", "ETH", "USDT", "USDC", "SOL", "XRP", "TRX", "LTC", "DOGE", "BCH", "POL"]
   .map(toCoin)
   .filter(Boolean) as Coin[]);
 
-// Stablecoins a payments brand should always show even though the majors-only
-// price feed doesn't return them.
 const ALWAYS = ["USDT", "USDC"];
 
 const buildCoins = (symbols: string[]): Coin[] => {
@@ -68,29 +59,22 @@ const buildCoins = (symbols: string[]): Coin[] => {
 };
 
 const CoinsStripV7: React.FC = () => {
-  const s = useAurora();
+  const s = useConsole();
   const { t } = useTranslation("landing");
   const [coins, setCoins] = useState<Coin[]>(FALLBACK);
 
   useEffect(() => {
     let alive = true;
-    const base = (
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      process.env.NEXT_PUBLIC_SERVER_URL ||
-      ""
-    ).replace(/\/+$/, "");
+    const base = (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SERVER_URL || "").replace(/\/+$/, "");
     fetch(`${base}/api/public/tickers`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (!alive || !Array.isArray(j?.data) || j.data.length === 0) return;
         const syms = j.data.map((row: { symbol?: string }) => String(row?.symbol || "")).filter(Boolean);
         const next = buildCoins(syms);
-        // Only swap in the live set when it's rich enough to look intentional.
         if (next.length >= 3) setCoins(next);
       })
-      .catch(() => {
-        /* keep the curated fallback */
-      });
+      .catch(() => {});
     return () => {
       alive = false;
     };
@@ -99,54 +83,69 @@ const CoinsStripV7: React.FC = () => {
   const track = [...coins, ...coins];
 
   return (
-    <Box component="section" data-testid="coins-strip" sx={{ background: s.bg, pb: { xs: 6, md: 8 } }}>
+    <Box component="section" data-testid="coins-strip" sx={{ background: s.canvas, borderTop: `1px solid ${s.line}` }}>
       <style>{`@keyframes dyno-coins-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
-
-      <Typography
-        sx={{
-          fontFamily: FONT_TECH,
-          fontSize: 11.5,
-          letterSpacing: "0.16em",
-          textTransform: "uppercase",
-          color: s.ink3,
-          textAlign: "center",
-          mb: { xs: 2.5, md: 3 },
-        }}
-      >
-        {t("v7.coins.label")}
-      </Typography>
-
       <Box
         sx={{
-          position: "relative",
-          overflow: "hidden",
-          maskImage: "linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent)",
-          WebkitMaskImage: "linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent)",
+          maxWidth: 1200,
+          mx: "auto",
+          px: { xs: 3, md: 6 },
+          py: { xs: 3, md: 3.5 },
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
+          gap: { xs: 2, md: 4 },
         }}
       >
-        <Box
-          data-testid="coins-marquee-track"
+        <Typography
           sx={{
-            display: "inline-flex",
-            width: "max-content",
-            alignItems: "center",
-            animation: "dyno-coins-marquee 36s linear infinite",
-            "&:hover": { animationPlayState: "paused" },
-            "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+            fontFamily: FONT_MONO,
+            fontSize: 11.5,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: s.ink3,
+            flexShrink: 0,
+            whiteSpace: { md: "nowrap" },
           }}
         >
-          {track.map((c, i) => (
-            <Box
-              key={`${c.label}-${i}`}
-              aria-hidden={i >= coins.length ? true : undefined}
-              sx={{ display: "inline-flex", alignItems: "center", gap: 1, px: { xs: 2.25, md: 3 }, flexShrink: 0 }}
-            >
-              <Icon icon={c.id} width={22} height={22} />
-              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 13.5, fontWeight: 600, letterSpacing: "0.04em", color: s.ink2, whiteSpace: "nowrap" }}>
-                {c.label}
-              </Typography>
-            </Box>
-          ))}
+          {t("v7.coins.label")}
+        </Typography>
+
+        <Box
+          sx={{
+            position: "relative",
+            flex: 1,
+            minWidth: 0,
+            width: "100%",
+            overflow: "hidden",
+            maskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
+            WebkitMaskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
+          }}
+        >
+          <Box
+            data-testid="coins-marquee-track"
+            sx={{
+              display: "inline-flex",
+              width: "max-content",
+              alignItems: "center",
+              animation: "dyno-coins-marquee 42s linear infinite",
+              "&:hover": { animationPlayState: "paused" },
+              "@media (prefers-reduced-motion: reduce)": { animation: "none" },
+            }}
+          >
+            {track.map((c, i) => (
+              <Box
+                key={`${c.label}-${i}`}
+                aria-hidden={i >= coins.length ? true : undefined}
+                sx={{ display: "inline-flex", alignItems: "center", gap: 0.9, px: { xs: 2, md: 2.5 }, flexShrink: 0, opacity: 0.85 }}
+              >
+                <Icon icon={c.id} width={20} height={20} />
+                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, letterSpacing: "0.03em", color: s.ink2, whiteSpace: "nowrap" }}>
+                  {c.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
       </Box>
     </Box>

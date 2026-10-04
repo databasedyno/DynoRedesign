@@ -1,11 +1,9 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "../v3/theme.v3";
-import { Section, SectionHead, cardSx } from "../v5/shared";
-import { Stagger, StaggerItem } from "../motion/Stagger";
+import { FONT_BODY, FONT_DISPLAY, FONT_MONO, Section, SectionHead, useConsole } from "./kit";
 
-/** Section 3 of 9 — HOW IT WORKS (answers: "How does it work?") — three steps. */
+/** Section 3 — HOW IT WORKS ("How does it work?") — three steps, flat and left-aligned. */
 const STEPS = [
   { n: "01", key: "create" },
   { n: "02", key: "pay" },
@@ -13,47 +11,44 @@ const STEPS = [
 ];
 
 const HowItWorksV7: React.FC = () => {
-  const s = useAurora();
+  const s = useConsole();
   const { t } = useTranslation("landing");
   return (
     <Section id="how-it-works" testId="how-it-works">
-      <SectionHead
-        center
-        eyebrow={t("v7.how.eyebrow")}
-        headline={t("v7.how.headline")}
-        body={t("v7.how.body")}
-        maxWidth={720}
-        testId="how-head"
-      />
-      <Stagger step={0.1} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: { xs: 2.5, md: 3 } }}>
+      <SectionHead eyebrow={t("v7.how.eyebrow")} title={t("v7.how.headline")} lead={t("v7.how.body")} testId="how-head" />
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
+          border: `1px solid ${s.line}`,
+          borderRadius: "14px",
+          overflow: "hidden",
+        }}
+      >
         {STEPS.map((step, i) => (
-          <StaggerItem key={step.n} i={i} y={18}>
-            <Box sx={{ ...cardSx(s), p: { xs: 3, md: 4 }, height: "100%" }}>
-              <Box
-                sx={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: "12px",
-                  display: "grid",
-                  placeItems: "center",
-                  background: s.accentSoft,
-                  color: s.accent,
-                  fontFamily: FONT_TECH,
-                  fontWeight: 700,
-                  fontSize: 16,
-                  mb: 2.5,
-                }}
-              >
-                {step.n}
-              </Box>
-              <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 19, md: 21 }, letterSpacing: "-0.01em", color: s.ink, mb: 1.25 }}>
-                {t(`v7.how.steps.${step.key}.title`)}
-              </Typography>
-              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15.5, lineHeight: 1.6, color: s.ink2 }}>{t(`v7.how.steps.${step.key}.body`)}</Typography>
-            </Box>
-          </StaggerItem>
+          <Box
+            key={step.n}
+            sx={{
+              p: { xs: 3, md: 4 },
+              borderTop: { xs: i > 0 ? `1px solid ${s.line}` : "none", md: "none" },
+              borderLeft: { xs: "none", md: i > 0 ? `1px solid ${s.line}` : "none" },
+            }}
+          >
+            <Typography sx={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 600, letterSpacing: "0.08em", color: s.accent }}>
+              {step.n}
+            </Typography>
+            <Typography
+              component="h3"
+              sx={{ fontFamily: FONT_DISPLAY, fontWeight: 500, fontSize: { xs: 18, md: 20 }, letterSpacing: "-0.01em", color: s.ink, mt: 2, mb: 1.25 }}
+            >
+              {t(`v7.how.steps.${step.key}.title`)}
+            </Typography>
+            <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.6, color: s.ink2 }}>
+              {t(`v7.how.steps.${step.key}.body`)}
+            </Typography>
+          </Box>
         ))}
-      </Stagger>
+      </Box>
     </Section>
   );
 };
