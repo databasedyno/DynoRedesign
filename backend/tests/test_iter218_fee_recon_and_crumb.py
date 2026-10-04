@@ -8,7 +8,7 @@ import time
 import pytest
 import requests
 
-BASE_URL = "https://vault-setup-16.preview.emergentagent.com"
+BASE_URL = "https://secure-vault-init.preview.emergentagent.com"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
 CREDS = {"email": "moxxcompany@gmail.com", "password": "Katiekendra123@"}
 

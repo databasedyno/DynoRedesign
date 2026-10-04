@@ -1,7 +1,7 @@
 #!/bin/bash
 # Read-only security audit tests for Dynopay backend hardening pass
 set +e
-BASE="https://vault-setup-16.preview.emergentagent.com"
+BASE="https://secure-vault-init.preview.emergentagent.com"
 UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120 Safari/537.36"
 COOKIE=$(mktemp)
 PASS=0; FAIL=0

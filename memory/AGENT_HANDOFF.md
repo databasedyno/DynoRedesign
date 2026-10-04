@@ -19,7 +19,7 @@
 
 ## 2026-10-04 session (pod 0b940d6a, setup via vault) — SETUP ONLY, no code changes
 - `pod-bootstrap.sh` run with the vault passphrase → env restored, SAFE MODE on (bg jobs off, outbound email off), prod build served.
-- Live preview = **https://vault-setup-16.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
+- Live preview = **https://secure-vault-init.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
 - Verified: backend /health (db+redis connected, background_jobs.eligible=false), landing 0 CORS errors, merchant dashboard (company 1) loads live data via cached token, 0 console errors. No prod DB writes.
 
 ## 2026-10-02 session (pod setup via vault) — SHIPPED (code-complete, NOT yet deployed)

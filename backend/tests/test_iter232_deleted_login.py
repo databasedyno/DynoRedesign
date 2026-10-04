@@ -14,7 +14,7 @@ import subprocess
 import requests
 import pytest
 
-BASE = "https://vault-setup-16.preview.emergentagent.com"
+BASE = "https://secure-vault-init.preview.emergentagent.com"
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 QA-iter232"}
 TS = int(time.time())
 EMAIL = f"qa_acctdel_{TS}@example.com"
