@@ -13,7 +13,7 @@ import json, os, subprocess, time, uuid
 import pytest
 import requests
 
-BASE_URL = os.environ.get("NEXT_PUBLIC_SERVER_URL", "https://secure-passphrase-12.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("NEXT_PUBLIC_SERVER_URL", "https://secure-passphrase-13.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 RO = "/app/backend/scripts/ro_query.js"
 SELFHEAL = "/app/backend/scripts/topup_selfheal_test.js"

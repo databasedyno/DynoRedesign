@@ -259,7 +259,7 @@ Scenarios: (A) creators fresh → claim → share → finish lands on storefront
 
 ## 7. Build / run notes for this pod (IMPORTANT)
 
-* App shape: Next.js at `/app` root (NOT `/app/frontend/src`), Express/TS backend at `/app/backend` (ts-node behind uvicorn proxy :8001 → :3300). Preview URL = `SERVER_URL` in `/app/backend/.env` (`https://secure-passphrase-12.preview.emergentagent.com`). There is NO `/app/frontend/.env`.
+* App shape: Next.js at `/app` root (NOT `/app/frontend/src`), Express/TS backend at `/app/backend` (ts-node behind uvicorn proxy :8001 → :3300). Preview URL = `SERVER_URL` in `/app/backend/.env` (`https://secure-passphrase-13.preview.emergentagent.com`). There is NO `/app/frontend/.env`.
 * **Frontend is a production build** (`FRONTEND_MODE=production`, dist `.next-prod`). Source edits are NOT live until:
   `cd /app && NEXT_DIST_DIR=.next-prod-new NODE_OPTIONS=--max-old-space-size=8192 node_modules/.bin/next build` (≈2.5 min, run in background, poll the log)
   → `sudo supervisorctl stop frontend && rm -rf .next-prod && mv .next-prod-new .next-prod && sudo supervisorctl start frontend`.
