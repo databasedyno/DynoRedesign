@@ -1,0 +1,26 @@
+{
+  "summary": "Verified the tidy-up round from iteration_266: (1) /customers mobile toolbar layout at 320/360/390 — search is on its own row, sort+Add+export share ONE non-wrapping row (top-offset diff <=4px), no horizontal overflow; (2) Add button is icon-only at 320 with aria-label='Add customer' and still opens the add-customer dialog, shows the full 'Add customer' text label at 360/390/768/1280; (3) Sort select works on mobile — options list renders, 'Highest value' is selectable, label text 'Most recent' does NOT overflow the chip at 320 (scrollW==clientW==152); (4) SummaryStrip NET REVENUE $34,075.29 renders on ONE line (white-space:nowrap, not clipped) at 320/360/390/768/1280 on /customers, and Invoices summary figures ($35,052.58 / $0.00 / $997.28) are also nowrap/not clipped at 1440; (5) Backend aggregate matches spec exactly: GET /api/userApi/customers/directory?company_id=1 -> aggregates.new_this_month=0, paying_customers=0, invited_count=12; (6) Lint fix confirmed: `yarn lint:eslint` exits 0 with NO 'Invalid Options' warning; (7) Smoke of /dashboard, /wallet, /transactions, /invoices returned HTTP 200 at 1440. The main agent's RCA on the 429s is confirmed by this run: 100% of observed 429s carry `server: cloudflare` — these are the preview-domain bot challenge firing on burst navigation (headless Chromium requesting ~40+ JS chunks), NOT an app or nginx issue; direct backend curls return 200.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_267.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor UX: at 320px the Add-customer dialog does NOT close via Escape key (Dialog opened: True, after Esc: still open). Likely intentional (disableEscapeKeyDown on form dialogs to prevent accidental data loss) — flagging only; the explicit cancel/close button was not re-tested because CF challenged the follow-up navigation. If unintended, consider enabling Escape close.",
+    "Observation (not an app bug): under headless burst traffic the preview-domain Cloudflare WAF rate-limits static chunk GETs (173 429s observed, all with `server: cloudflare` and chunk-type `_next/static/chunks/*.js`). The downstream 'ChunkLoadError' + 'MIME type text/html' console errors are a symptom of CF serving a challenge HTML in place of JS. Pacing with `wait_for_timeout(2500)` between navigations only partly mitigates it. If this bites real users (unlikely — they don't burst), consider lowering the CF bot-fight threshold for the preview hostname or allow-listing `/_next/static/*`."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100% (all in-scope checks pass; two smoke pages at 390 — /dashboard and /invoices — timed out mid-load due to Cloudflare 429s on JS chunks, infra not app)"},
+  "test_credentials": "Merchant token from /app/memory/tmp/merchant_token.txt + localStorage last_company_id=1 (per /app/memory/test_credentials.md).",
+  "seed_data_creation": "None — SAFE MODE respected, no writes performed.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "iteration_266 covered the full 10-area UX overhaul; this run only re-tested the tidy-up: mobile toolbar layout, SummaryStrip Net Revenue single-line, customers aggregate, lint fix. Toolbar measurements captured in output: at 320 search y=548 and sort/add/export y=593-596 (toolbar diff 2.7px), at 390 search y=512 toolbar y=557-559, at 1280 search is inline with toolbar (y~=415, desktop single-row layout as expected from iteration_266). CF 429 is a known infra behavior for burst headless traffic on this preview hostname — pace navigation with >=2.5s delays if you need to touch many pages. Backend directory aggregates are Redis-cached 60s so values are stable across runs.",
+  "rca of the issue": "The reported '429 too many requests on display-currency / session-check' are Cloudflare edge rate-limits on the preview hostname, not FastAPI/nginx. Evidence: every 429 response header has `server: cloudflare`; direct `curl` against /api endpoints returned 200 for the aggregate check and all paced browser navigations returned HTTP 200. The useDisplayFx hook change (removing shouldRetryOnError:false) now piggybacks on global SWR retry, so transient CF 429s on display-currency should silently recover. No app-level fix needed; the only user-visible impact is during headless screenshot bursts."
+}

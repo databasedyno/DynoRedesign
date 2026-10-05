@@ -2217,6 +2217,9 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - "Storefront" → "Your page" everywhere; editor split into collapsible EditorSection blocks with visible save bar; Products table toolbar + ProductRowMenu (⋯).
 - Developer keys → compact ApiKeysTable (env, key, last used, created, ⋯). Referrals → ReferralLinkHero + single ReferralZeroState + ReferralEarningsCard.
 - Notifications kind filter uses shared dark pill; read-only inputs softened. Verified by testing_agent iteration_266 (10/10 areas, 0 overflow at 1440/1280/390).
-- Tidy-up: Customers mobile toolbar = search row + one non-wrapping controls row (customers-toolbar-controls).
+- Tidy-up: Customers mobile toolbar = search row + one non-wrapping controls row (customers-toolbar-controls); Add customer icon-only <360px.
+- SummaryStrip (Customers/Invoices): figures auto-shrink to fit their tile (container-query units, nowrap) — no more clipped/wrapped "$34,075.29" on small phones.
+- Customers "New (30d)" now counts first SETTLED payment in 30d (invited-only no longer counted; was showing 10 next to 0 paying).
+- Verified by testing_agent iteration_267 (100%, retest_needed=false).
 - 429 RCA: NOT the app — Cloudflare edge bot challenge ("Just a moment…", server: cloudflare) on the preview domain when headless Chromium bursts ~1.3k requests; zero 429s in backend/nginx logs; 380 direct curl calls all 200. useDisplayFx now uses global SWR retry (2) so a transient failure no longer pins USD for the session.
 - Lint: Next 15 build lint picked eslint.config.mjs (platform stub) with ESLint 8 → "Unknown options: useEslintrc, extensions", so the build-time gate never ran. Set eslint.ignoreDuringBuilds=true; added `yarn lint:eslint` (legacy .eslintrc, errors only, currently clean) as a CI preflight step.
