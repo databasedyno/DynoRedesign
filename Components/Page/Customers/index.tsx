@@ -42,6 +42,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  useMediaQuery,
 } from "@mui/material";
 import useToast from "@/hooks/useToast";
 import PeopleAltRounded from "@mui/icons-material/PeopleAltRounded";
@@ -190,6 +191,7 @@ const CustomersPage: React.FC = () => {
   const theme = useTheme();
   const cardView = useTableCardView(); // < 768px → card list
   const isMobile = useIsMobile("md");
+  const isNarrow = useMediaQuery("(max-width:359.95px)");
   const isTablet = useIsMobile("lg"); // < 1200px → condensed table
   const { t } = useTranslation("common");
   const fx = useDisplayFx();
@@ -600,6 +602,10 @@ const CustomersPage: React.FC = () => {
           testid: "customers-search-input",
         }}
       >
+        <Box
+          data-testid="customers-toolbar-controls"
+          sx={{ display: "flex", alignItems: "center", gap: 1.25, flexWrap: "nowrap", minWidth: 0, flex: { xs: "1 1 100%", sm: "0 0 auto" } }}
+        >
         <Select
           value={sort}
           size="small"
@@ -616,6 +622,7 @@ const CustomersPage: React.FC = () => {
             fontSize: "13px",
             minWidth: { xs: 0, sm: 150 },
             flex: { xs: "1 1 0", sm: "0 0 auto" },
+            "& .MuiSelect-select": { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
             "& fieldset": { borderColor: cardBorder },
           }}
         >
@@ -637,6 +644,8 @@ const CustomersPage: React.FC = () => {
           variant="primary"
           size="small"
           startIcon={<PersonAddAltRounded sx={{ fontSize: 17 }} />}
+          hideLabel={isNarrow}
+          sx={{ flexShrink: 0, ...(isNarrow ? { minWidth: 44, px: 1.25 } : {}) }}
           onClick={() => setAddOpen(true)}
           data-testid="customers-add-btn"
         />
@@ -663,6 +672,7 @@ const CustomersPage: React.FC = () => {
             </IconButton>
           </span>
         </Tooltip>
+        </Box>
       </ConsoleFilterBar>
 
       {/* Segment chips — horizontally scrollable on small screens */}

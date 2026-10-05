@@ -447,6 +447,11 @@ export const buildDirectory = async (
   };
 
   const personList = Array.from(persons.values()).map(finalize);
+  const now = Date.now();
+  // "New (30d)" = people whose FIRST settled payment landed in the window (invited-only don't count).
+  const newThisMonth = Array.from(persons.values()).filter(
+    (p) => p.payments_count > 0 && p.first_paid && now - new Date(p.first_paid).getTime() <= NEW_WINDOW_DAYS * DAY_MS
+  ).length;
   // Anonymous buckets with nothing actionable (no settled payments, no fresh
   // pending) are pure noise — e.g. a "Direct" bucket of long-expired attempts.
   const anonList = Array.from(anon.values())
@@ -455,10 +460,6 @@ export const buildDirectory = async (
 
   const paidPersons = personList.filter((p) => p.payments_count > 0);
   const repeatPersons = paidPersons.filter((p) => p.payments_count >= 2);
-  const now = Date.now();
-  const newThisMonth = personList.filter(
-    (p) => p.first_seen && now - new Date(p.first_seen).getTime() <= NEW_WINDOW_DAYS * DAY_MS
-  ).length;
   const identifiedRevenue = sum(personList.map((p) => p.ltv_usd)).toNumber();
   const anonRevenue = sum(anonList.map((p) => p.ltv_usd)).toNumber();
 

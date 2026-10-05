@@ -27,7 +27,7 @@ const SummaryStrip: React.FC<SummaryStripProps> = ({ items, testid = "summary-st
       data-testid={testid}
       sx={{
         display: "grid",
-        gridTemplateColumns: { xs: "1fr 1fr", sm: `repeat(${Math.min(items.length, 4)}, 1fr)` },
+        gridTemplateColumns: { xs: "repeat(2, minmax(0, 1fr))", sm: `repeat(${Math.min(items.length, 4)}, minmax(0, 1fr))` },
         border: `1px solid ${t.hairline}`,
         borderRadius: "12px",
         bgcolor: t.surface,
@@ -37,12 +37,16 @@ const SummaryStrip: React.FC<SummaryStripProps> = ({ items, testid = "summary-st
     >
       {items.map((it, i) => {
         const toneColor = it.tone ? (t.isDark ? STATUS_PALETTE[it.tone].dark : STATUS_PALETTE[it.tone].light) : t.ink;
+        // Shrink long figures to fit their tile (≈0.56em per tabular glyph).
+        const em = (typeof it.value === "string" || typeof it.value === "number" ? String(it.value).length : 6) * 0.56;
         return (
           <Box
             key={it.testid || i}
             data-testid={it.testid || `summary-tile-${i}`}
             sx={{
-              p: { xs: 2, sm: 2.75 },
+              p: { xs: 1.75, sm: 2.75 },
+              minWidth: 0,
+              containerType: "inline-size",
               borderLeft: i > 0 ? { sm: `1px solid ${t.hairline}` } : "none",
               borderTop: { xs: i >= 2 ? `1px solid ${t.hairline}` : "none", sm: "none" },
             }}
@@ -62,10 +66,11 @@ const SummaryStrip: React.FC<SummaryStripProps> = ({ items, testid = "summary-st
             </Typography>
             <Typography
               sx={{
-                fontSize: { xs: 24, sm: 30 },
+                fontSize: { xs: `min(24px, calc(100cqi / ${em.toFixed(2)}))`, sm: `min(30px, calc(100cqi / ${em.toFixed(2)}))` },
                 fontWeight: 500,
                 lineHeight: 1.1,
                 letterSpacing: "-0.02em",
+                whiteSpace: "nowrap",
                 color: toneColor,
                 ...NUM_SX,
               }}

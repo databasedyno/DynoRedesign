@@ -2210,3 +2210,13 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 ## 2026-10-02 — Onboarding: Save & exit = sign out + resume; brand-welcome + email-codes emails
 - Save & exit setup → confirm dialog → sign out → /auth/login?next=/get-started; any login of a single-brand owner still "setting up" resumes the wizard (FirstRunRedirect gates on brandPhase). "Do this later" unchanged (hero + 24h snooze). Fee-free modal/banner race on first login fixed (wait for coreReady). Dashboard shows neutral skeleton until coreReady.
 - Backend: first brand-details save → delayed (10 min, BullMQ) "Welcome aboard — {Brand} is set up" email instead of "brand details were changed"; email-code 2FA enrolment → "Email codes are now your sign-in second step" email. Locales ×6. testing_agent iteration_250 10/10.
+
+## 2026-10-05 — In-app UX overhaul (all 5 workstreams) + tidy-up
+- Transactions top bar/filters decluttered; Customers default to PAYING customers (invited = prospect, unidentified API payments = anonymous, shown separately); gross/net/settled labels + InfoHint tooltips on Dashboard/Invoices/Wallet/Customers; empty VAT column hidden on Invoices.
+- PageTip dismissals now server-side per account (backend/routes/trackRouter.ts, Components/UX/PageTip).
+- "Storefront" → "Your page" everywhere; editor split into collapsible EditorSection blocks with visible save bar; Products table toolbar + ProductRowMenu (⋯).
+- Developer keys → compact ApiKeysTable (env, key, last used, created, ⋯). Referrals → ReferralLinkHero + single ReferralZeroState + ReferralEarningsCard.
+- Notifications kind filter uses shared dark pill; read-only inputs softened. Verified by testing_agent iteration_266 (10/10 areas, 0 overflow at 1440/1280/390).
+- Tidy-up: Customers mobile toolbar = search row + one non-wrapping controls row (customers-toolbar-controls).
+- 429 RCA: NOT the app — Cloudflare edge bot challenge ("Just a moment…", server: cloudflare) on the preview domain when headless Chromium bursts ~1.3k requests; zero 429s in backend/nginx logs; 380 direct curl calls all 200. useDisplayFx now uses global SWR retry (2) so a transient failure no longer pins USD for the session.
+- Lint: Next 15 build lint picked eslint.config.mjs (platform stub) with ESLint 8 → "Unknown options: useEslintrc, extensions", so the build-time gate never ran. Set eslint.ignoreDuringBuilds=true; added `yarn lint:eslint` (legacy .eslintrc, errors only, currently clean) as a CI preflight step.

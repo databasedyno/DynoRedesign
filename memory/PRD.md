@@ -373,7 +373,7 @@
 # === 2026-10-01 (fork) — FRESH POD SETUP from env.vault.enc — DONE (no code changes) ===
 # Ran `bash scripts/pod-bootstrap.sh --pass '<vault pass>'` → .env.local (187 lines) + backend/.env (199 lines) restored, URLs synced to this pod, SAFE MODE (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
 # Pod restarted mid-install (fresh /tmp, bootstrap killed) → services self-healed; re-ran with --no-restart → ✅ POD READY. Backend /health: db+redis connected, tatum operational, background_jobs eligible=false. Frontend: next build (FRONTEND_MODE=production, distDir=.next-prod) → 200 on :3000 + external.
-# Known/benign: Binance WS geo-blocked (CoinGecko fallback); next build prints ESLint "Invalid Options (useEslintrc, extensions)" — pre-existing, non-blocking.
+# Known/benign: Binance WS geo-blocked (CoinGecko fallback). ESLint "Invalid Options (useEslintrc, extensions)" build noise FIXED 2026-10-05 (build lint off; CI `yarn lint:eslint` gate).
 # ============================================================================================
 
 

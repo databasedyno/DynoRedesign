@@ -8,6 +8,7 @@
     "icons:bundle": "node scripts/gen-icon-bundle.mjs",
     "start": "next start",
     "lint": "tsc --noEmit && ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts,.tsx && node scripts/check-contrast.mjs",
+    "lint:eslint": "ESLINT_USE_FLAT_CONFIG=false eslint pages Components utils hooks contexts helpers api Redux Containers --ext .ts,.tsx --quiet",
     "lint:contrast": "node scripts/check-contrast.mjs",
     "test:devices": "node tests/device-matrix.mjs",
     "preflight": "sh scripts/preflight-tsc.sh --force",

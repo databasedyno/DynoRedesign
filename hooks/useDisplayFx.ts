@@ -51,7 +51,6 @@ export function useDisplayFx() {
       };
     },
     revalidateOnFocus: false,
-    shouldRetryOnError: false,
   });
 
   // Ready once we have data OR the call failed (fail-safe → USD @ 1).

@@ -15,16 +15,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  // ESLint remains ignored during builds — the ruleset has ~500+
-  // pre-existing warnings/errors (unused vars, missing-key, exhaustive-deps)
-  // that would need a separate cleanup arc. Turning this on today would
-  // block every build. Leave as-is until an ESLint cleanup PR arrives.
+  // Next's in-build lint picks eslint.config.mjs (platform stub) over .eslintrc.json and
+  // crashes on ESLint 8 ("Unknown options: useEslintrc, extensions"), so it never ran.
+  // The errors-only gate now runs as `yarn lint:eslint` in CI preflight instead.
   eslint: {
-    // Build fails on ESLint ERRORS only (warnings still allowed). Codebase is
-    // error-clean as of 2026-08-23. `dirs` is explicit because Next's defaults
-    // don't include the capital-C "Components" dir on case-sensitive Linux.
-    ignoreDuringBuilds: false,
-    dirs: ["pages", "Components", "utils", "hooks", "contexts", "helpers", "api", "Redux", "Containers"],
+    ignoreDuringBuilds: true,
   },
   transpilePackages: ["mui-tel-input", "geist"],
 

@@ -124,6 +124,10 @@ jobs:
       - name: No unused imports (frontend)
         run: node scripts/qa/strip_unused_imports.cjs tsconfig.json --check --skip=backend,scripts
 
+      # ESLint errors-only gate (moved out of `next build`, where it could not run).
+      - name: ESLint (errors only)
+        run: yarn lint:eslint
+
   # ─────────────────────────────────────────────────────────────────────
   # Exact Dockerfile build — the same `docker build` the deploy runs,
   # minus the push. Fails on anything tsc-on-a-checkout cannot see:
