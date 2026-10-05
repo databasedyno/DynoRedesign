@@ -1,4 +1,48 @@
 # ============================================================================
+# >>> 2026-10-05 (Create Hub + Fundraiser discovery, vault pod) — FRONTEND CHANGE
+#     Awaiting testing_agent verification.
+# ============================================================================
+#  POD: current preview (https://875d14f5-f029-4004-b360-ffb8078ecdab.preview.emergentagent.com).
+#  SAFE MODE, LIVE prod DB — MOCK every write in UI tests (do NOT actually create links/campaigns).
+#  Merchant/owner for testing: onarrival21@gmail.com / Katiekendra123@ (company_id 1 "The Dev Store").
+#  Quick login alt: localStorage token from /app/memory/tmp/merchant_token.txt + last_company_id=1.
+#
+#  REPORTED BUG: a fundraiser/nonprofit signup saw only "Payment link" + "Product" under "+ New"
+#  and could not find the advertised Fundraiser (crowdfunding) feature. Root cause = pure
+#  discoverability: the fundraiser IS a payment link with link_type="donation" (created at
+#  /create-pay-link?type=donation via LinkTypeSelector, NOT gated by vertical), but the only
+#  chrome entry ("+ New") was a hardcoded two-item Menu; the crowdfunding path was buried behind
+#  a tiny "All options" footnote in the quick panel.
+#
+#  FIX (Phase 1 MVP of approved "Create Flows Redesign & Discovery" plan):
+#   - NEW Components/Layout/NewHeader/CreateHub.tsx — a single Create hub dialog listing ALL FOUR
+#     creatable types with icon + one-line description, ordered by this account's own usage
+#     (localStorage dyno.createUsage.v1 keyed by companyId; sensible default for new accounts):
+#       Payment link (create-hub-paylink) → opens quick panel; "Full options" (create-hub-paylink-full)
+#         → /create-pay-link (quick-vs-full made explicit)
+#       Fundraiser  (create-hub-fundraiser) → /create-pay-link?type=donation
+#       Product     (create-hub-product)    → /pay-links/products/new
+#       Creator page(create-hub-creator)    → /storefront?tab=page (shown to everyone)
+#     + honest settlement note (create-hub-settlement-note) linking to /payouts.
+#   - Components/Layout/NewHeader/CreateNewButton.tsx — "+ New" (header data-testid header-create-new,
+#     mobile FAB mobile-nav-create, and the `n` shortcut) now opens CreateHub instead of the 2-item Menu.
+#   - LinkTypeSelector: donation card relabeled "Crowdfunding" → "Fundraiser".
+#   - HONEST SETTLEMENT COPY (auto-convert is OPT-IN to a stablecoin, default off):
+#       landing v7 hero.body, how.steps.settle.body, faq.coins.a (en/landing.json); PaidStack mock label;
+#       dashboardLayout.json hub strings. No regulated/guaranteed claims; non-custodial/no-chargebacks kept.
+#   GATES: eslint clean; JSON valid; production next build OK; frontend 200.
+#
+#  WHAT TO VERIFY (no writes): on /dashboard click "+ New" → Create hub opens with all 4 options
+#  incl. Fundraiser; clicking Fundraiser lands on /create-pay-link?type=donation with the Fundraiser
+#  tab selected and fundraiser fields visible (campaign title, FUNDING GOAL, suggested amounts) so a
+#  $181,000 goal can be entered; Payment link "Full options" → /create-pay-link; Product →
+#  /pay-links/products/new; Creator page → /storefront?tab=page. Mobile FAB opens the same hub.
+#  Landing hero/FAQ no longer imply automatic conversion. STOP before submitting any create form.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> 2026-10-04 (purge-gap fix, vault pod) — BACKEND CHANGE (verified via
 #     self-cleaning integration test on the live DB; no API testing_agent run
 #     because this internal path has no safe API trigger on prod)

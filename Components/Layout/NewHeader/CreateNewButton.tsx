@@ -1,27 +1,22 @@
 import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { Box, Button, ListItemIcon, ListItemText, Menu, MenuItem, useTheme } from "@mui/material";
+import { Box, Button, useTheme } from "@mui/material";
 import AddRounded from "@mui/icons-material/AddRounded";
-import LinkRounded from "@mui/icons-material/LinkRounded";
-import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import QuickCreateLinkPanel from "@/Components/Page/Payment-link/QuickCreateLinkPanel";
+import CreateHub from "./CreateHub";
 import { QUICK_CREATE_LINK_EVENT } from "@/Components/Common/CommandPalette";
 
 /**
  * CreateNewButton — the ONE create control in the app chrome (audit F3 / N3).
  *
  * Law 3 of the IA audit: "One create control. `+ New` in the header; empty states
- * route into it." Before this, creating a thing was taught in several places at
- * once (a `+` glued to the Payment-links nav row, quick-action tiles, per-page
- * CTAs), so nothing was learned by repetition. This is the single affordance.
- *
- * Two entries only — Payment link and Product. *Bill* is deliberately absent:
- * Dynopay has no accounts-receivable invoicing (every row in tbl_invoice is a
- * RECEIPT for money already received), so offering "Bill" would promise a
- * capability that does not exist. It joins this menu the day real invoicing does.
+ * route into it." It now opens the Create hub (CreateHub) — a single surface that
+ * lists ALL FOUR creatable types (Payment link, Fundraiser, Product, Creator page)
+ * with a plain one-line description each, ordered by this account's own usage.
+ * Nothing is hidden behind a footnote anymore (the old two-item menu buried the
+ * fundraiser + full payment-link options, so merchants couldn't find them).
  *
  * Keyboard: `n` opens it (ignored while typing, and with any modifier held, so it
  * can never fight a browser or OS shortcut).
@@ -32,27 +27,16 @@ interface Props {
 }
 
 const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
-  const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation("dashboardLayout");
   const isTab = variant === "tab";
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [hubOpen, setHubOpen] = useState(false);
   // Move 2 (usability restructuring): pay-link creation is panel-first — the
   // side panel keeps the merchant in context; the full page stays reachable
-  // via the panel's "All options" link.
+  // from the hub's "Full options" link.
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const open = Boolean(anchorEl);
-
-  const close = useCallback(() => setAnchorEl(null), []);
-
-  const go = useCallback(
-    (path: string) => {
-      close();
-      router.push(path);
-    },
-    [close, router],
-  );
+  const open = hubOpen;
 
   // `n` shortcut. Ignored when the user is typing, holding a modifier, or while
   // any drawer / dialog / menu is open — otherwise typing an "n" inside an open
@@ -79,7 +63,7 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
       ).some((node) => !node.closest(".MuiModal-hidden") && getComputedStyle(node).visibility !== "hidden");
       if (modalOpen) return;
       e.preventDefault();
-      if (buttonRef.current) setAnchorEl(buttonRef.current);
+      setHubOpen(true);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -103,9 +87,9 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
           component="button"
           type="button"
           ref={buttonRef as any}
-          onClick={(e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget)}
+          onClick={() => setHubOpen(true)}
           data-testid="mobile-nav-create"
-          aria-haspopup="menu"
+          aria-haspopup="dialog"
           aria-expanded={open ? "true" : undefined}
           aria-label={t("navNew", { defaultValue: "New" })}
           sx={{
@@ -135,9 +119,9 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
       ) : (
       <Button
         ref={buttonRef}
-        onClick={(e) => setAnchorEl(e.currentTarget)}
+        onClick={() => setHubOpen(true)}
         data-testid="header-create-new"
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-expanded={open ? "true" : undefined}
         aria-label={t("navNew", { defaultValue: "New" })}
         disableElevation
@@ -174,50 +158,11 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
       </Button>
       )}
 
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={close}
-        anchorOrigin={isTab ? { vertical: "top", horizontal: "center" } : { vertical: "bottom", horizontal: "left" }}
-        transformOrigin={isTab ? { vertical: "bottom", horizontal: "center" } : { vertical: "top", horizontal: "left" }}
-        slotProps={{
-          paper: {
-            sx: {
-              mt: isTab ? -1.25 : 0.75,
-              minWidth: 210,
-              borderRadius: "12px",
-              border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
-            },
-          },
-        }}
-      >
-        <MenuItem
-          onClick={() => {
-            close();
-            setQuickCreateOpen(true);
-          }}
-          data-testid="header-create-paylink"
-          sx={{ py: 1 }}
-        >
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            <LinkRounded sx={{ fontSize: 19 }} />
-          </ListItemIcon>
-          <ListItemText
-            primary={t("navNewPaymentLink", { defaultValue: "Payment link" })}
-            primaryTypographyProps={{ fontSize: 14, fontFamily: "var(--font-sans)", fontWeight: 600 }}
-          />
-        </MenuItem>
-        <MenuItem onClick={() => go("/pay-links/products/new")} data-testid="header-create-product" sx={{ py: 1 }}>
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            <Inventory2Rounded sx={{ fontSize: 19 }} />
-          </ListItemIcon>
-          <ListItemText
-            primary={t("navNewProduct", { defaultValue: "Product" })}
-            primaryTypographyProps={{ fontSize: 14, fontFamily: "var(--font-sans)", fontWeight: 600 }}
-          />
-        </MenuItem>
-      </Menu>
+      <CreateHub
+        open={hubOpen}
+        onClose={() => setHubOpen(false)}
+        onQuickCreatePaylink={() => setQuickCreateOpen(true)}
+      />
 
       <QuickCreateLinkPanel open={quickCreateOpen} onClose={() => setQuickCreateOpen(false)} />
     </>

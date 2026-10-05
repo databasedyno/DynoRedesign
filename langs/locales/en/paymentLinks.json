@@ -37,7 +37,7 @@
   "allStatuses": "All Statuses",
   "timesUsedTooltip": "Number of completed payments made through this link.",
   "paymentsReceivedShort": "{{count}}× paid",
-  "donationBadge": "Crowdfunding",
+  "donationBadge": "Fundraiser",
   "copyLinkTooltip": "Copy link",
   "editLinkTooltip": "Edit link",
   "viewTransactionsTooltip": "View transactions",

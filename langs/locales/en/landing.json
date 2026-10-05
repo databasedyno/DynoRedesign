@@ -7,7 +7,7 @@
       "eyebrow": "Crypto payments, simplified",
       "headline1": "Accept crypto payments.",
       "headline2": "Get paid your way.",
-      "body": "Take Bitcoin, Ethereum, USDT and 40+ assets, then auto-settle to the currency or wallet you pick. Non-custodial, zero chargebacks, live in minutes.",
+      "body": "Take Bitcoin, Ethereum, USDT and 40+ assets, and keep the coin you're paid — or switch on auto-convert to settle in a stablecoin. Non-custodial, zero chargebacks, live in minutes.",
       "primary": "Start free",
       "secondary": "See how it works",
       "note": "No credit card · Non-custodial · First payment free"
@@ -37,7 +37,7 @@
         },
         "settle": {
           "title": "You settle your way",
-          "body": "Dynopay auto-converts and settles to the currency or wallet you choose."
+          "body": "Receive the coin your customer paid, or turn on auto-convert to settle in a stablecoin — straight to the wallet you control."
         }
       }
     },
@@ -124,7 +124,7 @@
       },
       "coins": {
         "q": "Which coins can customers pay with?",
-        "a": "Bitcoin, Ethereum, USDT, USDC and 40+ assets across major chains. You choose the currency you want to receive."
+        "a": "Bitcoin, Ethereum, USDT, USDC and 40+ assets across major chains. By default you receive the same coin your customer paid; switch on auto-convert to settle in a stablecoin like USDC instead."
       }
     },
     "finalCta": {

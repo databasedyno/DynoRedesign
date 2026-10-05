@@ -27,6 +27,6 @@ export const PaidStack: React.FC = () => (
     }}
   >
     <NotifyCard icon={<CheckRoundedIcon sx={{ fontSize: 22 }} />} accent={GREEN} title="Payment received" amount="+0.0021 BTC" meta={`${MERCHANT} · just now`} />
-    <NotifyCard icon={<BoltRoundedIcon sx={{ fontSize: 22 }} />} accent={M.yellow} title="Auto-settled" amount={AMOUNT_USD} meta="USD balance · no chargebacks" />
+    <NotifyCard icon={<BoltRoundedIcon sx={{ fontSize: 22 }} />} accent={M.yellow} title="Settled to your wallet" amount={AMOUNT_USD} meta="Non-custodial · no chargebacks" />
   </Box>
 );
