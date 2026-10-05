@@ -12,17 +12,30 @@ echo "[start-all] nginx=$NGINX_PORT  backend=$BACKEND_PORT  frontend=$FRONTEND_P
 # Generate nginx config with actual port
 sed "s/NGINX_PORT/$NGINX_PORT/g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
+# --- Per-process launchers (reused for the first boot AND for respawns) -------
+# Each process runs from its own cwd; we return to /app afterwards so the rest
+# of the script (and the monitor loop) have a stable working directory.
+start_backend() {
+  ( cd /app/backend && PORT=$BACKEND_PORT exec node dist/server.js ) &
+  BACKEND_PID=$!
+}
+start_frontend() {
+  ( cd /app/frontend && PORT=$FRONTEND_PORT HOSTNAME=0.0.0.0 \
+      NODE_OPTIONS="--no-warnings --max-old-space-size=1536" exec node server.js ) &
+  FRONTEND_PID=$!
+}
+start_nginx() {
+  nginx -g "daemon off;" &
+  NGINX_PID=$!
+}
+
 # Start Express backend (port 3300)
 echo "[start-all] Starting Express backend on port $BACKEND_PORT..."
-cd /app/backend
-PORT=$BACKEND_PORT node dist/server.js &
-BACKEND_PID=$!
+start_backend
 
 # Start Next.js frontend (port 3000)
 echo "[start-all] Starting Next.js frontend on port $FRONTEND_PORT..."
-cd /app/frontend
-PORT=$FRONTEND_PORT HOSTNAME=0.0.0.0 NODE_OPTIONS="--no-warnings --max-old-space-size=1536" node server.js &
-FRONTEND_PID=$!
+start_frontend
 
 # --- Wait for the BACKEND to be ready before starting nginx ---
 # nginx proxies /api AND /health to the backend on :$BACKEND_PORT. If nginx
@@ -68,8 +81,7 @@ done
 
 # Start nginx reverse proxy (listens on PORT)
 echo "[start-all] Starting nginx on port $NGINX_PORT..."
-nginx -g "daemon off;" &
-NGINX_PID=$!
+start_nginx
 
 echo "[start-all] All services started (backend=$BACKEND_PID, frontend=$FRONTEND_PID, nginx=$NGINX_PID)"
 
@@ -80,26 +92,64 @@ if [ -f /app/scripts/indexnow-ping.mjs ]; then
   FRONTEND_PORT=$FRONTEND_PORT node /app/scripts/indexnow-ping.mjs --delay 90 &
 fi
 
-# Trap signals for graceful shutdown
-trap "echo '[start-all] Shutting down...'; kill $BACKEND_PID $FRONTEND_PID $NGINX_PID 2>/dev/null; exit 0" SIGTERM SIGINT
+# Trap signals for graceful shutdown. A function (not a pre-expanded string) so
+# it kills the CURRENT pids even after a process has been respawned below.
+shutdown() {
+  echo "[start-all] Shutting down..."
+  kill $BACKEND_PID $FRONTEND_PID $NGINX_PID 2>/dev/null || true
+  exit 0
+}
+trap shutdown TERM INT
 
-# Monitor all processes — if any dies, shut everything down
+# --- Supervisor loop: RESPAWN the one process that died, keep the others up ---
+# Why: the backend intentionally process.exit(1)s on an uncaughtException (the
+# only safe thing to do after an uncaught error). Previously ANY process dying
+# tore the whole container down, so a single transient backend crash after idle
+# 502'd the ENTIRE site (frontend + API) for the full ~30-60s restart window.
+# Now we respawn just the dead process — e.g. a backend crash no longer takes
+# the frontend down, and /api recovers in seconds. A genuine crash-loop still
+# falls through to a clean full-container restart (compose restart policy) so
+# unrecoverable faults are surfaced, not masked forever.
+RESTART_LIMIT=${RESTART_LIMIT:-6}      # max respawns within the window before bailing
+RESTART_WINDOW=${RESTART_WINDOW:-180}  # seconds
+restart_count=0
+window_start=$(date +%s)
+
+note_restart() {
+  now=$(date +%s)
+  if [ $((now - window_start)) -gt "$RESTART_WINDOW" ]; then
+    window_start=$now
+    restart_count=0
+  fi
+  restart_count=$((restart_count + 1))
+  if [ "$restart_count" -gt "$RESTART_LIMIT" ]; then
+    echo "[start-all] Crash loop: ${restart_count} respawns within ${RESTART_WINDOW}s — tearing down for a clean container restart."
+    kill $BACKEND_PID $FRONTEND_PID $NGINX_PID 2>/dev/null || true
+    exit 1
+  fi
+}
+
 while true; do
   if ! kill -0 $BACKEND_PID 2>/dev/null; then
-    echo "[start-all] Backend process exited!"
-    break
+    echo "[start-all] ⚠️ Backend exited — respawning (frontend/nginx stay up)."
+    note_restart
+    start_backend
+    k=0
+    until curl -sf "http://127.0.0.1:$BACKEND_PORT/health" >/dev/null 2>&1; do
+      if ! kill -0 $BACKEND_PID 2>/dev/null; then break; fi
+      k=$((k+1)); [ "$k" -ge 60 ] && break; sleep 1
+    done
+    echo "[start-all] Backend respawned (ready after ~${k}s)."
   fi
   if ! kill -0 $FRONTEND_PID 2>/dev/null; then
-    echo "[start-all] Frontend process exited!"
-    break
+    echo "[start-all] ⚠️ Frontend exited — respawning (backend/nginx stay up)."
+    note_restart
+    start_frontend
   fi
   if ! kill -0 $NGINX_PID 2>/dev/null; then
-    echo "[start-all] Nginx process exited!"
-    break
+    echo "[start-all] ⚠️ Nginx exited — respawning."
+    note_restart
+    start_nginx
   fi
   sleep 5
 done
-
-echo "[start-all] A process exited unexpectedly. Shutting down all..."
-kill $BACKEND_PID $FRONTEND_PID $NGINX_PID 2>/dev/null || true
-exit 1
