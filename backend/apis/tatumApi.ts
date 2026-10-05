@@ -30,6 +30,28 @@ import {
 } from "../services/tronEnergyService";
 import * as bchaddr from "bchaddrjs";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// TATUM CREDIT OPTIMIZATION (Phase 2): in-process single-flight de-duplication.
+// Collapses concurrent identical reads (e.g. checkout SSE + webhook + status poll
+// all hitting the same address at the same moment) into ONE upstream Tatum call.
+// The key is deleted the instant the call settles, so this only coalesces truly
+// in-flight callers — it never serves stale data and cannot delay detection.
+// ─────────────────────────────────────────────────────────────────────────────
+const __tatumInflight = new Map<string, Promise<unknown>>();
+const tatumSingleFlight = <T>(key: string, fn: () => Promise<T>): Promise<T> => {
+  const existing = __tatumInflight.get(key);
+  if (existing) return existing as Promise<T>;
+  const p = (async () => {
+    try {
+      return await fn();
+    } finally {
+      __tatumInflight.delete(key);
+    }
+  })();
+  __tatumInflight.set(key, p);
+  return p;
+};
+
 // Type interfaces for blockchain transaction data
 interface ERC20Transaction {
   to?: string;
@@ -4107,6 +4129,18 @@ const getXrpDestinationTag = async (txId: string): Promise<number | null> => {
   }
 };
 
+// Phase 2 single-flight wrappers for the hot read paths (see tatumSingleFlight).
+// Only the exported surface is wrapped, so every external caller (crons, pool
+// monitoring, buyer checkout paths) de-dupes concurrent identical reads.
+const getAddressBalanceSF = (address: string, currency: string, skipCache: boolean = false) =>
+  tatumSingleFlight(`bal:${currency}:${address}:${skipCache ? 1 : 0}`, () => getAddressBalance(address, currency, skipCache));
+const getCurrentPaymentStatusSF = (address: string, currency: string) =>
+  tatumSingleFlight(`status:${currency}:${address}`, () => getCurrentPaymentStatus(address, currency));
+const getIncomingTransactionsSF = (address: string, currency: string, limit: number = 10, filterDestinationTag?: number | null) =>
+  tatumSingleFlight(`inc:${currency}:${address}:${limit}:${filterDestinationTag ?? ""}`, () => getIncomingTransactions(address, currency, limit, filterDestinationTag));
+const getUtxoAddressTransactionsSF = (address: string, currency: string, limit: number = 20) =>
+  tatumSingleFlight(`utxo:${currency}:${address}:${limit}`, () => getUtxoAddressTransactions(address, currency, limit));
+
 export default {
   generateWallet,
   createVirtualAccount,
@@ -4126,11 +4160,11 @@ export default {
   assetToOtherAddress,
   assetBatchAddressesToOtherAddress,
   testingFunction,
-  getAddressBalance,
+  getAddressBalance: getAddressBalanceSF,
   validateTronAddress,
-  getCurrentPaymentStatus,
-  getIncomingTransactions,
-  getUtxoAddressTransactions,
+  getCurrentPaymentStatus: getCurrentPaymentStatusSF,
+  getIncomingTransactions: getIncomingTransactionsSF,
+  getUtxoAddressTransactions: getUtxoAddressTransactionsSF,
   getTransactionConfirmations,
   encryptSymmetric,
   decryptSymmetric,

@@ -24,6 +24,18 @@ import {
 } from "./merchantPoolConfig";
 import { recordPoolTransaction } from "./merchantPoolTransaction";
 import { sum, toFixedStr } from "../../utils/money";
+import config from "../../utils/config";
+
+// Phase 2 Tatum cost optimization for the idle-pool orphan scan (AVAILABLE addresses):
+//  - Re-check a confirmed-empty idle address far less often (24h default, was 6h) so a
+//    large idle pool no longer triggers a full provider sweep on every 6h cron cycle.
+//  - Hard per-run ceiling on actual provider calls so pool growth can't spike spend;
+//    deferred addresses are picked up on the next cycle.
+// The real-time Tatum ADDRESS_EVENT webhook stays the PRIMARY detector — this scan is
+// only a backstop for a missed webhook, so backing it off on long-empty idle addresses
+// does not change whether a real payment is detected.
+const ORPHAN_ZERO_SKIP_TTL_SECONDS = config.num("ORPHAN_ZERO_SKIP_TTL_SECONDS", 86400);
+const ORPHAN_SCAN_MAX_TATUM_CALLS_PER_RUN = config.num("ORPHAN_SCAN_MAX_TATUM_CALLS_PER_RUN", 400);
 
 /**
  * Subscription Health Monitor
@@ -1082,6 +1094,8 @@ export const detectOrphanPayments = async (): Promise<{
 
     // TATUM CREDIT OPTIMIZATION: Track how many addresses were skipped due to recent zero-balance cache
     let skippedCachedZero = 0;
+    // TATUM CREDIT OPTIMIZATION: hard ceiling on real provider calls this run.
+    let orphanTatumCalls = 0;
 
     for (const addr of availableAddresses) {
       result.checked++;
@@ -1105,6 +1119,14 @@ export const detectOrphanPayments = async (): Promise<{
           skippedCachedZero++;
           continue;
         }
+
+        // TATUM CREDIT OPTIMIZATION: stop issuing new provider calls once the
+        // per-run ceiling is hit; the remaining idle addresses roll to next cycle.
+        if (orphanTatumCalls >= ORPHAN_SCAN_MAX_TATUM_CALLS_PER_RUN) {
+          cronLogger.info(`[OrphanDetect] ⏸ Per-run Tatum call cap (${ORPHAN_SCAN_MAX_TATUM_CALLS_PER_RUN}) reached after ${result.checked} of ${availableAddresses.length} addresses; remaining will be scanned next cycle`);
+          break;
+        }
+        orphanTatumCalls++;
 
         let balance: number;
         let balanceResult;
@@ -1137,9 +1159,10 @@ export const detectOrphanPayments = async (): Promise<{
         }
 
         if (balance <= 0) {
-          // TATUM CREDIT OPTIMIZATION: Remember this address had zero balance for 6 hours
+          // TATUM CREDIT OPTIMIZATION: Remember this address had zero balance (24h default,
+          // env ORPHAN_ZERO_SKIP_TTL_SECONDS) so idle addresses aren't re-polled every cycle.
           const zeroCacheKey = `orphan:zero:${walletType}:${walletAddress}`;
-          await setRedisItemWithTTL(zeroCacheKey, "1", 21600).catch(() => {}); // 6 hours
+          await setRedisItemWithTTL(zeroCacheKey, "1", ORPHAN_ZERO_SKIP_TTL_SECONDS).catch(() => {});
           continue;
         }
 

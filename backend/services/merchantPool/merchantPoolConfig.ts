@@ -25,7 +25,10 @@ export const POOL_CONFIG = {
   // via an atomic optimistic UPDATE, so growing this never risks over-reservation).
   // A higher value lets a merchant's flash-sale burst be absorbed without hitting
   // the per-merchant Redis lock. Env-tunable for known high-traffic events.
-  PRE_RESERVE_TARGET: config.num("MERCHANT_PRE_RESERVE_TARGET", 6),
+  // Phase 2 Tatum cost: default lowered 6→3 — each hot PRE_RESERVED address carries
+  // a live Tatum ADDRESS_EVENT subscription and gets swept by the idle-pool scans,
+  // so fewer idle addresses = less recurring spend. Raise via env for big events.
+  PRE_RESERVE_TARGET: config.num("MERCHANT_PRE_RESERVE_TARGET", 3),
   
   // Timeout settings
   RESERVATION_TIMEOUT_MINUTES: config.num("RESERVATION_TIMEOUT_MINUTES", 120),
