@@ -53,7 +53,71 @@ function shouldBlock(): boolean {
 
 const SAFEDEAL_HOSTS = new Set(["safedeal.sh", "www.safedeal.sh"]);
 
-export function middleware(req: NextRequest) {
+/**
+ * AI search / answer-engine crawlers we log for the admin analytics panel.
+ * Keep in sync with backend/utils/aiBots.ts (Edge middleware can't import it).
+ * General search bots (Googlebot/Bingbot) are intentionally excluded — Search
+ * Console already covers them and they'd dwarf the AI signal.
+ */
+const AI_BOTS: Array<[string, RegExp]> = [
+  ["GPTBot", /GPTBot/i],
+  ["OAI-SearchBot", /OAI-SearchBot/i],
+  ["ChatGPT-User", /ChatGPT-User/i],
+  ["PerplexityBot", /PerplexityBot/i],
+  ["Perplexity-User", /Perplexity-User/i],
+  ["ClaudeBot", /ClaudeBot/i],
+  ["Claude-Web", /Claude-Web/i],
+  ["anthropic-ai", /anthropic-ai/i],
+  ["CCBot", /CCBot/i],
+  ["Bytespider", /Bytespider/i],
+  ["Applebot", /Applebot/i],
+  ["Amazonbot", /Amazonbot/i],
+  ["Meta-ExternalAgent", /Meta-ExternalAgent/i],
+];
+
+/** Fire-and-forget: record an AI crawler's content-page fetch. Never blocks routing.
+ *  Beacons to the backend over the loopback interface (same container as Next in
+ *  both preview and production) so it never depends on a public-origin hairpin or
+ *  on edge `waitUntil` (unreliable when self-hosting). Awaited with a short abort
+ *  timeout — only AI-bot GETs ever reach the await, so real users are unaffected. */
+const BOT_BEACON_ORIGIN = process.env.BOT_BEACON_ORIGIN || "http://127.0.0.1:3300";
+
+async function logBotHit(req: NextRequest): Promise<void> {
+  try {
+    if (req.method !== "GET") return;
+    const path = req.nextUrl.pathname;
+    if (path.startsWith("/api") || path.startsWith("/_next")) return;
+    const ua = req.headers.get("user-agent") || "";
+    if (!ua) return;
+    let bot: string | null = null;
+    for (const [name, re] of AI_BOTS) {
+      if (re.test(ua)) { bot = name; break; }
+    }
+    if (!bot) return;
+    const host = (req.headers.get("host") || "").toLowerCase().split(":")[0];
+    const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 800);
+    try {
+      await fetch(`${BOT_BEACON_ORIGIN}/api/track/bot-hit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ bot, path, host, ip, ua }),
+        signal: ctrl.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    /* never let analytics break routing */
+  }
+}
+
+export async function middleware(req: NextRequest) {
+  // AI-crawler analytics — awaited only for bot GETs (loopback beacon ~few ms);
+  // real users short-circuit before any await.
+  await logBotHit(req);
+
   // SafeDeal (safedeal.sh) is served by this same app from /safedeal/*. Rewrite
   // the host's root paths onto that section so one deployment serves both domains.
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0];

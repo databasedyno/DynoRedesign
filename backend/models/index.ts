@@ -36,6 +36,7 @@ import nexusAlertModel from "./nexusAlertModel";
 import tipGoalMilestoneModel from "./tipGoalMilestoneModel";
 import invoiceModel from "./invoiceModel";
 import escrowDealModel from "./escrowDealModel";
+import botHitModel from "./botHitModel";
 import notificationModel from "./notificationModel";
 import notificationPreferencesModel from "./notificationPreferencesModel";
 import emailLogModel from "./emailLogModel";
@@ -160,6 +161,8 @@ export {
   pushSubscriptionModel,
   // Onboarding analytics
   onboardingEventModel,
+  // AI crawler analytics
+  botHitModel,
   // Login Activity
   loginActivityModel,
   // Signup Attribution (first-touch source tracking)

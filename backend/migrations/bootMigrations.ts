@@ -98,6 +98,7 @@ export async function getBootModels(): Promise<unknown[]> {
   const { vatValidationModel } = await import("../models"); // VAT validation cache (0028)
   const { escrowDealModel } = await import("../models"); // Escrow deals (0035)
   const { default: adminSessionModel } = await import("../models/adminSessionModel"); // Admin sessions (0056)
+  const { botHitModel } = await import("../models"); // AI crawler analytics (0061)
   return [
     ...v1,
     ...extra,
@@ -113,6 +114,7 @@ export async function getBootModels(): Promise<unknown[]> {
     vatValidationModel,
     escrowDealModel,
     adminSessionModel,
+    botHitModel,
   ];
 }
 
@@ -1109,6 +1111,29 @@ const addEmailLogFallback = async (): Promise<void> => {
   );
 };
 
+/**
+ * 0061 — AI crawler analytics (tbl_bot_hit). Brand-new append-only table: one
+ * row per AI search/answer-engine page fetch (GPTBot, PerplexityBot, ClaudeBot,
+ * CCBot…), written fire-and-forget from the Edge middleware. Create-only — no
+ * existing table touched, safe on live prod. Rows pruned to 90 days on insert.
+ */
+const createBotHitTable = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_bot_hit" (
+       "hit_id" BIGSERIAL PRIMARY KEY,
+       "bot" VARCHAR(60) NOT NULL,
+       "host" VARCHAR(120),
+       "path" VARCHAR(500),
+       "ip" VARCHAR(45),
+       "user_agent" VARCHAR(500),
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_bot_hit_bot_created" ON "tbl_bot_hit" ("bot", "created_at" DESC)`);
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_bot_hit_created" ON "tbl_bot_hit" ("created_at" DESC)`);
+};
+
 
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
@@ -1168,6 +1193,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0058_user_email_bounce", up: addUserEmailBounce },
     { version: "0059_platform_settings", up: createPlatformSettingsTables },
     { version: "0060_email_log_fallback", up: addEmailLogFallback },
+    { version: "0061_bot_hit", up: createBotHitTable },
     ...perfMigrations,
     ...securityMigrations,
   ];

@@ -41,6 +41,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { StatCard, SectionCard, formatUSD, formatNumber, formatCrypto } from "../adminUi";
 import SecurityEventsPanel from "./SecurityEventsPanel";
 import EmailLogPanel from "./EmailLogPanel";
+import BotHitPanel from "./BotHitPanel";
 import GasWalletsStrip from "./GasWalletsStrip";
 
 interface RevenueRow {
@@ -447,6 +448,9 @@ const AdminOverview: React.FC = () => {
         </Grid>
         <Grid item xs={12}>
           <EmailLogPanel />
+        </Grid>
+        <Grid item xs={12}>
+          <BotHitPanel />
         </Grid>
       </Grid>
     </Box>

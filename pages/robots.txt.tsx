@@ -13,6 +13,35 @@ import { GetServerSideProps } from "next";
 
 const SAFEDEAL_HOSTS = new Set(["safedeal.sh", "www.safedeal.sh"]);
 
+// Explicit allow-groups for AI search / answer engines (ChatGPT, Perplexity,
+// Claude, Apple Intelligence, Common Crawl …) AND Google's AI surfaces. A named
+// User-agent group overrides the generic `*` group for that agent, so each is
+// granted the SAME full-content access (incl. model-training crawlers like
+// GPTBot/CCBot, per an explicit "maximum visibility" decision). Only the
+// non-indexable JSON API stays disallowed — identical to the `*` group.
+const AI_BOT_RULES = `# ── AI search & answer engines — explicitly welcomed (maximum visibility, incl. training) ──
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Googlebot
+User-agent: Applebot-Extended
+User-agent: ClaudeBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: Amazonbot
+User-agent: Meta-ExternalAgent
+Allow: /
+Allow: /api/public/
+Allow: /api/status/
+Disallow: /api/
+`;
+
+
 const DYNOPAY_ROBOTS = `# Dynopay — Cryptocurrency Payment Gateway
 # https://dynopay.com
 #
@@ -41,6 +70,7 @@ Allow: /api/status/
 # Backend JSON API — not indexable content, no crawl value.
 Disallow: /api/
 
+${AI_BOT_RULES}
 Sitemap: https://dynopay.com/sitemap.xml
 `;
 
@@ -62,6 +92,7 @@ Allow: /api/status/
 # Backend JSON API — not indexable content, no crawl value.
 Disallow: /api/
 
+${AI_BOT_RULES}
 Sitemap: https://safedeal.sh/sitemap.xml
 `;
 

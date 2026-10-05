@@ -92,6 +92,10 @@ const EXEMPT_PATHS = [
   "/api/user/creator/reserve-handle",
   // Visitor tracking — public, rate-limited, fire-and-forget from landing page
   "/api/track/visitor",
+  // AI-crawler hit beacon — public, fire-and-forget from the Edge middleware
+  // (no session/cookie exists). Re-validates the bot against its UA, soft-capped
+  // and de-duplicated; only inserts an analytics row (no auth, no funds, no PII).
+  "/api/track/bot-hit",
   // Storefront visit beacon — public, rate-limited, only bumps Redis counters
   // (path prefix covers /api/pay/creator/<handle>/visit; the GETs are unaffected).
   "/api/pay/creator/",

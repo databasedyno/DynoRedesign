@@ -199,6 +199,19 @@ type AppPropsWithLayout = AppProps & {
 // Inner App (has access to theme context)
 // -----------------------------
 
+// Route patterns (router.pathname) that already inject their own
+// Organization/WebSite/rich JSON-LD, so the sitewide brand entity is skipped
+// there to avoid duplicate entities on the same page.
+const ROUTES_WITH_OWN_ENTITY = new Set([
+  "/",
+  "/fees",
+  "/for/[vertical]",
+  "/compare/[slug]",
+  "/accept-crypto-payments-in/[country]",
+  "/blog/[slug]",
+  "/[handle]/shop",
+]);
+
 function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   const router = useRouter();
   const pathname = router.pathname;
@@ -483,6 +496,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const org = {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       "name": "Dynopay",
       "url": SITE_URL,
       "logo": LOGO_IMAGE,
@@ -504,6 +518,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     const webSite = {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
       "name": "Dynopay",
       "url": SITE_URL,
       "description": "Cryptocurrency payment gateway — accept Bitcoin, Ethereum, and 20+ cryptocurrencies with automatic stablecoin settlement.",
@@ -546,6 +561,42 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     };
     return JSON.stringify([org, webSite, product]);
   }, []);
+
+  // Sitewide Organization + WebSite entity (stable @id → engines merge it with
+  // the homepage's richer graph). Emitted on every public page that does NOT
+  // already inject its own entity schema, so AI engines consistently resolve
+  // the Dynopay brand no matter which page they crawl first.
+  const siteEntityJsonLd = useMemo(
+    () =>
+      JSON.stringify([
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": `${SITE_URL}/#organization`,
+          "name": "Dynopay",
+          "url": SITE_URL,
+          "logo": LOGO_IMAGE,
+          "description":
+            "Dynopay is a cryptocurrency payment gateway that lets businesses accept Bitcoin, Ethereum and stablecoins — payments forward directly to the merchant's own wallet, or auto-convert to USDT/USDC.",
+          "sameAs": [
+            "https://x.com/Dynopaycom",
+            "https://www.instagram.com/dynopay",
+            "https://www.linkedin.com/company/dynopay/",
+            "https://www.facebook.com/dynopay",
+            "https://t.me/Dynopay_Announcements",
+          ],
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "@id": `${SITE_URL}/#website`,
+          "name": "Dynopay",
+          "url": SITE_URL,
+          "publisher": { "@id": `${SITE_URL}/#organization` },
+        },
+      ]),
+    [SITE_URL, LOGO_IMAGE],
+  );
 
   const pageSetterProps: LayoutSetterProps = {
     setPageName,
@@ -742,6 +793,14 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        )}
+        {/* Sitewide brand entity — skipped on routes that already carry their
+            own Organization/WebSite/rich schema to avoid same-page duplicates. */}
+        {!isPrivatePage && !ROUTES_WITH_OWN_ENTITY.has(pathname) && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: siteEntityJsonLd }}
           />
         )}
       </Head>

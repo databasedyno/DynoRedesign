@@ -13,6 +13,7 @@ import { apiLogger } from "../utils/loggers";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { authMiddleware } from "../middleware";
 import { classifySource, verifyUnsubToken } from "../utils/attributionSource";
+import { detectAiBot, AI_BOT_NAMES } from "../utils/aiBots";
 
 const trackRouter = express.Router();
 
@@ -244,6 +245,58 @@ trackRouter.post("/page-tips/dismiss", authMiddleware, async (req: express.Reque
  */
 trackRouter.post("/visitor", (_req: express.Request, res: express.Response) => {
   res.status(200).json({ ok: true });
+});
+
+/**
+ * POST /api/track/bot-hit — no auth. Beaconed fire-and-forget from the Next.js
+ * Edge middleware whenever an AI crawler (GPTBot, PerplexityBot, ClaudeBot,
+ * CCBot…) fetches a content page. Body: { bot, path, host, ip, ua }.
+ *
+ * Hardening (public endpoint): the bot is re-validated against the UA, a soft
+ * global per-minute cap guards against floods, and identical (bot|ip|path)
+ * bursts are de-duplicated for 30s so the table stays meaningful. Never errors
+ * to the caller. Rows are pruned to 90 days opportunistically.
+ */
+trackRouter.post("/bot-hit", async (req: express.Request, res: express.Response) => {
+  try {
+    const b = (req.body || {}) as Record<string, unknown>;
+    const ua = typeof b.ua === "string" ? b.ua : "";
+    const claimed = typeof b.bot === "string" ? b.bot : "";
+    // Trust but verify — accept the claimed bot only if it's known, else re-derive from the UA.
+    const bot = AI_BOT_NAMES.has(claimed) ? claimed : detectAiBot(ua);
+    if (!bot) return res.status(200).json({ ok: false });
+
+    const path = typeof b.path === "string" ? b.path.slice(0, 500) : null;
+    const host = typeof b.host === "string" ? b.host.slice(0, 120) : null;
+    const ip = typeof b.ip === "string" ? b.ip.slice(0, 45) : null;
+
+    // Soft global cap (~3k/min — far above real AI crawl rates) to bound abuse.
+    const capKey = `bothit:cap:${Math.floor(Date.now() / 60000)}`;
+    const cap = (await getRedisItem(capKey)) as { n?: number } | null;
+    const n = (cap?.n || 0) + 1;
+    if (n > 3000) return res.status(200).json({ ok: true, capped: true });
+    await setRedisItemWithTTL(capKey, { n }, 90);
+
+    // Collapse rapid re-crawls of the same page by the same bot/ip.
+    const dedupKey = `bothit:seen:${bot}:${ip || "?"}:${path || "?"}`;
+    const seen = await getRedisItem(dedupKey);
+    if (seen && Object.keys(seen).length > 0) return res.status(200).json({ ok: true, deduped: true });
+    await setRedisItemWithTTL(dedupKey, { t: Date.now() }, 30);
+
+    const { botHitModel } = await import("../models");
+    await botHitModel.create({ bot, host, path, ip, user_agent: ua ? ua.slice(0, 500) : null });
+
+    // Opportunistic retention: ~1% of inserts trim anything older than 90 days.
+    if (Math.random() < 0.01) {
+      const { default: sequelize } = await import("../utils/dbInstance");
+      await sequelize.query(`DELETE FROM "tbl_bot_hit" WHERE created_at < NOW() - INTERVAL '90 days'`);
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    apiLogger.error("[Track] bot-hit error:", err);
+    return res.status(200).json({ ok: false });
+  }
 });
 
 export default trackRouter;
