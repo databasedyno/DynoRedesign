@@ -7,10 +7,10 @@
       "eyebrow": "Crypto payments, simplified",
       "headline1": "Accept crypto payments.",
       "headline2": "Get paid your way.",
-      "body": "Take Bitcoin, Ethereum, USDT and 40+ assets — then settle automatically to the currency or wallet you choose. No chargebacks, no custody, live in minutes.",
+      "body": "Take Bitcoin, Ethereum, USDT and 40+ assets, then auto-settle to the currency or wallet you pick. Non-custodial, zero chargebacks, live in minutes.",
       "primary": "Start free",
       "secondary": "See how it works",
-      "note": "No credit card · Your first payment is free"
+      "note": "No credit card · Non-custodial · First payment free"
     },
     "coins": {
       "label": "Accept 40+ coins across every major chain"
@@ -19,31 +19,32 @@
       "paymentsLabel": "Payments settled this month",
       "uptimeLabel": "Uptime over 90 days",
       "countriesLabel": "Countries served",
-      "statusLink": "View live status"
+      "statusLink": "View live status",
+      "eyebrow": "Live proof"
     },
     "how": {
       "eyebrow": "How it works",
       "headline": "Get paid in three steps",
-      "body": "From zero to your first crypto payment — without touching a blockchain.",
+      "body": "From zero to your first crypto payment — no blockchain knowledge required.",
       "steps": {
         "create": {
           "title": "Create a payment",
           "body": "Spin up a payment link, hosted checkout, or API charge in seconds."
         },
         "pay": {
-          "title": "Customer pays in any coin",
-          "body": "They pay with Bitcoin, Ethereum, USDT and 40+ assets from any wallet."
+          "title": "Your customer pays in any coin",
+          "body": "They send Bitcoin, Ethereum, USDT or any of 40+ assets from any wallet."
         },
         "settle": {
-          "title": "You get settled your way",
-          "body": "We auto-convert and settle to the currency or wallet you choose."
+          "title": "You settle your way",
+          "body": "Dynopay auto-converts and settles to the currency or wallet you choose."
         }
       }
     },
     "ways": {
-      "eyebrow": "Three ways to use",
+      "eyebrow": "Three ways to use it",
       "headline": "Whether you code or not",
-      "body": "Start with a link today, add a hosted checkout tomorrow, or build directly on the API.",
+      "body": "Start with a link today, drop in a hosted checkout tomorrow, or build straight on the API.",
       "nocode": {
         "title": "No code",
         "body": "Create a payment link or creator page and share it anywhere. Nothing to build.",
@@ -84,7 +85,7 @@
       "eyebrow": "Customer proof",
       "headline": "Merchants getting paid on Dynopay",
       "devstore": {
-        "quote": "We started taking crypto in an afternoon. Payments land in USDC and there are zero chargebacks — it just works.",
+        "quote": "We started taking crypto in an afternoon. Payments land in USDC with zero chargebacks — it just works.",
         "role": "Digital goods merchant"
       },
       "safedeal": {
@@ -95,7 +96,7 @@
     "pricing": {
       "eyebrow": "Pricing",
       "headline": "Simple pricing that scales with you",
-      "body": "One transparent per-payment fee. No setup costs, no monthly minimums.",
+      "body": "One transparent fee per payment. No setup costs, no monthly minimums, no chargebacks.",
       "startsAt": "Starts at",
       "perPayment": "per settled payment · drops with volume",
       "perks": {
@@ -115,7 +116,7 @@
       },
       "speed": {
         "q": "How fast do I get paid?",
-        "a": "Most payments settle within minutes of on-chain confirmation — the median on fast chains is around 4 minutes — straight to the wallet or account you choose."
+        "a": "Most payments settle within minutes of on-chain confirmation — around 4 minutes on fast chains — straight to the wallet or account you choose."
       },
       "custody": {
         "q": "Do you hold my funds?",
@@ -123,7 +124,7 @@
       },
       "coins": {
         "q": "Which coins can customers pay with?",
-        "a": "Bitcoin, Ethereum, USDT, USDC and 40+ assets across major chains. You choose which currency you want to receive."
+        "a": "Bitcoin, Ethereum, USDT, USDC and 40+ assets across major chains. You choose the currency you want to receive."
       }
     },
     "finalCta": {
@@ -132,6 +133,28 @@
       "body": "Create your first payment in minutes. No credit card, no contracts — just get paid.",
       "primary": "Start free",
       "secondary": "Read the docs"
+    },
+    "security": {
+      "eyebrow": "Security & compliance",
+      "headline": "Built to be trusted with money",
+      "body": "Funds move on rails you can verify — never parked on a balance you can't see.",
+      "noncustodial": {
+        "title": "Non-custodial by design",
+        "body": "Settled funds go straight to the wallet you control. Dynopay never holds your balance in between."
+      },
+      "compliance": {
+        "title": "KYC & AML built in",
+        "body": "Identity and anti-money-laundering checks run on merchants above regulatory thresholds, keeping your account in good standing."
+      },
+      "keys": {
+        "title": "Hardened key infrastructure",
+        "body": "Wallet keys are encrypted and isolated. Signing happens in a protected environment — never in the browser."
+      },
+      "uptime": {
+        "title": "Verifiable uptime",
+        "body": "A public status page and round-the-clock monitoring let you confirm payments and settlement are healthy."
+      },
+      "trustLink": "Visit the Trust Centre"
     }
   },
   "howItWorks": "How it works",

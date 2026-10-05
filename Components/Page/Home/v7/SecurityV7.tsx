@@ -17,7 +17,7 @@ const PILLARS = [
   { Icon: ShieldRoundedIcon, key: "noncustodial", title: "Non-custodial by design", body: "Settled funds go straight to the wallet you control. Dynopay never holds your balance in between." },
   { Icon: VerifiedUserRoundedIcon, key: "compliance", title: "KYC & AML built in", body: "Identity and anti-money-laundering checks run on merchants above regulatory thresholds, keeping your account in good standing." },
   { Icon: KeyRoundedIcon, key: "keys", title: "Hardened key infrastructure", body: "Wallet keys are encrypted and isolated. Signing happens in a protected environment — never in the browser." },
-  { Icon: MonitorHeartRoundedIcon, key: "uptime", title: "Verifiable uptime", body: "A public status page and continuous monitoring mean you can always see that payments and settlement are healthy." },
+  { Icon: MonitorHeartRoundedIcon, key: "uptime", title: "Verifiable uptime", body: "A public status page and round-the-clock monitoring let you confirm payments and settlement are healthy." },
 ];
 
 const SecurityV7: React.FC = () => {
@@ -28,7 +28,7 @@ const SecurityV7: React.FC = () => {
       <SectionHead
         eyebrow={t("v7.security.eyebrow", { defaultValue: "Security & compliance" })}
         title={t("v7.security.headline", { defaultValue: "Built to be trusted with money" })}
-        lead={t("v7.security.body", { defaultValue: "Funds move on rails you can verify — not held on a balance you can't see." })}
+        lead={t("v7.security.body", { defaultValue: "Funds move on rails you can verify — never parked on a balance you can't see." })}
         testId="security-head"
       />
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: { xs: 2, md: 2.5 } }}>
