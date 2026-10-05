@@ -1,7 +1,7 @@
 # DynoPay — Agent Handoff (last session)
 
 ## 2026-10-04 session (pod ed7125a5, setup via vault) — SETUP ONLY, no code changes
-- `pod-bootstrap.sh --pass` run → env restored from vault, URLs synced to `https://vault-setup-17.preview.emergentagent.com`, SAFE MODE on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
+- `pod-bootstrap.sh --pass` run → env restored from vault, URLs synced to `https://secure-passphrase-12.preview.emergentagent.com`, SAFE MODE on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
 - User paused mid-install → supervisor restarted; frontend/backend self-heal finished deps + `.next-prod` build on their own (env files survived).
 - Verified: /health healthy (db+redis connected, tatum ok, background_jobs.eligible=false); external landing + /auth/login 200, 0 console/CORS errors. No prod DB writes. No .env changes → no vault re-seal.
 
@@ -25,7 +25,7 @@
 
 ## 2026-10-04 session (pod 0b940d6a, setup via vault) — SETUP ONLY, no code changes
 - `pod-bootstrap.sh` run with the vault passphrase → env restored, SAFE MODE on (bg jobs off, outbound email off), prod build served.
-- Live preview = **https://vault-setup-17.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
+- Live preview = **https://secure-passphrase-12.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
 - Verified: backend /health (db+redis connected, background_jobs.eligible=false), landing 0 CORS errors, merchant dashboard (company 1) loads live data via cached token, 0 console errors. No prod DB writes.
 
 ## 2026-10-02 session (pod setup via vault) — SHIPPED (code-complete, NOT yet deployed)

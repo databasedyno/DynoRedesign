@@ -26,7 +26,7 @@
   ],
   "updated_files": [],
   "success_rate": {"backend": "N/A", "frontend": "100% of primary assertions"},
-  "test_credentials": "Merchant onarrival21@gmail.com / Katiekendra123@ with TOTP (`node /app/backend/scripts/print_totp.cjs 1`). Preview URL: https://vault-setup-17.preview.emergentagent.com.",
+  "test_credentials": "Merchant onarrival21@gmail.com / Katiekendra123@ with TOTP (`node /app/backend/scripts/print_totp.cjs 1`). Preview URL: https://secure-passphrase-12.preview.emergentagent.com.",
   "seed_data_creation": "None.",
   "retest_needed": false,
   "should_main_agent_self_test": false,
