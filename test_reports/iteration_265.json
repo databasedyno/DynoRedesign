@@ -1,0 +1,102 @@
+{
+  "summary": "Frontend-only test of /pay-links list page (spacing/hierarchy polish verification + full functional regression). Visited at 1440/1366/1280/1024 desktop, 390/360 mobile; verified light + dark themes, filters, pagination, detail drawer, bulk selection, CSV export, search, orders segment. Core spacing changes are IN EFFECT (row height 64px uniform, filter controls partially bumped). Found 1 HIGH-severity layout regression (Last-30-days column hidden under sticky Actions column at <=1440), 1 MEDIUM spec deviation (half the filter controls still at 40px instead of 42px), and multiple MEDIUM UX inconsistencies that were explicitly flagged in the request. No console errors, no failed /api calls.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "PaymentLinksTable",
+        "issue": "Table has 220+px horizontal overflow at every viewport <=1440. Measured: tableSW=1354 vs wrapCW=1134 @1440 / 1060 @1366 / 974 @1280. The ACTIONS column (position:sticky; right:0; z-index:2) covers the end of the table, visually overlapping/hiding the STATUS and LAST 30 DAYS columns. In 1440 light screenshot the STATUS header renders as 'STA' and status badges render as 'Ac/Pa/Ex' because they sit directly behind the sticky Actions cell; LAST 30 DAYS is not visible at all unless you scroll the table horizontally (and the Actions sticky cell then obscures what you scroll to). DOM text is correct (no actual string clipping), but the user-perceived outcome matches the exact regression called out in the review request ('STA…'/'Act'/'Pai'/'Exp'). This did not reproduce at 1920 (table ~== wrapper per main agent note).",
+        "selector": "[data-testid^=paylink-row] td:last-child (sticky), thead th containing 'Status'/'Last 30 days'",
+        "priority": "HIGH"
+      },
+      {
+        "component": "PaymentLinksTopBar",
+        "issue": "Filter-control heights are inconsistent after the polish. Measured @1440: paylinks-kind-segment=40px, Select-date-range button=40px, paylinks-status-filter=42px, Search input=42px. The commit intent was to lift all controls 40→42px; the segment and the date-range trigger are still at 40.",
+        "selector": "[data-testid=paylinks-kind-segment], 'Select date range' button",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "PaymentLinksTable Actions cell",
+        "issue": "Actions column is visually ragged between active and expired rows. Active rows render 4 buttons starting at x=1223 ending at x=1391 (right-aligned to ~1391). Expired rows render 2 buttons starting at x=1267 ending at x=1347 — they are left-anchored inside the cell instead of right-aligned to the same edge, so icons do not share a common right edge across row types. Confirms the UX observation in the request.",
+        "selector": "[data-testid^=paylink-row] td:last-child button",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "PaymentLinksTable Donation row #704",
+        "issue": "Row #704 (donation) shows '0.00 EUR' under a column whose header reads 'USD VALUE'. Mixed currency/label is confusing. (Donation row still renders at the standard 64px height — no vertical growth from the new 12/16 padding, which is good.)",
+        "selector": "[data-testid=paylink-row] containing text 'BUILD ROMA'",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "PaymentLinksTable Crypto Value cell",
+        "issue": "'Accepts all 14 coins' chip is repeated on every single row (10/10 rows). Adds visual noise and consumes a 169px column. Consider showing only when different per row, or move to a global legend/tooltip.",
+        "selector": "[data-testid^=paylink-row] td:nth-child(5) (Crypto Value)",
+        "priority": "LOW"
+      },
+      {
+        "component": "Tablet layout 1024x768",
+        "issue": "At 1024 the page still renders the full desktop table (rows=10, cards=0) even though the table scrollWidth (1354) exceeds the available wrapper width — table scrolls horizontally internally. Review request mentioned 'cards or a compact table' expected on tablet; current behaviour is a horizontally-scrolling full table.",
+        "selector": "table at viewport 1024",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      { "screen": "/pay-links desktop 1366/1280 light", "issues": ["Horizontal scroll inside table hides Last 30 Days behind sticky Actions column", "Status badge text visually clipped behind sticky Actions at narrower widths"] },
+      { "screen": "/pay-links filter bar", "issues": ["Mixed control heights 40 vs 42px post-polish", "Status select text is gold while date-range text is dark — confirmed inconsistency called out in request"] }
+    ]
+  },
+  "functional_results": {
+    "row_height_uniformity": "PASS — all 10 rows (including donation #704 with description+progress and 2-line Created cell) are 64px exactly at 1440. @1366 also 64px.",
+    "no_page_horizontal_overflow": "PASS — document.scrollWidth == clientWidth at 1440/1366/1280/1024/390/360.",
+    "status_text_in_dom": "PASS — DOM has full 'Active'/'Paid'/'Expired' strings (10 verified).",
+    "orders_segment_count": "PASS — 'Showing 1-9 of 9 links' when Orders segment selected (matches API's 9 cart links).",
+    "status_filter_active": "PASS — 'Showing 1-10 of 12 links' when Active selected (matches API's 12 active).",
+    "search_probe": "PASS — 'probe' → 1 row (#591).",
+    "pagination_prev_disabled_page1": "PASS.",
+    "pagination_next_works": "PASS — advanced to next page.",
+    "detail_drawer_1366": "PASS — opens at 480px wide; sticky footer (close/copy) visible within viewport; Escape closes.",
+    "csv_export": "PASS — downloaded 'payment-links.csv' with header 'Link ID,Description,USD value,Crypto,Status,Created,Payments' and 1 data row for 1 selected item.",
+    "bulk_selection_bar": "PASS — [data-testid=paylinks-selection-bar] contains: paylinks-selection-bar-count, paylinks-selection-bar-select-page, paylinks-export-selected, paylinks-copy-selected, paylinks-selection-bar-clear. Bar text '1 selected Select page Export CSV Copy links Clear'.",
+    "date_range_picker_opens": "PASS.",
+    "dark_mode_toggle": "PASS — [data-testid=theme-toggle-header] toggles; table/filter bar/status dots readable (manual screenshot review).",
+    "mobile_cards_390": "PASS — 10 cards render ([data-testid=paylink-card]), no page overflow.",
+    "mobile_360": "PASS — no page overflow.",
+    "console_errors": "ZERO (ignoring whitelist).",
+    "failed_api_calls": "ZERO."
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots_paylinks/1440_light.png",
+    "/app/test_reports/screenshots_paylinks/1440_dark.png",
+    "/app/test_reports/screenshots_paylinks/1366_light.png",
+    "/app/test_reports/screenshots_paylinks/1280_light.png",
+    "/app/test_reports/screenshots_paylinks/1024_light.png",
+    "/app/test_reports/screenshots_paylinks/390_mobile.png",
+    "/app/test_reports/screenshots_paylinks/360_mobile.png",
+    "/app/test_reports/screenshots_paylinks/drawer_1440.png",
+    "/app/test_reports/screenshots_paylinks/drawer_1366.png",
+    "/app/test_reports/screenshots_paylinks/payment-links.csv"
+  ],
+  "action_items": [
+    "HIGH: Fix horizontal overflow of the table at <=1440. Options: reduce column min-widths (Description 327→~260, Crypto Value 169→~130, Created 184→~150, Last 30 days 156→hide or move), or make sticky Actions column collapsible, or drop the sticky and let user scroll naturally. Current combination (table 1354 + sticky Actions 200) hides Status/Last-30-days behind the sticky cell at every viewport the main agent did not already verify (1920).",
+    "MEDIUM: Lift paylinks-kind-segment and the 'Select date range' trigger from 40px to 42px to match the other two controls (status filter, search).",
+    "MEDIUM: Right-align action icons in expired rows so the right edge matches active rows (x≈1391), or always render same icon slots with disabled styles.",
+    "MEDIUM: Fix donation row currency display — either show USD-equivalent of the collected amount (0.00 USD) under the 'USD VALUE' column, or rename the column header to 'Value' for donation rows / add a per-row currency tooltip.",
+    "LOW: De-duplicate the 'Accepts all 14 coins' chip — show once per table (legend/filter chip) rather than repeating 10 times.",
+    "LOW: Consider switching to card layout or a compact column set at 1024px (currently a horizontally-scrolling full table)."
+  ],
+  "critical_code_review_comments": [
+    "Components/Page/Payment-link/PaymentLinksTable.tsx — the sticky right ACTIONS column (position:sticky;right:0) only works correctly when the table fits in the wrapper; combined with the current min-widths it causes columns 6-7 (Status, Last 30 days) to disappear under the sticky cell at 1440/1366/1280. Needs responsive column handling or dropping sticky below a breakpoint.",
+    "Components/Page/Payment-link/PaymentLinksTopBar.tsx — height bump to 42px was applied to the inputSx but the kind-segment and date-range trigger use separate height tokens that were not updated.",
+    "styled.tsx TableBodyCell — padding 12px/16px and lineHeight 1.35 applied correctly (verified: row height stable at 64px with 2-line content), no action needed here.",
+    "No MongoDB _id leak observed; no hardcoded URLs; all /api calls succeeded."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "N/A (skipped)", "frontend": "~75% (15/15 functional flows PASS; 6 UI/layout issues of which 1 is HIGH)" },
+  "test_credentials": "Used /app/memory/tmp/merchant_token.txt via localStorage per request. Did not exercise OTP path. No credential issues.",
+  "seed_data_creation": "None. Run was READ-ONLY per the SAFE MODE instruction — no creates/edits/deletes/refunds/extensions/duplicates performed.",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Spacing polish IS visible (TableBodyCell 12/16px, row 64px, status filter + search 42px). HIGH-pri remaining defect is sticky-right Actions column obscuring Status/Last-30-days at <=1440; main agent's 1920-only check missed it because at 1920 the table fits. After the main agent reduces column widths (or drops sticky Actions below a breakpoint), re-verify at 1440/1366/1280 that (a) Status badge full word is visually readable, (b) 'Last 30 days' sparkline cell is visible without horizontal scroll, (c) sticky Actions right-edge still aligns on both active (4 btns) and expired (2 btns) rows. Also re-measure segment + date-range heights after the 42px fix. Everything else (filters/search/pagination/drawer/CSV/dark/mobile) is stable and does not need re-running unless the main agent touches that code.",
+  "rca_of_the_issue": "RCA for sticky-Actions overlap: the eight columns have fixed min-widths summing to 1354px (90+327+120+169+184+108+156+200). Any wrapper narrower than 1354 causes horizontal overflow inside the TableContainer; the ACTIONS <td> uses position:sticky;right:0 with an opaque white background so it floats on top of whatever text sits behind it when the content region scrolls or renders behind it. The user does not perceive a scrollbar at 1440 because the overflow is contained within the TableContainer, not the page — so they see 'STA' and partial 'Ac' badges but no obvious scroll affordance. Fix is either (a) tighten min-widths for Description/Crypto/Created so total <= 1134 at 1440 (preferred), or (b) make Actions non-sticky below a desktop-xl breakpoint, or (c) collapse Last-30-days into a tooltip at narrower widths."
+}

@@ -1,3 +1,10 @@
+# 2026-10-05 (pod 33379795) — /pay-links POLISH TEST + IN-APP UX AUDIT — report only, NO code changes
+# testing_agent iteration_265 (frontend, read-only): 15/15 functional flows pass; HIGH regression open — sticky ACTIONS column
+#   covers STATUS / LAST 30 DAYS at <=1440 px (table ~1354 px vs 1134 px card). Fix options + all findings:
+#   memory/reports/INAPP_UX_AUDIT_2026-10-05.md. Awaiting the user's choice before any change.
+# ============================================================================================
+
+
 # 2026-10-04 (fork, pod ed7125a5) — PHASE 2 (MARKETING RE-SKIN) + PHASE 3 (TRUST CENTRE) — done, SMOKE-TESTED via screenshots (NOT yet run through testing_agent; recommend a frontend testing_agent pass on fees/products/documentation/about/trust + the homepage Security link before deploy)
 # USER asked to: (Phase 2) extend the homepage "operations-console" look to Fees, Products, Docs, About for a unified product feel; (Phase 3) create a dedicated Trust Centre page linked from the homepage Security section.
 # STRATEGY (high-leverage, low-churn): the 4 pages + shared public primitives all read tokens from useAurora() and headlines from FONT_HERO, so I re-pointed those centrally instead of rewriting pages:

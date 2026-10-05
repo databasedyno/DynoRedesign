@@ -1,5 +1,12 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-05 session (pod 33379795, setup via vault) — SETUP + /pay-links TEST + IN-APP UX AUDIT — NO CODE CHANGES
+- Setup: `pod-bootstrap.sh --pass` → env restored, SAFE MODE on. Supervisor APP_URL was the UUID host; user-facing host = env `preview_endpoint` = https://secure-passphrase-13.preview.emergentagent.com → re-synced with `--url` (UUID host kept in CORS_ALLOWED_ORIGINS) + rebuilt `.next-prod`. /health healthy, 0 CORS errors.
+- /pay-links polish (commit 0e575fa16) tested by testing_agent iteration_265: 15/15 flows PASS, but HIGH regression — at ≤1440 px the table (~1354 px) overflows its 1134 px card and the sticky ACTIONS column covers STATUS ("Ac/Pa/Ex") + LAST 30 DAYS. NOT fixed — waiting for the user's layout choice (options in the report §A).
+- Full ranked audit of 15 in-app pages: `memory/reports/INAPP_UX_AUDIT_2026-10-05.md` (screens in `test_reports/inapp_audit_2026-10-05/`, metrics script `scripts/qa/inapp_audit_metrics.js`).
+- Cloudflare shows a "verify you are human" page if you open ~15 preview pages in quick succession — pace screenshot sweeps (≥60 s pause).
+
+
 ## 2026-10-04 session (pod ed7125a5, setup via vault) — SETUP ONLY, no code changes
 - `pod-bootstrap.sh --pass` run → env restored from vault, URLs synced to `https://secure-passphrase-13.preview.emergentagent.com`, SAFE MODE on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
 - User paused mid-install → supervisor restarted; frontend/backend self-heal finished deps + `.next-prod` build on their own (env files survived).
