@@ -735,7 +735,7 @@ export default function CompanySettingsDialog({
                         data-testid="settings-save-changes-btn"
                         variant="primary"
                         size={isMobile ? "small" : "medium"}
-                        onClick={() => handleSubmit(values)}
+                        type="submit"
                         disabled={companyState.loading || !isDirty}
                         sx={{
                           fontSize: "15px",

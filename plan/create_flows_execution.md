@@ -55,3 +55,10 @@ Supported locales: en, es, fr, de, pt, nl (verify). i18n propagation script patt
 - BUG FIX (Brand details Save greyed) VERIFIED by testing_agent 5/5 desktop+mobile, 0 console errors.
 - Frontend left in DEV mode (hot reload) for this pod; deploy uses Dockerfile (prod) independently. .env.local is gitignored so FRONTEND_MODE change won't be committed.
 - CI/build fix (unused useCallback import) pending user "Save to GitHub" to push.
+
+## POST-FINISH: 4 enhancements requested by user — see /app/plan/NEXT_AGENT_HANDOFF.md
+- #4 inline brand-save field errors: CODE DONE (CompanySettingsDialog Save button → type="submit" so FormManager sets touched → inline errors). NOT yet testing_agent-verified.
+- #3 post-creation where/share/track panel for paylink+fundraiser: NOT STARTED (PaymentLinkSuccessModal already exists ~CreatePaymentLink line 1464).
+- #1 reward tiers in fundraiser preview: NOT STARTED (backend+CampaignManager+RewardTierShelf exist; gap = LivePreviewPanel render + lift tiers state).
+- #2 landing i18n: NOT STARTED (13 v7.security.* + v7.trust.eyebrow keys missing in es/fr/de/pt/nl; verify hero/howItWorks/faq not stale).
+- Full details, file paths, line numbers, approach & tests in /app/plan/NEXT_AGENT_HANDOFF.md.
