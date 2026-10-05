@@ -3,7 +3,7 @@ import { Box, Button as MuiButton, CircularProgress, Typography, useTheme } from
 import { SxProps, Theme } from "@mui/system";
 import Image, { StaticImageData } from "next/image";
 import React from "react";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { BRAND_ACCENT } from "@/constants/theme";
 
 export interface CustomButtonProps {
   label: string;

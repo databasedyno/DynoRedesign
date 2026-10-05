@@ -1,6 +1,6 @@
 import { brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
-import { Box, CircularProgress, Grid, Typography } from "@mui/material";
+import { Box, CircularProgress, Typography } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,6 @@ import { ApiAction } from "@/Redux/Actions";
 import { API_DELETE, API_FETCH, API_REGENERATE, API_TOGGLE_STATUS, API_CLEAR_REVEALED } from "@/Redux/Actions/ApiAction";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import CopyIcon from "@/assets/Icons/copy-icon.svg";
-import CopyInline from "@/Components/UX/CopyInline";
 import EyeIcon from "@/assets/Icons/eye-icon.svg";
 import InfoIcon from "@/assets/Icons/info-icon.svg";
 import { IApi, rootReducer } from "@/utils/types";
