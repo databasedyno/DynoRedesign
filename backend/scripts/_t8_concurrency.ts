@@ -12,7 +12,7 @@ import axios from "axios";
 import { applyEntries } from "../services/safedeal/safedealWallet";
 import { Client } from "pg";
 
-const BASE = "https://secure-passphrase-13.preview.emergentagent.com/api/safedeal";
+const BASE = "https://33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com/api/safedeal";
 const TS = process.argv[2] || String(Date.now());
 const EMAIL = `sd-sec-t8-${TS}@example.com`;
 
