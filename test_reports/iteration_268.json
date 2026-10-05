@@ -1,0 +1,46 @@
+{
+  "summary": "Frontend-only regression verification after removal of 3 unused imports (Grid, CopyInline from ApiKeysPage.tsx; brandFg from Buttons/index.tsx). All three test areas pass: Developer Keys page renders both tabs correctly, buttons render/click across public and authenticated pages, and dashboard loads cleanly. No runtime regressions introduced.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_details": {
+    "developer_keys_keys_tab": {
+      "url": "/developer-keys",
+      "status": "PASS",
+      "evidence": "15 pk-* data-testid elements rendered; Webhooks/API Keys/Quick Links cards present; Live key dpk_live_7wcc...7TRZ and Test key dpk_test_rWqU...3rru shown in table; Keys/Webhooks/Events log/Docs tab bar visible; no console errors from touched files"
+    },
+    "developer_keys_docs_tab": {
+      "url": "/developer-keys?tab=docs",
+      "status": "PASS",
+      "evidence": "62 bb-* data-testid elements rendered; API Documentation, Embedded Checkout sections present; tab switching via query param works"
+    },
+    "dashboard_smoke": {
+      "url": "/dashboard",
+      "status": "PASS",
+      "evidence": "Dashboard renders greeting (Good evening, John), KPI cards (Settled $4,682.00, In Flight, Forwarded $4,663.19), 30-day trend chart, 25 visible buttons; no blank screen; no runtime errors"
+    },
+    "buttons_component": {
+      "status": "PASS",
+      "evidence": "Public /auth/login: Continue button visible & enabled, Continue with Google / Continue with GitHub rendered correctly with styling. Authenticated /developer-keys: Create publishable key, Got it, Retry last failure, Manage keys, action menus render & are interactive. /dashboard: 25 buttons visible. brandFg removal did not affect styling."
+    },
+    "console_errors": "2 unrelated CORS errors fetching tickers from a DIFFERENT preview origin (secure-passphrase-13.*). Not related to this fix; pre-existing cross-pod artifact."
+  },
+  "test_report_links": [
+    "/app/test_reports/screenshots_devkeys_keys.png",
+    "/app/test_reports/screenshots_devkeys_docs.png",
+    "/app/test_reports/screenshots_dashboard.png",
+    "/app/test_reports/screenshots_login.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100%"},
+  "test_credentials": "Used injected merchant JWT from /app/memory/tmp/merchant_token.txt + localStorage last_company_id=1 + sessionStorage mfa_interstitial_seen=1 as documented in review request.",
+  "seed_data_creation": "None. Safe mode respected — no key creation/regeneration/deletion performed.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Fix for CI 'no unused imports' gate verified at runtime. Both touched components (ApiKeysPage.tsx on /developer-keys, shared Buttons/index.tsx) render and function identically. Safe to proceed with deploy."
+}
