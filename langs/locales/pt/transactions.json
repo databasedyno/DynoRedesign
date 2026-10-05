@@ -150,5 +150,6 @@
   "firstPaymentTitle": "Primeiro pagamento recebido! 🎉",
   "firstPaymentBody": "Você agora é oficialmente um lojista Dynopay. Este é importante — seu primeiro pagamento real está liquidado no seu painel.",
   "viewMyTransactions": "Ver minhas transações",
-  "invoice": "Fatura"
+  "invoice": "Fatura",
+  "exportAllRows": "Todas as linhas correspondentes"
 }

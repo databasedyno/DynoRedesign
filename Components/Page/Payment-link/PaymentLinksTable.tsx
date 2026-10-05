@@ -18,6 +18,7 @@ import {
   TableRow,
   Tooltip,
   Typography,
+  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -69,7 +70,6 @@ import SelectionBar from "@/Components/Common/SelectionBar";
 import { downloadCsv } from "@/helpers/downloadCsv";
 import { useEdgeFades } from "@/Components/Common/ScrollHint";
 import useIsMobile from "@/hooks/useIsMobile";
-import useTableCardView from "@/hooks/useTableCardView";
 import {
   PaymentLinkData,
   PaymentLinksTableProps,
@@ -146,13 +146,16 @@ const PaymentLinksTable = ({
   const { t } = useTranslation("paymentLinks");
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const theme = useTheme();
-  const isMobile = useTableCardView();
+  // Cards below 1200px: the 7-column table needs ~1100px, so tablets (768-1199)
+  // get a 2-column card grid instead of a sideways-scrolling table.
+  const isMobile = useMediaQuery("(max-width:1199.95px)");
+  const isPhone = useMediaQuery("(max-width:767.95px)");
   // §4.2 rulebook: pinned first (ID) column + edge-fade scroll hints ≥768px.
   const { ref: hscrollRef, showLeft: hasScrolledX, showRight: hasMoreRight } = useEdgeFades<HTMLDivElement>();
   const frozenEdgeShadow = hasScrolledX
     ? theme.palette.mode === "dark"
-      ? "8px 0 12px -8px rgba(0,0,0,0.6)"
-      : "8px 0 12px -8px rgba(15,15,20,0.22)"
+      ? "10px 0 14px -8px rgba(0,0,0,0.75)"
+      : "10px 0 14px -8px rgba(15,15,20,0.32)"
     : "none";
   const headBg = theme.palette.background.paper;
   const stickyFirstHeadSx = {
@@ -320,7 +323,7 @@ const PaymentLinksTable = ({
   const exportSelectedCsv = () => {
     downloadCsv(
       "payment-links.csv",
-      ["Link ID", "Description", "USD value", "Crypto", "Status", "Created", "Payments"],
+      ["Link ID", "Description", "Amount", "Crypto", "Status", "Created", "Payments"],
       selectedLinks.map((l) => [
         l.id,
         l.description || "",
@@ -412,9 +415,16 @@ const PaymentLinksTable = ({
         {/* MOBILE: Card layout */}
         {isMobile ? (
           <>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, px: 2 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: isPhone ? "1fr" : "repeat(2, minmax(0, 1fr))",
+              gap: isPhone ? 1 : 1.5,
+              px: isPhone ? 2 : 0,
+            }}
+          >
             {paginatedData.length === 0 ? (
-              <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+              <Box sx={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", py: 4 }}>
                 <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                   {tCommon("noDataAvailable")}
                 </Typography>
@@ -486,20 +496,26 @@ const PaymentLinksTable = ({
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", mb: 1 }}>
                     <Typography sx={{ fontSize: "16px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
                       {row.usdValue}
+                      {row.linkType === "donation" && (
+                        <Box component="span" sx={{ ml: 0.75, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 500, color: theme.palette.text.secondary }}>
+                          {t("raisedCaption", { defaultValue: "raised" })}
+                        </Box>
+                      )}
                     </Typography>
-                    <LinkCoinsBadge value={row.cryptoValue} size="xs" max={2} />
+                    <LinkCoinsBadge value={row.cryptoValue} size="xs" max={2} short />
                   </Box>
                   <Box sx={{ mb: 1 }}><Last30Cell link={row} compact /></Box>
                   {row.linkType === "donation" && row.donation?.goalAmount ? (
                     <Box sx={{ mb: 1 }}>{donationProgressBar(row, 999)}</Box>
                   ) : null}
-                  {/* Bottom: Date + Actions */}
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                      {formatUtcToDisplay(row.createdAt)}
-                      {row.timesUsed > 0 ? ` · ${t("paymentsReceivedShort", { count: row.timesUsed })}` : ""}
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: "6px" }} onClick={(e) => e.stopPropagation()}>
+                  {/* Meta line on its own row (was squeezed beside 6 buttons and wrapped to 4 lines) */}
+                  <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mb: 1.25 }}>
+                    {formatUtcToDisplay(row.createdAt)}
+                    {row.timesUsed > 0 ? ` · ${t("paymentsReceivedShort", { count: row.timesUsed })}` : ""}
+                  </Typography>
+                  {/* Actions: copy · share · view (+ reactivate) — QR / edit / delete / refund live in ⋯ */}
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                    <Box sx={{ display: "flex", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
                       {row.status !== "expired" && (
                         <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
                           <RowActionButton
@@ -512,7 +528,7 @@ const PaymentLinksTable = ({
                           </RowActionButton>
                         </Tooltip>
                       )}
-                      <QrShareActions link={row} onToast={fireToast} compact />
+                      <QrShareActions link={row} onToast={fireToast} compact hideQr />
                       <Tooltip title={t("viewLinkTooltip", { defaultValue: "View details" })} arrow>
                         <RowActionButton
                           aria-label={t("viewLinkTooltip", { defaultValue: "View details" })}
@@ -537,48 +553,22 @@ const PaymentLinksTable = ({
                           </RowActionButton>
                         </Tooltip>
                       )}
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && row.linkType !== "cart" && (
-                        <Tooltip title={t("editLinkTooltip", { defaultValue: "Edit link" })} arrow>
-                          <RowActionButton
-                            aria-label={t("editLinkTooltip", { defaultValue: "Edit link" })}
-                            onClick={() => router.push(`/pay-links/${row?.id}`)}
-                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
-                          >
-                            <Image src={EditIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
-                          </RowActionButton>
-                        </Tooltip>
-                      )}
-                      {row.status !== "expired" && row.status !== "paid" && row.status !== "completed" && row.linkType !== "cart" && (
-                        <Tooltip title={t("deleteLinkTooltip", { defaultValue: "Delete link" })} arrow>
-                          <RowActionButton
-                            tone="danger"
-                            aria-label={t("deleteLinkTooltip", { defaultValue: "Delete link" })}
-                            onClick={() => {
-                              setDeleteModel(true);
-                              setDeletId(row.id);
-                            }}
-                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
-                          >
-                            <Image src={TrashIcon} alt="" width={14} height={14} draggable={false} style={{ filter: "brightness(0) saturate(100%) invert(27%) sepia(86%) saturate(5000%) hue-rotate(355deg) brightness(97%) contrast(120%)" }} />
-                          </RowActionButton>
-                        </Tooltip>
-                      )}
                       {CRYPTO_REFUNDS_ENABLED && refundMap[String(row.id)] && (
                         <RefundStatusChip
                           status={refundMap[String(row.id)].status}
                           testid={`paylink-refund-status-mobile-${row.id}`}
                         />
                       )}
-                      {CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status) && (
-                        <Tooltip title={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })} arrow>
+                      {(row.status !== "expired" || (CRYPTO_REFUNDS_ENABLED && isRefundableLinkStatus(row.status))) && (
+                        <Tooltip title={t("moreActionsTooltip", { defaultValue: "More actions" })} arrow>
                           <RowActionButton
-                            tone="primary"
-                            aria-label={t("cryptoRefundTooltip", { defaultValue: "Crypto refund" })}
-                            data-testid={`paylink-crypto-refund-mobile-${row.id}`}
-                            onClick={() => setCryptoRefundLinkId(String(row.id))}
+                            aria-label={t("moreActionsTooltip", { defaultValue: "More actions" })}
+                            aria-haspopup="menu"
+                            data-testid={`paylink-more-mobile-${row.id}`}
+                            onClick={(e) => setRowMenu({ anchor: e.currentTarget, row })}
                             sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
                           >
-                            <CurrencyExchangeRounded sx={{ fontSize: 16 }} />
+                            <MoreHorizRoundedIcon sx={{ fontSize: 18 }} />
                           </RowActionButton>
                         </Tooltip>
                       )}
@@ -657,7 +647,7 @@ const PaymentLinksTable = ({
                   zIndex: 2,
                   backgroundColor: headBg,
                   // Flat header: paper surface + hairline rule instead of a filled band.
-                  "& .MuiTableCell-root": { borderBottom: `1px solid ${hairline(theme)}`, py: "14px" },
+                  "& .MuiTableCell-root": { borderBottom: `1px solid ${hairline(theme)}`, py: "14px", px: "14px" },
                 }}
               >
                 <TableRow sx={{ backgroundColor: headBg }}>
@@ -676,14 +666,11 @@ const PaymentLinksTable = ({
                   <TableCell>
                     <Header label="createdHeader" />
                   </TableCell>
-                  <TableCell sx={{ minWidth: 108 }}>
-                    <Header label="statusHeader" />
-                  </TableCell>
-                  <TableCell>
-                    <Header label="last30Header" tooltip="last30Tooltip" />
+                  <TableCell sx={{ minWidth: 120 }}>
+                    <Header label="statusHeader" tooltip="statusHeaderTip" />
                   </TableCell>
                   <TableCell
-                    align="center"
+                    align="right"
                     sx={{
                       // Sticky so row actions are NEVER cut off when the
                       // table scrolls horizontally (UI/UX audit P1 fix).
@@ -695,13 +682,13 @@ const PaymentLinksTable = ({
                       // to the right" scroll hint.
                       boxShadow: hasMoreRight
                         ? theme.palette.mode === "dark"
-                          ? "-8px 0 12px -8px rgba(0,0,0,0.6)"
-                          : "-8px 0 12px -8px rgba(15,15,20,0.22)"
+                          ? "-10px 0 14px -8px rgba(0,0,0,0.75)"
+                          : "-10px 0 14px -8px rgba(15,15,20,0.32)"
                         : "none",
                       transition: "box-shadow 160ms ease",
                     }}
                   >
-                    <Header label="actionsHeader" />
+                    <Header label="actionsHeader" align="right" />
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -718,11 +705,11 @@ const PaymentLinksTable = ({
                           borderTop: i === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
                         }}
                       >
-                        {Array.from({ length: 8 }).map((__, colIdx) => (
+                        {Array.from({ length: 7 }).map((__, colIdx) => (
                           <TableBodyCell key={colIdx} sx={{ pl: colIdx === 0 ? "15px" : undefined }}>
                             <Skeleton
                               variant="text"
-                              width={colIdx === 0 ? 30 : colIdx === 7 ? 92 : 90}
+                              width={colIdx === 0 ? 30 : colIdx === 6 ? 92 : 90}
                               height={16}
                               sx={{ bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
                             />
@@ -764,24 +751,31 @@ const PaymentLinksTable = ({
                         <Box component="span">{row.id}</Box>
                       </Box>
                     </TableBodyCell>
-                    <TableBodyCell sx={{ maxWidth: 360 }} title={row.description || undefined}>
+                    <TableBodyCell sx={{ maxWidth: 270 }} title={row.description || undefined}>
                       {row.linkType === "donation" ? (
                         <Box sx={{ display: "flex", flexDirection: "column", gap: "3px", minWidth: 130 }}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
-                            <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{row.description || "—"}</Box>
+                            <Box component="span" sx={{ minWidth: 0, maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.description || "—"}</Box>
                             {donationChip}
                           </Box>
                           {donationProgressBar(row)}
                         </Box>
                       ) : (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
-                          <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.description || "—"}</Box>
+                          <Box component="span" sx={{ minWidth: 0, maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.description || "—"}</Box>
                           {row.linkType === "cart" && orderChip}
                         </Box>
                       )}
                     </TableBodyCell>
-                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right", fontWeight: 600 }}>{row.usdValue}</TableBodyCell>
-                    <TableBodyCell><LinkCoinsBadge value={row.cryptoValue} /></TableBodyCell>
+                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right", fontWeight: 600 }}>
+                      {row.usdValue}
+                      {row.linkType === "donation" && (
+                        <Box component="span" sx={{ display: "block", fontFamily: "var(--font-sans)", fontSize: "11.5px", fontWeight: 500, color: theme.palette.text.secondary }}>
+                          {t("raisedCaption", { defaultValue: "raised" })}
+                        </Box>
+                      )}
+                    </TableBodyCell>
+                    <TableBodyCell><LinkCoinsBadge value={row.cryptoValue} short /></TableBodyCell>
                     {/* Created + expiry stacked in ONE column — frees ~150px so
                         Status and Last 30 days fit without a horizontal scroll. */}
                     <TableBodyCell sx={{ whiteSpace: "nowrap" }} data-testid={`paylink-dates-${row.id}`}>
@@ -793,7 +787,7 @@ const PaymentLinksTable = ({
                       </Box>
                     </TableBodyCell>
 
-                    <TableBodyCell sx={{ minWidth: 108 }}>
+                    <TableBodyCell sx={{ minWidth: 120 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexWrap: "wrap" }}>
                         <StatusDot
                           tone={
@@ -816,12 +810,11 @@ const PaymentLinksTable = ({
                         </StatusDot>
                         <ExpiringSoonBadge link={row} testId={`paylink-expiring-${row.id}`} />
                       </Box>
+                      <Box sx={{ mt: "3px" }}><Last30Cell link={row} compact /></Box>
                     </TableBodyCell>
 
-                    <TableBodyCell><Last30Cell link={row} /></TableBodyCell>
-
                     <TableBodyCell
-                      align="center"
+                      align="right"
                       className="sticky-cell"
                       sx={{
                         // H2 — was `width: fit-content; display: flex` on the <td> which
@@ -837,8 +830,8 @@ const PaymentLinksTable = ({
                         backgroundColor: theme.palette.background.paper,
                         boxShadow: hasMoreRight
                           ? theme.palette.mode === "dark"
-                            ? "-8px 0 12px -8px rgba(0,0,0,0.6)"
-                            : "-8px 0 12px -8px rgba(15,15,20,0.22)"
+                            ? "-10px 0 14px -8px rgba(0,0,0,0.75)"
+                            : "-10px 0 14px -8px rgba(15,15,20,0.32)"
                           : "none",
                         transition: "box-shadow 160ms ease",
                       }}
@@ -848,7 +841,7 @@ const PaymentLinksTable = ({
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
+                          justifyContent: "flex-end",
                           gap: "8px",
                         }}
                       >

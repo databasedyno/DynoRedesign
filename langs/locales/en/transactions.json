@@ -150,5 +150,6 @@
   "firstPaymentTitle": "First payment landed! 🎉",
   "firstPaymentBody": "You're officially a Dynopay merchant. This is a big one — your first real payment is settled in your dashboard.",
   "viewMyTransactions": "View my transactions",
-  "invoice": "Invoice"
+  "invoice": "Invoice",
+  "exportAllRows": "All matching rows"
 }

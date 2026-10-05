@@ -3,11 +3,13 @@ import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/styles/uiKit";
 import { brandFg } from "@/constants/theme";
+import axiosBaseApi from "@/axiosConfig";
 
 /**
  * PageTip — a calm, one-time "first-visit" hint shown once at the top of a
  * page to explain what the page is for in a single sentence (Blueprint §5 /
- * §6.4). Dismissed once → never shown again (persisted in localStorage).
+ * §6.4). Dismissed once → never shown again: remembered per ACCOUNT on the
+ * server (GET/POST /api/track/page-tips) and cached in localStorage.
  *
  * Design language (Quiet Money): illustration-free, hairline border, soft
  * 12px radius, a 3px indigo left-accent echoing the sidebar's active row, a
@@ -19,13 +21,26 @@ import { brandFg } from "@/constants/theme";
  * single component covers every page and stays translated in all 6 languages.
  */
 
-const STORAGE_PREFIX = "dynopay.pagetip.v1.";
+const STORAGE_BASE = "dynopay.pagetip.v2.";
+
+// Cache is scoped to the signed-in account so another account on this browser still sees its tips.
+const storageKey = (key: string): string => {
+  let uid = "anon";
+  try {
+    const token = window.localStorage.getItem("token");
+    const payload = token ? JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) : null;
+    if (payload?.user_id) uid = String(payload.user_id);
+  } catch {
+    /* ignore */
+  }
+  return `${STORAGE_BASE}${uid}.${key}`;
+};
 
 const isDismissed = (key: string): boolean => {
   // SSR: return true so the tip never flashes before hydration decides.
   if (typeof window === "undefined") return true;
   try {
-    return window.localStorage.getItem(STORAGE_PREFIX + key) === "1";
+    return window.localStorage.getItem(storageKey(key)) === "1";
   } catch {
     return false;
   }
@@ -33,10 +48,27 @@ const isDismissed = (key: string): boolean => {
 
 const markDismissed = (key: string) => {
   try {
-    window.localStorage.setItem(STORAGE_PREFIX + key, "1");
+    window.localStorage.setItem(storageKey(key), "1");
   } catch {
-    /* storage unavailable — dismissal simply won't persist */
+    /* storage unavailable — the server copy still remembers it */
   }
+  accountDismissed = null;
+  axiosBaseApi.post("track/page-tips/dismiss", { key }).catch(() => {});
+};
+
+// One request per page load, shared by every tip (cleared after a dismissal).
+let accountDismissed: Promise<string[]> | null = null;
+let accountDismissedFor = "";
+const fetchAccountDismissed = (): Promise<string[]> => {
+  const scope = storageKey("");
+  if (!accountDismissed || accountDismissedFor !== scope) {
+    accountDismissedFor = scope;
+    accountDismissed = axiosBaseApi
+      .get("track/page-tips")
+      .then((r) => (Array.isArray(r.data?.dismissed) ? r.data.dismissed : []))
+      .catch(() => []);
+  }
+  return accountDismissed;
 };
 
 export interface PageTipProps {
@@ -57,9 +89,22 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
   useEffect(() => {
     if (!hasTip) return;
     if (isDismissed(tipKey)) return;
-    // Defer a tick so the entrance transition can play from the initial state.
-    const id = window.setTimeout(() => setVisible(true), 20);
-    return () => window.clearTimeout(id);
+    let cancelled = false;
+    fetchAccountDismissed().then((keys) => {
+      if (cancelled) return;
+      if (keys.includes(tipKey)) {
+        try {
+          window.localStorage.setItem(storageKey(tipKey), "1");
+        } catch {
+          /* ignore */
+        }
+        return;
+      }
+      setVisible(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [tipKey, hasTip]);
 
   if (!hasTip) return null;

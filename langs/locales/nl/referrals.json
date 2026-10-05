@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Verwijzingen",
+  "pageTitle": "Verwijs & verdien",
   "pageDescription": "Verdien 25% omzetdeling voor elke verkoper die je aanbrengt — zij krijgen 50% korting op kosten",
   "yourReferralCode": "Uw Verwijzingscode",
   "shareYourCode": "Deel uw unieke code en verdien beloningen",
@@ -39,7 +39,22 @@
   "leaderboard": "Ranglijst",
   "rank": "Rang",
   "referrals": "Verwijzingen",
-  "earnings": "Verdiensten",
+  "earnings": {
+    "title": "Verdiensten",
+    "accrued": "Omzetdeel verdiend · totaal",
+    "paid": "Uitbetaald of gecrediteerd",
+    "rewardsCredited": "Aanmeldbeloningen gecrediteerd",
+    "rewardsPending": "Aanmeldbeloningen in behandeling",
+    "availableHint": "Omzetdeel dat je verdiend maar nog niet ontvangen hebt. Standaard als kostentegoed — of stap hieronder over op USDT-uitbetaling.",
+    "referralsCount_one": "{{count}} verwijzing",
+    "referralsCount_other": "{{count}} verwijzingen",
+    "activeCount_one": "{{count}} actief",
+    "activeCount_other": "{{count}} actief",
+    "pendingCount_one": "{{count}} in behandeling",
+    "pendingCount_other": "{{count}} in behandeling",
+    "windowsCount_one": "{{count}} verdienperiode open",
+    "windowsCount_other": "{{count}} verdienperiodes open"
+  },
   "referralBenefits": "Verwijzingsvoordelen",
   "benefitReferrer": "Je verdient 25% van de kosten van elke verkoper die je aanbrengt, 12 maanden lang",
   "benefitReferee": "Je vriend krijgt 50% minder kosten voor 30 dagen zodra hij zich aanmeldt",
@@ -195,5 +210,15 @@
   "refStatus_pending": "In afwachting",
   "refStatus_active": "Actief",
   "refStatus_rewarded": "Beloond",
-  "refStatus_expired": "Verlopen"
+  "refStatus_expired": "Verlopen",
+  "hero": {
+    "eyebrow": "Jouw verwijslink",
+    "valueLine": "Jij krijgt 12 maanden 25% van hun kosten · zij betalen 30 dagen 50% minder kosten",
+    "code": "Code",
+    "shareOn": "Delen via"
+  },
+  "zero": {
+    "title": "Nog geen verwijzingen",
+    "body": "Deel je link hierboven. Zodra een merchant zich ermee aanmeldt, zie je die hier — met je verdiensten en uitbetaalopties."
+  }
 }

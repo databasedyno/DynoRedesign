@@ -184,5 +184,9 @@
   "formatUnusualTip": "Das sieht nicht wie eine typische {{chain}}-Adresse aus. Prüfen Sie sie vor der nächsten Auszahlung.",
   "lastPayoutNone": "Noch keine Auszahlungen an diese Auszahlungsadresse",
   "lastPayoutAt": "Letzte Auszahlung {{when}}",
-  "in30d": "in 30 T"
+  "in30d": "in 30 T",
+  "options": "Optionen",
+  "netReceivedEyebrow": "Netto erhalten · gesamt",
+  "netReceivedHint": "Was nach Dynopay-Gebühren auf Ihren Auszahlungsadressen ankam, gesamter Zeitraum, aus abgeschlossenen Zahlungen. Zahlungen an inzwischen entfernte Adressen zählen nicht – daher kann der Wert etwas unter dem Nettoumsatz unter Kunden liegen.",
+  "colNetReceived": "Netto erhalten"
 }

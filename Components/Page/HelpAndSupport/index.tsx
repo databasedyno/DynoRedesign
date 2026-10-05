@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import {
     FooterIconButton,
-    SearchIconButton,
     TextDecoration,
 } from "./styled";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
@@ -187,10 +186,10 @@ const HelpAndSupport = () => {
         return () => document.removeEventListener("keydown", handler);
     }, [handleSearch]);
 
+    // Live search — debounced; the separate search button is gone (icon sits inside the field).
     useEffect(() => {
-        if (searchTerm === "") {
-            handleSearch();
-        }
+        const id = window.setTimeout(() => handleSearch(), searchTerm === "" ? 0 : 400);
+        return () => window.clearTimeout(id);
     }, [searchTerm]);
 
     return (
@@ -219,15 +218,26 @@ const HelpAndSupport = () => {
                         sx={{
                             flex: 1,
                             minWidth: 0,
+                            position: "relative",
                             "& input:focus": {
                                 borderColor: theme.palette.primary.main,
                             },
                         }}
                     >
+                        <Image
+                            src={SearchIcon}
+                            alt=""
+                            aria-hidden
+                            width={16}
+                            height={16}
+                            className="themed-icon"
+                            style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", opacity: 0.55, pointerEvents: "none" }}
+                        />
                         <input
-                            type="text"
+                            type="search"
                             value={searchTerm}
                             data-testid="help-search-input"
+                            aria-label={t("searchPlaceholder") as string}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder={t("searchPlaceholder")}
                             style={{
@@ -238,7 +248,7 @@ const HelpAndSupport = () => {
                                 lineHeight: "100%",
                                 letterSpacing: 0,
                                 fontWeight: 500,
-                                padding: "12px 14px",
+                                padding: "12px 14px 12px 40px",
                                 border: `1px solid ${theme.palette.border?.main || theme.palette.divider}`,
                                 backgroundColor: theme.palette.background.paper,
                                 color: theme.palette.text.primary,
@@ -249,13 +259,6 @@ const HelpAndSupport = () => {
                             }}
                         />
                     </Box>
-                    <SearchIconButton
-                        onClick={handleSearch}
-                        data-testid="help-search-button"
-                        sx={{ borderRadius: "10px", height: isMobile ? 40 : 44, width: isMobile ? 40 : 44 }}
-                    >
-                        <Image src={SearchIcon} alt="search" width={20} height={20} className="themed-icon-primary" />
-                    </SearchIconButton>
                 </Box>
             </Box>
 

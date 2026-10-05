@@ -6,6 +6,7 @@ import { differenceInCalendarDays } from "date-fns";
 import CustomButton from "@/Components/UI/Buttons";
 import SkeletonList from "@/Components/UI/SkeletonList";
 import { CB_TOKENS, PillButton } from "@/Components/Page/Dashboard/coinbase/styled";
+import { tabPillActive } from "@/styles/tabPill";
 import { statusToneColors } from "@/Components/UI/StatusDot";
 import { Icon } from "@/styles/uiKit";
 import { roundLongDecimalsInText } from "@/utils/currencyFormat";
@@ -107,7 +108,7 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
       {(["all", ...NOTIF_KINDS] as KindFilter[]).map((k) => {
         const count = k === "all" ? notifications.length + attention.length : kindCounts[k];
         return (
-          <PillButton key={k} active={kind === k} role="tab" aria-selected={kind === k} data-testid={`notifications-kind-${k}`} onClick={() => setKind(k)} sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, whiteSpace: "nowrap" }}>
+          <PillButton key={k} active={kind === k} role="tab" aria-selected={kind === k} data-testid={`notifications-kind-${k}`} onClick={() => setKind(k)} sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, whiteSpace: "nowrap", ...(kind === k ? { ...tabPillActive(theme), "&:hover": tabPillActive(theme) } : {}) }}>
             {k !== "all" && <Icon name={KIND_ICON[k]} size={13} />}
             {kindLabel[k]}
             <Box component="span" sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, opacity: 0.75 }}>{count}</Box>
@@ -226,8 +227,8 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
               />
             )}
           </Box>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {g.items.map((notif) => {
+          <Box sx={{ display: "flex", flexDirection: "column", border: `1px solid ${border}`, borderRadius: "14px", overflow: "hidden", backgroundColor: theme.palette.background.paper }}>
+            {g.items.map((notif, ni) => {
               const fam = familyOf(String(notif.type || ""));
               const c = toneColor(fam.tone);
               const target = targetFor(notif);
@@ -251,20 +252,20 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
                     display: "flex",
                     gap: 1.5,
                     alignItems: "flex-start",
-                    p: { xs: 1.5, md: 2 },
-                    borderRadius: "14px",
-                    border: `1px solid ${unread ? (isDark ? "rgba(255,209,0,0.35)" : "rgba(139,94,0,0.28)") : border}`,
-                    backgroundColor: unread ? (isDark ? "rgba(255,209,0,0.06)" : "rgba(139,94,0,0.035)") : theme.palette.background.paper,
+                    px: { xs: 1.5, md: 2 },
+                    py: { xs: 1.25, md: 1.5 },
+                    borderTop: ni === 0 ? "none" : `1px solid ${border}`,
+                    boxShadow: unread ? `inset 3px 0 0 ${indigo}` : "none",
+                    backgroundColor: unread ? (isDark ? "rgba(255,209,0,0.05)" : "rgba(139,94,0,0.03)") : "transparent",
                     cursor: target || unread ? "pointer" : "default",
-                    transition: "border-color 150ms ease, background-color 150ms ease, transform 150ms ease",
-                    "&:hover": { borderColor: indigo },
-                    "&:focus-visible": { outline: `2px solid ${indigo}`, outlineOffset: 2 },
-                    "@media (prefers-reduced-motion: no-preference)": { "&:active": { transform: "scale(0.995)" } },
+                    transition: "background-color 150ms ease",
+                    "&:hover": { backgroundColor: isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.025)" },
+                    "&:focus-visible": { outline: `2px solid ${indigo}`, outlineOffset: -2 },
                   }}
                 >
                   <Box sx={{ position: "relative", flexShrink: 0 }}>
-                    <Box sx={{ width: 40, height: 40, borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: c.fg, backgroundColor: c.bg }}>
-                      <Icon name={fam.icon} size={18} />
+                    <Box sx={{ width: 36, height: 36, borderRadius: "10px", display: "flex", alignItems: "center", justifyContent: "center", color: c.fg, backgroundColor: c.bg }}>
+                      <Icon name={fam.icon} size={17} />
                     </Box>
                     {unread && <Box data-testid="notification-unread-dot" sx={{ position: "absolute", top: -3, right: -3, width: 10, height: 10, borderRadius: "50%", backgroundColor: indigo, border: `2px solid ${theme.palette.background.paper}` }} />}
                   </Box>

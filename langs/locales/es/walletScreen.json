@@ -184,5 +184,9 @@
   "formatUnusualTip": "No parece una dirección típica de {{chain}}. Revísala antes de tu próximo pago.",
   "lastPayoutNone": "Aún no hay pagos a esta dirección de cobro",
   "lastPayoutAt": "Último pago {{when}}",
-  "in30d": "en 30 d"
+  "in30d": "en 30 d",
+  "options": "Opciones",
+  "netReceivedEyebrow": "Neto recibido · desde siempre",
+  "netReceivedHint": "Lo que llegó a tus direcciones de cobro después de las comisiones de Dynopay, desde siempre, de pagos completados. No cuenta pagos a direcciones que ya eliminaste, por eso puede ser algo menor que los Ingresos netos de Clientes.",
+  "colNetReceived": "Neto recibido"
 }

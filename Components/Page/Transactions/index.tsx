@@ -32,7 +32,7 @@ import TransactionsFilterSheet from "./TransactionsFilterSheet";
 import useTableCardView from "@/hooks/useTableCardView";
 import { toFixedStr, toNumber, trimZeros } from "@/utils/money";
 import { formatWithSymbol } from "@/utils/locale";
-import { SOURCE_OPTIONS, TxFilters, countActiveFilters, cryptoToWalletKey, hasDateRange, hasSafeDealRows, matchesBaseFilters, walletMapping } from "./txFilters";
+import { SOURCE_OPTIONS, TxFilters, countActiveFilters, cryptoToWalletKey, hasDateRange, matchesBaseFilters, walletMapping } from "./txFilters";
 import { DEFAULT_TX_RANGE, isTxRangePreset, rangeToDates } from "./txRange";
 
 /** Open states are actionable no matter how old — deep links to them default to "all time". */
@@ -167,11 +167,6 @@ const TransactionPage = () => {
         : n;
     }, 0);
   }, [transactionState?.customers_transactions]);
-
-  const showSafeDealSource = useMemo(
-    () => selectedSource === "safedeal" || hasSafeDealRows(transactionState?.customers_transactions || []),
-    [transactionState?.customers_transactions, selectedSource],
-  );
 
   useEffect(() => {
     if (!selectedCompanyId) return;
@@ -389,24 +384,6 @@ const TransactionPage = () => {
     syncRangeQuery(preset);
   };
 
-  const handleWalletChange = (wallet: string) => {
-    setSelectedWallet(wallet);
-  };
-
-  const handleSourceChange = (source: TransactionSourceType | "all") => {
-    setSelectedSource(source);
-    // Keep URL in sync so deep-links from feature pages work + so filter
-    // survives a page reload / back-nav.
-    const query: Record<string, string> = { ...(router.query as any) };
-    if (source === "all") delete query.source;
-    else query.source = source;
-    router.replace(
-      { pathname: router.pathname, query },
-      undefined,
-      { shallow: true },
-    );
-  };
-
   const handleStatusChange = (status: TxStatusFilter) => {
     setSelectedStatus(status);
     const query: Record<string, string> = { ...(router.query as any) };
@@ -488,11 +465,10 @@ const TransactionPage = () => {
     },
   ].filter(Boolean) as Array<{ key: string; label: string; onRemove: () => void }>;
 
-  const [settledExport, setSettledExport] = useState(false);
   // Export honours EVERY active filter — search, date range (whole days, like
   // the on-screen filter), wallet, source and the status chip. A status chip
   // supersedes "Settled only".
-  const handleExport = () => {
+  const handleExport = (settledOnly = false) => {
     const hasDates = !!(dateRange.startDate && dateRange.endDate);
     dispatch(TransactionAction(TRANSACTION_EXPORT, {
       wallet: selectedWallet !== "all" ? walletMapping[selectedWallet] : undefined,
@@ -502,7 +478,7 @@ const TransactionPage = () => {
       date_to: hasDates ? endOfDay(dateRange.endDate as Date).toISOString() : undefined,
       search: searchTerm || undefined,
       company_id: selectedCompanyId || undefined,
-      settled_only: selectedStatus === "all" && settledExport,
+      settled_only: selectedStatus === "all" && settledOnly,
     }));
   };
 
@@ -551,27 +527,22 @@ const TransactionPage = () => {
         key={filterResetKey}
         onSearch={handleSearch}
         onDateRangeChange={handleDateRangeChange}
-        onWalletChange={handleWalletChange}
-        onSourceChange={handleSourceChange}
         onOpenFilters={() => setFilterSheetOpen(true)}
         activeFilterCount={countActiveFilters(filtersForCount)}
-        showSafeDeal={showSafeDealSource}
-        initialWallet={selectedWallet}
-        initialSource={selectedSource}
+        activeFilters={cardView ? undefined : activeFilterPills.filter((p) => p.key !== "status")}
         initialSearch={searchTerm}
         initialDateRange={dateRange}
         range={range}
         onRangeChange={handleRangeChange}
       />
-      {cardView && (
-        <TransactionsFilterSheet
-          open={filterSheetOpen}
-          onClose={() => setFilterSheetOpen(false)}
-          filters={currentFilters}
-          rows={transactionState?.customers_transactions || []}
-          onApply={applyFilters}
-        />
-      )}
+      <TransactionsFilterSheet
+        open={filterSheetOpen}
+        onClose={() => setFilterSheetOpen(false)}
+        filters={currentFilters}
+        rows={transactionState?.customers_transactions || []}
+        onApply={applyFilters}
+        anchor={cardView ? "bottom" : "right"}
+      />
       {taxSummary.total > 0 && (
         <Box
           data-testid="tax-collected-summary"
@@ -608,8 +579,6 @@ const TransactionPage = () => {
             selected={selectedStatus}
             onChange={handleStatusChange}
             onExport={handleExport}
-            settledOnly={settledExport}
-            onSettledOnlyChange={setSettledExport}
             standalone={standalone}
             activeFilters={cardView ? activeFilterPills : undefined}
             resultCount={processedTransactions.length}

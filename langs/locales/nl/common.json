@@ -559,7 +559,11 @@
     "emptyStep2": "De betaling wordt on-chain afgerekend",
     "emptyStep3": "Hier verschijnt een genummerde bon met kosten- en btw-regels",
     "showAllTime": "Alles tonen",
-    "viewTransactions": "Transacties bekijken"
+    "viewTransactions": "Transacties bekijken",
+    "headerGrossCollected": "Bruto ontvangen",
+    "headerGrossCollectedHint": "Wat kopers in deze periode betaalden voor voltooide betalingen, vóór Dynopay-kosten. Kosten staan apart; kopersbelasting staat bij Geïnde belasting. Bruto min kosten = wat je ontving.",
+    "groupCount_one": "{{count}} bon",
+    "groupCount_other": "{{count}} bonnen"
   },
   "customers": {
     "pageName": "Klanten",
@@ -732,7 +736,21 @@
       "notes": "Privé notities (optioneel)",
       "cancel": "Annuleren",
       "submit": "Klant toevoegen"
-    }
+    },
+    "statPaying": "Betalende klanten",
+    "statInvitedSub_one": "+ {{count}} uitgenodigd, nog niet betaald",
+    "statInvitedSub_other": "+ {{count}} uitgenodigd, nog niet betaald",
+    "statNetRevenue": "Netto-omzet",
+    "statNetRevenueHint": "Wat je ontving na Dynopay-kosten, all-time, uit voltooide betalingen — inclusief betalingen zonder contactgegevens. Exclusief belasting.",
+    "filterPaying": "Betalend",
+    "filterUnidentified": "Niet-geïdentificeerde betalingen",
+    "unidentifiedSummary_one": "Plus {{count}} betaling ({{amount}}) zonder contactgegevens — API, betaallinks en directe betalingen.",
+    "unidentifiedSummary_other": "Plus {{count}} betalingen ({{amount}}) zonder contactgegevens — API, betaallinks en directe betalingen.",
+    "unidentifiedView": "Bekijk uitsplitsing",
+    "noPayingTitle": "Nog geen betalende klanten met contactgegevens",
+    "noPayingHint_one": "Je {{count}} betaling ({{amount}}) kwam binnen via een checkout zonder naam of e-mail — API, betaallinks en directe betalingen.",
+    "noPayingHint_other": "Je {{count}} betalingen ({{amount}}) kwamen binnen via checkouts zonder naam of e-mail — API, betaallinks en directe betalingen.",
+    "noPayingCta": "Niet-geïdentificeerde betalingen bekijken"
   },
   "pleaseWait": "Even geduld",
   "transferRate": "Wisselkoers",
@@ -789,8 +807,8 @@
     "planFees": "Pakket & kosten",
     "referrals": "Verwijzingen",
     "description": "Beheer uw account, merk en integratie-instellingen",
-    "profile": "Profiel & beveiliging",
-    "profileDesc": "Persoonlijke gegevens, wachtwoord en inlogbeveiliging",
+    "profile": "Profiel",
+    "profileDesc": "Je naam, foto, e-mail en telefoonnummer",
     "company": "Merk",
     "companyDesc": "Merkprofiel, logo en gegevens",
     "payments": "Betalingen",
@@ -942,9 +960,9 @@
     "dismiss": "Niet nu"
   },
   "storefront": {
-    "title": "Etalage",
+    "title": "Jouw pagina",
     "subtitle": "Je Dynopay-pagina — fooien, producten en betaallinks achter één link.",
-    "editingHint": "Etalage van <b>{{company}}</b> bewerken",
+    "editingHint": "Pagina van <b>{{company}}</b> bewerken",
     "tabPage": "Pagina",
     "tabProducts": "Producten",
     "tabShare": "Delen",
@@ -1007,7 +1025,7 @@
       "showSupporters": "Toon aantal supporters en totaal opgehaald",
       "analytics": "Statistieken",
       "analyticsDesc": "Een 30-daagse weergave van je fooien en topsupporters. Schakel in om het te verbergen op je openbare pagina — je ziet het hier nog steeds.",
-      "publishPage": "Mijn creatorpagina publiceren",
+      "publishPage": "Mijn pagina publiceren",
       "publishDesc": "Wanneer ingeschakeld, kan iedereen met je link je pagina bekijken en je steunen.",
       "saveChanges": "Wijzigingen opslaan",
       "changeHandleTitle": "Je handle wijzigen?",
@@ -1044,14 +1062,14 @@
       "floorHiddenPresets": "Doorgehaalde voorinstellingen zijn verborgen op je pagina — verwijder ze of verhoog ze naar $10+."
     },
     "compare": {
-      "title": "Etalages vergelijken",
+      "title": "Merkpagina's vergelijken",
       "subtitle": "Weergaven, fooien en productverkopen per merk — laatste 30 dagen.",
       "colCompany": "Merk",
       "colViews": "Weergaven · 30d-trend",
       "colTips": "Fooien",
       "colSales": "Verkopen",
       "colRevenue": "Omzet",
-      "noStorefront": "Nog geen etalage",
+      "noStorefront": "Nog geen pagina",
       "companyN": "Merk {{n}}"
     },
     "analytics": {
@@ -1102,7 +1120,7 @@
       "qrSub": "Print het, voeg het toe in een video, plak het op een flyer — het opent je pagina."
     },
     "pending": {
-      "title": "{{company}} heeft nog geen eigen storefront",
+      "title": "{{company}} heeft nog geen eigen pagina",
       "switchTo": "Overschakelen naar {{primary}}"
     },
     "funnel": {
@@ -1122,7 +1140,31 @@
       "views": "Weergaven",
       "checkouts": "Checkouts",
       "paid": "Betaald",
-      "split": "{{tips}} tips · {{orders}} bestellingen"
+      "split": "{{tips}} tips · {{orders}} bestellingen",
+      "checkoutsHint": "Checkouts gestart vanaf je pagina, je fooienwidget of een directe productlink. Directe links slaan de pagina over, dus checkouts kunnen hoger zijn dan weergaven."
+    },
+    "editor": {
+      "profile": "Naam, handle & bio",
+      "look": "Uiterlijk",
+      "socials": "Sociale links",
+      "tips": "Fooienbox",
+      "store": "Webwinkel",
+      "analytics": "Statistieken",
+      "noHandle": "Nog geen handle",
+      "customTheme": "Eigen thema",
+      "defaultTheme": "Standaardthema",
+      "hasCover": "omslagafbeelding",
+      "linkedCount_one": "{{count}} gekoppeld",
+      "linkedCount_other": "{{count}} gekoppeld",
+      "none": "Nog geen",
+      "on": "Aan",
+      "off": "Uit",
+      "storeShown": "Aan · zichtbaar op je pagina",
+      "storeHidden": "Aan · verborgen op je pagina",
+      "analyticsPublic": "Zichtbaar op je pagina",
+      "analyticsPrivate": "Alleen jij ziet het",
+      "unsaved": "Je hebt niet-opgeslagen wijzigingen",
+      "draftHint": "Uit — alleen jij ziet je pagina"
     }
   },
   "imageCropTitle": "Afbeelding aanpassen",
@@ -1280,7 +1322,7 @@
     "addWallet": "Uitbetalingsadres toevoegen"
   },
   "payouts": {
-    "pageName": "Uitbetalingen & afwikkelingen",
+    "pageName": "Uitbetalingen",
     "pageDescription": "Is je geld aangekomen? Doorgestuurde uitbetalingen, wat vastzit en waar het geld landt.",
     "digestOn": "Wekelijkse uitbetalingssamenvatting ingeschakeld",
     "digestOff": "Wekelijkse uitbetalingssamenvatting uitgeschakeld",
@@ -1406,7 +1448,10 @@
     "noForwardsYet": "Nog geen uitbetalingen. Zodra een betaling is afgewikkeld, verschijnt de doorsturing hier met transactie-hash.",
     "toWallet": "naar {{wallet}}",
     "hashPending": "hash in afwachting",
-    "settlementCoinLabel": "Afrekenmunt"
+    "settlementCoinLabel": "Afrekenmunt",
+    "hideQuiet": "Adressen zonder uitbetalingen verbergen",
+    "showQuiet_one": "Toon {{count}} adres zonder uitbetalingen in deze periode",
+    "showQuiet_other": "Toon {{count}} adressen zonder uitbetalingen in deze periode"
   },
   "liveBrand": {
     "payNow": "Betaal nu",
@@ -1659,7 +1704,20 @@
     "saveFailed": "Wijzigingen konden niet worden opgeslagen.",
     "statusAll": "Alle",
     "emptyTitle": "Verkoop je eerste product",
-    "emptyBody": "Maak een digitaal product — het verschijnt automatisch op je pagina en kopers betalen in crypto."
+    "emptyBody": "Maak een digitaal product — het verschijnt automatisch op je pagina en kopers betalen in crypto.",
+    "searchPlaceholder": "Producten zoeken…",
+    "viewOrders": "Productbestellingen bekijken",
+    "viewMyPage": "Mijn pagina bekijken",
+    "newProduct": "Nieuw product",
+    "statusAllLong": "Alle statussen",
+    "menu": {
+      "edit": "Bewerken",
+      "more": "Meer acties",
+      "quickSell": "Betaallink maken",
+      "sales": "Verkopen bekijken",
+      "openPublic": "Openbare pagina openen",
+      "archive": "Archiveren"
+    }
   },
   "theme": {
     "switchToLight": "Overschakelen naar lichte modus",

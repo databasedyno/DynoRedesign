@@ -1,220 +1,124 @@
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomDatePicker, { DatePickerRef } from "@/Components/UI/DatePicker";
-import SearchIcon from "@/assets/Icons/search-icon.svg";
-import WalletIcon from "@/assets/Icons/wallet-icon.svg";
-import useIsMobile from "@/hooks/useIsMobile";
-import useEdgeFade from "@/hooks/useEdgeFade";
 import useTableCardView from "@/hooks/useTableCardView";
-import { ALLCRYPTOCURRENCIES } from "@/hooks/useWalletData";
 import { Icon, MONO } from "@/styles/uiKit";
 import { DateRange } from "@/utils/types/dashboard";
-import {
-  TransactionSourceType,
-  TransactionsTopBarProps,
-} from "@/utils/types/transaction";
-import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
-import CheckIcon from "@mui/icons-material/Check";
-import CodeRounded from "@mui/icons-material/CodeRounded";
-import DonutSmallRounded from "@mui/icons-material/DonutSmallRounded";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import FavoriteRounded from "@mui/icons-material/FavoriteRounded";
-import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
-import LinkRounded from "@mui/icons-material/LinkRounded";
-import PublicRounded from "@mui/icons-material/PublicRounded";
-import VerifiedUserRounded from "@mui/icons-material/VerifiedUserRounded";
-import { Box, Typography, useTheme } from "@mui/material";
+import { TransactionsTopBarProps } from "@/utils/types/transaction";
+import { Box, useTheme } from "@mui/material";
 import { format } from "date-fns";
-import Image from "next/image";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CryptoIconChip,
-  DatePickerWrapper,
-  FiltersContainer,
-  SearchContainer,
-  SearchIconButton,
-  SourceChip,
-  SourceChipsRow,
-  TransactionsTopBarContainer,
-  WalletDropdownContainer,
-  WalletListItem,
-  WalletSelectorButton,
-} from "./styled";
+import { DatePickerWrapper, SearchContainer, TransactionsTopBarContainer } from "./styled";
 import TxRangePresets from "./TxRangePresets";
 
-const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: string; initialSearch?: string; initialDateRange?: DateRange }> = ({
+type ActivePill = { key: string; label: string; onRemove: () => void };
+
+/**
+ * ONE toolbar row (2026-10 UX audit #4): search (icon inside, live) · period presets · "Filters"
+ * (source / status / payout address / dates live in TransactionsFilterSheet) · active-filter pills.
+ */
+const TransactionsTopBar: React.FC<
+  TransactionsTopBarProps & { initialSearch?: string; initialDateRange?: DateRange; activeFilters?: ActivePill[] }
+> = ({
   onSearch,
   onDateRangeChange,
-  onWalletChange,
-  onSourceChange,
   onOpenFilters,
   activeFilterCount = 0,
-  showSafeDeal = false,
-  initialWallet,
-  initialSource,
+  activeFilters,
   initialSearch,
   initialDateRange,
   range = "30d",
   onRangeChange,
 }) => {
   const theme = useTheme();
-  const isMobile = useIsMobile("md");
-  // < 768px: source / date / wallet live in the bottom-sheet (TransactionsFilterSheet); only search + "Filters" stay inline.
   const cardView = useTableCardView();
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
-    (key: string, options?: any): string =>
-      t(key, { ns: "transactions", ...options }) as unknown as string,
+    (key: string, options?: any): string => t(key, { ns: "transactions", ...options }) as unknown as string,
     [t],
   );
   const datePickerRef = useRef<DatePickerRef>(null);
-  const walletButtonRef = useRef<HTMLButtonElement>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: null,
-    endDate: null,
-  });
-  const [selectedWallet, setSelectedWallet] = useState(initialWallet || "all");
-  const [selectedSource, setSelectedSource] = useState<TransactionSourceType | "all">(
-    initialSource || "all",
-  );
-  const [walletMenuAnchor, setWalletMenuAnchor] = useState<null | HTMLElement>(
-    null,
-  );
+  const [searchTerm, setSearchTerm] = useState(initialSearch || "");
+  const [dateRange, setDateRange] = useState<DateRange>({ startDate: null, endDate: null });
 
-  // Sync with external wallet selection (e.g., from URL query param)
+  // ⌘K palette deep-link (?search=) → show it in the input.
   useEffect(() => {
-    if (initialWallet && initialWallet !== selectedWallet) {
-      setSelectedWallet(initialWallet);
-    }
-  }, [initialWallet]);
-
-  useEffect(() => {
-    if (initialSource && initialSource !== selectedSource) {
-      setSelectedSource(initialSource);
-    }
-  }, [initialSource]);
-
-  // Move 4 (⌘K palette): show a `?search=` deep-link query in the input.
-  useEffect(() => {
-    if (initialSearch && initialSearch !== searchTerm) {
-      setSearchTerm(initialSearch);
-    }
+    if (initialSearch && initialSearch !== searchTerm) setSearchTerm(initialSearch);
   }, [initialSearch]);
 
-  // Dates applied from the phone filter sheet — keep the desktop trigger label in sync.
+  // Dates applied from the filter sheet — keep the custom pill label in sync.
   useEffect(() => {
     if (initialDateRange) setDateRange(initialDateRange);
   }, [initialDateRange?.startDate, initialDateRange?.endDate]);
 
-  const handleSourceChange = (value: TransactionSourceType | "all") => {
-    setSelectedSource(value);
-    onSourceChange?.(value);
-  };
-
-  // Source filter chips — the 5 revenue streams Dynopay now supports.
-  // Icons chosen to match the sidebar / feature entrypoints so the mental
-  // model transfers ("Tips" = ✨, "Products" = 📦, etc.).
-  const sourceChips: Array<{
-    value: TransactionSourceType | "all";
-    label: string;
-    icon: React.ReactNode;
-  }> = useMemo(() => {
-    const iconSize = 15;
-    return [
-      {
-        value: "all",
-        label: tTransactions("sourceAll", { defaultValue: "All" }),
-        icon: <PublicRounded sx={{ fontSize: iconSize }} />,
-      },
-      {
-        value: "payment_link",
-        label: tTransactions("sourcePaymentLinks", { defaultValue: "Payment links" }),
-        icon: <LinkRounded sx={{ fontSize: iconSize }} />,
-      },
-      {
-        value: "api",
-        label: tTransactions("sourceApi", { defaultValue: "API" }),
-        icon: <CodeRounded sx={{ fontSize: iconSize }} />,
-      },
-      {
-        value: "contribution",
-        label: tTransactions("sourceContributions", { defaultValue: "Donations" }),
-        icon: <FavoriteRounded sx={{ fontSize: iconSize }} />,
-      },
-      {
-        value: "tip",
-        label: tTransactions("sourceTips", { defaultValue: "Tips" }),
-        icon: <AutoAwesomeRounded sx={{ fontSize: iconSize }} />,
-      },
-      {
-        value: "product",
-        label: tTransactions("sourceProducts", { defaultValue: "Store" }),
-        icon: <Inventory2Rounded sx={{ fontSize: iconSize }} />,
-      },
-      ...(showSafeDeal
-        ? [{
-            value: "safedeal" as const,
-            label: tTransactions("sourceSafeDeal", { defaultValue: "SafeDeal" }),
-            icon: <VerifiedUserRounded sx={{ fontSize: iconSize }} />,
-          }]
-        : []),
-      {
-        value: "direct",
-        label: tTransactions("sourceDirect", { defaultValue: "Direct" }),
-        icon: <DonutSmallRounded sx={{ fontSize: iconSize }} />,
-      },
-    ];
-  }, [tTransactions, showSafeDeal]);
-
-
-  const handleSearch = () => {
-    onSearch?.(searchTerm);
-  };
-
-  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
+  // Live search (debounced) — the separate search button is gone.
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
     }
+    const id = window.setTimeout(() => onSearch?.(searchTerm), 250);
+    return () => window.clearTimeout(id);
+  }, [searchTerm]);
+
+  const handleDateRangeChange = (next: DateRange) => {
+    setDateRange(next);
+    onDateRangeChange?.(next);
   };
 
-  const handleDateRangeChange = (range: DateRange) => {
-    setDateRange(range);
-    onDateRangeChange?.(range);
-  };
+  const customRangeLabel = (): string =>
+    dateRange.startDate && dateRange.endDate
+      ? `${format(dateRange.startDate, "MMM d")} – ${format(dateRange.endDate, "MMM d")}`
+      : tTransactions("customShort", { defaultValue: "Custom" });
 
-  const handleWalletChange = (value: string) => {
-    setSelectedWallet(value);
-    setWalletMenuAnchor(null);
-    onWalletChange?.(value);
-  };
-
-  const handleWalletButtonClick = (e: React.MouseEvent<HTMLElement>) => {
-    setWalletMenuAnchor(e.currentTarget);
-  };
-
-  const handleWalletMenuClose = () => {
-    setWalletMenuAnchor(null);
-  };
-
-  const customRangeLabel = (): string => {
-    if (dateRange.startDate && dateRange.endDate) {
-      return `${format(dateRange.startDate, "MMM d")} – ${format(dateRange.endDate, "MMM d")}`;
-    }
-    return tTransactions("customShort", { defaultValue: "Custom" });
-  };
+  const filtersButton = (
+    <Box
+      component="button"
+      type="button"
+      data-testid="transactions-filters-btn"
+      data-active-count={activeFilterCount}
+      aria-label={tTransactions("filters", { defaultValue: "Filters" })}
+      onClick={onOpenFilters}
+      sx={{
+        flexShrink: 0,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 0.75,
+        height: 40,
+        px: 1.5,
+        borderRadius: "10px",
+        border: `1px solid ${activeFilterCount ? theme.palette.text.primary : theme.palette.border.main}`,
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+        fontFamily: "var(--font-sans)",
+        fontSize: 13.5,
+        fontWeight: 600,
+        cursor: "pointer",
+        transition: "background-color 150ms ease, border-color 150ms ease",
+        "&:hover": { backgroundColor: theme.palette.action.hover },
+        "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: 2 },
+      }}
+    >
+      <Icon name="sliders-horizontal" size={16} />
+      {tTransactions("filters", { defaultValue: "Filters" })}
+      {activeFilterCount > 0 && (
+        <Box
+          component="span"
+          data-testid="transactions-filters-count"
+          sx={{ minWidth: 20, height: 20, px: 0.5, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: theme.palette.text.primary, color: theme.palette.background.paper, fontFamily: MONO, fontSize: 11.5, fontWeight: 700, lineHeight: 1 }}
+        >
+          {activeFilterCount}
+        </Box>
+      )}
+    </Box>
+  );
 
   const rangePresets = (
     <TxRangePresets
       range={range}
       customLabel={customRangeLabel()}
+      fullWidth={cardView}
       onChange={(preset) => onRangeChange?.(preset)}
       onOpenCustom={(anchor) => {
         if (cardView) onOpenFilters?.();
@@ -223,263 +127,59 @@ const TransactionsTopBar: React.FC<TransactionsTopBarProps & { initialWallet?: s
     />
   );
 
-  const walletOptions = useMemo(
-    () => [
-      {
-        value: "all",
-        label: tTransactions("allWallets"),
-        code: "ALL",
-        icon: WalletIcon,
-      },
-      ...ALLCRYPTOCURRENCIES.map((crypto, index) => ({
-        value: `wallet${index + 1}`,
-        label: crypto.name,
-        code: crypto.code,
-        icon: crypto.icon,
-      })),
-    ],
-    [tTransactions],
-  );
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        walletButtonRef.current &&
-        !walletButtonRef.current.contains(event.target as Node)
-      ) {
-        handleWalletMenuClose();
-      }
-    };
-
-    if (walletMenuAnchor) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [walletMenuAnchor]);
-
-  const selectedWalletData = useMemo(
-    () =>
-      walletOptions.find((opt) => opt.value === selectedWallet) || {
-        label: tTransactions("allWallets"),
-      },
-    [selectedWallet, walletOptions, tTransactions],
-  );
-
-  // Swipe affordance for the horizontally-scrolling source filter chips —
-  // softly fades whichever edge still has chips off-screen (§ Scroll Hints).
-  const chipsFade = useEdgeFade<HTMLDivElement>();
-
   return (
-    <TransactionsTopBarContainer sx={{ px: { xs: "16px", md: "0px" } }}>
-      {/* Source filter chips — added Session 48 UX. Lets the merchant slice
-          transactions by revenue source (payment link / contribution / tip /
-          product order / direct). Moves into the bottom sheet below 768px. */}
-      {!cardView && (
-      <SourceChipsRow
-        ref={chipsFade.ref}
-        role="tablist"
-        aria-label={tTransactions("sourceFilterLabel", {
-          defaultValue: "Filter by transaction source",
-        }) as string}
-        data-testid="transactions-source-chips"
-        sx={{ WebkitMaskImage: chipsFade.WebkitMaskImage, maskImage: chipsFade.maskImage }}
+    <TransactionsTopBarContainer
+      data-testid="transactions-topbar"
+      sx={{ px: { xs: "16px", md: "0px" }, gap: { xs: "8px", md: "12px" } }}
+    >
+      <SearchContainer
+        sx={cardView ? { flex: "1 1 0 !important", minWidth: 0 } : { flex: "1 1 260px !important", minWidth: "220px !important", maxWidth: 440 }}
       >
-        {sourceChips.map((chip) => {
-          const isSelected = selectedSource === chip.value;
-          return (
-            <SourceChip
-              key={chip.value}
-              role="tab"
-              aria-selected={isSelected}
-              data-testid={`transactions-source-chip-${chip.value}`}
-              selected={isSelected}
-              onClick={() => handleSourceChange(chip.value)}
-            >
-              {chip.icon}
-              <span className="chip-label">{chip.label}</span>
-            </SourceChip>
-          );
-        })}
-      </SourceChipsRow>
-      )}
-
-      <SearchContainer sx={cardView ? { flex: "1 1 0 !important", minWidth: 0 } : undefined}>
         <InputField
-          inputHeight={cardView ? "40px" : isMobile ? "32px" : "40px"}
+          inputHeight="40px"
           placeholder={tTransactions("search")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleSearchKeyPress}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSearch?.(searchTerm);
+          }}
+          startAdornment={<Icon name="search" size={16} style={{ opacity: 0.55 }} />}
+          ariaLabel={tTransactions("search")}
+          data-testid="transactions-search-input"
         />
-        <SearchIconButton onClick={handleSearch} aria-label={tTransactions("search")}>
-          <Image src={SearchIcon} alt="" width={20} height={20} className="themed-icon-primary" />
-        </SearchIconButton>
       </SearchContainer>
 
-      {cardView && (
-        <Box
-          component="button"
-          type="button"
-          data-testid="transactions-filters-btn"
-          data-active-count={activeFilterCount}
-          aria-label={tTransactions("filters", { defaultValue: "Filters" })}
-          onClick={onOpenFilters}
-          sx={{
-            flexShrink: 0,
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 0.75,
-            height: 40,
-            px: 1.5,
-            borderRadius: "12px",
-            border: `1px solid ${activeFilterCount ? theme.palette.primary.main : theme.palette.border.main}`,
-            backgroundColor: activeFilterCount ? theme.palette.primary.light : theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            fontFamily: "var(--font-sans)",
-            fontSize: 13.5,
-            fontWeight: 600,
-            cursor: "pointer",
-            transition: "background-color 150ms ease, border-color 150ms ease",
-          }}
-        >
-          <Icon name="sliders-horizontal" size={16} />
-          {tTransactions("filters", { defaultValue: "Filters" })}
-          {activeFilterCount > 0 && (
-            <Box
-              component="span"
-              data-testid="transactions-filters-count"
-              sx={{ minWidth: 20, height: 20, px: 0.5, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText, fontFamily: MONO, fontSize: 11.5, fontWeight: 700, lineHeight: 1 }}
-            >
-              {activeFilterCount}
-            </Box>
-          )}
-        </Box>
-      )}
-
-      {cardView && (
-        <Box data-testid="transactions-range-row-phone" sx={{ flexBasis: "100%", minWidth: 0, display: "flex" }}>
-          {rangePresets}
-        </Box>
-      )}
-
-      {!cardView && (
-      <FiltersContainer>
-        <DatePickerWrapper>
-          {rangePresets}
-
-          <Box
-            sx={{
-              position: "absolute",
-              width: 0,
-              height: 0,
-              overflow: "hidden",
-              opacity: 0,
-              pointerEvents: "none",
-            }}
-          >
-            <CustomDatePicker
-              ref={datePickerRef}
-              value={dateRange}
-              onChange={handleDateRangeChange}
-              hideTrigger={true}
-            />
+      {cardView ? (
+        <>
+          {filtersButton}
+          <Box data-testid="transactions-range-row-phone" sx={{ flexBasis: "100%", minWidth: 0, display: "flex" }}>
+            {rangePresets}
           </Box>
-        </DatePickerWrapper>
-
-        <Box
-          ref={walletButtonRef}
-          sx={{
-            position: "relative",
-            width: isMobile ? "fit-content" : "220px",
-            zIndex: 1,
-          }}
-        >
-          <WalletSelectorButton onClick={handleWalletButtonClick}>
-            <Image src={WalletIcon} alt="wallet" width={17} height={17} className="themed-icon" />
-            <Typography className="wallet-text">
-              {selectedWalletData.label}
-            </Typography>
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <Box className="separator" />
-              {walletMenuAnchor ? (
-                <ExpandLessIcon className="arrow-icon" />
-              ) : (
-                <ExpandMoreIcon className="arrow-icon" />
-              )}
+        </>
+      ) : (
+        <>
+          <DatePickerWrapper sx={{ width: "auto", flexShrink: 0 }}>
+            {rangePresets}
+            <Box sx={{ position: "absolute", width: 0, height: 0, overflow: "hidden", opacity: 0, pointerEvents: "none" }}>
+              <CustomDatePicker ref={datePickerRef} value={dateRange} onChange={handleDateRangeChange} hideTrigger={true} />
             </Box>
-          </WalletSelectorButton>
-
-          {/* Dropdown Menu */}
-          {walletMenuAnchor && (
-            <WalletDropdownContainer isMobile={isMobile}>
-              <Box className="dropdown-header" onClick={handleWalletMenuClose}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Image src={WalletIcon} alt="wallet" width={17} height={17} className="themed-icon" />
-                  <Typography className="header-text">
-                    {selectedWalletData.label}
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: "10px" }}
-                >
-                  <Box className="separator" />
-                  <ExpandLessIcon className="arrow-icon" />
-                </Box>
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "6px",
-                  overflowY: "auto",
-                  height: "auto",
-                  "@media (max-height: 640px)": { height: "260px" },
-                }}
-              >
-                {walletOptions.map((option) => (
-                  <WalletListItem
-                    key={option.value}
-                    selected={selectedWallet === option.value}
-                    onClick={() => {
-                      handleWalletChange(option.value);
-                      handleWalletMenuClose();
-                    }}
-                  >
-                    <CryptoIconChip
-                      sx={{
-                        background: theme.palette.secondary.light,
-                        height: isMobile ? "24px" : "32px",
-                      }}
-                    >
-                      <Image
-                        src={option.icon}
-                        alt={option.label}
-                        draggable={false}
-                      />
-                      <Typography component="span" sx={{ fontWeight: 600 }}>
-                        {option.code}
-                      </Typography>
-                    </CryptoIconChip>
-
-                    <Typography className="option-label">
-                      {option.label}
-                    </Typography>
-
-                    {selectedWallet === option.value && (
-                      <CheckIcon sx={{ fontSize: "18px", ml: "auto" }} />
-                    )}
-                  </WalletListItem>
-                ))}
-              </Box>
-            </WalletDropdownContainer>
-          )}
-        </Box>
-      </FiltersContainer>
+          </DatePickerWrapper>
+          {filtersButton}
+          {activeFilters?.map((f) => (
+            <Box
+              key={f.key}
+              component="button"
+              type="button"
+              data-testid={`transactions-topbar-filter-${f.key}`}
+              aria-label={tTransactions("removeFilter", { label: f.label, defaultValue: "Remove filter {{label}}" })}
+              onClick={f.onRemove}
+              sx={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 0.5, height: 30, pl: 1.25, pr: 0.75, borderRadius: 999, border: `1px solid ${theme.palette.border.main}`, backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", "&:hover": { backgroundColor: theme.palette.action.hover } }}
+            >
+              {f.label}
+              <Icon name="x" size={14} />
+            </Box>
+          ))}
+        </>
       )}
     </TransactionsTopBarContainer>
   );

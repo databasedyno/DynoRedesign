@@ -20,6 +20,7 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import useDebounce from "@/hooks/useDebounce";
 import useCopyToClipboard from "@/hooks/useCopyToClipboard";
 import { useSelectedCompanyId } from "@/contexts/CompanyDataContext";
+import EditorSection from "@/Components/Page/Creator/EditorSection";
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9_-]{2,29}$/;
 
@@ -111,6 +112,9 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [themeCoverStyle, setThemeCoverStyle] = useState<CoverStyle | null>(null);
   const [themeCoverGradient, setThemeCoverGradient] = useState<string | null>(null);
   const [qrOpen, setQrOpen] = useState(false);
+  // Collapsible editor sections — only "profile" starts open.
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({ profile: true });
+  const toggleSection = (id: string) => setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
   // ── Support Widget state ──
   const [swEnabled, setSwEnabled] = useState(false);
   const [swStyle, setSwStyle] = useState<SupportStyle>("coffee");
@@ -214,11 +218,10 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   useEffect(() => {
     const open = () => {
       setSwEnabled(true);
-      requestAnimationFrame(() => {
-        document
-          .getElementById("support-widget")
-          ?.scrollIntoView({ behavior: "smooth", block: "center" });
-      });
+      setOpenSections((prev) => ({ ...prev, tips: true }));
+      window.setTimeout(() => {
+        document.getElementById("editor-tips")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 220);
     };
     window.addEventListener("dynopay:open-tip-setup", open);
     return () => window.removeEventListener("dynopay:open-tip-setup", open);
@@ -527,7 +530,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const labelSx = { fontSize: 13, fontWeight: 600, color: theme.palette.text.primary, mb: 0.75, display: "block", fontFamily: "var(--font-sans)" };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }} data-testid="creator-settings">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }} data-testid="creator-settings">
       {/* Live URL banner */}
       {savedHandle && (
         <Box
@@ -556,8 +559,11 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
             <Button
               size="small"
               onClick={() => {
-                handleInputRef.current?.focus();
-                handleInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                setOpenSections((prev) => ({ ...prev, profile: true }));
+                window.setTimeout(() => {
+                  handleInputRef.current?.focus();
+                  handleInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 220);
               }}
               data-testid="creator-edit-handle-btn"
               startIcon={<Icon icon="mdi:pencil-outline" width={15} />}
@@ -586,63 +592,605 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         </Box>
       )}
 
-      {/* Custom Theme (Session 60) */}
-      <Box
-        sx={{
-          p: 2.5, borderRadius: "14px", border: `1px solid ${border}`,
-          backgroundColor: theme.palette.background.paper,
-        }}
-        data-testid="creator-theme-section"
-      >
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+      <EditorSection id="profile" title={t("storefront.editor.profile", { defaultValue: "Name, handle & bio" })} summary={handle ? `@${handle}` : t("storefront.editor.noHandle", { defaultValue: "No handle yet" })} open={!!openSections.profile} onToggle={() => toggleSection("profile")}>
+          {/* Display name (shown as the header on your public /{handle} page) */}
           <Box>
-            <Typography sx={{ fontSize: 15, fontWeight: 700, color: theme.palette.text.primary }}>
-              {t("storefront.pageTheme", { defaultValue: "Page theme" })}
-            </Typography>
-            <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
-              {t("storefront.pageThemeDesc", {
-                defaultValue:
-                  "Colors and cover style for your dynopay.com page — make it feel on-brand.",
-              })}
-            </Typography>
-            {/* Storefront-per-company scope hint: makes it obvious the palette
-                applies to the ACTIVE company only, not the whole account. */}
+            <Typography sx={labelSx}>{t("storefront.form.displayName", { defaultValue: "Display name" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.shownAtTop", { defaultValue: "(shown at the top of your public page)" })}</Typography></Typography>
             <Box
-              data-testid="creator-theme-scope-chip"
+              component="input"
+              ref={nameInputRef}
+              data-testid="creator-name-input"
+              value={name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value.slice(0, 80))}
+              placeholder="Alice Cooper"
+              sx={inputSx}
+            />
+            <Typography fontSize={11.5} color={theme.palette.text.secondary} mt={0.5}>
+              {t("storefront.form.nameHelp", { defaultValue: "Buyers see this above your handle. Leave blank to use your handle as the name." })}
+            </Typography>
+            {/* A1 — the auto-provisioned brand name (e-mail local part) must never be what visitors see */}
+            {storefrontData?.name_is_placeholder && isPlaceholderBrandName(name, [reduxProfile?.email]) && (
+              <Box
+                role="alert"
+                data-testid="creator-name-placeholder-warning"
+                sx={{ mt: 1, display: "flex", gap: 1, alignItems: "flex-start", p: 1.25, borderRadius: "10px", border: `1px solid ${theme.palette.warning.main}`, backgroundColor: theme.palette.mode === "dark" ? "rgba(245,158,11,0.12)" : "rgba(245,158,11,0.08)" }}
+              >
+                <Icon icon="mdi:alert-circle-outline" width={18} style={{ flexShrink: 0, marginTop: 1, color: theme.palette.warning.main }} />
+                <Typography fontSize={12.5} lineHeight={1.5} color={theme.palette.text.primary}>
+                  {t("storefront.form.namePlaceholderWarning", {
+                    defaultValue: "This looks like an auto-generated name. Visitors see it as your page title, heading and share text — enter the name you want to be known by. Until then, your public page shows your account name instead.",
+                  })}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
+          {/* Handle */}
+          <Box>
+            <Typography sx={labelSx}>{t("storefront.form.handle", { defaultValue: "Handle" })}</Typography>
+            <Box sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${availability && !availability.available ? theme.palette.error.main : border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
+              <Box title={`${siteUrl.replace(/^https?:\/\//, "")}/`} sx={{ display: "flex", alignItems: "center", px: 1.5, minWidth: 0, flexShrink: 1, overflow: "hidden", textOverflow: "ellipsis", backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", fontFamily: "ui-monospace, monospace", fontSize: 13, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{siteUrl.replace(/^https?:\/\//, "")}/</Box>
+              </Box>
+              <Box
+                component="input"
+                ref={handleInputRef}
+                data-testid="creator-handle-input"
+                value={handle}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHandle(e.target.value.toLowerCase().replace(/\s/g, ""))}
+                placeholder="yourname"
+                sx={{ flex: "1 0 45%", border: "none", outline: "none", background: "transparent", padding: "11px 12px", fontFamily: "ui-monospace, monospace", fontSize: 14, color: theme.palette.text.primary, minWidth: 0 }}
+              />
+              <Box sx={{ display: "flex", alignItems: "center", px: 1.5 }}>
+                {checking ? <CircularProgress size={15} /> :
+                  handle && handle !== savedHandle && availability?.available ? <Icon icon="mdi:check-circle" width={18} color="#22c55e" /> :
+                  handle && availability && !availability.available ? <Icon icon="mdi:close-circle" width={18} color={theme.palette.error.main} /> : null}
+              </Box>
+            </Box>
+            <Typography fontSize={11.5} color={formatError || (availability && !availability.available) ? theme.palette.error.main : theme.palette.text.secondary} mt={0.5} data-testid="creator-handle-hint">
+              {formatError || (availability && !availability.available ? availability.reason : t("storefront.form.handleHelp", { defaultValue: "This is your unique, shareable Dynopay address." }))}
+            </Typography>
+          </Box>
+
+          {/* Bio */}
+          <Box>
+            <Typography sx={labelSx}>{t("storefront.form.bio", { defaultValue: "Bio" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
+            <Box
+              component="textarea"
+              rows={3}
+              maxLength={500}
+              data-testid="creator-bio-input"
+              value={bio}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value)}
+              placeholder={t("storefront.form.bioPlaceholder", { defaultValue: "Tell visitors who you are and what you're raising for…" })}
+              sx={{ ...inputSx, resize: "vertical", minHeight: 74, display: "block" }}
+            />
+            <Typography fontSize={10.5} color={theme.palette.text.disabled} textAlign="right" mt={0.25}>{bio.length}/500</Typography>
+          </Box>
+      </EditorSection>
+
+      <EditorSection id="look" title={t("storefront.editor.look", { defaultValue: "Look & feel" })} summary={[themeAccent || themeCoverStyle ? t("storefront.editor.customTheme", { defaultValue: "Custom theme" }) : t("storefront.editor.defaultTheme", { defaultValue: "Default theme" }), coverImage ? t("storefront.editor.hasCover", { defaultValue: "cover image" }) : null].filter(Boolean).join(" · ")} open={!!openSections.look} onToggle={() => toggleSection("look")}>
+          {/* Custom Theme (Session 60) */}
+          <Box
+            data-testid="creator-theme-section"
+          >
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+              <Box>
+                <Typography sx={{ fontSize: 15, fontWeight: 700, color: theme.palette.text.primary }}>
+                  {t("storefront.pageTheme", { defaultValue: "Page theme" })}
+                </Typography>
+                <Typography sx={{ fontSize: 12.5, color: theme.palette.text.secondary, mt: 0.25 }}>
+                  {t("storefront.pageThemeDesc", {
+                    defaultValue:
+                      "Colors and cover style for your dynopay.com page — make it feel on-brand.",
+                  })}
+                </Typography>
+                {/* Storefront-per-company scope hint: makes it obvious the palette
+                    applies to the ACTIVE company only, not the whole account. */}
+                <Box
+                  data-testid="creator-theme-scope-chip"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    mt: 0.85,
+                    px: 1.15,
+                    py: 0.35,
+                    borderRadius: 999,
+                    border: `1px solid ${theme.palette.divider}`,
+                    backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.08)" : "rgba(139,94,0,0.06)",
+                  }}
+                >
+                  <Icon
+                    icon="mdi:storefront-outline"
+                    width={12}
+                    color={theme.palette.mode === "dark" ? "#FFD100" : "#8B5E00"}
+                  />
+                  <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
+                    {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this brand only" })}
+                  </Typography>
+                </Box>
+              </Box>
+              <Icon icon="mdi:palette-swatch-outline" width={24} color={theme.palette.text.secondary} />
+            </Box>
+            <CreatorThemePicker
+              value={{ accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient }}
+              onChange={(next) => {
+                setThemeAccent(next.accentColor);
+                setThemeCoverStyle(next.coverStyle);
+                setThemeCoverGradient(next.coverGradient);
+              }}
+              hasCoverImage={Boolean(coverImage)}
+            />
+          </Box>
+
+          {/* Cover image */}
+          <Box>
+            <Typography sx={labelSx}>{t("storefront.form.coverImage", { defaultValue: "Cover image" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.coverHint", { defaultValue: "(optional, recommended 1200×400)" })}</Typography></Typography>
+            <Box
+              data-testid="creator-cover-preview"
+              onClick={() => { if (!uploadingCover) coverFileRef.current?.click(); }}
+              {...coverDropBind}
+              data-drag-active={coverDragActive ? "true" : "false"}
               sx={{
-                display: "inline-flex",
+                position: "relative",
+                width: "100%",
+                aspectRatio: "3 / 1",
+                borderRadius: "14px",
+                border: `${coverDragActive ? 2 : 1}px dashed ${coverDragActive ? theme.palette.primary.main : border}`,
+                overflow: "hidden",
+                cursor: uploadingCover ? "default" : "pointer",
+                transition: "border-color .15s ease",
+                display: "flex",
                 alignItems: "center",
-                gap: 0.5,
-                mt: 0.85,
-                px: 1.15,
-                py: 0.35,
-                borderRadius: 999,
-                border: `1px solid ${theme.palette.divider}`,
-                backgroundColor: theme.palette.mode === "dark" ? "rgba(255,209,0,0.08)" : "rgba(139,94,0,0.06)",
+                justifyContent: "center",
+                backgroundColor: theme.palette.background.default,
+                backgroundImage: coverImage ? `url(${coverImage})` : "none",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
               }}
             >
-              <Icon
-                icon="mdi:storefront-outline"
-                width={12}
-                color={theme.palette.mode === "dark" ? "#FFD100" : "#8B5E00"}
-              />
-              <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
-                {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this brand only" })}
-              </Typography>
+              {!coverImage && !uploadingCover && (
+                <Box sx={{ textAlign: "center", color: theme.palette.text.secondary, px: 2, pointerEvents: "none" }}>
+                  <Icon icon="mdi:image-plus-outline" width={26} />
+                  <Typography fontSize={12.5} mt={0.5}>
+                    {coverDragActive ? t("storefront.form.dropToUpload", { defaultValue: "Drop image to upload" }) : t("storefront.form.dragDrop", { defaultValue: "Drag & drop an image here, or click to upload (up to 10 MB)" })}
+                  </Typography>
+                </Box>
+              )}
+              {uploadingCover && <CircularProgress size={22} />}
+              {coverImage && !uploadingCover && (
+                <Box sx={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 0.75 }}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    data-testid="creator-cover-remove"
+                    onClick={(e: React.MouseEvent) => { e.stopPropagation(); void removeCover(); }}
+                    sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
+                  >
+                    {t("storefront.form.remove", { defaultValue: "Remove" })}
+                  </Button>
+                </Box>
+              )}
+            </Box>
+            <input
+              ref={coverFileRef}
+              type="file"
+              accept="image/*"
+              data-testid="creator-cover-input"
+              onChange={onCoverFile}
+              style={{ display: "none" }}
+            />
+            <Button
+              size="small"
+              onClick={() => coverFileRef.current?.click()}
+              disabled={uploadingCover}
+              startIcon={<Icon icon={coverImage ? "mdi:image-edit-outline" : "mdi:cloud-upload-outline"} width={16} />}
+              sx={{ mt: 1, textTransform: "none", fontSize: 12.5 }}
+              data-testid="creator-cover-upload-btn"
+            >
+              {coverImage ? t("storefront.form.replaceImage", { defaultValue: "Replace image" }) : t("storefront.form.uploadImage", { defaultValue: "Upload image" })}
+            </Button>
+          </Box>
+      </EditorSection>
+
+      <EditorSection id="socials" title={t("storefront.editor.socials", { defaultValue: "Social links" })} summary={Object.values(socialLinks).filter(Boolean).length ? t("storefront.editor.linkedCount", { count: Object.values(socialLinks).filter(Boolean).length, defaultValue: "{{count}} linked" }) : t("storefront.editor.none", { defaultValue: "None yet" })} open={!!openSections.socials} onToggle={() => toggleSection("socials")}>
+          {/* Social links */}
+          <Box>
+            <Typography sx={labelSx}>{t("storefront.form.socialLinks", { defaultValue: "Social links" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {SOCIAL_PLATFORMS.map((p) => (
+                <Box key={p.key} sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", px: 1.25, backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", minWidth: 44 }}>
+                    <Icon icon={p.icon} width={18} color={theme.palette.text.secondary} />
+                  </Box>
+                  <Box
+                    component="input"
+                    data-testid={`creator-social-${p.key}`}
+                    value={socialLinks[p.key] || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const v = e.target.value.trim();
+                      setSocialLinks((prev) => {
+                        const next = { ...prev };
+                        if (v) next[p.key as PlatformKey] = v;
+                        else delete next[p.key as PlatformKey];
+                        return next;
+                      });
+                    }}
+                    placeholder={p.placeholder}
+                    sx={{ flex: 1, border: "none", outline: "none", background: "transparent", padding: "10px 12px", fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.primary, minWidth: 0 }}
+                  />
+                </Box>
+              ))}
             </Box>
           </Box>
-          <Icon icon="mdi:palette-swatch-outline" width={24} color={theme.palette.text.secondary} />
-        </Box>
-        <CreatorThemePicker
-          value={{ accentColor: themeAccent, coverStyle: themeCoverStyle, coverGradient: themeCoverGradient }}
-          onChange={(next) => {
-            setThemeAccent(next.accentColor);
-            setThemeCoverStyle(next.coverStyle);
-            setThemeCoverGradient(next.coverGradient);
-          }}
-          hasCoverImage={Boolean(coverImage)}
-        />
-      </Box>
+      </EditorSection>
+
+      <EditorSection id="tips" title={t("storefront.editor.tips", { defaultValue: "Tip box" })} summary={swEnabled ? t("storefront.editor.on", { defaultValue: "On" }) : t("storefront.editor.off", { defaultValue: "Off" })} open={!!openSections.tips} onToggle={() => toggleSection("tips")}>
+          {/* ── Support Widget ── */}
+          <Box id="support-widget" data-testid="support-widget-settings">
+            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
+              <Box sx={{ pr: 1 }}>
+                <Typography fontSize={12.5} color={theme.palette.text.secondary}>
+                  {t("storefront.form.supportWidgetDesc", { defaultValue: 'An always-on "Buy me a coffee" / tip box at the top of your page. Supporters pick an amount and pay with crypto — no account needed.' })}
+                </Typography>
+              </Box>
+              <Switch
+                checked={swEnabled}
+                onChange={(e) => setSwEnabled(e.target.checked)}
+                data-testid="support-widget-enabled-switch"
+                    inputProps={{ "aria-label": "Enable tips widget" }}
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+
+            {swEnabled && (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, mt: 2.5, pt: 2.5, borderTop: `1px solid ${border}` }}>
+                {/* Style */}
+                <Box>
+                  <Typography sx={labelSx}>{t("storefront.form.style", { defaultValue: "Style" })}</Typography>
+                  <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 1 }}>
+                    {SUPPORT_STYLES.map((s) => {
+                      const active = swStyle === s.key;
+                      return (
+                        <Box
+                          key={s.key}
+                          role="button"
+                          tabIndex={0}
+                          data-testid={`support-style-${s.key}`}
+                          onClick={() => setSwStyle(s.key)}
+                          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSwStyle(s.key); } }}
+                          sx={{
+                            display: "flex", alignItems: "center", gap: 1, p: 1.25, borderRadius: "10px", cursor: "pointer",
+                            border: `1.5px solid ${active ? theme.palette.primary.main : border}`,
+                            backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(139,94,0,0.08)" : "rgba(139,94,0,0.12)") : theme.palette.background.default,
+                            transition: "border-color 140ms ease",
+                          }}
+                        >
+                          <Icon icon={s.icon} width={20} color={theme.palette.text.primary} />
+                          <Typography fontSize={12.5} fontWeight={600} color={theme.palette.text.primary}>{t(`storefront.form.supportStyle_${s.key}`, { defaultValue: s.label })}</Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                </Box>
+
+                {/* Custom label */}
+                <Box>
+                  <Typography sx={labelSx}>{t("storefront.form.customLabel", { defaultValue: "Custom label" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
+                  <Box
+                    component="input"
+                    data-testid="support-widget-label"
+                    value={swLabel}
+                    maxLength={80}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwLabel(e.target.value)}
+                    placeholder={SUPPORT_STYLES.find((s) => s.key === swStyle)?.sample || "Support me"}
+                    sx={inputSx}
+                  />
+                </Box>
+
+                {/* Preset amounts */}
+                <Box>
+                  <Typography sx={labelSx}>{t("storefront.form.presetAmounts", { defaultValue: "Preset amounts" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.upTo5", { defaultValue: "(up to 5)" })}</Typography></Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }} data-testid="support-preset-chips">
+                    {swPresets.map((p) => (
+                      <Box
+                        key={p}
+                        data-testid={`support-preset-chip-${p}`}
+                        data-below-floor={p < 10 ? "true" : "false"}
+                        title={p < 10 ? t("storefront.form.presetBelowFloor", { defaultValue: "Below the $10 minimum — hidden on your page" }) : undefined}
+                        sx={{
+                          display: "flex", alignItems: "center", gap: 0.5, px: 1.25, py: 0.6, borderRadius: "999px",
+                          border: `1px ${p < 10 ? "dashed" : "solid"} ${p < 10 ? theme.palette.warning.main : border}`, backgroundColor: theme.palette.background.default,
+                          fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 700, color: p < 10 ? theme.palette.text.disabled : theme.palette.text.primary,
+                          textDecoration: p < 10 ? "line-through" : "none",
+                        }}
+                      >
+                        {p}
+                        <Box
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Remove ${p}`}
+                          data-testid={`support-preset-remove-${p}`}
+                          onClick={() => setSwPresets((prev) => prev.filter((x) => x !== p))}
+                          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSwPresets((prev) => prev.filter((x) => x !== p)); } }}
+                          sx={{ display: "flex", cursor: "pointer", color: theme.palette.text.secondary, "&:hover": { color: theme.palette.error.main } }}
+                        >
+                          <Icon icon="mdi:close" width={14} />
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box>
+                  {swPresets.length < 5 && (
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Box
+                        component="input"
+                        type="number"
+                        data-testid="support-preset-input"
+                        value={swPresetDraft}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwPresetDraft(e.target.value)}
+                        onKeyDown={(e: React.KeyboardEvent) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const n = parseFloat(swPresetDraft);
+                            if (Number.isFinite(n) && n >= 10 && !swPresets.includes(n) && swPresets.length < 5) {
+                              setSwPresets((prev) => [...prev, n].sort((a, b) => a - b));
+                              setSwPresetDraft("");
+                            }
+                          }
+                        }}
+                        placeholder={t("storefront.form.presetPlaceholderV2", { defaultValue: "e.g. 15" })}
+                        sx={{ ...inputSx, maxWidth: 140 }}
+                      />
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        data-testid="support-preset-add"
+                        disabled={!Number.isFinite(parseFloat(swPresetDraft)) || parseFloat(swPresetDraft) < 10}
+                        onClick={() => {
+                          const n = parseFloat(swPresetDraft);
+                          if (Number.isFinite(n) && n >= 10 && !swPresets.includes(n) && swPresets.length < 5) {
+                            setSwPresets((prev) => [...prev, n].sort((a, b) => a - b));
+                            setSwPresetDraft("");
+                          }
+                        }}
+                        sx={{ textTransform: "none", fontSize: 12.5, borderRadius: "10px" }}
+                      >
+                        {t("storefront.form.add", { defaultValue: "Add" })}
+                      </Button>
+                    </Box>
+                  )}
+                  {swPresets.length === 0 && (
+                    <Typography fontSize={11.5} color={theme.palette.error.main} mt={0.5}>{t("storefront.form.addPresetHint", { defaultValue: "Add at least one preset amount." })}</Typography>
+                  )}
+                  {/* C3: explain the platform floor where the creator sets amounts, instead of silently dropping presets */}
+                  {swPresetDraft !== "" && Number.isFinite(parseFloat(swPresetDraft)) && parseFloat(swPresetDraft) < 10 && (
+                    <Typography fontSize={11.5} color={theme.palette.warning.main} mt={0.5} data-testid="support-preset-floor-warning">
+                      {t("storefront.form.presetFloorWarning", { defaultValue: "Presets must be $10 or more." })}
+                    </Typography>
+                  )}
+                  <Typography fontSize={11.5} color={theme.palette.text.secondary} mt={0.75} sx={{ lineHeight: 1.5 }} data-testid="support-floor-note">
+                    {t("storefront.form.floorExplainer", { defaultValue: "Dynopay's minimum for any crypto payment is $10 — network fees make smaller amounts uneconomical. Presets below $10 are not shown to supporters." })}
+                    {swPresets.some((p) => p < 10) && (
+                      <> {t("storefront.form.floorHiddenPresets", { defaultValue: "Crossed-out presets are hidden on your page — remove them or raise them to $10+." })}</>
+                    )}
+                  </Typography>
+                </Box>
+
+                {/* Currency + Min amount */}
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+                  <Box>
+                    <Typography sx={labelSx}>{t("storefront.form.currency", { defaultValue: "Currency" })}</Typography>
+                    <Box
+                      component="select"
+                      aria-label={t("storefront.form.currency", { defaultValue: "Currency" })}
+                      data-testid="support-widget-currency"
+                      value={swCurrency}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSwCurrency(e.target.value)}
+                      sx={{ ...inputSx, appearance: "auto" }}
+                    >
+                      {SUPPORT_CURRENCIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Typography sx={labelSx}>{t("storefront.form.minAmount", { defaultValue: "Minimum amount" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>({t("storefront.form.minFloorNote", { defaultValue: "min $10" })})</Typography></Typography>
+                    <Box
+                      component="input"
+                      type="number"
+                      data-testid="support-widget-min"
+                      aria-label={t("storefront.form.minAmount", { defaultValue: "Minimum amount" })}
+                      value={swMinAmount}
+                      min={10}
+                      step="any"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMinAmount(Number(e.target.value))}
+                      onBlur={(e: React.FocusEvent<HTMLInputElement>) => setSwMinAmount(Math.max(10, Number(e.target.value) || 10))}
+                      sx={inputSx}
+                    />
+                  </Box>
+                </Box>
+
+                {/* Monthly tip goal (opt-in) */}
+                <Box>
+                  <Typography sx={labelSx}>{t("storefront.form.monthlyGoal", { defaultValue: "Monthly tip goal" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.monthlyGoalNote", { defaultValue: "(optional — leave empty to hide the bar)" })}</Typography></Typography>
+                  <Box
+                    component="input"
+                    type="number"
+                    data-testid="support-widget-monthly-goal"
+                    aria-label={t("storefront.form.monthlyGoal", { defaultValue: "Monthly tip goal" })}
+                    value={swMonthlyGoal}
+                    min={10}
+                    step="any"
+                    placeholder="e.g. 500"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMonthlyGoal(e.target.value)}
+                    onBlur={(e: React.FocusEvent<HTMLInputElement>) => { const v = Number(e.target.value); setSwMonthlyGoal(e.target.value.trim() && Number.isFinite(v) ? String(Math.max(10, v)) : ""); }}
+                    sx={inputSx}
+                  />
+                  <Typography fontSize={11.5} color={theme.palette.text.disabled} mt={0.5}>
+                    {t("storefront.form.monthlyGoalHint", { defaultValue: "Shows \"$X of $Y this month\" on your page. Counts confirmed tips and resets on the 1st." })}
+                  </Typography>
+                </Box>
+
+                {/* Thanks message */}
+                <Box>
+                  <Typography sx={labelSx}>{t("storefront.form.thanksMessage", { defaultValue: "Welcome / thank-you message" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
+                  <Box
+                    component="textarea"
+                    rows={2}
+                    maxLength={280}
+                    data-testid="support-widget-thanks"
+                    value={swThanks}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSwThanks(e.target.value)}
+                    placeholder={t("storefront.form.thanksPlaceholder", { defaultValue: "e.g. Thanks for keeping the coffee flowing! ☕" })}
+                    sx={{ ...inputSx, resize: "vertical", minHeight: 60, display: "block" }}
+                  />
+                </Box>
+
+                {/* Toggles */}
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.allowMessage", { defaultValue: "Let supporters leave a message" })}</Typography>
+                  <Switch
+                    checked={swAllowMessage}
+                    onChange={(e) => setSwAllowMessage(e.target.checked)}
+                    data-testid="support-widget-allow-message"
+                    inputProps={{ "aria-label": "Allow supporter message" }}
+                    sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+                  />
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.showSupporters", { defaultValue: "Show supporter count & total raised" })}</Typography>
+                  <Switch
+                    checked={swShowSupporters}
+                    onChange={(e) => setSwShowSupporters(e.target.checked)}
+                    data-testid="support-widget-show-supporters"
+                    inputProps={{ "aria-label": "Show supporter count" }}
+                    sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+                  />
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
+                  <Box>
+                    <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.showWall", { defaultValue: "Supporter wall — show recent public tips" })}</Typography>
+                    <Typography fontSize={11.5} color={theme.palette.text.disabled}>{t("storefront.form.showWallHint", { defaultValue: "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default." })}</Typography>
+                  </Box>
+                  <Switch
+                    checked={swShowWall}
+                    onChange={(e) => setSwShowWall(e.target.checked)}
+                    data-testid="support-widget-show-wall"
+                    inputProps={{ "aria-label": "Supporter wall" }}
+                    sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+                  />
+                </Box>
+              </Box>
+            )}
+          </Box>
+      </EditorSection>
+
+      <EditorSection id="store" title={t("storefront.editor.store", { defaultValue: "Online store" })} summary={!storeEnabled ? t("storefront.editor.off", { defaultValue: "Off" }) : showProductsOnPage ? t("storefront.editor.storeShown", { defaultValue: "On · shown on your page" }) : t("storefront.editor.storeHidden", { defaultValue: "On · hidden from your page" })} open={!!openSections.store} onToggle={() => toggleSection("store")}>
+          {/* ── Store visibility (Session 2026-08-26) ── */}
+          <Box
+            id="store-visibility"
+            data-testid="creator-store-section"
+          >
+            {/* Master: store on / off */}
+            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
+              <Box sx={{ pr: 1 }}>
+                <Typography fontSize={12.5} color={theme.palette.text.secondary}>
+                  {t("storefront.form.storeDesc", { defaultValue: "Turn your store OFF to hide your shop page and every product link everywhere — this page becomes tip-only. Your products are saved and come back the moment you turn the store on again." })}
+                </Typography>
+              </Box>
+              <Switch
+                checked={storeEnabled}
+                onChange={(e) => setStoreEnabled(e.target.checked)}
+                data-testid="store-enabled-switch"
+                    inputProps={{ "aria-label": "Enable store" }}
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+
+            {/* Sub: show the shop on the creator page (only relevant when the store is on) */}
+            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mt: 1.5, pt: 1.5, borderTop: `1px solid ${border}`, opacity: storeEnabled ? 1 : 0.5 }}>
+              <Box sx={{ pr: 1 }}>
+                <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>{t("storefront.form.showProductsTitle", { defaultValue: "Show my shop on this page" })}</Typography>
+                <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
+                  {t("storefront.form.showProductsDesc", { defaultValue: "Show the shop section on this creator page. Turn it OFF for a clean tip-only page — your shop page and direct product links keep working." })}
+                </Typography>
+              </Box>
+              <Switch
+                checked={storeEnabled && showProductsOnPage}
+                disabled={!storeEnabled}
+                onChange={(e) => setShowProductsOnPage(e.target.checked)}
+                data-testid="show-products-switch"
+                inputProps={{ "aria-label": t("storefront.form.showProductsTitle", { defaultValue: "Show my shop on this page" }) as string }}
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+
+            {/* Live preview of the effective public-page state */}
+            <Box sx={{ mt: 1.5, pt: 1.5, borderTop: `1px solid ${border}` }}>
+              <Box
+                data-testid="store-visibility-preview"
+                sx={{
+                  display: "inline-flex", alignItems: "center", gap: 0.75,
+                  px: 1.25, py: 0.6, borderRadius: 999,
+                  bgcolor: !storeEnabled
+                    ? (theme.palette.mode === "dark" ? "rgba(148,163,184,0.14)" : "rgba(100,116,139,0.10)")
+                    : !showProductsOnPage
+                      ? (theme.palette.mode === "dark" ? "rgba(251,191,36,0.16)" : "rgba(217,119,6,0.10)")
+                      : (theme.palette.mode === "dark" ? "rgba(52,211,153,0.16)" : "rgba(5,150,105,0.10)"),
+                  color: !storeEnabled
+                    ? theme.palette.text.secondary
+                    : !showProductsOnPage
+                      ? (theme.palette.mode === "dark" ? "#FBBF24" : "#B45309")
+                      : (theme.palette.mode === "dark" ? "#34D399" : "#059669"),
+                }}
+              >
+                <Icon
+                  icon={!storeEnabled ? "mdi:storefront-off-outline" : !showProductsOnPage ? "mdi:eye-off-outline" : "mdi:eye-check-outline"}
+                  width={16}
+                />
+                <Typography fontSize={12.5} fontWeight={600}>
+                  {!storeEnabled
+                    ? t("storefront.form.storePreviewStoreOff", { defaultValue: "Preview: tip-only page — shop & product links hidden" })
+                    : !showProductsOnPage
+                      ? t("storefront.form.storePreviewProductsHidden", { defaultValue: "Preview: shop hidden from this page" })
+                      : t("storefront.form.storePreviewBoth", { defaultValue: "Preview: tips + shop shown" })}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+      </EditorSection>
+
+      <EditorSection id="analytics" title={t("storefront.editor.analytics", { defaultValue: "Analytics" })} summary={publicAnalyticsEnabled ? t("storefront.editor.analyticsPublic", { defaultValue: "Visible on your page" }) : t("storefront.editor.analyticsPrivate", { defaultValue: "Only you can see it" })} open={!!openSections.analytics} onToggle={() => toggleSection("analytics")}>
+          {/* ── Analytics (30-day tips chart + top supporters — Session 2026-08-05) ── */}
+          <Box
+            id="analytics"
+            data-testid="creator-analytics-section"
+          >
+            <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mb: 1 }}>
+              <Box sx={{ pr: 1 }}>
+                <Typography fontSize={12.5} color={theme.palette.text.secondary}>
+                  {t("storefront.form.analyticsDesc", { defaultValue: "A 30-day view of your tips and top supporters. Toggle to hide it from your public creator page — you'll still see it here." })}
+                </Typography>
+              </Box>
+              <Switch
+                checked={publicAnalyticsEnabled}
+                onChange={(e) => setPublicAnalyticsEnabled(e.target.checked)}
+                data-testid="public-analytics-switch"
+                    inputProps={{ "aria-label": "Public analytics" }}
+                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
+              />
+            </Box>
+            <AnalyticsWidget
+              variant="full"
+              data={analyticsData}
+              loading={analyticsLoading}
+              toggleState={publicAnalyticsEnabled ? "shown" : "hidden"}
+              onToggle={() => setPublicAnalyticsEnabled((v) => !v)}
+              toggleBusy={analyticsTogglingBusy}
+            />
+          </Box>
+      </EditorSection>
 
       {/* QR Code Dialog */}
       <Dialog
@@ -669,563 +1217,47 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
         </DialogActions>
       </Dialog>
 
-      {/* Cover image */}
-      <Box>
-        <Typography sx={labelSx}>{t("storefront.form.coverImage", { defaultValue: "Cover image" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.coverHint", { defaultValue: "(optional, recommended 1200×400)" })}</Typography></Typography>
-        <Box
-          data-testid="creator-cover-preview"
-          onClick={() => { if (!uploadingCover) coverFileRef.current?.click(); }}
-          {...coverDropBind}
-          data-drag-active={coverDragActive ? "true" : "false"}
-          sx={{
-            position: "relative",
-            width: "100%",
-            aspectRatio: "3 / 1",
-            borderRadius: "14px",
-            border: `${coverDragActive ? 2 : 1}px dashed ${coverDragActive ? theme.palette.primary.main : border}`,
-            overflow: "hidden",
-            cursor: uploadingCover ? "default" : "pointer",
-            transition: "border-color .15s ease",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: theme.palette.background.default,
-            backgroundImage: coverImage ? `url(${coverImage})` : "none",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
-          {!coverImage && !uploadingCover && (
-            <Box sx={{ textAlign: "center", color: theme.palette.text.secondary, px: 2, pointerEvents: "none" }}>
-              <Icon icon="mdi:image-plus-outline" width={26} />
-              <Typography fontSize={12.5} mt={0.5}>
-                {coverDragActive ? t("storefront.form.dropToUpload", { defaultValue: "Drop image to upload" }) : t("storefront.form.dragDrop", { defaultValue: "Drag & drop an image here, or click to upload (up to 10 MB)" })}
-              </Typography>
-            </Box>
-          )}
-          {uploadingCover && <CircularProgress size={22} />}
-          {coverImage && !uploadingCover && (
-            <Box sx={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 0.75 }}>
-              <Button
-                size="small"
-                variant="contained"
-                data-testid="creator-cover-remove"
-                onClick={(e: React.MouseEvent) => { e.stopPropagation(); void removeCover(); }}
-                sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
-              >
-                {t("storefront.form.remove", { defaultValue: "Remove" })}
-              </Button>
-            </Box>
-          )}
-        </Box>
-        <input
-          ref={coverFileRef}
-          type="file"
-          accept="image/*"
-          data-testid="creator-cover-input"
-          onChange={onCoverFile}
-          style={{ display: "none" }}
-        />
-        <Button
-          size="small"
-          onClick={() => coverFileRef.current?.click()}
-          disabled={uploadingCover}
-          startIcon={<Icon icon={coverImage ? "mdi:image-edit-outline" : "mdi:cloud-upload-outline"} width={16} />}
-          sx={{ mt: 1, textTransform: "none", fontSize: 12.5 }}
-          data-testid="creator-cover-upload-btn"
-        >
-          {coverImage ? t("storefront.form.replaceImage", { defaultValue: "Replace image" }) : t("storefront.form.uploadImage", { defaultValue: "Upload image" })}
-        </Button>
-      </Box>
-
-      {/* Display name (shown as the header on your public /{handle} page) */}
-      <Box>
-        <Typography sx={labelSx}>{t("storefront.form.displayName", { defaultValue: "Display name" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.shownAtTop", { defaultValue: "(shown at the top of your public page)" })}</Typography></Typography>
-        <Box
-          component="input"
-          ref={nameInputRef}
-          data-testid="creator-name-input"
-          value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value.slice(0, 80))}
-          placeholder="Alice Cooper"
-          sx={inputSx}
-        />
-        <Typography fontSize={11.5} color={theme.palette.text.secondary} mt={0.5}>
-          {t("storefront.form.nameHelp", { defaultValue: "Buyers see this above your handle. Leave blank to use your handle as the name." })}
-        </Typography>
-        {/* A1 — the auto-provisioned brand name (e-mail local part) must never be what visitors see */}
-        {storefrontData?.name_is_placeholder && isPlaceholderBrandName(name, [reduxProfile?.email]) && (
-          <Box
-            role="alert"
-            data-testid="creator-name-placeholder-warning"
-            sx={{ mt: 1, display: "flex", gap: 1, alignItems: "flex-start", p: 1.25, borderRadius: "10px", border: `1px solid ${theme.palette.warning.main}`, backgroundColor: theme.palette.mode === "dark" ? "rgba(245,158,11,0.12)" : "rgba(245,158,11,0.08)" }}
-          >
-            <Icon icon="mdi:alert-circle-outline" width={18} style={{ flexShrink: 0, marginTop: 1, color: theme.palette.warning.main }} />
-            <Typography fontSize={12.5} lineHeight={1.5} color={theme.palette.text.primary}>
-              {t("storefront.form.namePlaceholderWarning", {
-                defaultValue: "This looks like an auto-generated name. Visitors see it as your page title, heading and share text — enter the name you want to be known by. Until then, your public page shows your account name instead.",
-              })}
-            </Typography>
-          </Box>
-        )}
-      </Box>
-
-      {/* Handle */}
-      <Box>
-        <Typography sx={labelSx}>{t("storefront.form.handle", { defaultValue: "Handle" })}</Typography>
-        <Box sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${availability && !availability.available ? theme.palette.error.main : border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
-          <Box title={`${siteUrl.replace(/^https?:\/\//, "")}/`} sx={{ display: "flex", alignItems: "center", px: 1.5, minWidth: 0, flexShrink: 1, overflow: "hidden", textOverflow: "ellipsis", backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", fontFamily: "ui-monospace, monospace", fontSize: 13, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
-            <Box component="span" sx={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{siteUrl.replace(/^https?:\/\//, "")}/</Box>
-          </Box>
-          <Box
-            component="input"
-            ref={handleInputRef}
-            data-testid="creator-handle-input"
-            value={handle}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHandle(e.target.value.toLowerCase().replace(/\s/g, ""))}
-            placeholder="yourname"
-            sx={{ flex: "1 0 45%", border: "none", outline: "none", background: "transparent", padding: "11px 12px", fontFamily: "ui-monospace, monospace", fontSize: 14, color: theme.palette.text.primary, minWidth: 0 }}
-          />
-          <Box sx={{ display: "flex", alignItems: "center", px: 1.5 }}>
-            {checking ? <CircularProgress size={15} /> :
-              handle && handle !== savedHandle && availability?.available ? <Icon icon="mdi:check-circle" width={18} color="#22c55e" /> :
-              handle && availability && !availability.available ? <Icon icon="mdi:close-circle" width={18} color={theme.palette.error.main} /> : null}
-          </Box>
-        </Box>
-        <Typography fontSize={11.5} color={formatError || (availability && !availability.available) ? theme.palette.error.main : theme.palette.text.secondary} mt={0.5} data-testid="creator-handle-hint">
-          {formatError || (availability && !availability.available ? availability.reason : t("storefront.form.handleHelp", { defaultValue: "This is your unique, shareable Dynopay address." }))}
-        </Typography>
-      </Box>
-
-      {/* Bio */}
-      <Box>
-        <Typography sx={labelSx}>{t("storefront.form.bio", { defaultValue: "Bio" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
-        <Box
-          component="textarea"
-          rows={3}
-          maxLength={500}
-          data-testid="creator-bio-input"
-          value={bio}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value)}
-          placeholder={t("storefront.form.bioPlaceholder", { defaultValue: "Tell visitors who you are and what you're raising for…" })}
-          sx={{ ...inputSx, resize: "vertical", minHeight: 74, display: "block" }}
-        />
-        <Typography fontSize={10.5} color={theme.palette.text.disabled} textAlign="right" mt={0.25}>{bio.length}/500</Typography>
-      </Box>
-
-      {/* Social links */}
-      <Box>
-        <Typography sx={labelSx}>{t("storefront.form.socialLinks", { defaultValue: "Social links" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          {SOCIAL_PLATFORMS.map((p) => (
-            <Box key={p.key} sx={{ display: "flex", alignItems: "stretch", border: `1px solid ${border}`, borderRadius: "10px", overflow: "hidden", backgroundColor: theme.palette.background.default }}>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", px: 1.25, backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", minWidth: 44 }}>
-                <Icon icon={p.icon} width={18} color={theme.palette.text.secondary} />
-              </Box>
-              <Box
-                component="input"
-                data-testid={`creator-social-${p.key}`}
-                value={socialLinks[p.key] || ""}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const v = e.target.value.trim();
-                  setSocialLinks((prev) => {
-                    const next = { ...prev };
-                    if (v) next[p.key as PlatformKey] = v;
-                    else delete next[p.key as PlatformKey];
-                    return next;
-                  });
-                }}
-                placeholder={p.placeholder}
-                sx={{ flex: 1, border: "none", outline: "none", background: "transparent", padding: "10px 12px", fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.primary, minWidth: 0 }}
-              />
-            </Box>
-          ))}
-        </Box>
-      </Box>
-
-      {/* ── Support Widget ── */}
-      <Box id="support-widget" sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }} data-testid="support-widget-settings">
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
-          <Box sx={{ pr: 1 }}>
-            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>{t("storefront.form.supportWidget", { defaultValue: "Support widget" })}</Typography>
-            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-              {t("storefront.form.supportWidgetDesc", { defaultValue: 'An always-on "Buy me a coffee" / tip box at the top of your page. Supporters pick an amount and pay with crypto — no account needed.' })}
-            </Typography>
-          </Box>
-          <Switch
-            checked={swEnabled}
-            onChange={(e) => setSwEnabled(e.target.checked)}
-            data-testid="support-widget-enabled-switch"
-                inputProps={{ "aria-label": "Enable tips widget" }}
-            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-          />
-        </Box>
-
-        {swEnabled && (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, mt: 2.5, pt: 2.5, borderTop: `1px solid ${border}` }}>
-            {/* Style */}
-            <Box>
-              <Typography sx={labelSx}>{t("storefront.form.style", { defaultValue: "Style" })}</Typography>
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 1 }}>
-                {SUPPORT_STYLES.map((s) => {
-                  const active = swStyle === s.key;
-                  return (
-                    <Box
-                      key={s.key}
-                      role="button"
-                      tabIndex={0}
-                      data-testid={`support-style-${s.key}`}
-                      onClick={() => setSwStyle(s.key)}
-                      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSwStyle(s.key); } }}
-                      sx={{
-                        display: "flex", alignItems: "center", gap: 1, p: 1.25, borderRadius: "10px", cursor: "pointer",
-                        border: `1.5px solid ${active ? theme.palette.primary.main : border}`,
-                        backgroundColor: active ? (theme.palette.mode === "dark" ? "rgba(139,94,0,0.08)" : "rgba(139,94,0,0.12)") : theme.palette.background.default,
-                        transition: "border-color 140ms ease",
-                      }}
-                    >
-                      <Icon icon={s.icon} width={20} color={theme.palette.text.primary} />
-                      <Typography fontSize={12.5} fontWeight={600} color={theme.palette.text.primary}>{t(`storefront.form.supportStyle_${s.key}`, { defaultValue: s.label })}</Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
-
-            {/* Custom label */}
-            <Box>
-              <Typography sx={labelSx}>{t("storefront.form.customLabel", { defaultValue: "Custom label" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
-              <Box
-                component="input"
-                data-testid="support-widget-label"
-                value={swLabel}
-                maxLength={80}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwLabel(e.target.value)}
-                placeholder={SUPPORT_STYLES.find((s) => s.key === swStyle)?.sample || "Support me"}
-                sx={inputSx}
-              />
-            </Box>
-
-            {/* Preset amounts */}
-            <Box>
-              <Typography sx={labelSx}>{t("storefront.form.presetAmounts", { defaultValue: "Preset amounts" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.upTo5", { defaultValue: "(up to 5)" })}</Typography></Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }} data-testid="support-preset-chips">
-                {swPresets.map((p) => (
-                  <Box
-                    key={p}
-                    data-testid={`support-preset-chip-${p}`}
-                    data-below-floor={p < 10 ? "true" : "false"}
-                    title={p < 10 ? t("storefront.form.presetBelowFloor", { defaultValue: "Below the $10 minimum — hidden on your page" }) : undefined}
-                    sx={{
-                      display: "flex", alignItems: "center", gap: 0.5, px: 1.25, py: 0.6, borderRadius: "999px",
-                      border: `1px ${p < 10 ? "dashed" : "solid"} ${p < 10 ? theme.palette.warning.main : border}`, backgroundColor: theme.palette.background.default,
-                      fontFamily: "ui-monospace, monospace", fontSize: 13, fontWeight: 700, color: p < 10 ? theme.palette.text.disabled : theme.palette.text.primary,
-                      textDecoration: p < 10 ? "line-through" : "none",
-                    }}
-                  >
-                    {p}
-                    <Box
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Remove ${p}`}
-                      data-testid={`support-preset-remove-${p}`}
-                      onClick={() => setSwPresets((prev) => prev.filter((x) => x !== p))}
-                      onKeyDown={(e: React.KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSwPresets((prev) => prev.filter((x) => x !== p)); } }}
-                      sx={{ display: "flex", cursor: "pointer", color: theme.palette.text.secondary, "&:hover": { color: theme.palette.error.main } }}
-                    >
-                      <Icon icon="mdi:close" width={14} />
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
-              {swPresets.length < 5 && (
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Box
-                    component="input"
-                    type="number"
-                    data-testid="support-preset-input"
-                    value={swPresetDraft}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwPresetDraft(e.target.value)}
-                    onKeyDown={(e: React.KeyboardEvent) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const n = parseFloat(swPresetDraft);
-                        if (Number.isFinite(n) && n >= 10 && !swPresets.includes(n) && swPresets.length < 5) {
-                          setSwPresets((prev) => [...prev, n].sort((a, b) => a - b));
-                          setSwPresetDraft("");
-                        }
-                      }
-                    }}
-                    placeholder={t("storefront.form.presetPlaceholderV2", { defaultValue: "e.g. 15" })}
-                    sx={{ ...inputSx, maxWidth: 140 }}
-                  />
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    data-testid="support-preset-add"
-                    disabled={!Number.isFinite(parseFloat(swPresetDraft)) || parseFloat(swPresetDraft) < 10}
-                    onClick={() => {
-                      const n = parseFloat(swPresetDraft);
-                      if (Number.isFinite(n) && n >= 10 && !swPresets.includes(n) && swPresets.length < 5) {
-                        setSwPresets((prev) => [...prev, n].sort((a, b) => a - b));
-                        setSwPresetDraft("");
-                      }
-                    }}
-                    sx={{ textTransform: "none", fontSize: 12.5, borderRadius: "10px" }}
-                  >
-                    {t("storefront.form.add", { defaultValue: "Add" })}
-                  </Button>
-                </Box>
-              )}
-              {swPresets.length === 0 && (
-                <Typography fontSize={11.5} color={theme.palette.error.main} mt={0.5}>{t("storefront.form.addPresetHint", { defaultValue: "Add at least one preset amount." })}</Typography>
-              )}
-              {/* C3: explain the platform floor where the creator sets amounts, instead of silently dropping presets */}
-              {swPresetDraft !== "" && Number.isFinite(parseFloat(swPresetDraft)) && parseFloat(swPresetDraft) < 10 && (
-                <Typography fontSize={11.5} color={theme.palette.warning.main} mt={0.5} data-testid="support-preset-floor-warning">
-                  {t("storefront.form.presetFloorWarning", { defaultValue: "Presets must be $10 or more." })}
-                </Typography>
-              )}
-              <Typography fontSize={11.5} color={theme.palette.text.secondary} mt={0.75} sx={{ lineHeight: 1.5 }} data-testid="support-floor-note">
-                {t("storefront.form.floorExplainer", { defaultValue: "Dynopay's minimum for any crypto payment is $10 — network fees make smaller amounts uneconomical. Presets below $10 are not shown to supporters." })}
-                {swPresets.some((p) => p < 10) && (
-                  <> {t("storefront.form.floorHiddenPresets", { defaultValue: "Crossed-out presets are hidden on your page — remove them or raise them to $10+." })}</>
-                )}
-              </Typography>
-            </Box>
-
-            {/* Currency + Min amount */}
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
-              <Box>
-                <Typography sx={labelSx}>{t("storefront.form.currency", { defaultValue: "Currency" })}</Typography>
-                <Box
-                  component="select"
-                  aria-label={t("storefront.form.currency", { defaultValue: "Currency" })}
-                  data-testid="support-widget-currency"
-                  value={swCurrency}
-                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSwCurrency(e.target.value)}
-                  sx={{ ...inputSx, appearance: "auto" }}
-                >
-                  {SUPPORT_CURRENCIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </Box>
-              </Box>
-              <Box>
-                <Typography sx={labelSx}>{t("storefront.form.minAmount", { defaultValue: "Minimum amount" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>({t("storefront.form.minFloorNote", { defaultValue: "min $10" })})</Typography></Typography>
-                <Box
-                  component="input"
-                  type="number"
-                  data-testid="support-widget-min"
-                  aria-label={t("storefront.form.minAmount", { defaultValue: "Minimum amount" })}
-                  value={swMinAmount}
-                  min={10}
-                  step="any"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMinAmount(Number(e.target.value))}
-                  onBlur={(e: React.FocusEvent<HTMLInputElement>) => setSwMinAmount(Math.max(10, Number(e.target.value) || 10))}
-                  sx={inputSx}
-                />
-              </Box>
-            </Box>
-
-            {/* Monthly tip goal (opt-in) */}
-            <Box>
-              <Typography sx={labelSx}>{t("storefront.form.monthlyGoal", { defaultValue: "Monthly tip goal" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.monthlyGoalNote", { defaultValue: "(optional — leave empty to hide the bar)" })}</Typography></Typography>
-              <Box
-                component="input"
-                type="number"
-                data-testid="support-widget-monthly-goal"
-                aria-label={t("storefront.form.monthlyGoal", { defaultValue: "Monthly tip goal" })}
-                value={swMonthlyGoal}
-                min={10}
-                step="any"
-                placeholder="e.g. 500"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSwMonthlyGoal(e.target.value)}
-                onBlur={(e: React.FocusEvent<HTMLInputElement>) => { const v = Number(e.target.value); setSwMonthlyGoal(e.target.value.trim() && Number.isFinite(v) ? String(Math.max(10, v)) : ""); }}
-                sx={inputSx}
-              />
-              <Typography fontSize={11.5} color={theme.palette.text.disabled} mt={0.5}>
-                {t("storefront.form.monthlyGoalHint", { defaultValue: "Shows \"$X of $Y this month\" on your page. Counts confirmed tips and resets on the 1st." })}
-              </Typography>
-            </Box>
-
-            {/* Thanks message */}
-            <Box>
-              <Typography sx={labelSx}>{t("storefront.form.thanksMessage", { defaultValue: "Welcome / thank-you message" })} <Typography component="span" fontSize={11.5} color={theme.palette.text.disabled} fontWeight={400}>{t("storefront.form.optional", { defaultValue: "(optional)" })}</Typography></Typography>
-              <Box
-                component="textarea"
-                rows={2}
-                maxLength={280}
-                data-testid="support-widget-thanks"
-                value={swThanks}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSwThanks(e.target.value)}
-                placeholder={t("storefront.form.thanksPlaceholder", { defaultValue: "e.g. Thanks for keeping the coffee flowing! ☕" })}
-                sx={{ ...inputSx, resize: "vertical", minHeight: 60, display: "block" }}
-              />
-            </Box>
-
-            {/* Toggles */}
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.allowMessage", { defaultValue: "Let supporters leave a message" })}</Typography>
-              <Switch
-                checked={swAllowMessage}
-                onChange={(e) => setSwAllowMessage(e.target.checked)}
-                data-testid="support-widget-allow-message"
-                inputProps={{ "aria-label": "Allow supporter message" }}
-                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-              />
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.showSupporters", { defaultValue: "Show supporter count & total raised" })}</Typography>
-              <Switch
-                checked={swShowSupporters}
-                onChange={(e) => setSwShowSupporters(e.target.checked)}
-                data-testid="support-widget-show-supporters"
-                inputProps={{ "aria-label": "Show supporter count" }}
-                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-              />
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
-              <Box>
-                <Typography fontSize={13.5} color={theme.palette.text.primary}>{t("storefront.form.showWall", { defaultValue: "Supporter wall — show recent public tips" })}</Typography>
-                <Typography fontSize={11.5} color={theme.palette.text.disabled}>{t("storefront.form.showWallHint", { defaultValue: "First name, amount and message of your last 8 supporters. Anonymous tips show as \"Someone\". Off by default." })}</Typography>
-              </Box>
-              <Switch
-                checked={swShowWall}
-                onChange={(e) => setSwShowWall(e.target.checked)}
-                data-testid="support-widget-show-wall"
-                inputProps={{ "aria-label": "Supporter wall" }}
-                sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-              />
-            </Box>
-          </Box>
-        )}
-      </Box>
-
-      {/* ── Analytics (30-day tips chart + top supporters — Session 2026-08-05) ── */}
+      {/* Sticky save bar: publish state + Save stay in reach while any section is open */}
       <Box
-        id="analytics"
-        sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }}
-        data-testid="creator-analytics-section"
+        data-testid="creator-save-bar"
+        sx={{
+          position: "sticky",
+          bottom: { xs: "calc(92px + env(safe-area-inset-bottom, 0px))", md: 16 },
+          zIndex: 5,
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          flexWrap: "wrap",
+          p: 1.25,
+          pl: 1.5,
+          borderRadius: "14px",
+          border: `1px solid ${border}`,
+          backgroundColor: theme.palette.mode === "dark" ? "rgba(24,24,27,0.92)" : "rgba(255,255,255,0.94)",
+          backdropFilter: "blur(12px)",
+          boxShadow: "0 10px 28px -14px rgba(10,10,15,0.35)",
+        }}
       >
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mb: 1 }}>
-          <Box sx={{ pr: 1 }}>
-            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>{t("storefront.form.analytics", { defaultValue: "Analytics" })}</Typography>
-            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-              {t("storefront.form.analyticsDesc", { defaultValue: "A 30-day view of your tips and top supporters. Toggle to hide it from your public creator page — you'll still see it here." })}
-            </Typography>
-          </Box>
-          <Switch
-            checked={publicAnalyticsEnabled}
-            onChange={(e) => setPublicAnalyticsEnabled(e.target.checked)}
-            data-testid="public-analytics-switch"
-                inputProps={{ "aria-label": "Public analytics" }}
-            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-          />
-        </Box>
-        <AnalyticsWidget
-          variant="full"
-          data={analyticsData}
-          loading={analyticsLoading}
-          toggleState={publicAnalyticsEnabled ? "shown" : "hidden"}
-          onToggle={() => setPublicAnalyticsEnabled((v) => !v)}
-          toggleBusy={analyticsTogglingBusy}
-        />
-      </Box>
-
-      {/* ── Store visibility (Session 2026-08-26) ── */}
-      <Box
-        id="store-visibility"
-        sx={{ borderRadius: "12px", border: `1px solid ${border}`, p: 2 }}
-        data-testid="creator-store-section"
-      >
-        {/* Master: store on / off */}
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2 }}>
-          <Box sx={{ pr: 1 }}>
-            <Typography fontSize={14} fontWeight={700} color={theme.palette.text.primary}>{t("storefront.form.storeTitle", { defaultValue: "Online store" })}</Typography>
-            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-              {t("storefront.form.storeDesc", { defaultValue: "Turn your store OFF to hide your shop page and every product link everywhere — this page becomes tip-only. Your products are saved and come back the moment you turn the store on again." })}
-            </Typography>
-          </Box>
-          <Switch
-            checked={storeEnabled}
-            onChange={(e) => setStoreEnabled(e.target.checked)}
-            data-testid="store-enabled-switch"
-                inputProps={{ "aria-label": "Enable store" }}
-            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-          />
-        </Box>
-
-        {/* Sub: show the shop on the creator page (only relevant when the store is on) */}
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 2, mt: 1.5, pt: 1.5, borderTop: `1px solid ${border}`, opacity: storeEnabled ? 1 : 0.5 }}>
-          <Box sx={{ pr: 1 }}>
-            <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>{t("storefront.form.showProductsTitle", { defaultValue: "Show my shop on this page" })}</Typography>
-            <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>
-              {t("storefront.form.showProductsDesc", { defaultValue: "Show the shop section on this creator page. Turn it OFF for a clean tip-only page — your shop page and direct product links keep working." })}
-            </Typography>
-          </Box>
-          <Switch
-            checked={storeEnabled && showProductsOnPage}
-            disabled={!storeEnabled}
-            onChange={(e) => setShowProductsOnPage(e.target.checked)}
-            data-testid="show-products-switch"
-            inputProps={{ "aria-label": t("storefront.form.showProductsTitle", { defaultValue: "Show my shop on this page" }) as string }}
-            sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }}
-          />
-        </Box>
-
-        {/* Live preview of the effective public-page state */}
-        <Box sx={{ mt: 1.5, pt: 1.5, borderTop: `1px solid ${border}` }}>
-          <Box
-            data-testid="store-visibility-preview"
-            sx={{
-              display: "inline-flex", alignItems: "center", gap: 0.75,
-              px: 1.25, py: 0.6, borderRadius: 999,
-              bgcolor: !storeEnabled
-                ? (theme.palette.mode === "dark" ? "rgba(148,163,184,0.14)" : "rgba(100,116,139,0.10)")
-                : !showProductsOnPage
-                  ? (theme.palette.mode === "dark" ? "rgba(251,191,36,0.16)" : "rgba(217,119,6,0.10)")
-                  : (theme.palette.mode === "dark" ? "rgba(52,211,153,0.16)" : "rgba(5,150,105,0.10)"),
-              color: !storeEnabled
-                ? theme.palette.text.secondary
-                : !showProductsOnPage
-                  ? (theme.palette.mode === "dark" ? "#FBBF24" : "#B45309")
-                  : (theme.palette.mode === "dark" ? "#34D399" : "#059669"),
-            }}
-          >
-            <Icon
-              icon={!storeEnabled ? "mdi:storefront-off-outline" : !showProductsOnPage ? "mdi:eye-off-outline" : "mdi:eye-check-outline"}
-              width={16}
-            />
-            <Typography fontSize={12.5} fontWeight={600}>
-              {!storeEnabled
-                ? t("storefront.form.storePreviewStoreOff", { defaultValue: "Preview: tip-only page — shop & product links hidden" })
-                : !showProductsOnPage
-                  ? t("storefront.form.storePreviewProductsHidden", { defaultValue: "Preview: shop hidden from this page" })
-                  : t("storefront.form.storePreviewBoth", { defaultValue: "Preview: tips + shop shown" })}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, flex: "1 1 220px", minWidth: 0 }}>
+          <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch"
+            inputProps={{ "aria-label": t("storefront.form.publishPage", { defaultValue: "Publish my page" }) as string }} sx={{ flexShrink: 0, "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
+          <Box sx={{ minWidth: 0 }}>
+            <Typography fontSize={13.5} fontWeight={600} color={theme.palette.text.primary} lineHeight={1.3}>{t("storefront.form.publishPage", { defaultValue: "Publish my page" })}</Typography>
+            <Typography data-testid="creator-save-bar-status" fontSize={12} color={canSave ? theme.palette.text.primary : theme.palette.text.secondary} fontWeight={canSave ? 600 : 400} lineHeight={1.3}>
+              {canSave
+                ? t("storefront.editor.unsaved", { defaultValue: "You have unsaved changes" })
+                : enabled
+                  ? t("storefront.form.publishDesc", { defaultValue: "When on, anyone with your link can view your page and support you." })
+                  : t("storefront.editor.draftHint", { defaultValue: "Off — only you can see your page" })}
             </Typography>
           </Box>
         </Box>
-      </Box>
-
-      {/* Enable toggle */}
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 2, borderRadius: "12px", border: `1px solid ${border}` }}>
-        <Box sx={{ pr: 2 }}>
-          <Typography fontSize={14} fontWeight={600} color={theme.palette.text.primary}>{t("storefront.form.publishPage", { defaultValue: "Publish my creator page" })}</Typography>
-          <Typography fontSize={12.5} color={theme.palette.text.secondary} mt={0.25}>{t("storefront.form.publishDesc", { defaultValue: "When on, anyone with your link can view your page and support you." })}</Typography>
-        </Box>
-        <Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} data-testid="creator-enabled-switch"
-                inputProps={{ "aria-label": "Creator page enabled" }} sx={{ "& .Mui-checked": { color: brandFg(theme.palette.mode === "dark") }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: theme.palette.primary.main } }} />
-      </Box>
-
-      <Box>
         <Button
           variant="contained"
           disableElevation
           onClick={handleSave}
           disabled={!canSave}
           data-testid="creator-save-btn"
-          sx={{ textTransform: "none", fontWeight: 700, borderRadius: "10px", px: 3, py: 1.1, fontSize: 14 }}
+          sx={{ flexShrink: 0, ml: "auto", textTransform: "none", fontWeight: 700, borderRadius: "10px", px: 3, py: 1, fontSize: 14 }}
         >
           {saving ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : t("storefront.form.saveChanges", { defaultValue: "Save changes" })}
         </Button>

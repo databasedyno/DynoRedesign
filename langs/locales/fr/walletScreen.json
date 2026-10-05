@@ -184,5 +184,9 @@
   "formatUnusualTip": "Cela ne ressemble pas à une adresse {{chain}} classique. Vérifiez-la avant votre prochain versement.",
   "lastPayoutNone": "Aucun versement vers cette adresse de versement pour l'instant",
   "lastPayoutAt": "Dernier versement {{when}}",
-  "in30d": "sur 30 j"
+  "in30d": "sur 30 j",
+  "options": "Options",
+  "netReceivedEyebrow": "Net reçu · depuis le début",
+  "netReceivedHint": "Ce qui est arrivé sur vos adresses de versement après les frais Dynopay, depuis le début, sur les paiements finalisés. Les paiements vers des adresses supprimées ne sont pas comptés : le montant peut être un peu inférieur au Revenu net de Clients.",
+  "colNetReceived": "Net reçu"
 }

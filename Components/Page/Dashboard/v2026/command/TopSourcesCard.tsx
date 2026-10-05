@@ -3,7 +3,8 @@ import { Box, Skeleton, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { Icon, MONO } from "@/styles/uiKit";
-import { SurfaceCard, Eyebrow, CB_TOKENS } from "../../coinbase/styled";
+import { SurfaceCard, CB_TOKENS } from "../../coinbase/styled";
+import { SectionTitle } from "../styled";
 import { money } from "./format";
 import type { OverviewSource } from "./useDashboardOverview";
 
@@ -38,8 +39,9 @@ const TopSourcesCard: React.FC<Props> = ({ sources, loading, currencySymbol, cur
 
   return (
     <SurfaceCard data-testid="top-products-list" sx={{ p: 0, overflow: "hidden", height: "100%" }}>
-      <Box sx={{ px: { xs: 2, md: 2.5 }, pt: { xs: 1.75, md: 2 }, pb: 1 }}>
-        <Eyebrow>{`${t("command.topSources", { defaultValue: "Top links & products" })} · ${rangeLabel}`}</Eyebrow>
+      <Box sx={{ px: 2.5, pt: 2.5, pb: 1.5 }}>
+        <SectionTitle component="h2" sx={{ m: 0, lineHeight: 1.25 }}>{t("command.topSources", { defaultValue: "Top links & products" })}</SectionTitle>
+        <Box sx={{ mt: 0.5, fontFamily: "var(--font-sans)", fontSize: 13, color: muted }}>{t("command.topSourcesSub", { range: rangeLabel, defaultValue: "Highest earners · {{range}}" })}</Box>
       </Box>
       {loading ? (
         <Box sx={{ px: 2.5, pb: 2 }}>

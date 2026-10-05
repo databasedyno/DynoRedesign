@@ -40,7 +40,7 @@ import { InvoicePeriod, isInvoicePeriod, periodParams } from "@/Components/Page/
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
 import { StatusPill } from "@/Components/UI/_shared";
 import { Icon, MONO } from "@/styles/uiKit";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import { brandFg } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { useEdgeFades, EdgeFades } from "@/Components/Common/ScrollHint";
 import { formatDateI18n } from "@/utils/formatDate";
@@ -235,6 +235,9 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     { unwrap: true, keepPreviousData: true }
   );
   const invoices: Invoice[] = invoicesResp?.invoices || [];
+  // Hide the VAT column when nothing on this page carries VAT (it was "—" on every row).
+  const showVatCol = invoices.some((inv) => parseFloat(String(inv.vat_amount)) > 0);
+  const colCount = showVatCol ? 6 : 5;
   const totalInvoices: number = invoicesResp?.pagination?.total || 0;
   const invoiceLoading = invoicesSwrLoading && invoicesResp === undefined;
   const fetchInvoices = useCallback(() => {
@@ -482,6 +485,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       >
                         {t("invoices.colCustomer")}
                       </TableCell>
+                      {showVatCol && (
                       <TableCell
                         align="right"
                         sx={{
@@ -493,6 +497,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       >
                         {t("invoices.colVat")}
                       </TableCell>
+                      )}
                       <TableCell
                         align="right"
                         sx={{
@@ -530,9 +535,11 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                             <TableCell>
                               <Skeleton width={120} />
                             </TableCell>
+                            {showVatCol && (
                             <TableCell align="right">
                               <Skeleton width={60} />
                             </TableCell>
+                            )}
                             <TableCell align="right">
                               <Skeleton width={80} />
                             </TableCell>
@@ -549,7 +556,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                         ? (
                           <TableRow>
                             <TableCell
-                              colSpan={6}
+                              colSpan={colCount}
                               align="center"
                               sx={{ py: 2, border: "none" }}
                             >
@@ -583,23 +590,19 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           return groups.flatMap((grp) => [
                             // Month group header row
                             <TableRow key={`grp-${grp.key}`} sx={{
-                              backgroundColor: muiTheme.palette.mode === "dark"
-                                ? "rgba(255,209,0,0.06)"
-                                : "rgba(139,94,0,0.04)",
-                              "&:hover": { backgroundColor: muiTheme.palette.mode === "dark"
-                                ? "rgba(255,209,0,0.06)"
-                                : "rgba(139,94,0,0.04)" },
+                              backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#F7F7F9",
+                              "&:hover": { backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#F7F7F9" },
                             }}>
-                              <TableCell colSpan={6} sx={{ py: 1.25, borderBottom: `1px solid ${muiTheme.palette.divider}` }}>
+                              <TableCell colSpan={colCount} sx={{ py: 1.25, borderBottom: `1px solid ${muiTheme.palette.divider}` }}>
                                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2 }}>
                                   <Typography
                                     sx={{
-                                      fontFamily: "var(--font-tech), monospace",
-                                      fontSize: 11,
+                                      fontFamily: "var(--font-sans)",
+                                      fontSize: 12,
                                       fontWeight: 700,
-                                      letterSpacing: "0.24em",
+                                      letterSpacing: "0.08em",
                                       textTransform: "uppercase",
-                                      color: muiTheme.palette.mode === "dark" ? "#FFD100" : BRAND_ACCENT,
+                                      color: muiTheme.palette.text.primary,
                                     }}
                                   >
                                     {grp.label}
@@ -614,7 +617,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                       color: muiTheme.palette.text.secondary,
                                     }}
                                   >
-                                    {grp.items.length} {grp.items.length === 1 ? "invoice" : "invoices"} · {formatUsdInDisplay(groupTotal(grp.items))}
+                                    {t("invoices.groupCount", { count: grp.items.length, defaultValue: "{{count}} receipts" })} · {formatUsdInDisplay(groupTotal(grp.items))}
                                   </Typography>
                                 </Box>
                               </TableCell>
@@ -667,6 +670,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 {inv.customer_name}
                               </Typography>
                             </TableCell>
+                            {showVatCol && (
                             <TableCell align="right">
                               {parseFloat(String(inv.vat_amount)) > 0 ? (
                                 <Chip
@@ -693,6 +697,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                 </Typography>
                               )}
                             </TableCell>
+                            )}
                             <TableCell align="right">
                               <Typography
                                 sx={{

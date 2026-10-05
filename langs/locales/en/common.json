@@ -559,7 +559,11 @@
     "emptyStep2": "The payment settles on-chain",
     "emptyStep3": "A numbered receipt with fee & VAT lines appears here",
     "showAllTime": "Show all time",
-    "viewTransactions": "View transactions"
+    "viewTransactions": "View transactions",
+    "headerGrossCollected": "Gross collected",
+    "headerGrossCollectedHint": "What buyers paid for completed payments in this period, before Dynopay fees. Fees are shown separately; buyer tax is in Tax collected. Gross minus Fees = what you received.",
+    "groupCount_one": "{{count}} receipt",
+    "groupCount_other": "{{count}} receipts"
   },
   "customers": {
     "pageName": "Customers",
@@ -732,7 +736,21 @@
       "notes": "Private notes (optional)",
       "cancel": "Cancel",
       "submit": "Add customer"
-    }
+    },
+    "statPaying": "Paying customers",
+    "statInvitedSub_one": "+ {{count}} invited, not paid yet",
+    "statInvitedSub_other": "+ {{count}} invited, not paid yet",
+    "statNetRevenue": "Net revenue",
+    "statNetRevenueHint": "What you received after Dynopay fees, all time, from completed payments — including payments with no contact details. Tax is not included.",
+    "filterPaying": "Paying",
+    "filterUnidentified": "Unidentified payments",
+    "unidentifiedSummary_one": "Plus {{count}} payment ({{amount}}) with no contact details — API, payment links and direct payments.",
+    "unidentifiedSummary_other": "Plus {{count}} payments ({{amount}}) with no contact details — API, payment links and direct payments.",
+    "unidentifiedView": "View breakdown",
+    "noPayingTitle": "No paying customers with contact details yet",
+    "noPayingHint_one": "Your {{count}} payment ({{amount}}) came through a checkout that didn't capture a name or email — API, payment links and direct payments.",
+    "noPayingHint_other": "Your {{count}} payments ({{amount}}) came through checkouts that didn't capture a name or email — API, payment links and direct payments.",
+    "noPayingCta": "View unidentified payments"
   },
   "pleaseWait": "Please wait",
   "transferRate": "Transfer Rate",
@@ -789,8 +807,8 @@
     "planFees": "Plan & fees",
     "referrals": "Referrals",
     "description": "Manage your account, brand, and integration configuration",
-    "profile": "Profile & Security",
-    "profileDesc": "Personal info, password, and login security",
+    "profile": "Profile",
+    "profileDesc": "Your name, photo, email and phone number",
     "company": "Brand",
     "companyDesc": "Brand profile, logo, and details",
     "payments": "Payments",
@@ -942,9 +960,9 @@
     "dismiss": "Not now"
   },
   "storefront": {
-    "title": "Storefront",
+    "title": "Your page",
     "subtitle": "Your Dynopay page — tips, products and payment links behind one link.",
-    "editingHint": "Editing <b>{{company}}</b>'s storefront",
+    "editingHint": "Editing <b>{{company}}</b>'s page",
     "tabPage": "Page",
     "tabProducts": "Products",
     "tabShare": "Share",
@@ -1007,7 +1025,7 @@
       "showSupporters": "Show supporter count & total raised",
       "analytics": "Analytics",
       "analyticsDesc": "A 30-day view of your tips and top supporters. Toggle to hide it from your public creator page — you'll still see it here.",
-      "publishPage": "Publish my creator page",
+      "publishPage": "Publish my page",
       "publishDesc": "When on, anyone with your link can view your page and support you.",
       "saveChanges": "Save changes",
       "changeHandleTitle": "Change your handle?",
@@ -1044,14 +1062,14 @@
       "floorHiddenPresets": "Crossed-out presets are hidden on your page — remove them or raise them to $10+."
     },
     "compare": {
-      "title": "Compare storefronts",
+      "title": "Compare brand pages",
       "subtitle": "Views, tips and product sales per brand — last 30 days.",
       "colCompany": "Brand",
       "colViews": "Views · 30d trend",
       "colTips": "Tips",
       "colSales": "Sales",
       "colRevenue": "Revenue",
-      "noStorefront": "No storefront yet",
+      "noStorefront": "No page yet",
       "companyN": "Brand {{n}}"
     },
     "analytics": {
@@ -1102,7 +1120,7 @@
       "qrSub": "Print it, drop it in a video, stick it on a flyer — it opens your page."
     },
     "pending": {
-      "title": "{{company}} doesn't have its own storefront yet",
+      "title": "{{company}} doesn't have its own page yet",
       "switchTo": "Switch to {{primary}}"
     },
     "funnel": {
@@ -1122,7 +1140,31 @@
       "views": "Views",
       "checkouts": "Checkouts",
       "paid": "Paid",
-      "split": "{{tips}} tips · {{orders}} orders"
+      "split": "{{tips}} tips · {{orders}} orders",
+      "checkoutsHint": "Checkouts started from your page, your tip box or a direct product link. Direct links skip the page, so Checkouts can be higher than Views."
+    },
+    "editor": {
+      "profile": "Name, handle & bio",
+      "look": "Look & feel",
+      "socials": "Social links",
+      "tips": "Tip box",
+      "store": "Online store",
+      "analytics": "Analytics",
+      "noHandle": "No handle yet",
+      "customTheme": "Custom theme",
+      "defaultTheme": "Default theme",
+      "hasCover": "cover image",
+      "linkedCount_one": "{{count}} linked",
+      "linkedCount_other": "{{count}} linked",
+      "none": "None yet",
+      "on": "On",
+      "off": "Off",
+      "storeShown": "On · shown on your page",
+      "storeHidden": "On · hidden from your page",
+      "analyticsPublic": "Visible on your page",
+      "analyticsPrivate": "Only you can see it",
+      "unsaved": "You have unsaved changes",
+      "draftHint": "Off — only you can see your page"
     }
   },
   "imageCropTitle": "Adjust image",
@@ -1280,7 +1322,7 @@
     "addWallet": "Add a payout address"
   },
   "payouts": {
-    "pageName": "Payouts & settlements",
+    "pageName": "Payouts",
     "pageDescription": "Did your money reach your wallet? Forwarded payouts, anything stuck, and where funds land.",
     "digestOn": "Weekly payout digest turned on",
     "digestOff": "Weekly payout digest turned off",
@@ -1406,7 +1448,10 @@
     "noForwardsYet": "No payouts yet. Once a payment settles, the forward to your wallet shows up here with its transaction hash.",
     "toWallet": "to {{wallet}}",
     "hashPending": "hash pending",
-    "settlementCoinLabel": "Settlement coin"
+    "settlementCoinLabel": "Settlement coin",
+    "hideQuiet": "Hide addresses without payouts",
+    "showQuiet_one": "Show {{count}} address without payouts in this range",
+    "showQuiet_other": "Show {{count}} addresses without payouts in this range"
   },
   "liveBrand": {
     "payNow": "Pay Now",
@@ -1659,7 +1704,20 @@
     "saveFailed": "Couldn't save changes.",
     "statusAll": "All",
     "emptyTitle": "Sell your first product",
-    "emptyBody": "Create a digital product — it shows up on your page automatically and buyers pay in crypto."
+    "emptyBody": "Create a digital product — it shows up on your page automatically and buyers pay in crypto.",
+    "searchPlaceholder": "Search products…",
+    "viewOrders": "View product orders",
+    "viewMyPage": "View my page",
+    "newProduct": "New product",
+    "statusAllLong": "All statuses",
+    "menu": {
+      "edit": "Edit",
+      "more": "More actions",
+      "quickSell": "Create a payment link",
+      "sales": "View sales",
+      "openPublic": "Open public page",
+      "archive": "Archive"
+    }
   },
   "theme": {
     "switchToLight": "Switch to light mode",

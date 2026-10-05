@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Referrals",
+  "pageTitle": "Refer & earn",
   "pageDescription": "Earn 25% revenue share for every merchant you refer — they get 50% off fees",
   "yourReferralCode": "Your Referral Code",
   "shareYourCode": "Share your unique code and earn rewards",
@@ -39,7 +39,22 @@
   "leaderboard": "Leaderboard",
   "rank": "Rank",
   "referrals": "Referrals",
-  "earnings": "Earnings",
+  "earnings": {
+    "title": "Earnings",
+    "accrued": "Revenue share earned · all time",
+    "paid": "Paid out or credited",
+    "rewardsCredited": "Sign-up rewards credited",
+    "rewardsPending": "Sign-up rewards pending",
+    "availableHint": "Revenue share you have earned but not received yet. Paid as fee credit by default — or switch to USDT cash-out below.",
+    "referralsCount_one": "{{count}} referral",
+    "referralsCount_other": "{{count}} referrals",
+    "activeCount_one": "{{count}} active",
+    "activeCount_other": "{{count}} active",
+    "pendingCount_one": "{{count}} pending",
+    "pendingCount_other": "{{count}} pending",
+    "windowsCount_one": "{{count}} earning window open",
+    "windowsCount_other": "{{count}} earning windows open"
+  },
   "referralBenefits": "Referral Benefits",
   "benefitReferrer": "You earn 25% of the fees from every merchant you refer, for 12 months",
   "benefitReferee": "Your friend gets 50% off fees for 30 days the moment they sign up",
@@ -195,5 +210,15 @@
   "refStatus_pending": "Pending",
   "refStatus_active": "Active",
   "refStatus_rewarded": "Rewarded",
-  "refStatus_expired": "Expired"
+  "refStatus_expired": "Expired",
+  "hero": {
+    "eyebrow": "Your referral link",
+    "valueLine": "You get 25% of their fees for 12 months · they get 50% off fees for 30 days",
+    "code": "Code",
+    "shareOn": "Share on"
+  },
+  "zero": {
+    "title": "No referrals yet",
+    "body": "Share your link above. When a merchant signs up with it, you'll see them here — with your earnings and cash-out options."
+  }
 }

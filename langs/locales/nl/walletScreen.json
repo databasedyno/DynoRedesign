@@ -184,5 +184,9 @@
   "formatUnusualTip": "Dit lijkt geen typisch {{chain}}-adres. Controleer het voor je volgende uitbetaling.",
   "lastPayoutNone": "Nog geen uitbetalingen naar dit uitbetalingsadres",
   "lastPayoutAt": "Laatste uitbetaling {{when}}",
-  "in30d": "in 30 d"
+  "in30d": "in 30 d",
+  "options": "Opties",
+  "netReceivedEyebrow": "Netto ontvangen · all-time",
+  "netReceivedHint": "Wat na Dynopay-kosten op je uitbetalingsadressen binnenkwam, all-time, uit voltooide betalingen. Betalingen naar adressen die je hebt verwijderd tellen niet mee, dus dit kan iets lager zijn dan de Netto-omzet bij Klanten.",
+  "colNetReceived": "Netto ontvangen"
 }

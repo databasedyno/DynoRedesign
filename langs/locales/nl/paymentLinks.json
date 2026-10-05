@@ -22,7 +22,7 @@
   "create": "Aanmaken",
   "linkIdHeader": "Link-ID",
   "descriptionHeader": "Beschrijving",
-  "usdValueHeader": "USD-waarde",
+  "usdValueHeader": "Bedrag",
   "cryptoValueHeader": "Crypto-waarde",
   "createdHeader": "Aangemaakt",
   "expiresHeader": "Verloopt",
@@ -114,7 +114,8 @@
   "coins": {
     "acceptsAll": "Accepteert alle {{count}} coins",
     "acceptsAllHint": "Kopers kunnen betalen met elke coin waarvoor je een uitbetalingsadres hebt: {{list}}",
-    "acceptsSome": "Accepteert {{count}} van {{total}} coins"
+    "acceptsSome": "Accepteert {{count}} van {{total}} coins",
+    "acceptsAllShort": "Alle {{count}} coins"
   },
   "last30Header": "Laatste 30 dagen",
   "last30Tooltip": "Afgerekende betalingen via deze link in de laatste 30 dagen (aantal · bruto USD).",
@@ -127,5 +128,7 @@
   "statusExpiringSoon": "Verloopt binnenkort",
   "qrTooltip": "QR-code tonen",
   "shareTooltip": "Link delen",
-  "statusFilterLabel": "Filteren op status"
+  "statusFilterLabel": "Filteren op status",
+  "statusHeaderTip": "Linkstatus. De regel eronder toont afgerekende betalingen van de laatste 30 dagen (aantal · bruto USD).",
+  "raisedCaption": "opgehaald"
 }

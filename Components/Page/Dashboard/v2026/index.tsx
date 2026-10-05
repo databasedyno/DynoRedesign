@@ -163,7 +163,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
   // dashboard chrome and then jump to the hero (or redirect into the wizard).
   if (onboarding && !setupProgress.coreReady) {
     return (
-      <Box data-testid="dash2026-root" data-state="loading" sx={{ display: "flex", flexDirection: "column", gap: stackGap }}>
+      <Box data-testid="dash2026-root" data-state="loading" sx={{ display: "flex", flexDirection: "column", gap: stackGap, px: { xs: 2, md: 0 } }}>
         <ChartSkeleton h={240} />
         <ChartSkeleton h={160} />
       </Box>
@@ -171,7 +171,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
   }
 
   return (
-    <Box data-testid="dash2026-root" data-density={density} sx={riseSx}>
+    <Box data-testid="dash2026-root" data-density={density} sx={{ ...riseSx, px: { xs: 2, md: 0 } }}>
       <FirstPaymentCelebrationModal
         open={firstPaymentModalOpen}
         onClose={() => setFirstPaymentModalOpen(false)}
@@ -218,7 +218,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
           {trend}
           <Box
             data-testid="dash2026-activity"
-            sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 7fr) minmax(0, 5fr)" }, gap: stackGap, alignItems: "start" }}
+            sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 7fr) minmax(0, 5fr)" }, gap: stackGap, alignItems: "stretch" }}
           >
             <Box sx={{ minWidth: 0 }} data-testid="recent-payments-list">
               <RecentTransactionsWidget transactions={recentTransactions as any[]} loading={loading} max={isPhone ? 5 : 8} />

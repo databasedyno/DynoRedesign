@@ -22,6 +22,7 @@ import { NotificationItemProps } from "@/utils/types/notification";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { tabPillActive, tabPillHover } from "@/styles/tabPill";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 import axiosBaseApi from "@/axiosConfig";
@@ -637,21 +638,41 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
   return (
     <Box>
       {/* Tab Switcher */}
-      <Box sx={{ display: "flex", gap: "12px", mb: 2.5 }}>
-        <CustomButton
-          data-testid="notifications-inbox-tab"
-          label={`${t("inboxTab", { defaultValue: "Inbox" })}${unreadCount > 0 ? ` (${unreadCount})` : ""}`}
-          variant={activeTab === "inbox" ? "primary" : "outlined"}
-          size="small"
-          onClick={() => setActiveTab("inbox")}
-        />
-        <CustomButton
-          data-testid="notifications-settings-tab"
-          label={t("settingsTab", { defaultValue: "Settings" })}
-          variant={activeTab === "settings" ? "primary" : "outlined"}
-          size="small"
-          onClick={() => setActiveTab("settings")}
-        />
+      <Box role="tablist" sx={{ display: "flex", gap: 1, mb: 2.5 }}>
+        {([
+          ["inbox", `${t("inboxTab", { defaultValue: "Inbox" })}${unreadCount > 0 ? ` (${unreadCount})` : ""}`],
+          ["settings", t("settingsTab", { defaultValue: "Settings" })],
+        ] as const).map(([id, label]) => {
+          const active = activeTab === id;
+          return (
+            <Box
+              key={id}
+              component="button"
+              type="button"
+              role="tab"
+              aria-selected={active}
+              data-testid={`notifications-${id}-tab`}
+              onClick={() => setActiveTab(id)}
+              sx={{
+                height: 36,
+                px: "14px",
+                border: "none",
+                borderRadius: "10px",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                fontWeight: active ? 600 : 500,
+                bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#F1F2F5",
+                transition: "background-color 150ms ease, color 150ms ease",
+                ...(active
+                  ? tabPillActive(theme)
+                  : { color: theme.palette.text.secondary, "&:hover": { bgcolor: tabPillHover(theme) } }),
+              }}
+            >
+              {label}
+            </Box>
+          );
+        })}
       </Box>
 
       {/* Inbox Tab — grouped by day (plan 3.9) */}

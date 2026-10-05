@@ -8,6 +8,7 @@ import { StatCard } from "@/Components/Page/Dashboard/v2026/styled";
 import { money } from "@/Components/Page/Dashboard/v2026/command/format";
 import { INVOICE_PERIODS, InvoicePeriod, PERIOD_LABEL_KEY } from "./invoicePeriods";
 import type { PeriodSummary } from "./usePeriodSummary";
+import InfoHint from "@/Components/UI/InfoHint";
 
 interface Props {
   period: InvoicePeriod;
@@ -37,7 +38,8 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
   const tiles = [
     {
       id: "collected",
-      label: t("invoices.headerCollected", { defaultValue: "Collected" }),
+      label: t("invoices.headerGrossCollected", { defaultValue: "Gross collected" }),
+      hint: t("invoices.headerGrossCollectedHint", { defaultValue: "What buyers paid for completed payments in this period, before Dynopay fees. Fees are shown separately; buyer tax is in Tax collected. Gross minus Fees = what you received." }),
       value: data ? money(data.collected, sym, cur) : "—",
       caption: data ? t("invoices.headerCollectedCaption", { count: data.payments_count, defaultValue: "{{count}} settled payments" }) : "",
       color: ink,
@@ -45,6 +47,7 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
     {
       id: "tax",
       label: t("invoices.headerTax", { defaultValue: "Tax collected" }),
+      hint: undefined as string | undefined,
       value: data ? money(data.tax_collected, sym, cur) : "—",
       caption: data
         ? data.taxed_orders > 0
@@ -56,6 +59,7 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
     {
       id: "fees",
       label: t("invoices.headerFees", { defaultValue: "Fees" }),
+      hint: undefined as string | undefined,
       value: data ? money(data.fees, sym, cur) : "—",
       caption: data ? t("invoices.headerFeesCaption", { count: data.receipts_count, defaultValue: "Dynopay fees deducted · {{count}} receipts" }) : "",
       color: ink,
@@ -98,7 +102,10 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
       <Box sx={{ display: { xs: "flex", md: "grid" }, gridTemplateColumns: { md: "repeat(3, 1fr)" }, gap: { xs: 1.5, md: 2 }, overflowX: { xs: "auto", md: "visible" }, scrollSnapType: { xs: "x mandatory", md: "none" }, mx: { xs: -2, md: 0 }, px: { xs: 2, md: 0 }, pb: { xs: 0.5, md: 0 }, "&::-webkit-scrollbar": { display: "none" } }}>
         {tiles.map((tile) => (
           <StatCard key={tile.id} data-testid={`invoices-tile-${tile.id}`} sx={{ gap: 1, flex: { xs: "0 0 78%", md: "unset" }, scrollSnapAlign: "start" }}>
-            <Box sx={eyebrowSx}>{tile.label}</Box>
+            <Box sx={eyebrowSx}>
+              {tile.label}
+              {tile.hint && <InfoHint text={tile.hint} testId={`invoices-tile-${tile.id}-hint`} size={12} />}
+            </Box>
             <Box data-testid={`invoices-tile-${tile.id}-value`} sx={{ ...valueSx, color: tile.color }}>
               {loading && !data ? <Skeleton width={140} height={32} /> : tile.value}
             </Box>

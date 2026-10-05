@@ -150,5 +150,6 @@
   "firstPaymentTitle": "Premier paiement reçu ! 🎉",
   "firstPaymentBody": "Vous êtes désormais officiellement un marchand Dynopay. C'est un grand moment — votre premier vrai paiement est réglé dans votre tableau de bord.",
   "viewMyTransactions": "Voir mes transactions",
-  "invoice": "Facture"
+  "invoice": "Facture",
+  "exportAllRows": "Toutes les lignes correspondantes"
 }

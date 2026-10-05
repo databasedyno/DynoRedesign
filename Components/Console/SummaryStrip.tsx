@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useConsole, NUM_SX, STATUS_PALETTE, type StatusTone } from "./tokens";
+import InfoHint from "@/Components/UI/InfoHint";
 
 export interface SummaryItem {
   label: string;
@@ -9,6 +10,8 @@ export interface SummaryItem {
   /** Colours the value (use sparingly — only when the figure itself carries meaning). */
   tone?: StatusTone;
   testid?: string;
+  /** Tooltip explaining exactly what the figure counts. */
+  hint?: string;
 }
 
 interface SummaryStripProps {
@@ -55,6 +58,7 @@ const SummaryStrip: React.FC<SummaryStripProps> = ({ items, testid = "summary-st
               }}
             >
               {it.label}
+              {it.hint && <InfoHint text={it.hint} testId={it.testid ? `${it.testid}-hint` : undefined} size={12} />}
             </Typography>
             <Typography
               sx={{

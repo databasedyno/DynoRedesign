@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box, Button, Skeleton, useTheme } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -34,6 +34,12 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
   const wallets = data?.wallets || [];
   const active = wallets.filter((w) => w.last_forward_at);
   const idle = wallets.filter((w) => !w.last_forward_at);
+  const ordered = [...active, ...idle];
+  // Addresses with no payouts in range collapse behind one toggle (was 8+ greyed rows).
+  const inRange = ordered.filter((w) => w.forwarded_count > 0);
+  const quiet = ordered.length - inRange.length;
+  const [showQuiet, setShowQuiet] = useState(false);
+  const rows = inRange.length === 0 || showQuiet ? ordered : inRange;
 
   return (
     <SurfaceCard data-testid="payouts-wallets" sx={{ p: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
@@ -51,7 +57,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
         </Box>
       ) : (
         <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0 }}>
-          {[...active, ...idle].map((w, i) => {
+          {rows.map((w, i) => {
             const isIdle = !w.last_forward_at;
             const icon = iconOf(w.wallet_type);
             const href = `/transactions?wallet=${encodeURIComponent(w.wallet_type)}&status=settled&range=all`;
@@ -110,6 +116,23 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
               </Box>
             );
           })}
+          {inRange.length > 0 && quiet > 0 && (
+            <Box component="li" sx={{ borderTop: `1px solid ${hairline}` }}>
+              <Box
+                component="button"
+                type="button"
+                data-testid="payouts-wallets-toggle-quiet"
+                aria-expanded={showQuiet}
+                onClick={() => setShowQuiet((v) => !v)}
+                sx={{ all: "unset", boxSizing: "border-box", width: "100%", display: "flex", alignItems: "center", gap: 0.75, px: { xs: 2, md: 2.5 }, py: 1.25, cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: muted, "&:hover": { color: ink, backgroundColor: isDark ? "rgba(255,255,255,0.025)" : "rgba(10,10,15,0.02)" }, "&:focus-visible": { outline: `2px solid ${ink}`, outlineOffset: -2 } }}
+              >
+                <Icon name={showQuiet ? "chevron-up" : "chevron-down"} size={14} />
+                {showQuiet
+                  ? t("payouts.hideQuiet", { defaultValue: "Hide addresses without payouts" })
+                  : t("payouts.showQuiet", { count: quiet, defaultValue: "Show {{count}} addresses without payouts in this range" })}
+              </Box>
+            </Box>
+          )}
         </Box>
       )}
     </SurfaceCard>

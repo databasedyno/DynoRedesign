@@ -10,6 +10,7 @@ import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { txStatusTone } from "@/helpers/txStatus";
 import { ALLCRYPTOCURRENCIES } from "@/hooks/useWalletData";
 import { Icon, MONO } from "@/styles/uiKit";
+import { tabPillActive } from "@/styles/tabPill";
 import { ICustomerTransactions } from "@/utils/types";
 import { TxStatusFilter } from "@/utils/types/transaction";
 import { STATUS_FILTERS } from "./TransactionsToolbar";
@@ -23,6 +24,8 @@ interface Props {
   filters: TxFilters;
   rows: ICustomerTransactions[];
   onApply: (next: TxFilters) => void;
+  /** "bottom" = phone sheet; "right" = desktop side panel. */
+  anchor?: "bottom" | "right";
 }
 
 const OptionChip: React.FC<{ selected: boolean; onClick: () => void; testId: string; children: React.ReactNode }> = ({ selected, onClick, testId, children }) => {
@@ -45,9 +48,10 @@ const OptionChip: React.FC<{ selected: boolean; onClick: () => void; testId: str
         minHeight: 38,
         px: 1.5,
         borderRadius: 999,
-        border: `1px solid ${selected ? indigo : isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
-        backgroundColor: selected ? indigo : "transparent",
-        color: selected ? "#FFFFFF" : theme.palette.text.primary,
+        border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
+        backgroundColor: "transparent",
+        color: theme.palette.text.primary,
+        ...(selected ? tabPillActive(theme) : {}),
         fontFamily: "var(--font-sans)",
         fontSize: 13,
         fontWeight: 600,
@@ -63,7 +67,8 @@ const OptionChip: React.FC<{ selected: boolean; onClick: () => void; testId: str
 };
 
 /** Phone bottom-sheet with every non-search filter (plan 2.5): Source · Status · Coin · Date range. */
-const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows, onApply }) => {
+const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows, onApply, anchor = "bottom" }) => {
+  const side = anchor === "right";
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("transactions");
@@ -108,20 +113,24 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
 
   return (
     <Drawer
-      anchor="bottom"
+      anchor={anchor}
       open={open}
       onClose={onClose}
       transitionDuration={{ enter: 240, exit: 180 }}
       PaperProps={{
         "data-testid": "tx-filter-sheet",
-        sx: { borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "90dvh", display: "flex", flexDirection: "column", backgroundColor: theme.palette.background.paper, backgroundImage: "none" },
+        sx: side
+          ? { width: 420, maxWidth: "100vw", height: "100%", display: "flex", flexDirection: "column", backgroundColor: theme.palette.background.paper, backgroundImage: "none" }
+          : { borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: "90dvh", display: "flex", flexDirection: "column", backgroundColor: theme.palette.background.paper, backgroundImage: "none" },
       } as any}
       BackdropProps={{ sx: { backgroundColor: isDark ? "rgba(0,0,0,0.55)" : "rgba(10,10,15,0.35)", backdropFilter: "blur(2px)" } }}
     >
-      <Box sx={{ display: "flex", justifyContent: "center", pt: 1.25 }}>
-        <Box sx={{ width: 40, height: 4, borderRadius: 999, backgroundColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(10,10,15,0.14)" }} />
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, pt: 1.25, pb: 1.5, borderBottom: `1px solid ${border}` }}>
+      {!side && (
+        <Box sx={{ display: "flex", justifyContent: "center", pt: 1.25 }}>
+          <Box sx={{ width: 40, height: 4, borderRadius: 999, backgroundColor: isDark ? "rgba(255,255,255,0.18)" : "rgba(10,10,15,0.14)" }} />
+        </Box>
+      )}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, pt: side ? 2.5 : 1.25, pb: 1.5, borderBottom: `1px solid ${border}` }}>
         <Box component="h2" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 17, fontWeight: 700, color: theme.palette.text.primary }}>
           {t("filterSheet.title", { defaultValue: "Filters" })}
         </Box>

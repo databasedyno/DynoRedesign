@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Empfehlungen",
+  "pageTitle": "Empfehlen & verdienen",
   "pageDescription": "Verdiene 25% Umsatzbeteiligung für jeden geworbenen Händler — sie bekommen 50% Rabatt auf Gebühren",
   "yourReferralCode": "Ihr Empfehlungscode",
   "shareYourCode": "Teilen Sie Ihren Code und verdienen Sie Belohnungen",
@@ -39,7 +39,22 @@
   "leaderboard": "Bestenliste",
   "rank": "Rang",
   "referrals": "Empfehlungen",
-  "earnings": "Verdienst",
+  "earnings": {
+    "title": "Einnahmen",
+    "accrued": "Umsatzbeteiligung verdient · gesamt",
+    "paid": "Ausgezahlt oder gutgeschrieben",
+    "rewardsCredited": "Anmeldeprämien gutgeschrieben",
+    "rewardsPending": "Anmeldeprämien ausstehend",
+    "availableHint": "Verdiente, aber noch nicht erhaltene Umsatzbeteiligung. Standardmäßig als Gebührengutschrift — oder unten auf USDT-Auszahlung umstellen.",
+    "referralsCount_one": "{{count}} Empfehlung",
+    "referralsCount_other": "{{count}} Empfehlungen",
+    "activeCount_one": "{{count}} aktiv",
+    "activeCount_other": "{{count}} aktiv",
+    "pendingCount_one": "{{count}} ausstehend",
+    "pendingCount_other": "{{count}} ausstehend",
+    "windowsCount_one": "{{count}} Verdienstzeitraum offen",
+    "windowsCount_other": "{{count}} Verdienstzeiträume offen"
+  },
   "referralBenefits": "Empfehlungsvorteile",
   "benefitReferrer": "Du verdienst 25% der Gebühren von jedem geworbenen Händler, 12 Monate lang",
   "benefitReferee": "Dein Freund bekommt 50% weniger Gebühren für 30 Tage direkt bei der Anmeldung",
@@ -195,5 +210,15 @@
   "refStatus_pending": "Ausstehend",
   "refStatus_active": "Aktiv",
   "refStatus_rewarded": "Belohnt",
-  "refStatus_expired": "Abgelaufen"
+  "refStatus_expired": "Abgelaufen",
+  "hero": {
+    "eyebrow": "Ihr Empfehlungslink",
+    "valueLine": "Sie erhalten 12 Monate lang 25 % ihrer Gebühren · sie zahlen 30 Tage lang 50 % weniger Gebühren",
+    "code": "Code",
+    "shareOn": "Teilen auf"
+  },
+  "zero": {
+    "title": "Noch keine Empfehlungen",
+    "body": "Teilen Sie Ihren Link oben. Wenn sich ein Händler damit registriert, sehen Sie ihn hier — mit Ihren Einnahmen und Auszahlungsoptionen."
+  }
 }

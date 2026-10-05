@@ -1,6 +1,6 @@
 {
   "notifications": "Notifications",
-  "notificationsDescription": "Manage how you receive updates about your crypto payments",
+  "notificationsDescription": "Payments, payouts and account activity, newest first",
   "transactionAlertsTitle": "Transaction Alerts",
   "transactionAlertsSubtitle": "Be notified about changes in transaction statuses",
   "transactionUpdatesTitle": "Transaction Updates",

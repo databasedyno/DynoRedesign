@@ -103,6 +103,10 @@ const MoneyRow: React.FC<Props> = ({ overview, loading, rangeLabel, txRange }) =
         gap: { xs: 1.5, md: 2 },
         overflowX: { xs: "auto", sm: "visible" },
         scrollSnapType: { xs: "x mandatory", sm: "none" },
+        // Phone: bleed the carousel to the screen edge while the first card keeps the 16px gutter.
+        mx: { xs: -2, sm: 0 },
+        px: { xs: 2, sm: 0 },
+        scrollPaddingLeft: { xs: 16, sm: 0 },
         WebkitOverflowScrolling: "touch",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": { display: "none" },

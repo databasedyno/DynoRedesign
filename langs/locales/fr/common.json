@@ -559,7 +559,11 @@
     "emptyStep2": "Le paiement est réglé on-chain",
     "emptyStep3": "Un reçu numéroté avec lignes de frais et TVA apparaît ici",
     "showAllTime": "Afficher tout",
-    "viewTransactions": "Voir les transactions"
+    "viewTransactions": "Voir les transactions",
+    "headerGrossCollected": "Encaissé brut",
+    "headerGrossCollectedHint": "Ce que les acheteurs ont payé pour les paiements finalisés sur la période, avant les frais Dynopay. Les frais sont affichés à part ; la taxe acheteur est dans Taxes collectées. Brut moins frais = ce que vous avez reçu.",
+    "groupCount_one": "{{count}} reçu",
+    "groupCount_other": "{{count}} reçus"
   },
   "customers": {
     "pageName": "Clients",
@@ -732,7 +736,21 @@
       "notes": "Notes privées (facultatif)",
       "cancel": "Annuler",
       "submit": "Ajouter un client"
-    }
+    },
+    "statPaying": "Clients payants",
+    "statInvitedSub_one": "+ {{count}} invité, pas encore payé",
+    "statInvitedSub_other": "+ {{count}} invités, pas encore payé",
+    "statNetRevenue": "Revenu net",
+    "statNetRevenueHint": "Ce que vous avez reçu après les frais Dynopay, depuis le début, sur les paiements finalisés — y compris ceux sans coordonnées. Taxes non incluses.",
+    "filterPaying": "Payants",
+    "filterUnidentified": "Paiements non identifiés",
+    "unidentifiedSummary_one": "Plus {{count}} paiement ({{amount}}) sans coordonnées — API, liens de paiement et paiements directs.",
+    "unidentifiedSummary_other": "Plus {{count}} paiements ({{amount}}) sans coordonnées — API, liens de paiement et paiements directs.",
+    "unidentifiedView": "Voir le détail",
+    "noPayingTitle": "Aucun client payant avec coordonnées pour l'instant",
+    "noPayingHint_one": "Votre {{count}} paiement ({{amount}}) est passé par un checkout sans nom ni e-mail — API, liens de paiement et paiements directs.",
+    "noPayingHint_other": "Vos {{count}} paiements ({{amount}}) sont passés par des checkouts sans nom ni e-mail — API, liens de paiement et paiements directs.",
+    "noPayingCta": "Voir les paiements non identifiés"
   },
   "pleaseWait": "Veuillez patienter",
   "transferRate": "Taux de change",
@@ -789,8 +807,8 @@
     "planFees": "Forfait et frais",
     "referrals": "Parrainage",
     "description": "Gérez votre compte, votre marque et vos intégrations",
-    "profile": "Profil et sécurité",
-    "profileDesc": "Informations personnelles, mot de passe et sécurité de connexion",
+    "profile": "Profil",
+    "profileDesc": "Votre nom, photo, e-mail et numéro de téléphone",
     "company": "Marque",
     "companyDesc": "Profil de la marque, logo et détails",
     "payments": "Paiements",
@@ -942,9 +960,9 @@
     "dismiss": "Plus tard"
   },
   "storefront": {
-    "title": "Vitrine",
+    "title": "Votre page",
     "subtitle": "Votre page Dynopay — pourboires, produits et liens de paiement derrière un seul lien.",
-    "editingHint": "Modification de la vitrine de <b>{{company}}</b>",
+    "editingHint": "Modification de la page de <b>{{company}}</b>",
     "tabPage": "Page",
     "tabProducts": "Produits",
     "tabShare": "Partager",
@@ -1007,7 +1025,7 @@
       "showSupporters": "Afficher le nombre de soutiens et le total collecté",
       "analytics": "Statistiques",
       "analyticsDesc": "Un aperçu sur 30 jours de vos pourboires et principaux soutiens. Basculez pour le masquer de votre page publique — vous le verrez toujours ici.",
-      "publishPage": "Publier ma page créateur",
+      "publishPage": "Publier ma page",
       "publishDesc": "Une fois activé, toute personne disposant de votre lien peut voir votre page et vous soutenir.",
       "saveChanges": "Enregistrer les modifications",
       "changeHandleTitle": "Modifier votre identifiant ?",
@@ -1044,14 +1062,14 @@
       "floorHiddenPresets": "Les presets barrés sont cachés sur votre page — supprimez-les ou augmentez-les à 10 $ ou plus."
     },
     "compare": {
-      "title": "Comparer les vitrines",
+      "title": "Comparer les pages de marque",
       "subtitle": "Vues, pourboires et ventes de produits par marque — 30 derniers jours.",
       "colCompany": "Marque",
       "colViews": "Vues · tendance 30 j",
       "colTips": "Pourboires",
       "colSales": "Ventes",
       "colRevenue": "Revenus",
-      "noStorefront": "Pas encore de vitrine",
+      "noStorefront": "Pas encore de page",
       "companyN": "Marque {{n}}"
     },
     "analytics": {
@@ -1102,7 +1120,7 @@
       "qrSub": "Imprimez-le, intégrez-le dans une vidéo, collez-le sur un flyer — il ouvre votre page."
     },
     "pending": {
-      "title": "{{company}} n'a pas encore sa propre vitrine",
+      "title": "{{company}} n'a pas encore sa propre page",
       "switchTo": "Passer à {{primary}}"
     },
     "funnel": {
@@ -1122,7 +1140,31 @@
       "views": "Vues",
       "checkouts": "Paiements lancés",
       "paid": "Payés",
-      "split": "{{tips}} pourboires · {{orders}} commandes"
+      "split": "{{tips}} pourboires · {{orders}} commandes",
+      "checkoutsHint": "Checkouts lancés depuis votre page, votre boîte à pourboires ou un lien produit direct. Les liens directs contournent la page : les checkouts peuvent donc dépasser les vues."
+    },
+    "editor": {
+      "profile": "Nom, identifiant et bio",
+      "look": "Apparence",
+      "socials": "Réseaux sociaux",
+      "tips": "Boîte à pourboires",
+      "store": "Boutique en ligne",
+      "analytics": "Statistiques",
+      "noHandle": "Pas encore d'identifiant",
+      "customTheme": "Thème personnalisé",
+      "defaultTheme": "Thème par défaut",
+      "hasCover": "image de couverture",
+      "linkedCount_one": "{{count}} lié",
+      "linkedCount_other": "{{count}} liés",
+      "none": "Aucun pour l'instant",
+      "on": "Activée",
+      "off": "Désactivée",
+      "storeShown": "Activée · visible sur votre page",
+      "storeHidden": "Activée · masquée sur votre page",
+      "analyticsPublic": "Visible sur votre page",
+      "analyticsPrivate": "Visible par vous seul",
+      "unsaved": "Vous avez des modifications non enregistrées",
+      "draftHint": "Désactivée — vous seul voyez votre page"
     }
   },
   "imageCropTitle": "Ajuster l'image",
@@ -1280,7 +1322,7 @@
     "addWallet": "Ajouter une adresse de versement"
   },
   "payouts": {
-    "pageName": "Paiements & règlements",
+    "pageName": "Paiements",
     "pageDescription": "Votre argent est-il arrivé ? Versements transférés, blocages et destination des fonds.",
     "digestOn": "Résumé des paiements hebdomadaires activé",
     "digestOff": "Résumé des paiements hebdomadaires désactivé",
@@ -1406,7 +1448,10 @@
     "noForwardsYet": "Aucun versement pour l’instant. Dès qu’un paiement est réglé, le transfert vers votre wallet apparaît ici avec son hash.",
     "toWallet": "vers {{wallet}}",
     "hashPending": "hash en attente",
-    "settlementCoinLabel": "Monnaie de règlement"
+    "settlementCoinLabel": "Monnaie de règlement",
+    "hideQuiet": "Masquer les adresses sans versement",
+    "showQuiet_one": "Afficher {{count}} adresse sans versement sur cette période",
+    "showQuiet_other": "Afficher {{count}} adresses sans versement sur cette période"
   },
   "liveBrand": {
     "payNow": "Payer maintenant",
@@ -1659,7 +1704,20 @@
     "saveFailed": "Impossible d'enregistrer les modifications.",
     "statusAll": "Tous",
     "emptyTitle": "Vendez votre premier produit",
-    "emptyBody": "Créez un produit numérique — il apparaîtra automatiquement sur votre page et les acheteurs paieront en crypto."
+    "emptyBody": "Créez un produit numérique — il apparaîtra automatiquement sur votre page et les acheteurs paieront en crypto.",
+    "searchPlaceholder": "Rechercher des produits…",
+    "viewOrders": "Voir les commandes",
+    "viewMyPage": "Voir ma page",
+    "newProduct": "Nouveau produit",
+    "statusAllLong": "Tous les statuts",
+    "menu": {
+      "edit": "Modifier",
+      "more": "Plus d'actions",
+      "quickSell": "Créer un lien de paiement",
+      "sales": "Voir les ventes",
+      "openPublic": "Ouvrir la page publique",
+      "archive": "Archiver"
+    }
   },
   "theme": {
     "switchToLight": "Passer au mode clair",

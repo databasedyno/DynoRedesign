@@ -559,7 +559,11 @@
     "emptyStep2": "El pago se liquida en la cadena",
     "emptyStep3": "Aquí aparece un recibo numerado con líneas de comisión e IVA",
     "showAllTime": "Mostrar todo",
-    "viewTransactions": "Ver transacciones"
+    "viewTransactions": "Ver transacciones",
+    "headerGrossCollected": "Cobrado bruto",
+    "headerGrossCollectedHint": "Lo que pagaron los compradores por pagos completados en este periodo, antes de las comisiones de Dynopay. Las comisiones se muestran aparte; el impuesto del comprador está en Impuestos cobrados. Bruto menos comisiones = lo que recibiste.",
+    "groupCount_one": "{{count}} recibo",
+    "groupCount_other": "{{count}} recibos"
   },
   "customers": {
     "pageName": "Clientes",
@@ -732,7 +736,21 @@
       "notes": "Notas privadas (opcional)",
       "cancel": "Cancelar",
       "submit": "Agregar cliente"
-    }
+    },
+    "statPaying": "Clientes que pagan",
+    "statInvitedSub_one": "+ {{count}} invitado, aún sin pagar",
+    "statInvitedSub_other": "+ {{count}} invitados, aún sin pagar",
+    "statNetRevenue": "Ingresos netos",
+    "statNetRevenueHint": "Lo que recibiste después de las comisiones de Dynopay, desde siempre, de pagos completados — incluidos los pagos sin datos de contacto. No incluye impuestos.",
+    "filterPaying": "Pagan",
+    "filterUnidentified": "Pagos sin identificar",
+    "unidentifiedSummary_one": "Además, {{count}} pago ({{amount}}) sin datos de contacto — API, enlaces de pago y pagos directos.",
+    "unidentifiedSummary_other": "Además, {{count}} pagos ({{amount}}) sin datos de contacto — API, enlaces de pago y pagos directos.",
+    "unidentifiedView": "Ver desglose",
+    "noPayingTitle": "Aún no hay clientes que paguen con datos de contacto",
+    "noPayingHint_one": "Tu {{count}} pago ({{amount}}) llegó por un checkout que no pidió nombre ni email — API, enlaces de pago y pagos directos.",
+    "noPayingHint_other": "Tus {{count}} pagos ({{amount}}) llegaron por checkouts que no pidieron nombre ni email — API, enlaces de pago y pagos directos.",
+    "noPayingCta": "Ver pagos sin identificar"
   },
   "pleaseWait": "Por favor espere",
   "transferRate": "Tasa de cambio",
@@ -789,8 +807,8 @@
     "planFees": "Plan y comisiones",
     "referrals": "Referidos",
     "description": "Gestione su cuenta, marca y configuración de integraciones",
-    "profile": "Perfil y seguridad",
-    "profileDesc": "Datos personales, contraseña y seguridad de acceso",
+    "profile": "Perfil",
+    "profileDesc": "Tu nombre, foto, correo y teléfono",
     "company": "Marca",
     "companyDesc": "Perfil de la marca, logotipo y detalles",
     "payments": "Pagos",
@@ -942,9 +960,9 @@
     "dismiss": "Ahora no"
   },
   "storefront": {
-    "title": "Tienda",
+    "title": "Tu página",
     "subtitle": "Tu página Dynopay — propinas, productos y enlaces de pago tras un único enlace.",
-    "editingHint": "Editando la tienda de <b>{{company}}</b>",
+    "editingHint": "Editando la página de <b>{{company}}</b>",
     "tabPage": "Página",
     "tabProducts": "Productos",
     "tabShare": "Compartir",
@@ -1007,7 +1025,7 @@
       "showSupporters": "Mostrar número de seguidores y total recaudado",
       "analytics": "Analíticas",
       "analyticsDesc": "Una vista de 30 días de tus propinas y principales seguidores. Actívalo para ocultarlo de tu página pública — seguirás viéndolo aquí.",
-      "publishPage": "Publicar mi página de creador",
+      "publishPage": "Publicar mi página",
       "publishDesc": "Cuando está activado, cualquiera con tu enlace puede ver tu página y apoyarte.",
       "saveChanges": "Guardar cambios",
       "changeHandleTitle": "¿Cambiar tu usuario?",
@@ -1044,14 +1062,14 @@
       "floorHiddenPresets": "Los presets tachados están ocultos en tu página; elimínalos o súbelos a $10 o más."
     },
     "compare": {
-      "title": "Comparar tiendas",
+      "title": "Comparar páginas de marca",
       "subtitle": "Vistas, propinas y ventas de productos por marca — últimos 30 días.",
       "colCompany": "Marca",
       "colViews": "Vistas · tendencia 30 d",
       "colTips": "Propinas",
       "colSales": "Ventas",
       "colRevenue": "Ingresos",
-      "noStorefront": "Aún sin tienda",
+      "noStorefront": "Aún sin página",
       "companyN": "Marca {{n}}"
     },
     "analytics": {
@@ -1102,7 +1120,7 @@
       "qrSub": "Imprímelo, colócalo en un video, pégalo en un volante — abre tu página."
     },
     "pending": {
-      "title": "{{company}} aún no tiene su propia tienda",
+      "title": "{{company}} aún no tiene su propia página",
       "switchTo": "Cambiar a {{primary}}"
     },
     "funnel": {
@@ -1122,7 +1140,31 @@
       "views": "Visitas",
       "checkouts": "Checkouts",
       "paid": "Pagados",
-      "split": "{{tips}} propinas · {{orders}} pedidos"
+      "split": "{{tips}} propinas · {{orders}} pedidos",
+      "checkoutsHint": "Checkouts iniciados desde tu página, tu caja de propinas o un enlace directo de producto. Los enlaces directos no pasan por la página, así que puede haber más checkouts que vistas."
+    },
+    "editor": {
+      "profile": "Nombre, usuario y bio",
+      "look": "Apariencia",
+      "socials": "Redes sociales",
+      "tips": "Caja de propinas",
+      "store": "Tienda online",
+      "analytics": "Analíticas",
+      "noHandle": "Aún sin usuario",
+      "customTheme": "Tema personalizado",
+      "defaultTheme": "Tema predeterminado",
+      "hasCover": "imagen de portada",
+      "linkedCount_one": "{{count}} vinculada",
+      "linkedCount_other": "{{count}} vinculadas",
+      "none": "Ninguna aún",
+      "on": "Activada",
+      "off": "Desactivada",
+      "storeShown": "Activada · visible en tu página",
+      "storeHidden": "Activada · oculta en tu página",
+      "analyticsPublic": "Visible en tu página",
+      "analyticsPrivate": "Solo tú puedes verlo",
+      "unsaved": "Tienes cambios sin guardar",
+      "draftHint": "Desactivada — solo tú ves tu página"
     }
   },
   "imageCropTitle": "Ajustar imagen",
@@ -1280,7 +1322,7 @@
     "addWallet": "Añadir una dirección de cobro"
   },
   "payouts": {
-    "pageName": "Pagos y liquidaciones",
+    "pageName": "Pagos",
     "pageDescription": "¿Llegó tu dinero? Pagos reenviados, lo que está atascado y dónde aterrizan los fondos.",
     "digestOn": "Resumen de pagos semanal activado",
     "digestOff": "Resumen de pagos semanal desactivado",
@@ -1406,7 +1448,10 @@
     "noForwardsYet": "Aún no hay pagos. Cuando un pago se liquide, el envío a tu wallet aparecerá aquí con su hash.",
     "toWallet": "a {{wallet}}",
     "hashPending": "hash pendiente",
-    "settlementCoinLabel": "Moneda de liquidación"
+    "settlementCoinLabel": "Moneda de liquidación",
+    "hideQuiet": "Ocultar direcciones sin liquidaciones",
+    "showQuiet_one": "Mostrar {{count}} dirección sin liquidaciones en este periodo",
+    "showQuiet_other": "Mostrar {{count}} direcciones sin liquidaciones en este periodo"
   },
   "liveBrand": {
     "payNow": "Pagar ahora",
@@ -1659,7 +1704,20 @@
     "saveFailed": "No se pudieron guardar los cambios.",
     "statusAll": "Todos",
     "emptyTitle": "Vende tu primer producto",
-    "emptyBody": "Crea un producto digital — aparecerá automáticamente en tu página y los compradores pagarán en criptomonedas."
+    "emptyBody": "Crea un producto digital — aparecerá automáticamente en tu página y los compradores pagarán en criptomonedas.",
+    "searchPlaceholder": "Buscar productos…",
+    "viewOrders": "Ver pedidos de productos",
+    "viewMyPage": "Ver mi página",
+    "newProduct": "Nuevo producto",
+    "statusAllLong": "Todos los estados",
+    "menu": {
+      "edit": "Editar",
+      "more": "Más acciones",
+      "quickSell": "Crear un enlace de pago",
+      "sales": "Ver ventas",
+      "openPublic": "Abrir página pública",
+      "archive": "Archivar"
+    }
   },
   "theme": {
     "switchToLight": "Cambiar al modo claro",

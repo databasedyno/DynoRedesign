@@ -12,10 +12,12 @@ interface Props {
   customLabel: string;
   onChange: (preset: Exclude<TxRangePreset, "custom">) => void;
   onOpenCustom: (anchor: HTMLElement) => void;
+  /** Phone: stretch the track and share the width so no pill runs off-screen. */
+  fullWidth?: boolean;
 }
 
 /** Segmented date presets (Today · 7D · 30D · 90D · All) + a calendar pill for a custom window. */
-const TxRangePresets: React.FC<Props> = ({ range, customLabel, onChange, onOpenCustom }) => {
+const TxRangePresets: React.FC<Props> = ({ range, customLabel, onChange, onOpenCustom, fullWidth = false }) => {
   const theme = useTheme();
   const { t } = useTranslation("transactions");
   const isDark = theme.palette.mode === "dark";
@@ -26,9 +28,10 @@ const TxRangePresets: React.FC<Props> = ({ range, customLabel, onChange, onOpenC
       role="tablist"
       aria-label={t("rangeLabel", { defaultValue: "Date range" }) as string}
       sx={{
-        display: "inline-flex",
+        display: fullWidth ? "flex" : "inline-flex",
+        width: fullWidth ? "100%" : "auto",
         alignItems: "center",
-        gap: 0.5,
+        gap: fullWidth ? 0.25 : 0.5,
         p: 0.5,
         borderRadius: 999,
         flexShrink: 0,
@@ -47,7 +50,7 @@ const TxRangePresets: React.FC<Props> = ({ range, customLabel, onChange, onOpenC
           aria-selected={range === p.id}
           onClick={() => onChange(p.id)}
           data-testid={`transactions-range-${p.id}`}
-          sx={{ whiteSpace: "nowrap", minHeight: 32 }}
+          sx={{ whiteSpace: "nowrap", minHeight: 32, ...(fullWidth ? { flex: "1 1 auto", px: "6px", fontSize: 12.5 } : {}) }}
         >
           {t(p.key, { defaultValue: p.fallback })}
         </PillButton>
@@ -59,7 +62,7 @@ const TxRangePresets: React.FC<Props> = ({ range, customLabel, onChange, onOpenC
         onClick={(e: React.MouseEvent<HTMLElement>) => onOpenCustom(e.currentTarget)}
         data-testid="transactions-range-custom"
         aria-label={t("customRange", { defaultValue: "Custom range" }) as string}
-        sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, whiteSpace: "nowrap", minHeight: 32 }}
+        sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 0.5, whiteSpace: "nowrap", minHeight: 32, ...(fullWidth ? { flex: "1 1 auto", px: "6px", fontSize: 12.5 } : {}) }}
       >
         <Icon name="calendar" size={14} />
         {customActive ? customLabel : t("customShort", { defaultValue: "Custom" })}

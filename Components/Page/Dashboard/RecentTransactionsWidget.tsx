@@ -210,7 +210,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   const list = (transactions || []).slice(0, effectiveMax);
 
   return (
-    <Box sx={{ px: { xs: 2, md: 0 }, mb: { xs: 2, md: 2.5 } }} data-testid="recent-transactions-widget">
+    <Box sx={{ height: "100%", "& > *": { height: "100%" } }} data-testid="recent-transactions-widget">
       <PanelCard
         sx={DASH_PANEL_SX}
         headerSx={DASH_PANEL_HEADER_SX}

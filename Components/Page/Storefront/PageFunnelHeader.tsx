@@ -10,6 +10,7 @@ import { buildCreatorUrl } from "@/helpers/creatorUrl";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import { formatLocaleInt, formatWithSymbol } from "@/utils/locale";
 import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
+import InfoHint from "@/Components/UI/InfoHint";
 import type { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import type { StorefrontProfile } from "@/hooks/useStorefrontProfile";
 
@@ -45,13 +46,14 @@ export const useCreatorFunnel = (period: FunnelPeriod, enabled: boolean) => {
 
 const pct = (num: number, den: number) => (den > 0 && num <= den ? `${((num / den) * 100).toFixed(num / den >= 0.1 ? 0 : 1)}%` : "—");
 
-const FunnelStep: React.FC<{ testId: string; icon: string; label: string; value: number | undefined; sub?: string; loading: boolean }> = ({ testId, icon, label, value, sub, loading }) => {
+const FunnelStep: React.FC<{ testId: string; icon: string; label: string; value: number | undefined; sub?: string; loading: boolean; hint?: string }> = ({ testId, icon, label, value, sub, loading, hint }) => {
   const theme = useTheme();
   return (
     <Box data-testid={testId} sx={{ display: "flex", flexDirection: "column", gap: 0.35, minWidth: 96 }}>
       <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, color: theme.palette.text.secondary }}>
         <Icon name={icon} size={13} />
         <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase" }}>{label}</Typography>
+        {hint && <InfoHint text={hint} testId={`${testId}-hint`} size={12} />}
       </Box>
       {loading && value === undefined ? (
         <Skeleton width={56} height={30} />
@@ -190,10 +192,10 @@ const PageFunnelHeader: React.FC<Props> = ({ storefront, formState, mounted, onE
         <Button
           data-testid="your-page-edit-btn"
           disableElevation
-          variant="contained"
+          variant="outlined"
           onClick={onEdit}
           startIcon={<Icon name="pencil" size={15} />}
-          sx={{ alignSelf: { xs: "stretch", sm: "flex-start" }, px: 2.25, height: 40, borderRadius: 999, textTransform: "none", fontWeight: 700, fontSize: 13.5, whiteSpace: "nowrap", backgroundColor: indigo, color: "#fff", "&:hover": { backgroundColor: indigo, filter: "brightness(0.95)" } }}
+          sx={{ alignSelf: { xs: "stretch", sm: "flex-start" }, px: 2.25, height: 40, borderRadius: "10px", textTransform: "none", fontWeight: 600, fontSize: 13.5, whiteSpace: "nowrap", backgroundColor: theme.palette.background.paper, color: theme.palette.text.primary, border: `1px solid ${theme.palette.divider}`, "&:hover": { backgroundColor: theme.palette.action.hover } }}
         >
           {!hasHandle ? t("storefront.funnel.claimCta", { defaultValue: "Claim handle" }) : t("storefront.funnel.editPage", { defaultValue: "Edit page" })}
         </Button>
@@ -210,6 +212,7 @@ const PageFunnelHeader: React.FC<Props> = ({ storefront, formState, mounted, onE
               label={t("storefront.funnel.checkouts", { defaultValue: "Checkouts" })}
               value={checkouts}
               loading={isLoading}
+              hint={t("storefront.funnel.checkoutsHint", { defaultValue: "Checkouts started from your page, your tip box or a direct product link. Direct links skip the page, so Checkouts can be higher than Views." }) as string}
               sub={data ? t("storefront.funnel.split", { tips: data.tips.started, orders: data.orders.started, defaultValue: "{{tips}} tips · {{orders}} orders" }) : undefined}
             />
             <Arrow label={pct(paid ?? 0, checkouts ?? 0)} />

@@ -150,5 +150,6 @@
   "firstPaymentTitle": "Eerste betaling binnen! 🎉",
   "firstPaymentBody": "Je bent nu officieel een Dynopay-verkoper. Dit is een grote — je eerste echte betaling staat afgewikkeld in je dashboard.",
   "viewMyTransactions": "Bekijk mijn transacties",
-  "invoice": "Factuur"
+  "invoice": "Factuur",
+  "exportAllRows": "Alle overeenkomende rijen"
 }

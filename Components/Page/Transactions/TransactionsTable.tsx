@@ -335,6 +335,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   };
 
   const MONETARY_KEYS = new Set(["amount", "usdValue", "vat"]);
+  // Hide the VAT / Tax column when nothing on screen carries tax (it was "—" on every row).
+  const showVat = transactions.some((tx) => tx.reverseCharge || Number(tx.taxAmount) > 0);
+  const noVatGridSx = showVat
+    ? {}
+    : { [theme.breakpoints.up("md")]: { gridTemplateColumns: "minmax(0, 1fr) minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.1fr)" } };
   const SORTABLE_KEYS = new Set<string>(["amount", "usdValue", "dateTime"]);
 
   const HeaderData = [
@@ -560,9 +565,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         letterSpacing: "-0.01em",
                         color: theme.palette.text.primary,
                         lineHeight: 1.2,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        overflowWrap: "anywhere",
                       }}
                     >
                       {formatAmount(transaction.amount)}
@@ -707,9 +710,10 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               // rows never bleed through; the rule below it does the separating.
               backgroundColor: theme.palette.background.paper,
               ...(toolbar ? { borderRadius: 0 } : {}),
+              ...noVatGridSx,
             }}
           >
-            {HeaderData.map((item, idx) => {
+            {HeaderData.filter((h) => showVat || h.key !== "vat").map((item, idx) => {
               const sortable = SORTABLE_KEYS.has(item.key);
               const active = sortable && sort.key === item.key;
               const SortIcon = !sortable
@@ -820,6 +824,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                   sx={{
                     paddingY: "10px !important",
                     cursor: "pointer",
+                    ...noVatGridSx,
                   }}
                 >
                   <TransactionsTableCell sx={stickyFirstCellSx}>
@@ -964,6 +969,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     )}
                   </TransactionsTableCell>
 
+                  {showVat && (
                   <TransactionsTableCell sx={{ justifyContent: "flex-end", fontVariantNumeric: "tabular-nums" }}>
                     {transaction.reverseCharge ? (
                       <Typography
@@ -998,6 +1004,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       <Typography component="span" sx={{ color: theme.palette.text.disabled }}>—</Typography>
                     )}
                   </TransactionsTableCell>
+                  )}
 
                   <TransactionsTableCell sx={{ fontSize: "13.5px", color: theme.palette.text.secondary }}>
                     {transaction.dateTime}

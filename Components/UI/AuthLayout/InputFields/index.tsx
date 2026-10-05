@@ -121,6 +121,8 @@ const InputField: React.FC<InputFieldProps> = ({
   "data-testid": dataTestId,
 }) => {
   const theme = useTheme();
+  // Read-only / disabled fields: a faint tint + readable secondary text (was a heavy grey block).
+  const readOnlyBg = theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#F7F7F9";
   const isMobile = useIsMobile("sm");
 
   const borderColor = useMemo(
@@ -415,7 +417,7 @@ const InputField: React.FC<InputFieldProps> = ({
                   boxSizing: "border-box",
                   fontSize: isMobile ? "14px" : "13px",
                   lineHeight: "1.5",
-                  color: disabled ? "#B0BEC5" : theme.palette.text.primary,
+                  color: disabled ? theme.palette.text.secondary : theme.palette.text.primary,
                   "&::placeholder": {
                     color: theme.palette.text.secondary,
                     opacity: 1,
@@ -446,14 +448,14 @@ const InputField: React.FC<InputFieldProps> = ({
                 backgroundColor:
                   inputBgColor ??
                   (disabled
-                    ? theme.palette.action.disabledBackground
+                    ? readOnlyBg
                     : success
                       ? theme.palette.success.light
                       : error
                         ? (theme.palette.mode === "dark" ? "rgba(239,68,68,0.05)" : "#FFFBFB")
                         : theme.palette.background.paper),
                 transition: "border-color 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms cubic-bezier(0.16, 1, 0.3, 1)",
-                boxShadow: "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
+                boxShadow: disabled ? "none" : "rgba(16, 24, 40, 0.05) 0px 1px 2px 0px",
                 "& fieldset": {
                   borderColor: borderColor,
                   borderWidth: borderWidth,
@@ -473,7 +475,7 @@ const InputField: React.FC<InputFieldProps> = ({
                   borderWidth: accentFocus && !error && !success ? "2px" : "1px",
                 },
                 "&.Mui-disabled": {
-                  backgroundColor: theme.palette.action.disabledBackground,
+                  backgroundColor: readOnlyBg,
                   opacity: 1,
                 },
                 "& input": {
@@ -484,7 +486,7 @@ const InputField: React.FC<InputFieldProps> = ({
                 },
               },
               "& .MuiOutlinedInput-input.Mui-disabled": {
-                WebkitTextFillColor: theme.palette.text.disabled,
+                WebkitTextFillColor: theme.palette.text.secondary,
               },
             }}
           />

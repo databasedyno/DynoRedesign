@@ -15,10 +15,12 @@ interface Props {
   value?: string | string[] | null;
   max?: number;
   size?: "sm" | "xs";
+  /** Compact label for dense tables ("All 14 coins"); the tooltip keeps the full list. */
+  short?: boolean;
 }
 
 /** "Accepts all N coins" when a link takes every configured coin, otherwise the usual chips. */
-export const LinkCoinsBadge: React.FC<Props> = ({ value, max = 4, size = "sm" }) => {
+export const LinkCoinsBadge: React.FC<Props> = ({ value, max = 4, size = "sm", short = false }) => {
   const theme = useTheme();
   const { t } = useTranslation("paymentLinks");
   const { walletData } = useWalletData();
@@ -66,7 +68,9 @@ export const LinkCoinsBadge: React.FC<Props> = ({ value, max = 4, size = "sm" })
           whiteSpace: "nowrap",
         }}
       >
-        {t("coins.acceptsAll", { defaultValue: "Accepts all {{count}} coins", count: configured.length })}
+        {short
+          ? t("coins.acceptsAllShort", { defaultValue: "All {{count}} coins", count: configured.length })
+          : t("coins.acceptsAll", { defaultValue: "Accepts all {{count}} coins", count: configured.length })}
       </Box>
     </Tooltip>
   );

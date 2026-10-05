@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Indicações",
+  "pageTitle": "Indique e ganhe",
   "pageDescription": "Ganhe 25% de participação na receita por cada comerciante indicado — eles recebem 50% de desconto nas taxas",
   "yourReferralCode": "Seu Código de Indicação",
   "shareYourCode": "Compartilhe seu código único e ganhe recompensas",
@@ -39,7 +39,22 @@
   "leaderboard": "Classificação",
   "rank": "Posição",
   "referrals": "Indicações",
-  "earnings": "Ganhos",
+  "earnings": {
+    "title": "Ganhos",
+    "accrued": "Partilha de receita ganha · total",
+    "paid": "Pago ou creditado",
+    "rewardsCredited": "Recompensas de registo creditadas",
+    "rewardsPending": "Recompensas de registo pendentes",
+    "availableHint": "Partilha de receita ganha mas ainda não recebida. Paga como crédito de taxas por defeito — ou mude para levantamento em USDT abaixo.",
+    "referralsCount_one": "{{count}} indicação",
+    "referralsCount_other": "{{count}} indicações",
+    "activeCount_one": "{{count}} ativa",
+    "activeCount_other": "{{count}} ativas",
+    "pendingCount_one": "{{count}} pendente",
+    "pendingCount_other": "{{count}} pendentes",
+    "windowsCount_one": "{{count}} período de ganhos aberto",
+    "windowsCount_other": "{{count}} períodos de ganhos abertos"
+  },
   "referralBenefits": "Benefícios de Indicação",
   "benefitReferrer": "Você ganha 25% das taxas de cada comerciante que indicar, durante 12 meses",
   "benefitReferee": "Seu amigo ganha 50% menos taxas por 30 dias assim que se cadastra",
@@ -195,5 +210,15 @@
   "refStatus_pending": "Pendente",
   "refStatus_active": "Ativo",
   "refStatus_rewarded": "Recompensado",
-  "refStatus_expired": "Expirado"
+  "refStatus_expired": "Expirado",
+  "hero": {
+    "eyebrow": "O seu link de indicação",
+    "valueLine": "Recebe 25% das taxas deles durante 12 meses · eles pagam menos 50% de taxas durante 30 dias",
+    "code": "Código",
+    "shareOn": "Partilhar no"
+  },
+  "zero": {
+    "title": "Ainda sem indicações",
+    "body": "Partilhe o seu link acima. Quando um comerciante se registar com ele, aparece aqui — com os seus ganhos e opções de levantamento."
+  }
 }

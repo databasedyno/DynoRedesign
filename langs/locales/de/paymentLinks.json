@@ -22,7 +22,7 @@
   "create": "Erstellen",
   "linkIdHeader": "Link-ID",
   "descriptionHeader": "Beschreibung",
-  "usdValueHeader": "USD-Wert",
+  "usdValueHeader": "Betrag",
   "cryptoValueHeader": "Krypto-Wert",
   "createdHeader": "Erstellt",
   "expiresHeader": "Läuft ab",
@@ -114,7 +114,8 @@
   "coins": {
     "acceptsAll": "Akzeptiert alle {{count}} Coins",
     "acceptsAllHint": "Käufer können mit jedem Coin zahlen, für den du eine Auszahlungsadresse hast: {{list}}",
-    "acceptsSome": "Akzeptiert {{count}} von {{total}} Coins"
+    "acceptsSome": "Akzeptiert {{count}} von {{total}} Coins",
+    "acceptsAllShort": "Alle {{count}} Coins"
   },
   "last30Header": "Letzte 30 Tage",
   "last30Tooltip": "Abgerechnete Zahlungen über diesen Link in den letzten 30 Tagen (Anzahl · Brutto-USD).",
@@ -127,5 +128,7 @@
   "statusExpiringSoon": "Läuft bald ab",
   "qrTooltip": "QR-Code anzeigen",
   "shareTooltip": "Link teilen",
-  "statusFilterLabel": "Nach Status filtern"
+  "statusFilterLabel": "Nach Status filtern",
+  "statusHeaderTip": "Linkstatus. Die Zeile darunter zeigt abgerechnete Zahlungen der letzten 30 Tage (Anzahl · Brutto-USD).",
+  "raisedCaption": "gesammelt"
 }

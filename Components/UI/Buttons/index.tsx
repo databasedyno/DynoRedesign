@@ -95,11 +95,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       fontFamily: "var(--font-sans)",
       borderRadius: "6px",
     },
+    // One neutral secondary style (2026-10 audit X4): gold is reserved for the primary action.
     secondary: {
       backgroundColor: theme.palette.background.paper,
-      color: brandFg(theme.palette.mode === "dark"),
-      border: `1px solid ${theme.palette.primary.main}`,
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.border.main}`,
       fontWeight: 500,
+      "&:hover": {
+        backgroundColor: theme.palette.action.hover,
+        color: theme.palette.text.primary,
+      },
     },
     outlined: {
       backgroundColor: theme.palette.background.paper,

@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import {
-  Box, Typography, Stack, IconButton, Alert, TextField,
-  MenuItem, Select, FormControl, InputLabel, useTheme,
-} from "@mui/material";
+import { Box, Typography, Stack, IconButton, Alert, MenuItem, Select, Tooltip, useTheme } from "@mui/material";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { MONO, Icon } from "@/styles/uiKit";
 import AddRounded from "@mui/icons-material/AddRounded";
 import EditRounded from "@mui/icons-material/EditRounded";
-import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
 import LaunchRounded from "@mui/icons-material/LaunchRounded";
-import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
-import BoltRounded from "@mui/icons-material/BoltRounded";
 import PanelCard from "@/Components/UI/PanelCard";
 import { StatusDot } from "@/Components/UI/StatusDot";
 import ProductImage from "@/Components/UI/ProductImage";
@@ -26,6 +20,9 @@ import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendin
 import { toFixedStr } from "@/utils/money";
 import ProductGridCard, { productStatusTone } from "./ProductGridCard";
 import ProductDetailPanel from "./ProductDetailPanel";
+import ProductRowMenu from "./ProductRowMenu";
+import ConsoleFilterBar from "@/Components/Console/FilterBar";
+import { tabPillActive } from "@/styles/tabPill";
 import { ProductRow, ProductsView, PRODUCTS_VIEW_KEY, readProductsView } from "./productTypes";
 
 
@@ -126,10 +123,12 @@ const ProductsTab = () => {
     <Box sx={{ display: "flex", flexDirection: "column", flex: 1, gap: 2 }} data-testid="products-list">
       {error && <Alert severity="error" data-testid="products-list-error">{error}</Alert>}
 
-      <PanelCard
-        title=""
-        headerAction={
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+      {/* One toolbar row — same pattern as the other tables: search · status · view · actions */}
+      <ConsoleFilterBar
+        testid="products-toolbar"
+        search={{ value: q, onChange: setQ, placeholder: t("products.searchPlaceholder", { defaultValue: "Search products…" }), testid: "products-search-input" }}
+        action={
+          <>
             <Typography
               component="a"
               href="/transactions?source=product"
@@ -138,22 +137,13 @@ const ProductsTab = () => {
                 router.push("/transactions?source=product");
               }}
               data-testid="products-view-orders-link"
-              sx={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 13,
-                fontWeight: 600,
-                color: (t: any) => t.palette.text.primary,
-                textDecoration: "none",
-                cursor: "pointer",
-                display: { xs: "none", sm: "inline" },
-                "&:hover": { textDecoration: "underline" },
-              }}
+              sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: theme.palette.text.secondary, textDecoration: "none", cursor: "pointer", display: { xs: "none", md: "inline" }, whiteSpace: "nowrap", "&:hover": { color: theme.palette.text.primary, textDecoration: "underline" } }}
             >
-              View product orders →
+              {t("products.viewOrders", { defaultValue: "View product orders" })}
             </Typography>
             {merchantHandle && (
               <CustomButton
-                label="View my page"
+                label={t("products.viewMyPage", { defaultValue: "View my page" })}
                 variant="outlined"
                 size="small"
                 endIcon={<LaunchRounded sx={{ fontSize: 16 }} />}
@@ -162,53 +152,39 @@ const ProductsTab = () => {
               />
             )}
             <CustomButton
-              label="New product"
+              label={t("products.newProduct", { defaultValue: "New product" })}
               variant="primary"
               size="small"
-              endIcon={<AddRounded sx={{ fontSize: 18 }} />}
+              startIcon={<AddRounded sx={{ fontSize: 18 }} />}
               onClick={() => router.push("/pay-links/products/new")}
               data-testid="products-new-btn"
             />
-          </Stack>
+          </>
         }
-        headerActionLayout="inline"
       >
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }}>
-          <TextField
-            size="small"
-            placeholder="Search products…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            sx={{ flex: 1 }}
-            inputProps={{ "data-testid": "products-search-input" }}
-          />
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel id="pflt">{t("products.statusLabel")}</InputLabel>
-            <Select
-              labelId="pflt"
-              label={t("products.statusLabel")}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(String(e.target.value))}
-              inputProps={{ "data-testid": "products-status-filter" }}
-            >
-              <MenuItem value="all">{t("products.statusAll", { defaultValue: "All" })}</MenuItem>
-              <MenuItem value="draft">{t("products.status.draft")}</MenuItem>
-              <MenuItem value="live">{t("products.status.live")}</MenuItem>
-              <MenuItem value="archived">{t("products.status.archived")}</MenuItem>
-            </Select>
-          </FormControl>
-          <Box role="radiogroup" aria-label={t("products.viewLabel", { defaultValue: "View" })} data-testid="products-view-toggle" sx={{ display: "inline-flex", alignSelf: { xs: "flex-end", sm: "auto" }, p: 0.4, gap: 0.4, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}` }}>
-            {(["grid", "list"] as ProductsView[]).map((v) => {
-              const active = view === v;
-              return (
-                <Box key={v} component="button" type="button" role="radio" aria-checked={active} aria-label={t(`products.view.${v}`, { defaultValue: v })} data-testid={`products-view-${v}`} onClick={() => changeView(v)} sx={{ width: 34, height: 32, borderRadius: "8px", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: active ? "default" : "pointer", color: active ? "#fff" : theme.palette.text.secondary, backgroundColor: active ? (isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light) : "transparent", transition: "background-color 150ms ease, color 150ms ease", "&:hover": active ? {} : { backgroundColor: theme.palette.action.hover } }}>
-                  <Icon name={v === "grid" ? "lucide:layout-grid" : "lucide:list"} size={16} />
-                </Box>
-              );
-            })}
-          </Box>
-        </Stack>
-      </PanelCard>
+        <Select
+          size="small"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(String(e.target.value))}
+          inputProps={{ "data-testid": "products-status-filter", "aria-label": t("products.statusLabel") as string }}
+          sx={{ height: 38, minWidth: 150, borderRadius: "8px", bgcolor: theme.palette.background.paper, fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.primary, "& fieldset": { borderColor: theme.palette.border.main } }}
+        >
+          <MenuItem value="all">{t("products.statusAllLong", { defaultValue: "All statuses" })}</MenuItem>
+          <MenuItem value="draft">{t("products.status.draft")}</MenuItem>
+          <MenuItem value="live">{t("products.status.live")}</MenuItem>
+          <MenuItem value="archived">{t("products.status.archived")}</MenuItem>
+        </Select>
+        <Box role="radiogroup" aria-label={t("products.viewLabel", { defaultValue: "View" })} data-testid="products-view-toggle" sx={{ display: "inline-flex", height: 38, boxSizing: "border-box", p: 0.4, gap: 0.4, borderRadius: "8px", border: `1px solid ${theme.palette.border.main}`, bgcolor: theme.palette.background.paper }}>
+          {(["grid", "list"] as ProductsView[]).map((v) => {
+            const active = view === v;
+            return (
+              <Box key={v} component="button" type="button" role="radio" aria-checked={active} aria-label={t(`products.view.${v}`, { defaultValue: v })} data-testid={`products-view-${v}`} onClick={() => changeView(v)} sx={{ width: 32, height: "100%", borderRadius: "6px", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: active ? "default" : "pointer", transition: "background-color 150ms ease, color 150ms ease", ...(active ? tabPillActive(theme) : { color: theme.palette.text.secondary, backgroundColor: "transparent", "&:hover": { backgroundColor: theme.palette.action.hover } }) }}>
+                <Icon name={v === "grid" ? "lucide:layout-grid" : "lucide:list"} size={16} />
+              </Box>
+            );
+          })}
+        </Box>
+      </ConsoleFilterBar>
 
       {loading ? (
         <PanelCard title="">
@@ -295,64 +271,24 @@ const ProductsTab = () => {
                       {t(`products.status.${p.status}`, { defaultValue: p.status })}
                     </StatusDot>
                     <Box onClick={(e: React.MouseEvent) => e.stopPropagation()} onKeyDown={(e: React.KeyboardEvent) => e.stopPropagation()} sx={{ display: "flex", alignItems: "center", gap: 0.25, flexShrink: 0 }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => router.push(`/pay-links/products/${p.product_id}/edit`)}
-                      title="Edit"
-                      data-testid={`product-row-edit-${p.product_id}`}
-                    >
-                      <EditRounded fontSize="small" />
-                    </IconButton>
-                    {p.status === "live" && (
+                    <Tooltip title={t("products.menu.edit", { defaultValue: "Edit" })} arrow>
                       <IconButton
                         size="small"
-                        onClick={() =>
-                          router.push({
-                            pathname: "/create-pay-link",
-                            query: { product_id: p.product_id, qty: 1 },
-                          })
-                        }
-                        title="Quick sell — create a payment link pre-filled with this product"
-                        data-testid={`product-row-quicksell-${p.product_id}`}
-                        sx={{
-                          color: "#10B981",
-                          "&:hover": { bgcolor: "rgba(16, 185, 129, 0.08)" },
-                        }}
+                        onClick={() => openEditor(p)}
+                        aria-label={t("products.menu.edit", { defaultValue: "Edit" }) as string}
+                        data-testid={`product-row-edit-${p.product_id}`}
                       >
-                        <BoltRounded fontSize="small" />
+                        <EditRounded fontSize="small" />
                       </IconButton>
-                    )}
-                    <IconButton
-                      size="small"
-                      // Move 3 (one story per sale): product sales now live in
-                      // Transactions (source=product). The legacy per-product
-                      // orders page stays reachable by URL for refund handling.
-                      onClick={() => router.push("/transactions?source=orders")}
-                      title="Sales"
-                      data-testid={`product-row-orders-${p.product_id}`}
-                    >
-                      <ReceiptLongRounded fontSize="small" />
-                    </IconButton>
-                    {merchantHandle && p.status === "live" && (
-                      <IconButton
-                        size="small"
-                        onClick={() => window.open(`/${merchantHandle}/p/${p.slug}`, "_blank")}
-                        title="Open public page"
-                        data-testid={`product-row-open-${p.product_id}`}
-                      >
-                        <LaunchRounded fontSize="small" />
-                      </IconButton>
-                    )}
-                    {p.status !== "archived" && (
-                      <IconButton
-                        size="small"
-                        onClick={() => softDelete(p.product_id)}
-                        title="Archive"
-                        data-testid={`product-row-delete-${p.product_id}`}
-                      >
-                        <DeleteOutlineRounded fontSize="small" />
-                      </IconButton>
-                    )}
+                    </Tooltip>
+                    <ProductRowMenu
+                      product={p}
+                      canOpenPublic={!!merchantHandle && p.status === "live"}
+                      onQuickSell={quickSell}
+                      onSales={() => router.push("/transactions?source=orders")}
+                      onOpenPublic={(row) => window.open(`/${merchantHandle}/p/${row.slug}`, "_blank")}
+                      onArchive={softDelete}
+                    />
                     </Box>
                   </Stack>
                 );

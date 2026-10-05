@@ -559,7 +559,11 @@
     "emptyStep2": "Die Zahlung wird on-chain abgerechnet",
     "emptyStep3": "Ein nummerierter Beleg mit Gebühren- und USt-Zeilen erscheint hier",
     "showAllTime": "Gesamten Zeitraum anzeigen",
-    "viewTransactions": "Transaktionen ansehen"
+    "viewTransactions": "Transaktionen ansehen",
+    "headerGrossCollected": "Brutto eingenommen",
+    "headerGrossCollectedHint": "Was Käufer in diesem Zeitraum für abgeschlossene Zahlungen bezahlt haben, vor Dynopay-Gebühren. Gebühren werden separat gezeigt; Käufersteuer steht unter Eingenommene Steuer. Brutto minus Gebühren = was Sie erhalten haben.",
+    "groupCount_one": "{{count}} Beleg",
+    "groupCount_other": "{{count}} Belege"
   },
   "customers": {
     "pageName": "Kunden",
@@ -732,7 +736,21 @@
       "notes": "Private Notizen (optional)",
       "cancel": "Abbrechen",
       "submit": "Kunden hinzufügen"
-    }
+    },
+    "statPaying": "Zahlende Kunden",
+    "statInvitedSub_one": "+ {{count}} eingeladen, noch nicht bezahlt",
+    "statInvitedSub_other": "+ {{count}} eingeladen, noch nicht bezahlt",
+    "statNetRevenue": "Nettoumsatz",
+    "statNetRevenueHint": "Was Sie nach Dynopay-Gebühren erhalten haben, gesamter Zeitraum, aus abgeschlossenen Zahlungen – inklusive Zahlungen ohne Kontaktdaten. Ohne Steuern.",
+    "filterPaying": "Zahlend",
+    "filterUnidentified": "Nicht zugeordnete Zahlungen",
+    "unidentifiedSummary_one": "Plus {{count}} Zahlung ({{amount}}) ohne Kontaktdaten – API, Zahlungslinks und Direktzahlungen.",
+    "unidentifiedSummary_other": "Plus {{count}} Zahlungen ({{amount}}) ohne Kontaktdaten – API, Zahlungslinks und Direktzahlungen.",
+    "unidentifiedView": "Aufschlüsselung ansehen",
+    "noPayingTitle": "Noch keine zahlenden Kunden mit Kontaktdaten",
+    "noPayingHint_one": "Ihre {{count}} Zahlung ({{amount}}) kam über einen Checkout ohne Name oder E-Mail — API, Zahlungslinks und Direktzahlungen.",
+    "noPayingHint_other": "Ihre {{count}} Zahlungen ({{amount}}) kamen über Checkouts ohne Name oder E-Mail — API, Zahlungslinks und Direktzahlungen.",
+    "noPayingCta": "Nicht zugeordnete Zahlungen ansehen"
   },
   "pleaseWait": "Bitte warten",
   "transferRate": "Wechselkurs",
@@ -789,8 +807,8 @@
     "planFees": "Tarif & Gebühren",
     "referrals": "Empfehlungen",
     "description": "Verwalten Sie Konto, Marke und Integrations-Konfiguration",
-    "profile": "Profil & Sicherheit",
-    "profileDesc": "Persönliche Daten, Passwort und Login-Sicherheit",
+    "profile": "Profil",
+    "profileDesc": "Ihr Name, Foto, E-Mail und Telefonnummer",
     "company": "Marke",
     "companyDesc": "Markenprofil, Logo und Details",
     "payments": "Zahlungen",
@@ -942,9 +960,9 @@
     "dismiss": "Nicht jetzt"
   },
   "storefront": {
-    "title": "Schaufenster",
+    "title": "Deine Seite",
     "subtitle": "Ihre Dynopay-Seite — Trinkgelder, Produkte und Zahlungslinks hinter einem einzigen Link.",
-    "editingHint": "Schaufenster von <b>{{company}}</b> bearbeiten",
+    "editingHint": "Seite von <b>{{company}}</b> bearbeiten",
     "tabPage": "Seite",
     "tabProducts": "Produkte",
     "tabShare": "Teilen",
@@ -1007,7 +1025,7 @@
       "showSupporters": "Anzahl Unterstützer & Gesamtbetrag anzeigen",
       "analytics": "Analytics",
       "analyticsDesc": "Eine 30-Tage-Ansicht Ihrer Trinkgelder und Top-Unterstützer. Umschalten, um sie auf Ihrer öffentlichen Seite auszublenden — hier sehen Sie sie weiterhin.",
-      "publishPage": "Meine Creator-Seite veröffentlichen",
+      "publishPage": "Meine Seite veröffentlichen",
       "publishDesc": "Wenn aktiviert, kann jeder mit Ihrem Link Ihre Seite ansehen und Sie unterstützen.",
       "saveChanges": "Änderungen speichern",
       "changeHandleTitle": "Handle ändern?",
@@ -1044,14 +1062,14 @@
       "floorHiddenPresets": "Durchgestrichene Voreinstellungen sind auf Ihrer Seite verborgen – entfernen Sie sie oder erhöhen Sie sie auf 10 $ oder mehr."
     },
     "compare": {
-      "title": "Schaufenster vergleichen",
+      "title": "Markenseiten vergleichen",
       "subtitle": "Aufrufe, Trinkgelder und Produktverkäufe pro Marke — letzte 30 Tage.",
       "colCompany": "Marke",
       "colViews": "Aufrufe · 30-Tage-Trend",
       "colTips": "Trinkgelder",
       "colSales": "Verkäufe",
       "colRevenue": "Umsatz",
-      "noStorefront": "Noch kein Schaufenster",
+      "noStorefront": "Noch keine Seite",
       "companyN": "Marke {{n}}"
     },
     "analytics": {
@@ -1102,7 +1120,7 @@
       "qrSub": "Drucke ihn aus, füge ihn in ein Video ein, klebe ihn auf einen Flyer — er öffnet deine Seite."
     },
     "pending": {
-      "title": "{{company}} hat noch keinen eigenen Shop",
+      "title": "{{company}} hat noch keine eigene Seite",
       "switchTo": "Wechsel zu {{primary}}"
     },
     "funnel": {
@@ -1122,7 +1140,31 @@
       "views": "Aufrufe",
       "checkouts": "Checkouts",
       "paid": "Bezahlt",
-      "split": "{{tips}} Trinkgelder · {{orders}} Bestellungen"
+      "split": "{{tips}} Trinkgelder · {{orders}} Bestellungen",
+      "checkoutsHint": "Checkouts, die auf Ihrer Seite, im Trinkgeld-Widget oder über einen direkten Produktlink gestartet wurden. Direkte Links umgehen die Seite, daher können Checkouts höher sein als Aufrufe."
+    },
+    "editor": {
+      "profile": "Name, Handle & Bio",
+      "look": "Aussehen",
+      "socials": "Social Links",
+      "tips": "Trinkgeld-Box",
+      "store": "Online-Shop",
+      "analytics": "Statistiken",
+      "noHandle": "Noch kein Handle",
+      "customTheme": "Eigenes Design",
+      "defaultTheme": "Standard-Design",
+      "hasCover": "Titelbild",
+      "linkedCount_one": "{{count}} verknüpft",
+      "linkedCount_other": "{{count}} verknüpft",
+      "none": "Noch keine",
+      "on": "An",
+      "off": "Aus",
+      "storeShown": "An · auf Ihrer Seite sichtbar",
+      "storeHidden": "An · auf Ihrer Seite ausgeblendet",
+      "analyticsPublic": "Auf Ihrer Seite sichtbar",
+      "analyticsPrivate": "Nur für Sie sichtbar",
+      "unsaved": "Sie haben ungespeicherte Änderungen",
+      "draftHint": "Aus — nur Sie sehen Ihre Seite"
     }
   },
   "imageCropTitle": "Bild anpassen",
@@ -1280,7 +1322,7 @@
     "addWallet": "Auszahlungsadresse hinzufügen"
   },
   "payouts": {
-    "pageName": "Auszahlungen & Abrechnungen",
+    "pageName": "Auszahlungen",
     "pageDescription": "Ist Ihr Geld angekommen? Weitergeleitete Auszahlungen, Hänger und wohin die Mittel fließen.",
     "digestOn": "Wöchentlicher Auszahlungsbericht aktiviert",
     "digestOff": "Wöchentlicher Auszahlungsbericht deaktiviert",
@@ -1406,7 +1448,10 @@
     "noForwardsYet": "Noch keine Auszahlungen. Sobald eine Zahlung abgerechnet ist, erscheint die Weiterleitung hier mit Transaktions-Hash.",
     "toWallet": "an {{wallet}}",
     "hashPending": "Hash ausstehend",
-    "settlementCoinLabel": "Abrechnungswährung"
+    "settlementCoinLabel": "Abrechnungswährung",
+    "hideQuiet": "Adressen ohne Auszahlungen ausblenden",
+    "showQuiet_one": "{{count}} Adresse ohne Auszahlungen in diesem Zeitraum anzeigen",
+    "showQuiet_other": "{{count}} Adressen ohne Auszahlungen in diesem Zeitraum anzeigen"
   },
   "liveBrand": {
     "payNow": "Jetzt bezahlen",
@@ -1659,7 +1704,20 @@
     "saveFailed": "Änderungen konnten nicht gespeichert werden.",
     "statusAll": "Alle",
     "emptyTitle": "Verkaufen Sie Ihr erstes Produkt",
-    "emptyBody": "Erstellen Sie ein digitales Produkt — es wird automatisch auf Ihrer Seite angezeigt und Käufer zahlen in Krypto."
+    "emptyBody": "Erstellen Sie ein digitales Produkt — es wird automatisch auf Ihrer Seite angezeigt und Käufer zahlen in Krypto.",
+    "searchPlaceholder": "Produkte suchen…",
+    "viewOrders": "Produktbestellungen ansehen",
+    "viewMyPage": "Meine Seite ansehen",
+    "newProduct": "Neues Produkt",
+    "statusAllLong": "Alle Status",
+    "menu": {
+      "edit": "Bearbeiten",
+      "more": "Weitere Aktionen",
+      "quickSell": "Zahlungslink erstellen",
+      "sales": "Verkäufe ansehen",
+      "openPublic": "Öffentliche Seite öffnen",
+      "archive": "Archivieren"
+    }
   },
   "theme": {
     "switchToLight": "Zum hellen Modus wechseln",

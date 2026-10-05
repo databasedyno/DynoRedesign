@@ -184,5 +184,9 @@
   "formatUnusualTip": "Isto não parece um endereço {{chain}} típico. Verifique-o antes do próximo pagamento.",
   "lastPayoutNone": "Ainda sem pagamentos para este endereço de recebimento",
   "lastPayoutAt": "Último pagamento {{when}}",
-  "in30d": "em 30 d"
+  "in30d": "em 30 d",
+  "options": "Opções",
+  "netReceivedEyebrow": "Líquido recebido · desde sempre",
+  "netReceivedHint": "O que chegou aos seus endereços de repasse após as taxas da Dynopay, desde sempre, de pagamentos concluídos. Pagamentos para endereços removidos não contam, por isso pode ser um pouco menor que a Receita líquida em Clientes.",
+  "colNetReceived": "Líquido recebido"
 }

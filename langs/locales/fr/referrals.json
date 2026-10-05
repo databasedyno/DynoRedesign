@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Parrainages",
+  "pageTitle": "Parrainez et gagnez",
   "pageDescription": "Gagnez 25% de partage des revenus pour chaque marchand parrainé — ils obtiennent 50% de réduction sur les frais",
   "yourReferralCode": "Votre Code de Parrainage",
   "shareYourCode": "Partagez votre code et gagnez des récompenses",
@@ -39,7 +39,22 @@
   "leaderboard": "Classement",
   "rank": "Rang",
   "referrals": "Parrainages",
-  "earnings": "Gains",
+  "earnings": {
+    "title": "Gains",
+    "accrued": "Partage de revenus gagné · total",
+    "paid": "Versé ou crédité",
+    "rewardsCredited": "Bonus d'inscription crédités",
+    "rewardsPending": "Bonus d'inscription en attente",
+    "availableHint": "Partage de revenus gagné mais pas encore reçu. Versé en crédit de frais par défaut — ou passez au retrait en USDT ci-dessous.",
+    "referralsCount_one": "{{count}} parrainage",
+    "referralsCount_other": "{{count}} parrainages",
+    "activeCount_one": "{{count}} actif",
+    "activeCount_other": "{{count}} actifs",
+    "pendingCount_one": "{{count}} en attente",
+    "pendingCount_other": "{{count}} en attente",
+    "windowsCount_one": "{{count}} période de gains ouverte",
+    "windowsCount_other": "{{count}} périodes de gains ouvertes"
+  },
   "referralBenefits": "Avantages du Parrainage",
   "benefitReferrer": "Vous gagnez 25% des frais de chaque marchand que vous parrainez, pendant 12 mois",
   "benefitReferee": "Votre ami obtient 50% de frais en moins pendant 30 jours dès son inscription",
@@ -195,5 +210,15 @@
   "refStatus_pending": "En attente",
   "refStatus_active": "Actif",
   "refStatus_rewarded": "Récompensé",
-  "refStatus_expired": "Expiré"
+  "refStatus_expired": "Expiré",
+  "hero": {
+    "eyebrow": "Votre lien de parrainage",
+    "valueLine": "Vous touchez 25 % de leurs frais pendant 12 mois · ils paient 50 % de frais en moins pendant 30 jours",
+    "code": "Code",
+    "shareOn": "Partager sur"
+  },
+  "zero": {
+    "title": "Aucun parrainage pour l'instant",
+    "body": "Partagez votre lien ci-dessus. Quand un marchand s'inscrit avec, il apparaît ici — avec vos gains et les options de retrait."
+  }
 }

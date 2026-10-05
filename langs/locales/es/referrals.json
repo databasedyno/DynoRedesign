@@ -1,5 +1,5 @@
 {
-  "pageTitle": "Referencias",
+  "pageTitle": "Recomienda y gana",
   "pageDescription": "Gana un 25% de participación en ingresos por cada comercio que refieras — ellos obtienen 50% de descuento en comisiones",
   "yourReferralCode": "Su Código de Referido",
   "shareYourCode": "Comparta su código único y gane recompensas",
@@ -39,7 +39,22 @@
   "leaderboard": "Tabla de Clasificación",
   "rank": "Rango",
   "referrals": "Referidos",
-  "earnings": "Ganancias",
+  "earnings": {
+    "title": "Ganancias",
+    "accrued": "Participación ganada · total",
+    "paid": "Pagado o abonado",
+    "rewardsCredited": "Recompensas de registro abonadas",
+    "rewardsPending": "Recompensas de registro pendientes",
+    "availableHint": "Participación que has ganado pero aún no has recibido. Se abona como crédito de comisiones por defecto, o cambia a retiro en USDT abajo.",
+    "referralsCount_one": "{{count}} referido",
+    "referralsCount_other": "{{count}} referidos",
+    "activeCount_one": "{{count}} activo",
+    "activeCount_other": "{{count}} activos",
+    "pendingCount_one": "{{count}} pendiente",
+    "pendingCount_other": "{{count}} pendientes",
+    "windowsCount_one": "{{count}} periodo de ganancias abierto",
+    "windowsCount_other": "{{count}} periodos de ganancias abiertos"
+  },
   "referralBenefits": "Beneficios de Referidos",
   "benefitReferrer": "Ganas el 25% de las comisiones de cada comercio que refieres, durante 12 meses",
   "benefitReferee": "Tu amigo obtiene 50% menos comisiones durante 30 días al registrarse",
@@ -195,5 +210,15 @@
   "refStatus_pending": "Pendiente",
   "refStatus_active": "Activo",
   "refStatus_rewarded": "Recompensado",
-  "refStatus_expired": "Expirado"
+  "refStatus_expired": "Expirado",
+  "hero": {
+    "eyebrow": "Tu enlace de referido",
+    "valueLine": "Recibes el 25 % de sus comisiones durante 12 meses · ellos pagan un 50 % menos durante 30 días",
+    "code": "Código",
+    "shareOn": "Compartir en"
+  },
+  "zero": {
+    "title": "Aún no hay referidos",
+    "body": "Comparte tu enlace de arriba. Cuando un comercio se registre con él, lo verás aquí, con tus ganancias y opciones de retiro."
+  }
 }

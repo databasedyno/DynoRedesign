@@ -9,6 +9,7 @@ import useAccountProfile from "@/hooks/useAccountProfile";
 import { CB_TOKENS } from "@/Components/UI/_shared";
 import { MONO } from "@/styles/uiKit";
 import { rootReducer } from "@/utils/types";
+import InfoHint from "@/Components/UI/InfoHint";
 
 /** Minimal symbol map — matches the currencies the wallet totals actually
  *  ship in today. Falls back to the ISO code when unmapped, which is the
@@ -113,10 +114,18 @@ export default function WalletTotalHero() {
                 color: theme.palette.text.secondary,
               }}
             >
-              {t("totalProcessedEyebrow", {
-                defaultValue: "Total processed · all chains",
+              {t("netReceivedEyebrow", {
+                defaultValue: "Net received · all time",
                 ns: "walletScreen",
               })}
+              <InfoHint
+                testId="wallet-total-hint"
+                size={12}
+                text={t("netReceivedHint", {
+                  ns: "walletScreen",
+                  defaultValue: "What reached your payout addresses after Dynopay fees, all time, from completed payments. Payments to addresses you have since removed are not counted, so this can be slightly lower than Net revenue on Customers.",
+                })}
+              />
             </Typography>
             {/* Wallets are scoped to the active Account — say so, otherwise a
                 merchant with both an individual and a business account cannot
@@ -223,18 +232,19 @@ function StatChip({ icon, label, value }: { icon: string; label: string; value: 
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-        <Icon icon={icon} width={13} color={theme.palette.text.secondary} />
+        <Box sx={{ display: { xs: "none", sm: "inline-flex" } }}>
+          <Icon icon={icon} width={13} color={theme.palette.text.secondary} />
+        </Box>
         <Typography
           sx={{
             fontFamily: "var(--font-tech), ui-monospace, monospace",
-            fontSize: 10.5,
+            fontSize: 11,
             fontWeight: 600,
-            letterSpacing: "0.12em",
+            letterSpacing: { xs: "0.04em", sm: "0.12em" },
             textTransform: "uppercase",
             color: theme.palette.text.secondary,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            lineHeight: 1.25,
+            overflowWrap: "anywhere",
           }}
         >
           {label}

@@ -1,3 +1,4 @@
+import { tabPillActive } from "@/styles/tabPill";
 import {
   Box,
   Button,
@@ -883,25 +884,18 @@ export const StatusChip = styled(ButtonBase, {
     fontWeight: selected ? 600 : 500,
     lineHeight: 1,
     whiteSpace: "nowrap",
-    color: selected ? theme.palette.text.primary : theme.palette.text.secondary,
-    backgroundColor: selected
-      ? isDark
-        ? "rgba(255,255,255,0.08)"
-        : "rgba(10,10,15,0.06)"
-      : "transparent",
-    border: `1px solid ${
-      selected
-        ? isDark
-          ? "rgba(255,255,255,0.18)"
-          : "rgba(10,10,15,0.14)"
-        : "transparent"
-    }`,
+    color: theme.palette.text.secondary,
+    backgroundColor: "transparent",
+    border: "1px solid transparent",
+    ...(selected ? tabPillActive(theme) : {}),
     transition:
       "background-color 140ms ease, color 140ms ease, border-color 140ms ease, transform 100ms ease",
-    "&:hover": {
-      backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.04)",
-      color: theme.palette.text.primary,
-    },
+    "&:hover": selected
+      ? tabPillActive(theme)
+      : {
+          backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.04)",
+          color: theme.palette.text.primary,
+        },
     "&:active": { transform: "scale(0.97)" },
     "&.Mui-focusVisible": {
       outline: `2px solid ${theme.palette.primary.main}`,

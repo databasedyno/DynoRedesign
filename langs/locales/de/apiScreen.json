@@ -15,7 +15,8 @@
     "trashAlt": "Löschen"
   },
   "status": {
-    "active": "Aktiv"
+    "active": "Aktiv",
+    "disabled": "Deaktiviert"
   },
   "createdOn": "Erstellt am {{date}} um {{time}}",
   "validation": {
@@ -33,7 +34,8 @@
     "confirmTitle": "Abrechnungswährung ändern?",
     "updated": "Abrechnungswährung auf {{currency}} aktualisiert",
     "confirmBody": "Die Festlegung der Abrechnungswährung auf {{currency}} hat Auswirkungen auf die tatsächliche Abrechnung: Neue Zahlungen werden in {{currency}} bepreist und quittiert. Es ändert sich nichts an vergangenen Zahlungen. Ihr zugehöriger Entwicklungs-(Test-)Schlüssel wird entsprechend aktualisiert.",
-    "confirmCta": "Ändern zu {{currency}}"
+    "confirmCta": "Ändern zu {{currency}}",
+    "settlementCurrencyShort": "Währung"
   },
   "toast": {
     "copied": "Kopiert!"
@@ -85,7 +87,8 @@
     "done": "Fertig",
     "regenerate": "Erneuern",
     "disable": "Deaktivieren",
-    "enable": "Aktivieren"
+    "enable": "Aktivieren",
+    "delete": "Löschen"
   },
   "apiKeyTitle": "{{currency}} API-Schlüssel",
   "apiKeyTitleLive": "Live-API-Schlüssel",
@@ -115,7 +118,15 @@
     "neverUsed": "Nie verwendet",
     "noExpiry": "Keine Ablaufdatum",
     "expired": "Abgelaufen am {{date}}",
-    "expiresOn": "Läuft ab am {{date}}"
+    "expiresOn": "Läuft ab am {{date}}",
+    "colEnvironment": "Umgebung",
+    "colKey": "Schlüssel",
+    "colLastUsed": "Zuletzt verwendet",
+    "colCreated": "Erstellt",
+    "envLive": "Live",
+    "envTest": "Test",
+    "sandboxShort": "Sandbox",
+    "moreActions": "Schlüsselaktionen"
   },
   "developersTitle": "Entwickler",
   "developersDescription": "API-Schlüssel, Webhooks, Zustellungsereignisse und Integrationsdokumentation — an einem Ort",

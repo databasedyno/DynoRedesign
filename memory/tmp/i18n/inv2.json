@@ -1,0 +1,4 @@
+{"common": {
+ "invoices.groupCount_one": {"en": "{{count}} receipt", "de": "{{count}} Beleg", "es": "{{count}} recibo", "fr": "{{count}} reçu", "nl": "{{count}} bon", "pt": "{{count}} recibo"},
+ "invoices.groupCount_other": {"en": "{{count}} receipts", "de": "{{count}} Belege", "es": "{{count}} recibos", "fr": "{{count}} reçus", "nl": "{{count}} bonnen", "pt": "{{count}} recibos"}
+}}

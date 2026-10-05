@@ -9,9 +9,9 @@ import useTableCardView from "@/hooks/useTableCardView";
 import { Icon } from "@/styles/uiKit";
 import { rootReducer } from "@/utils/types";
 import { TxStatusFilter } from "@/utils/types/transaction";
-import { Box, Checkbox, FormControlLabel, Tooltip, useTheme } from "@mui/material";
+import { Box, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip, useTheme } from "@mui/material";
 import Image from "next/image";
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { StatusChip, StatusChipsRow, TableToolbar } from "./styled";
@@ -31,9 +31,8 @@ interface Props {
   counts: Record<TxStatusFilter, number>;
   selected: TxStatusFilter;
   onChange: (status: TxStatusFilter) => void;
-  onExport: () => void;
-  settledOnly: boolean;
-  onSettledOnlyChange: (value: boolean) => void;
+  /** settledOnly = export only settled payments (offered in the Export menu when no status chip is active). */
+  onExport: (settledOnly?: boolean) => void;
   /** Rendered on its own (no table below) — e.g. the filtered-empty state. */
   standalone?: boolean;
   /** Phone (<768px): status lives in the filter sheet, so the strip shows the
@@ -47,8 +46,6 @@ const TransactionsToolbar: React.FC<Props> = ({
   selected,
   onChange,
   onExport,
-  settledOnly,
-  onSettledOnlyChange,
   standalone,
   activeFilters,
   resultCount,
@@ -61,6 +58,8 @@ const TransactionsToolbar: React.FC<Props> = ({
     (state: rootReducer) => !!state.transactionReducer?.exportLoading,
   );
   const fade = useEdgeFade<HTMLDivElement>();
+  const exportRef = useRef<HTMLSpanElement>(null);
+  const [exportMenu, setExportMenu] = useState<HTMLElement | null>(null);
   const pillsMode = cardView && Array.isArray(activeFilters);
 
   // Zero-count chips are hidden so the strip only shows states that exist in
@@ -92,9 +91,10 @@ const TransactionsToolbar: React.FC<Props> = ({
         defaultValue: "Exports the {{count}} rows matching your filters and the active status chip.",
         count: formatLocaleInt(counts[selected]),
       })
-    : settledOnly
-      ? t("exportSettledHint", { defaultValue: "Exports only settled payments matching your filters." })
-      : t("exportAllHint", { defaultValue: "Exports every row matching your filters as CSV." });
+    : t("exportAllHint", { defaultValue: "Exports every row matching your filters as CSV." });
+  // No status chip → let the merchant pick "all" vs "settled only" (was a separate checkbox).
+  const withMenu = !scoped && !isMobile;
+  const menuText = { fontSize: 14, fontFamily: "var(--font-sans)" };
 
   return (
     <TableToolbar data-testid="transactions-toolbar" standalone={standalone}>
@@ -161,37 +161,8 @@ const TransactionsToolbar: React.FC<Props> = ({
       )}
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
-        {!isMobile && !scoped && (
-          <Tooltip
-            title={t("exportSettledOnlyHint", { defaultValue: "Limits the CSV export to settled payments — it doesn't change the list below." })}
-            arrow
-            placement="top"
-            enterDelay={400}
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  size="small"
-                  checked={settledOnly}
-                  onChange={(e) => onSettledOnlyChange(e.target.checked)}
-                  data-testid="transactions-export-settled-only"
-                />
-              }
-              label={t("exportSettledOnly", { defaultValue: "Export settled only" })}
-              sx={{
-                m: 0,
-                whiteSpace: "nowrap",
-                "& .MuiFormControlLabel-label": {
-                  fontSize: 13,
-                  fontFamily: "var(--font-sans)",
-                  color: theme.palette.text.secondary,
-                },
-              }}
-            />
-          </Tooltip>
-        )}
-        <Tooltip title={exportHint} arrow placement="top" enterDelay={400}>
-          <Box component="span" sx={{ display: "inline-flex" }}>
+        <Tooltip title={withMenu ? "" : exportHint} arrow placement="top" enterDelay={400}>
+          <Box component="span" ref={exportRef} sx={{ display: "inline-flex" }}>
             <CustomButton
               data-testid="transactions-export-btn"
               label={exportLabel}
@@ -200,8 +171,9 @@ const TransactionsToolbar: React.FC<Props> = ({
               hideLabel={isMobile}
               variant="secondary"
               size="small"
-              onClick={onExport}
+              onClick={() => (withMenu ? setExportMenu(exportRef.current) : onExport())}
               startIcon={<Image src={ExportIcon} alt="" width={15} height={15} />}
+              endIcon={withMenu ? <Icon name="chevron-down" size={14} /> : undefined}
               sx={{
                 height: "32px",
                 minHeight: "32px",
@@ -214,6 +186,40 @@ const TransactionsToolbar: React.FC<Props> = ({
             />
           </Box>
         </Tooltip>
+        <Menu
+          open={!!exportMenu}
+          anchorEl={exportMenu}
+          onClose={() => setExportMenu(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          data-testid="transactions-export-menu"
+          slotProps={{ paper: { sx: { minWidth: 240, maxWidth: 320, borderRadius: "12px", mt: 0.5 } } }}
+        >
+          <MenuItem
+            data-testid="transactions-export-all"
+            onClick={() => {
+              setExportMenu(null);
+              onExport(false);
+            }}
+          >
+            <ListItemIcon><Icon name="download" size={16} /></ListItemIcon>
+            <ListItemText primaryTypographyProps={menuText} secondary={t("exportAllHint", { defaultValue: "Exports every row matching your filters as CSV." })} secondaryTypographyProps={{ fontSize: 12, whiteSpace: "normal" }}>
+              {t("exportAllRows", { defaultValue: "All matching rows" })}
+            </ListItemText>
+          </MenuItem>
+          <MenuItem
+            data-testid="transactions-export-settled-only"
+            onClick={() => {
+              setExportMenu(null);
+              onExport(true);
+            }}
+          >
+            <ListItemIcon><Icon name="circle-check" size={16} /></ListItemIcon>
+            <ListItemText primaryTypographyProps={menuText} secondary={t("exportSettledHint", { defaultValue: "Exports only settled payments matching your filters." })} secondaryTypographyProps={{ fontSize: 12, whiteSpace: "normal" }}>
+              {t("exportSettledOnly", { defaultValue: "Export settled only" })}
+            </ListItemText>
+          </MenuItem>
+        </Menu>
       </Box>
     </TableToolbar>
   );

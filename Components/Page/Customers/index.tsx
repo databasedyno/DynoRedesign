@@ -11,6 +11,7 @@
  * Channel chips reuse <TransactionSourceBadge> so classification is visually
  * identical to /transactions and the dashboard.
  */
+import { tabPillActive } from "@/styles/tabPill";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { rowKeyProps } from "@/helpers/a11y";
 import { MONO, Icon } from "@/styles/uiKit";
@@ -122,6 +123,9 @@ interface Aggregates {
   new_this_month: number;
   anonymous_payments: number;
   anonymous_revenue_usd: number;
+  paying_customers?: number;
+  invited_count?: number;
+  anonymous_buckets?: number;
 }
 
 interface DetailPayment {
@@ -150,7 +154,8 @@ interface DetailData {
 
 /* ------------------------------------------------------------- constants */
 
-const SEGMENT_FILTERS = ["all", "repeat", "new", "dormant", "prospects", "anonymous"] as const;
+// Paying customers first (default); invited people + unidentified payment buckets sit in their own filters.
+const SEGMENT_FILTERS = ["paying", "repeat", "new", "dormant", "prospects", "anonymous", "all"] as const;
 type SegmentFilter = (typeof SEGMENT_FILTERS)[number];
 
 // Orders / payment links share the transaction colour map; a lapsed link or
@@ -200,7 +205,7 @@ const CustomersPage: React.FC = () => {
     setSearchSeeded(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, searchSeeded]);
-  const [segment, setSegment] = useState<SegmentFilter>("all");
+  const [segment, setSegment] = useState<SegmentFilter>("paying");
   const [sort, setSort] = useState("recent");
   const [page, setPage] = useState(1);
   const [detailKey, setDetailKey] = useState<string | null>(null);
@@ -278,6 +283,19 @@ const CustomersPage: React.FC = () => {
     anonymous_payments: 0,
     anonymous_revenue_usd: 0,
   };
+  const payingCount = aggregates.paying_customers ?? aggregates.total_customers;
+  const invitedCount = aggregates.invited_count ?? 0;
+  const unidentifiedInfo =
+    aggregates.anonymous_payments > 0
+      ? {
+          count: aggregates.anonymous_payments,
+          amount: fx.formatFromUsd(aggregates.anonymous_revenue_usd) || `$${toFixedStr(aggregates.anonymous_revenue_usd, 2)}`,
+          onView: () => {
+            setSegment("anonymous");
+            setPage(1);
+          },
+        }
+      : undefined;
   const loading = isLoading && resp === undefined;
 
   /* ---------------------------------------------------------- detail */
@@ -412,14 +430,16 @@ const CustomersPage: React.FC = () => {
     () => [
       {
         id: "customers",
-        label: t("customers.statCustomers", { defaultValue: "Customers" }),
-        value: String(aggregates.total_customers),
+        label: t("customers.statPaying", { defaultValue: "Paying customers" }),
+        value: String(payingCount),
+        sub: invitedCount > 0 ? t("customers.statInvitedSub", { count: invitedCount, defaultValue: "+ {{count}} invited, not paid yet" }) : undefined,
         icon: <PeopleAltRounded sx={{ fontSize: 18 }} />,
       },
       {
         id: "revenue",
-        label: t("customers.statRevenue", { defaultValue: "Revenue" }),
+        label: t("customers.statNetRevenue", { defaultValue: "Net revenue" }),
         value: fx.formatFromUsd(aggregates.revenue_usd) || `$${toFixedStr(aggregates.revenue_usd, 2)}`,
+        hint: t("customers.statNetRevenueHint", { defaultValue: "What you received after Dynopay fees, all time, from completed payments — including payments with no contact details. Tax is not included." }),
         icon: <PaymentsRounded sx={{ fontSize: 18 }} />,
       },
       {
@@ -435,17 +455,18 @@ const CustomersPage: React.FC = () => {
         icon: <PersonAddAltRounded sx={{ fontSize: 18 }} />,
       },
     ],
-    [aggregates, fx, t]
+    [aggregates, fx, t, payingCount, invitedCount]
   );
 
   const segmentChipLabel = (s: SegmentFilter) => {
     const map: Record<SegmentFilter, string> = {
+      paying: t("customers.filterPaying", { defaultValue: "Paying" }),
       all: t("customers.filterAll", { defaultValue: "All" }),
       repeat: t("customers.filterRepeat", { defaultValue: "Repeat" }),
       new: t("customers.filterNew", { defaultValue: "New" }),
       dormant: t("customers.filterDormant", { defaultValue: "Dormant" }),
       prospects: t("customers.filterProspects", { defaultValue: "Invited" }),
-      anonymous: t("customers.filterAnonymous", { defaultValue: "Anonymous" }),
+      anonymous: t("customers.filterUnidentified", { defaultValue: "Unidentified payments" }),
     };
     return map[s];
   };
@@ -562,6 +583,8 @@ const CustomersPage: React.FC = () => {
           testid: `customers-stat-${card.id}`,
           label: card.label,
           value: loading ? <Skeleton width={64} /> : card.value,
+          sub: loading ? undefined : (card as { sub?: string }).sub,
+          hint: (card as { hint?: string }).hint,
         }))}
       />
 
@@ -591,8 +614,8 @@ const CustomersPage: React.FC = () => {
             bgcolor: cardBg,
             ...sansSx,
             fontSize: "13px",
-            minWidth: 150,
-            flexGrow: { xs: 1, sm: 0 },
+            minWidth: { xs: 0, sm: 150 },
+            flex: { xs: "1 1 0", sm: "0 0 auto" },
             "& fieldset": { borderColor: cardBorder },
           }}
         >
@@ -668,9 +691,11 @@ const CustomersPage: React.FC = () => {
               }}
               sx={{
                 appearance: "none",
-                border: `1px solid ${active ? accent : cardBorder}`,
-                bgcolor: active ? (isDark ? "rgba(255,209,0,0.15)" : "rgba(139,94,0,0.07)") : cardBg,
-                color: active ? accent : theme.palette.text.secondary,
+                border: `1px solid ${cardBorder}`,
+                bgcolor: cardBg,
+                ...(active
+                  ? tabPillActive(theme)
+                  : { color: theme.palette.text.secondary, "&:hover": { color: theme.palette.text.primary } }),
                 borderRadius: "999px",
                 px: 1.5,
                 py: 0.6,
@@ -681,7 +706,7 @@ const CustomersPage: React.FC = () => {
                 cursor: "pointer",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
-                transition: "all 120ms ease",
+                transition: "background-color 120ms ease, color 120ms ease, border-color 120ms ease",
               }}
             >
               {segmentChipLabel(s)}
@@ -706,6 +731,35 @@ const CustomersPage: React.FC = () => {
         )}
       </Box>
 
+      {/* Unidentified payments are summarised here instead of mixed in with people. */}
+      {segment === "paying" && !debouncedSearch.trim() && aggregates.anonymous_payments > 0 && customers.length > 0 && (
+        <Box
+          data-testid="customers-unidentified-summary"
+          sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 1, mb: 2, px: 1.75, py: 1.25, borderRadius: "10px", border: `1px dashed ${cardBorder}`, ...sansSx, fontSize: "13px", color: theme.palette.text.secondary }}
+        >
+          <Icon name="user-x" size={15} />
+          <Box component="span" sx={{ flex: 1, minWidth: 200 }}>
+            {t("customers.unidentifiedSummary", {
+              count: aggregates.anonymous_payments,
+              amount: fx.formatFromUsd(aggregates.anonymous_revenue_usd) || `$${toFixedStr(aggregates.anonymous_revenue_usd, 2)}`,
+              defaultValue: "Plus {{count}} payments ({{amount}}) with no contact details — API, payment links and direct payments.",
+            })}
+          </Box>
+          <Box
+            component="button"
+            type="button"
+            data-testid="customers-unidentified-view"
+            onClick={() => {
+              setSegment("anonymous");
+              setPage(1);
+            }}
+            sx={{ all: "unset", cursor: "pointer", fontWeight: 600, color: theme.palette.text.primary, textDecoration: "underline", textUnderlineOffset: 3, "&:focus-visible": { outline: `2px solid ${accent}`, outlineOffset: 2 } }}
+          >
+            {t("customers.unidentifiedView", { defaultValue: "View breakdown" })}
+          </Box>
+        </Box>
+      )}
+
       {/* ---------------------------------------------------------- list */}
       {cardView ? (
         /* ------------------------------------------- mobile card list */
@@ -726,6 +780,7 @@ const CustomersPage: React.FC = () => {
               cardBg={cardBg}
               cardBorder={cardBorder}
               onCreate={() => router.push("/create-pay-link")}
+              unidentified={unidentifiedInfo}
             />
           ) : (
             customers.map((c) => (
@@ -864,6 +919,7 @@ const CustomersPage: React.FC = () => {
                       cardBg="transparent"
                       cardBorder="transparent"
                       onCreate={() => router.push("/create-pay-link")}
+                      unidentified={unidentifiedInfo}
                     />
                   </TableCell>
                 </TableRow>
@@ -1067,11 +1123,31 @@ const EmptyState: React.FC<{
   cardBg: string;
   cardBorder: string;
   onCreate: () => void;
-}> = ({ search, segment, t, cardBg, cardBorder, onCreate }) => {
-  const showCta = !search && segment === "all";
+  unidentified?: { count: number; amount: string; onView: () => void };
+}> = ({ search, segment, t, cardBg, cardBorder, onCreate, unidentified }) => {
+  // Payments exist but none carried contact details → point at the breakdown, not "create a link".
+  if (!search && segment === "paying" && unidentified) {
+    return (
+      <Box data-testid="customers-empty-state" sx={{ borderRadius: "12px", border: cardBorder === "transparent" ? 0 : `1px solid ${cardBorder}`, bgcolor: cardBg }}>
+        <ConsoleEmptyState
+          testid="customers-empty-unidentified"
+          icon={<Icon name="user-x" size={22} />}
+          title={t("customers.noPayingTitle", { defaultValue: "No paying customers with contact details yet" })}
+          description={t("customers.noPayingHint", {
+            count: unidentified.count,
+            amount: unidentified.amount,
+            defaultValue: "Your {{count}} payments ({{amount}}) came through checkouts that didn't capture a name or email — API, payment links and direct payments.",
+          })}
+          action={{ label: t("customers.noPayingCta", { defaultValue: "View unidentified payments" }), onClick: unidentified.onView, testid: "customers-empty-view-unidentified" }}
+          compact
+        />
+      </Box>
+    );
+  }
+  const showCta = !search && (segment === "all" || segment === "paying");
   const title = search
     ? t("customers.noCustomersSearch")
-    : segment !== "all"
+    : segment !== "all" && segment !== "paying"
       ? t("customers.noCustomersSegment", { defaultValue: "No customers in this segment yet" })
       : t("customers.noCustomersTitle");
   return (

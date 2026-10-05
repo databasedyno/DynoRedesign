@@ -35,7 +35,7 @@ import { toNumber } from "../utils/money";
 
 /**
  * GET /api/userApi/customers/directory
- * Query: company_id?, search?, segment?(all|repeat|new|dormant|prospects|anonymous),
+ * Query: company_id?, search?, segment?(all|paying|repeat|new|dormant|prospects|anonymous),
  *        sort?(recent|ltv|payments|name), page?, limit?
  */
 const getCustomerDirectory = async (req: express.Request, res: express.Response) => {
@@ -71,6 +71,7 @@ const getCustomerDirectory = async (req: express.Request, res: express.Response)
     // Segment filter
     const seg = String(segment);
     if (seg === "anonymous") rows = rows.filter((r) => r.kind === "anonymous");
+    else if (seg === "paying") rows = rows.filter((r) => r.kind === "person" && r.payments_count > 0);
     else if (seg === "repeat") rows = rows.filter((r) => r.segment === "repeat");
     else if (seg === "new") rows = rows.filter((r) => r.segment === "new");
     else if (seg === "dormant") rows = rows.filter((r) => r.segment === "dormant");

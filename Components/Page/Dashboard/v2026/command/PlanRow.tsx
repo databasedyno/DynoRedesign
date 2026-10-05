@@ -54,7 +54,7 @@ const PlanRow: React.FC = () => {
         limit: money(limit, sym, cur, 0),
         next,
         nextPct: nextPct ?? "",
-        defaultValue: "{{tier}} tier · {{pct}}% · {{used}} of {{limit}} to {{next}} ({{nextPct}}%)",
+        defaultValue: "{{tier}} tier · {{pct}}% · {{used}} lifetime net volume of {{limit}} to {{next}} ({{nextPct}}%)",
       })
     : t("command.planLineTop", { tier, pct, defaultValue: "{{tier}} tier · {{pct}}% per payment" });
 
@@ -89,7 +89,7 @@ const PlanRow: React.FC = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}>
           <Icon name="layers" size={15} />
-          <Box component="span" data-testid="plan-growth-summary" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: MONO, fontVariantNumeric: "tabular-nums", color: ink, fontWeight: 500 }}>
+          <Box component="span" data-testid="plan-growth-summary" title={t("command.planVolumeHint", { defaultValue: "Your fee tier follows lifetime net volume: completed payments after Dynopay fees, all time — the same figure as Net received on Payout addresses." }) as string} sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: MONO, fontVariantNumeric: "tabular-nums", color: ink, fontWeight: 500 }}>
             {summary}
           </Box>
         </Box>

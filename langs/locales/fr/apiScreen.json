@@ -15,7 +15,8 @@
     "trashAlt": "supprimer"
   },
   "status": {
-    "active": "Actif"
+    "active": "Actif",
+    "disabled": "Désactivée"
   },
   "createdOn": "Créé le {{date}} à {{time}}",
   "validation": {
@@ -33,7 +34,8 @@
     "confirmTitle": "Changer la monnaie de règlement ?",
     "updated": "La devise de règlement a été mise à jour en {{currency}}",
     "confirmBody": "Définir la devise de règlement sur {{currency}} affecte le règlement réel : les nouveaux paiements seront tarifés et reçus en {{currency}}. Cela ne change pas les paiements passés. Votre clé de développement (test) associée sera mise à jour pour correspondre.",
-    "confirmCta": "Changer pour {{currency}}"
+    "confirmCta": "Changer pour {{currency}}",
+    "settlementCurrencyShort": "Devise"
   },
   "toast": {
     "copied": "Copié !"
@@ -85,7 +87,8 @@
     "done": "Terminé",
     "regenerate": "Régénérer",
     "disable": "Désactiver",
-    "enable": "Activer"
+    "enable": "Activer",
+    "delete": "Supprimer"
   },
   "apiKeyTitle": "Clé API {{currency}}",
   "apiKeyTitleLive": "Clé API en direct",
@@ -115,7 +118,15 @@
     "neverUsed": "Jamais utilisé",
     "noExpiry": "Pas d'expiration",
     "expired": "Expiré {{date}}",
-    "expiresOn": "Expire {{date}}"
+    "expiresOn": "Expire {{date}}",
+    "colEnvironment": "Environnement",
+    "colKey": "Clé",
+    "colLastUsed": "Dernière utilisation",
+    "colCreated": "Créée",
+    "envLive": "Live",
+    "envTest": "Test",
+    "sandboxShort": "Sandbox",
+    "moreActions": "Actions sur la clé"
   },
   "developersTitle": "Développeurs",
   "developersDescription": "Clés API, webhooks, journal des événements et documentation d'intégration — au même endroit",

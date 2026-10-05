@@ -88,6 +88,9 @@ export interface DirectoryData {
     new_this_month: number;
     anonymous_payments: number;
     anonymous_revenue_usd: number;
+    paying_customers: number;
+    invited_count: number;
+    anonymous_buckets: number;
   };
 }
 
@@ -470,6 +473,9 @@ export const buildDirectory = async (
       new_this_month: newThisMonth,
       anonymous_payments: anonList.reduce((s, p) => s + p.payments_count, 0),
       anonymous_revenue_usd: toNumber(anonRevenue, 2),
+      paying_customers: paidPersons.length,
+      invited_count: personList.length - paidPersons.length,
+      anonymous_buckets: anonList.length,
     },
   };
 

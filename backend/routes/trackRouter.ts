@@ -197,6 +197,46 @@ trackRouter.post("/onboarding", authMiddleware, async (req: express.Request, res
   }
 });
 
+const PAGE_TIP_EVENT = "page_tip_dismissed";
+const PAGE_TIP_KEY = /^[a-zA-Z]{1,20}$/;
+const userIdOf = (res: express.Response) => (jwt.decode(res.locals.token) as { user_id?: number } | null)?.user_id;
+
+/** GET /api/track/page-tips — page-tip keys this ACCOUNT has dismissed (any device). */
+trackRouter.get("/page-tips", authMiddleware, async (_req: express.Request, res: express.Response) => {
+  try {
+    const user_id = userIdOf(res);
+    if (!user_id) return res.status(200).json({ ok: false, dismissed: [] });
+    const { onboardingEventModel } = await import("../models");
+    const rows = (await onboardingEventModel.findAll({
+      where: { user_id, event_type: PAGE_TIP_EVENT },
+      attributes: ["step_key"],
+      raw: true,
+    })) as unknown as Array<{ step_key: string | null }>;
+    return res.status(200).json({ ok: true, dismissed: [...new Set(rows.map((r) => r.step_key).filter(Boolean))] });
+  } catch (err) {
+    apiLogger.error("[Track] page-tips read error:", err);
+    return res.status(200).json({ ok: false, dismissed: [] });
+  }
+});
+
+/** POST /api/track/page-tips/dismiss { key } — remember a dismissed page tip for the account (idempotent). */
+trackRouter.post("/page-tips/dismiss", authMiddleware, async (req: express.Request, res: express.Response) => {
+  try {
+    const user_id = userIdOf(res);
+    const key = req.body?.key;
+    if (!user_id || typeof key !== "string" || !PAGE_TIP_KEY.test(key)) return res.status(400).json({ ok: false });
+    const { onboardingEventModel } = await import("../models");
+    await onboardingEventModel.findOrCreate({
+      where: { user_id, event_type: PAGE_TIP_EVENT, step_key: key },
+      defaults: { user_id, event_type: PAGE_TIP_EVENT, step_key: key },
+    });
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    apiLogger.error("[Track] page-tips dismiss error:", err);
+    return res.status(200).json({ ok: false });
+  }
+});
+
 /**
  * POST /api/track/visitor — retired (Wave 4d). The per-visit admin e-mail was
  * inbox noise; the endpoint stays a fast 200 so old landing-page bundles keep

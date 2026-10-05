@@ -101,7 +101,7 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHea
   useEffect(() => setActive(initialTab), [initialTab]);
 
   useEffect(() => {
-    setPageName?.(t("storefront.title", { defaultValue: "Storefront" }));
+    setPageName?.(t("storefront.title", { defaultValue: "Your page" }));
     setPageDescription?.(
       t("storefront.subtitle", {
         defaultValue:
@@ -149,7 +149,7 @@ const Storefront = ({ setPageName, setPageDescription, setPageAction, setPageHea
   return (
     <>
       <Head>
-        <title>{`${t("storefront.title", { defaultValue: "Storefront" })} · Dynopay`}</title>
+        <title>{`${t("storefront.title", { defaultValue: "Your page" })} · Dynopay`}</title>
       </Head>
 
       <Box

@@ -83,7 +83,7 @@ export const TableBodyCell = styled(TableCell)(({ theme }) => ({
   // Roomier cell padding (2026-10 polish): vertical cushion + 16px gutters that
   // line up with the 16px header cells, so columns breathe and the row no longer
   // reads as cramped. Horizontal rhythm matches the dashboard/Transactions list.
-  padding: "12px 16px",
+  padding: "12px 14px",
   fontSize: "14px",
   fontWeight: 500,
   fontFamily: "var(--font-sans)",

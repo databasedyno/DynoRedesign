@@ -1,6 +1,6 @@
 {
   "notifications": "Notifications",
-  "notificationsDescription": "Gérez comment vous recevez les mises à jour sur vos paiements en cryptomonnaie",
+  "notificationsDescription": "Paiements, versements et activité du compte, du plus récent au plus ancien",
   "transactionAlertsTitle": "Alertes de Transaction",
   "transactionAlertsSubtitle": "Soyez notifié des changements de statut des transactions",
   "transactionUpdatesTitle": "Mises à jour des Transactions",

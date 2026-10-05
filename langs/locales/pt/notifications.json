@@ -1,6 +1,6 @@
 {
   "notifications": "Notificações",
-  "notificationsDescription": "Gerencie como você recebe atualizações sobre seus pagamentos cripto",
+  "notificationsDescription": "Pagamentos, repasses e atividade da conta, mais recentes primeiro",
   "transactionAlertsTitle": "Alertas de Transação",
   "transactionAlertsSubtitle": "Seja notificado sobre mudanças no status das transações",
   "transactionUpdatesTitle": "Atualizações de Transação",

@@ -12,7 +12,6 @@ import { useTranslation } from "react-i18next";
 import {
   DatePickerTriggerButton,
   DatePickerWrapper,
-  SearchIconButton,
 } from "../Transactions/styled";
 import { brandFg } from "@/constants/theme";
 
@@ -96,14 +95,15 @@ const PaymentLinksTopBar = ({
     return isMobile ? "Period" : "Select date range";
   };
 
+  const CONTROL_H = isMobile ? 40 : 42;
   const inputSx = {
-    height: isMobile ? "32px" : "42px",
+    height: `${CONTROL_H}px`,
     borderRadius: "10px",
     border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2"}`,
     backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF",
     px: "12px",
     fontFamily: "var(--font-sans)",
-    fontSize: isMobile ? "10px" : "13px",
+    fontSize: "13px",
     color: theme.palette.text.primary,
   };
 
@@ -114,6 +114,8 @@ const PaymentLinksTopBar = ({
       py: 0,
       display: "flex",
       alignItems: "center",
+      color: theme.palette.text.primary,
+      fontWeight: 500,
     },
   };
 
@@ -133,7 +135,7 @@ const PaymentLinksTopBar = ({
           cursor: "pointer",
           borderRadius: "999px",
           px: 1.5,
-          height: isMobile ? 28 : 32,
+          height: CONTROL_H - 8,
           fontFamily: "var(--font-sans)",
           fontSize: isMobile ? 12 : 13,
           fontWeight: 700,
@@ -196,17 +198,20 @@ const PaymentLinksTopBar = ({
         <InputBase
           placeholder={t("searchInputPlaceholder")}
           onChange={(e) => onSearch(e.target.value)}
+          inputProps={{ "aria-label": t("searchInputPlaceholder") as string, "data-testid": "paylinks-search" }}
+          startAdornment={
+            <Image
+              src={SearchIcon}
+              alt=""
+              aria-hidden
+              width={16}
+              height={16}
+              className="themed-icon"
+              style={{ marginRight: 8, opacity: 0.6, flexShrink: 0 }}
+            />
+          }
           sx={{ ...inputSx, width: "100%" }}
         />
-        <SearchIconButton tabIndex={-1} aria-hidden disableRipple sx={{ pointerEvents: "none" }}>
-          <Image
-            src={SearchIcon}
-            alt=""
-            width={20}
-            height={20}
-            className="themed-icon-primary"
-          />
-        </SearchIconButton>
       </Box>
 
       {/* Date-range picker — SAME component as /transactions for consistency */}
@@ -214,6 +219,14 @@ const PaymentLinksTopBar = ({
         <DatePickerTriggerButton
           ref={buttonRef}
           onClick={handleCalendarButtonClick}
+          data-testid="paylinks-date-trigger"
+          sx={{
+            height: `${CONTROL_H}px`,
+            borderRadius: "10px",
+            borderColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2",
+            minWidth: isMobile ? "100%" : "200px",
+            "& .date-text": { fontSize: "13px" },
+          }}
         >
           <Image
             src={CalendarIcon}

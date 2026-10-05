@@ -19,7 +19,7 @@ import { Box, SxProps, Theme, ThemeProvider, useMediaQuery, useTheme } from "@mu
 import { sidebarTheme } from "@/styles/appTheme";
 import { DARK } from "@/constants/theme";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MainPageHeader,
@@ -110,6 +110,16 @@ const ClientLayout = ({
   const isOnboarding = router.pathname === "/get-started";
   const hasPageHeader = !!(pageName || pageDescription);
   const pageHeaderRef = useRef<HTMLDivElement | null>(null);
+  // Pinned title: show a hairline + soft shadow once content scrolls under it.
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  useEffect(() => {
+    const main = mainScrollRef.current;
+    if (!main) return;
+    const onScroll = () => setHeaderScrolled(main.scrollTop > 4);
+    onScroll();
+    main.addEventListener("scroll", onScroll, { passive: true });
+    return () => main.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Sticky page header: publish its height as scroll-padding on the scroll
   // container so scrollIntoView()/focus() never park a control underneath it
@@ -121,6 +131,8 @@ const ClientLayout = ({
     const apply = () => {
       const h = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
       main.style.scrollPaddingTop = h ? `${h + 8}px` : "";
+      // Sticky children (e.g. live previews) offset themselves below the pinned title.
+      main.style.setProperty("--page-header-h", `${h}px`);
     };
     apply();
     if (!header || typeof ResizeObserver === "undefined") return;
@@ -301,10 +313,15 @@ const ClientLayout = ({
                   <MainPageHeader
                     ref={pageHeaderRef}
                     data-testid="main-page-header"
+                    data-scrolled={headerScrolled ? "true" : "false"}
                     sx={{
                       px: { xs: isDashboard ? 2 : 0, md: 0 },
                       pt: { xs: 1.5, md: 3 },
                       pb: 0,
+                      transition: "box-shadow 160ms ease",
+                      boxShadow: headerScrolled
+                        ? `0 1px 0 ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(10,10,15,0.08)"}, 0 10px 14px -14px rgba(10,10,15,0.35)`
+                        : "none",
                     }}
                   >
                     <PageHeader

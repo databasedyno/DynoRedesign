@@ -22,7 +22,6 @@ export const PAGE_TIP_ROUTES: Record<string, string> = {
   "/settings": "settings",
   "/developer-keys": "developers",
   "/notifications": "notifications",
-  "/help-support": "helpSupport",
   // Checkpoint 3 pages built 2026-09-09 (plan 3.4 / 3.10).
   "/wallet/security": "walletSecurity",
   "/kyc": "kyc",

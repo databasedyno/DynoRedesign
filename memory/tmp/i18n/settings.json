@@ -1,0 +1,4 @@
+{"common": {
+ "settingsPage.profile": {"en": "Profile", "de": "Profil", "es": "Perfil", "fr": "Profil", "nl": "Profiel", "pt": "Perfil"},
+ "settingsPage.profileDesc": {"en": "Your name, photo, email and phone number", "de": "Ihr Name, Foto, E-Mail und Telefonnummer", "es": "Tu nombre, foto, correo y teléfono", "fr": "Votre nom, photo, e-mail et numéro de téléphone", "nl": "Je naam, foto, e-mail en telefoonnummer", "pt": "Seu nome, foto, e-mail e telefone"}
+}}

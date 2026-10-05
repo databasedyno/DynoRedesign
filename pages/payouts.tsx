@@ -9,7 +9,7 @@ const Payouts = ({ setPageName, setPageDescription }: pageProps) => {
   useEffect(() => {
     if (setPageName && setPageDescription) {
       setPageName(
-        t("payouts.pageName", { defaultValue: "Payouts & settlements" }),
+        t("payouts.pageName", { defaultValue: "Payouts" }),
       );
       setPageDescription(
         t("payouts.pageDescription", {

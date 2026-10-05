@@ -7,7 +7,6 @@ import StorefrontPendingCard from "@/Components/Page/Storefront/StorefrontPendin
 import PageFunnelHeader from "@/Components/Page/Storefront/PageFunnelHeader";
 import HandleClaimNudge from "@/Components/UI/OnboardingFlow/HandleClaimNudge";
 import useStorefrontProfile from "@/hooks/useStorefrontProfile";
-import PanelCard from "@/Components/UI/PanelCard";
 
 /**
  * Storefront → Page.
@@ -78,17 +77,20 @@ const PageTab = () => {
       {/* Settings form + live preview */}
       <Box sx={{ display: "flex", gap: 3, alignItems: "flex-start", flexWrap: "wrap" }}>
         <Box id="creator-edit-panel" sx={{ flex: "1 1 480px", minWidth: 0, scrollMarginTop: 96 }} data-testid="creator-edit-panel">
-          <PanelCard
-            title={t("creatorCustomizeTitle", { defaultValue: "Customize your page", ns: "dashboardLayout" })}
-            subTitle={t("creatorCustomizeSubtitle", { defaultValue: "Personalise your page — cover image, theme and links.", ns: "dashboardLayout" })}
-            bodyPadding={theme.spacing(2.5)}
-          >
-            <CreatorPageSettings onChange={onFormChange} />
-          </PanelCard>
+          {/* No overflow clipping here — the editor's save bar is position: sticky. */}
+          <Box sx={{ mb: 1.5, px: 0.5 }}>
+            <Typography component="h2" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, color: theme.palette.text.primary }}>
+              {t("creatorCustomizeTitle", { defaultValue: "Customize your page", ns: "dashboardLayout" })}
+            </Typography>
+            <Typography sx={{ mt: 0.25, fontSize: 13, color: theme.palette.text.secondary }}>
+              {t("creatorCustomizeSubtitle", { defaultValue: "Personalise your page — cover image, theme and links.", ns: "dashboardLayout" })}
+            </Typography>
+          </Box>
+          <CreatorPageSettings onChange={onFormChange} />
         </Box>
 
         {isDesktop && mounted && (
-          <Box sx={{ flex: "0 0 360px", position: "sticky", top: 24 }} data-testid="creator-preview-column">
+          <Box sx={{ flex: "0 0 360px", position: "sticky", top: "calc(var(--page-header-h, 0px) + 16px)" }} data-testid="creator-preview-column">
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 1, ml: 0.5 }}>
               <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
                 {t("creatorPreviewLabel", { defaultValue: "Live preview", ns: "dashboardLayout" })}

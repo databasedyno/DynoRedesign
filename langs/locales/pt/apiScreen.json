@@ -15,7 +15,8 @@
     "trashAlt": "excluir"
   },
   "status": {
-    "active": "Ativo"
+    "active": "Ativo",
+    "disabled": "Desativada"
   },
   "createdOn": "Criado em {{date}} às {{time}}",
   "validation": {
@@ -33,7 +34,8 @@
     "confirmTitle": "Alterar moeda de liquidação?",
     "updated": "Moeda de liquidação atualizada para {{currency}}",
     "confirmBody": "Definir a moeda de liquidação para {{currency}} afeta a liquidação real: novos pagamentos serão precificados e recebidos em {{currency}}. Não altera pagamentos passados. A sua chave de desenvolvimento (teste) emparelhada será atualizada para corresponder.",
-    "confirmCta": "Mudar para {{currency}}"
+    "confirmCta": "Mudar para {{currency}}",
+    "settlementCurrencyShort": "Moeda"
   },
   "toast": {
     "copied": "Copiado!"
@@ -85,7 +87,8 @@
     "done": "Feito",
     "regenerate": "Regenerar",
     "disable": "Desativar",
-    "enable": "Ativar"
+    "enable": "Ativar",
+    "delete": "Eliminar"
   },
   "apiKeyTitle": "Chave de API {{currency}}",
   "apiKeyTitleLive": "Chave de API em produção",
@@ -115,7 +118,15 @@
     "neverUsed": "Nunca utilizado",
     "noExpiry": "Sem expiração",
     "expired": "Expirado {{date}}",
-    "expiresOn": "Expira {{date}}"
+    "expiresOn": "Expira {{date}}",
+    "colEnvironment": "Ambiente",
+    "colKey": "Chave",
+    "colLastUsed": "Último uso",
+    "colCreated": "Criada",
+    "envLive": "Live",
+    "envTest": "Teste",
+    "sandboxShort": "Sandbox",
+    "moreActions": "Ações da chave"
   },
   "developersTitle": "Desenvolvedores",
   "developersDescription": "Chaves de API, webhooks, eventos de entrega e documentação de integração — em um só lugar",

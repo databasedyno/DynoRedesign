@@ -15,7 +15,8 @@
     "trashAlt": "Verwijderen"
   },
   "status": {
-    "active": "Actief"
+    "active": "Actief",
+    "disabled": "Uitgeschakeld"
   },
   "createdOn": "Aangemaakt op {{date}} om {{time}}",
   "validation": {
@@ -33,7 +34,8 @@
     "confirmTitle": "Afrekenvaluta wijzigen?",
     "updated": "Verrekenvaluta bijgewerkt naar {{currency}}",
     "confirmBody": "Het instellen van de verrekenvaluta op {{currency}} heeft invloed op de echte afrekening: nieuwe betalingen worden geprijsd en ontvangen in {{currency}}. Het verandert geen eerdere betalingen. Je gekoppelde ontwikkelings- (test) sleutel wordt bijgewerkt om overeen te komen.",
-    "confirmCta": "Wijzig naar {{currency}}"
+    "confirmCta": "Wijzig naar {{currency}}",
+    "settlementCurrencyShort": "Valuta"
   },
   "toast": {
     "copied": "Gekopieerd!"
@@ -85,7 +87,8 @@
     "done": "Klaar",
     "regenerate": "Regenereren",
     "disable": "Deactiveren",
-    "enable": "Activeren"
+    "enable": "Activeren",
+    "delete": "Verwijderen"
   },
   "apiKeyTitle": "{{currency}} API-sleutel",
   "apiKeyTitleLive": "Live API-sleutel",
@@ -115,7 +118,15 @@
     "neverUsed": "Nooit gebruikt",
     "noExpiry": "Geen vervaldatum",
     "expired": "Vervallen {{date}}",
-    "expiresOn": "Vervalt op {{date}}"
+    "expiresOn": "Vervalt op {{date}}",
+    "colEnvironment": "Omgeving",
+    "colKey": "Sleutel",
+    "colLastUsed": "Laatst gebruikt",
+    "colCreated": "Aangemaakt",
+    "envLive": "Live",
+    "envTest": "Test",
+    "sandboxShort": "Sandbox",
+    "moreActions": "Sleutelacties"
   },
   "developersTitle": "Ontwikkelaars",
   "developersDescription": "API-sleutels, webhooks, gebeurtenislog en integratiedocumentatie — op één plek",

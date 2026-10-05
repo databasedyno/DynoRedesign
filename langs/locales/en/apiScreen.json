@@ -15,7 +15,8 @@
     "trashAlt": "delete"
   },
   "status": {
-    "active": "Active"
+    "active": "Active",
+    "disabled": "Disabled"
   },
   "createdOn": "Created on {{date}} at {{time}}",
   "validation": {
@@ -33,7 +34,8 @@
     "confirmTitle": "Change settlement currency?",
     "updated": "Settlement currency updated to {{currency}}",
     "confirmBody": "Setting the settlement currency to {{currency}} affects real settlement: new payments will be priced and receipted in {{currency}}. It does not change past payments. Your paired development (test) key will be updated to match.",
-    "confirmCta": "Change to {{currency}}"
+    "confirmCta": "Change to {{currency}}",
+    "settlementCurrencyShort": "Currency"
   },
   "toast": {
     "copied": "Copied!"
@@ -85,7 +87,8 @@
     "done": "Done",
     "regenerate": "Regenerate",
     "disable": "Disable",
-    "enable": "Enable"
+    "enable": "Enable",
+    "delete": "Delete"
   },
   "apiKeyTitle": "{{currency}} API Key",
   "apiKeyTitleLive": "Live API Key",
@@ -115,7 +118,15 @@
     "neverUsed": "Never used",
     "noExpiry": "No expiry",
     "expired": "Expired {{date}}",
-    "expiresOn": "Expires {{date}}"
+    "expiresOn": "Expires {{date}}",
+    "colEnvironment": "Environment",
+    "colKey": "Key",
+    "colLastUsed": "Last used",
+    "colCreated": "Created",
+    "envLive": "Live",
+    "envTest": "Test",
+    "sandboxShort": "Sandbox",
+    "moreActions": "Key actions"
   },
   "developersTitle": "Developers",
   "developersDescription": "API keys, webhooks, delivery events and integration docs — in one place",

@@ -22,7 +22,7 @@
   "create": "Create",
   "linkIdHeader": "Link ID",
   "descriptionHeader": "Description",
-  "usdValueHeader": "USD Value",
+  "usdValueHeader": "Amount",
   "cryptoValueHeader": "Crypto Value",
   "createdHeader": "Created",
   "expiresHeader": "Expires",
@@ -114,7 +114,8 @@
   "coins": {
     "acceptsAll": "Accepts all {{count}} coins",
     "acceptsAllHint": "Buyers can pay with any coin you have a payout address for: {{list}}",
-    "acceptsSome": "Accepts {{count}} of {{total}} coins"
+    "acceptsSome": "Accepts {{count}} of {{total}} coins",
+    "acceptsAllShort": "All {{count}} coins"
   },
   "last30Header": "Last 30 days",
   "last30Tooltip": "Settled payments on this link in the last 30 days (count · gross USD).",
@@ -127,5 +128,7 @@
   "statusExpiringSoon": "Expiring soon",
   "qrTooltip": "Show QR code",
   "shareTooltip": "Share link",
-  "statusFilterLabel": "Filter by status"
+  "statusFilterLabel": "Filter by status",
+  "statusHeaderTip": "Link status. The line underneath shows settled payments in the last 30 days (count · gross USD).",
+  "raisedCaption": "raised"
 }

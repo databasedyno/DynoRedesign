@@ -184,5 +184,9 @@
   "formatUnusualTip": "This doesn't look like a typical {{chain}} address. Double-check it before your next payout.",
   "lastPayoutNone": "No payouts to this address yet",
   "lastPayoutAt": "Last payout {{when}}",
-  "in30d": "in 30d"
+  "in30d": "in 30d",
+  "options": "Options",
+  "netReceivedEyebrow": "Net received · all time",
+  "netReceivedHint": "What reached your payout addresses after Dynopay fees, all time, from completed payments. Payments to addresses you have since removed are not counted, so this can be slightly lower than Net revenue on Customers.",
+  "colNetReceived": "Net received"
 }

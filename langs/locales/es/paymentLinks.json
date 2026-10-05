@@ -22,7 +22,7 @@
   "create": "Crear",
   "linkIdHeader": "ID del Enlace",
   "descriptionHeader": "Descripción",
-  "usdValueHeader": "Valor USD",
+  "usdValueHeader": "Importe",
   "cryptoValueHeader": "Valor Crypto",
   "createdHeader": "Creado",
   "expiresHeader": "Expira",
@@ -114,7 +114,8 @@
   "coins": {
     "acceptsAll": "Acepta las {{count}} monedas",
     "acceptsAllHint": "Los compradores pueden pagar con cualquier moneda para la que tengas una dirección de cobro: {{list}}",
-    "acceptsSome": "Acepta {{count}} de {{total}} monedas"
+    "acceptsSome": "Acepta {{count}} de {{total}} monedas",
+    "acceptsAllShort": "Las {{count}} monedas"
   },
   "last30Header": "Últimos 30 días",
   "last30Tooltip": "Pagos liquidados en este enlace en los últimos 30 días (número · USD bruto).",
@@ -127,5 +128,7 @@
   "statusExpiringSoon": "Expira pronto",
   "qrTooltip": "Mostrar código QR",
   "shareTooltip": "Compartir enlace",
-  "statusFilterLabel": "Filtrar por estado"
+  "statusFilterLabel": "Filtrar por estado",
+  "statusHeaderTip": "Estado del enlace. La línea de abajo muestra los pagos liquidados en los últimos 30 días (número · USD brutos).",
+  "raisedCaption": "recaudado"
 }

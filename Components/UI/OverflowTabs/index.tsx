@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { Box, Popover, TextField, Typography, useTheme } from "@mui/material";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useTranslation } from "react-i18next";
+import { tabPillActive, tabPillHover } from "@/styles/tabPill";
 
 export interface OverflowTabItem {
   id: string;
@@ -215,11 +216,10 @@ const OverflowTabs = ({
   const pillSx = (isActive: boolean) => ({
     ...pillBase,
     fontWeight: isActive ? 600 : 500,
-    bgcolor: isActive ? (isDark ? "rgba(255,255,255,0.1)" : "#111214") : isDark ? "rgba(255,255,255,0.04)" : "#F1F2F5",
-    color: isActive ? (isDark ? theme.palette.text.primary : "#FFFFFF") : theme.palette.text.secondary,
-    "&:hover": {
-      bgcolor: isActive ? (isDark ? "rgba(255,255,255,0.1)" : "#111214") : isDark ? "rgba(255,255,255,0.08)" : "#E7E8EE",
-    },
+    bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#F1F2F5",
+    color: theme.palette.text.secondary,
+    ...(isActive ? tabPillActive(theme) : {}),
+    "&:hover": isActive ? tabPillActive(theme) : { bgcolor: tabPillHover(theme) },
   });
 
   const dirtyDot = (

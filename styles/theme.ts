@@ -327,7 +327,6 @@ export const theme = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: GOLD_DEEP,
           padding: "10px 15px",
           borderRadius: "20px",
           [tempTheme.breakpoints.down("md")]: {
@@ -510,7 +509,6 @@ const getCheckoutComponentStyles = (isDark: boolean) => ({
     },
     styleOverrides: {
       outlined: {
-        color: GOLD_DEEP,
         padding: "10px 15px",
         borderRadius: "20px",
         [tempTheme.breakpoints.down("md")]: {
@@ -913,7 +911,6 @@ export const themeDark = createTheme({
       },
       styleOverrides: {
         outlined: {
-          color: GOLD,
           padding: "10px 15px",
           borderRadius: "20px",
         },

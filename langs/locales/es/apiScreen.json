@@ -15,7 +15,8 @@
     "trashAlt": "eliminar"
   },
   "status": {
-    "active": "Activo"
+    "active": "Activo",
+    "disabled": "Desactivada"
   },
   "createdOn": "Creado el {{date}} a las {{time}}",
   "validation": {
@@ -33,7 +34,8 @@
     "confirmTitle": "¿Cambiar la moneda de liquidación?",
     "updated": "Moneda de liquidación actualizada a {{currency}}",
     "confirmBody": "Establecer la moneda de liquidación a {{currency}} afecta la liquidación real: los nuevos pagos se valorarán y se recibirán en {{currency}}. No cambia los pagos pasados. Tu clave de desarrollo emparejada (de prueba) se actualizará para coincidir.",
-    "confirmCta": "Cambiar a {{currency}}"
+    "confirmCta": "Cambiar a {{currency}}",
+    "settlementCurrencyShort": "Moneda"
   },
   "toast": {
     "copied": "Copiado!"
@@ -85,7 +87,8 @@
     "done": "Hecho",
     "regenerate": "Regenerar",
     "disable": "Desactivar",
-    "enable": "Activar"
+    "enable": "Activar",
+    "delete": "Eliminar"
   },
   "apiKeyTitle": "Clave API {{currency}}",
   "apiKeyTitleLive": "Clave API en vivo",
@@ -115,7 +118,15 @@
     "neverUsed": "Nunca usado",
     "noExpiry": "Sin expiración",
     "expired": "Expirado {{date}}",
-    "expiresOn": "Expira {{date}}"
+    "expiresOn": "Expira {{date}}",
+    "colEnvironment": "Entorno",
+    "colKey": "Clave",
+    "colLastUsed": "Último uso",
+    "colCreated": "Creada",
+    "envLive": "Live",
+    "envTest": "Prueba",
+    "sandboxShort": "Sandbox",
+    "moreActions": "Acciones de la clave"
   },
   "developersTitle": "Desarrolladores",
   "developersDescription": "Claves API, webhooks, eventos de entrega y documentación de integración — en un solo lugar",

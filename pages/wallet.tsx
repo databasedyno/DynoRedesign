@@ -9,10 +9,10 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { useWalletData } from "@/hooks/useWalletData";
 import { Icon } from "@/styles/uiKit";
 import { pageProps } from "@/utils/types";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, ListItemIcon, ListItemText, Menu, MenuItem, Typography, useTheme } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -61,41 +61,64 @@ const WalletHeaderActions: React.FC<{
   const isMobile = useIsMobile("md");
   const router = useRouter();
   const { t } = useTranslation("walletScreen");
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
+  const itemText = { fontSize: 14, fontFamily: "var(--font-sans)" };
   return (
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, width: { xs: "100%", sm: "auto" }, "& > *:last-child": { [muiTheme.breakpoints.down("sm")]: { flexBasis: hasWallets ? "100%" : undefined } } }}>
-      <CustomButton
-        label={t("security.headerBtn", { defaultValue: "Security" })}
-        variant="outlined"
-        size="medium"
-        startIcon={<Icon name="shield-check" size={isMobile ? 16 : 18} />}
-        onClick={() => router.push("/settings?section=security")}
-        data-testid="wallet-security-btn"
-        sx={{
-          height: isMobile ? 34 : 40,
-          px: isMobile ? 1.25 : 2,
-          fontSize: isMobile ? 13 : 15,
-          whiteSpace: "nowrap",
-          [muiTheme.breakpoints.down("sm")]: { flex: 1 },
-        }}
-      />
-      {hasWallets && (
+    <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+      <Box ref={optionsRef} sx={{ display: "flex", flexShrink: 0 }}>
         <CustomButton
-          label={t("manageWallets", { defaultValue: "Manage payout addresses" })}
+          label={t("options", { defaultValue: "Options" })}
           variant="outlined"
           size="medium"
-          startIcon={<Icon name="settings-2" size={isMobile ? 16 : 18} />}
-          onClick={onManage}
-          data-testid="wallet-manage-btn"
+          endIcon={<Icon name="chevron-down" size={16} />}
+          onClick={() => setAnchor(optionsRef.current)}
+          data-testid="wallet-options-btn"
           sx={{
             height: isMobile ? 34 : 40,
             px: isMobile ? 1.25 : 2,
             fontSize: isMobile ? 13 : 15,
             whiteSpace: "nowrap",
-            [muiTheme.breakpoints.down("sm")]: { flex: 1 },
           }}
         />
+      </Box>
+      <Menu
+        open={!!anchor}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        data-testid="wallet-options-menu"
+        slotProps={{ paper: { sx: { minWidth: 230, borderRadius: "12px", mt: 0.5 } } }}
+      >
+        {hasWallets && (
+          <MenuItem
+            data-testid="wallet-manage-btn"
+            onClick={() => {
+              setAnchor(null);
+              onManage();
+            }}
+          >
+            <ListItemIcon><Icon name="settings-2" size={16} /></ListItemIcon>
+            <ListItemText primaryTypographyProps={itemText}>{t("manageWallets", { defaultValue: "Manage payout addresses" })}</ListItemText>
+          </MenuItem>
+        )}
+        <MenuItem
+          data-testid="wallet-security-btn"
+          onClick={() => {
+            setAnchor(null);
+            router.push("/settings?section=security");
+          }}
+        >
+          <ListItemIcon><Icon name="shield-check" size={16} /></ListItemIcon>
+          <ListItemText primaryTypographyProps={itemText}>{t("security.headerBtn", { defaultValue: "Security" })}</ListItemText>
+        </MenuItem>
+      </Menu>
+      {canAdd && (
+        <Box sx={{ flex: { xs: 1, sm: "none" }, minWidth: 0, display: "flex", [muiTheme.breakpoints.down("sm")]: { "& > *": { flex: 1 } } }}>
+          <AddWalletAction onClick={onAdd} />
+        </Box>
       )}
-      {canAdd && <AddWalletAction onClick={onAdd} />}
     </Box>
   );
 };
