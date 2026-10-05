@@ -80,17 +80,20 @@ export const TableHeaderCell = styled(TableCell)(({ theme }) => ({
 
 export const TableBodyCell = styled(TableCell)(({ theme }) => ({
   border: "none",
-  padding: "0px 10px",
+  // Roomier cell padding (2026-10 polish): vertical cushion + 16px gutters that
+  // line up with the 16px header cells, so columns breathe and the row no longer
+  // reads as cramped. Horizontal rhythm matches the dashboard/Transactions list.
+  padding: "12px 16px",
   fontSize: "14px",
   fontWeight: 500,
   fontFamily: "var(--font-sans)",
   color: theme.palette.text.primary,
-  lineHeight: 1,
+  lineHeight: 1.35,
   letterSpacing: 0,
   whiteSpace: "nowrap",
   [theme.breakpoints.down("md")]: {
     fontSize: "13px",
-    padding: "0px 12px",
+    padding: "10px 14px",
   },
 }));
 

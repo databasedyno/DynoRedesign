@@ -97,11 +97,11 @@ const PaymentLinksTopBar = ({
   };
 
   const inputSx = {
-    height: isMobile ? "32px" : "40px",
-    borderRadius: "6px",
+    height: isMobile ? "32px" : "42px",
+    borderRadius: "10px",
     border: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.12)" : "#E9ECF2"}`,
     backgroundColor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.05)" : "#FFFFFF",
-    px: "10px",
+    px: "12px",
     fontFamily: "var(--font-sans)",
     fontSize: isMobile ? "10px" : "13px",
     color: theme.palette.text.primary,
@@ -155,7 +155,7 @@ const PaymentLinksTopBar = ({
         display: "flex",
         alignItems: isMobile ? "stretch" : "center",
         flexDirection: isMobile ? "column" : "row",
-        gap: "8px",
+        gap: isMobile ? "8px" : "12px",
         p: { xs: "0px 16px", md: "0px" },
         flexWrap: "wrap",
       }}

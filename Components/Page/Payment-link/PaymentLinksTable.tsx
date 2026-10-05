@@ -657,7 +657,7 @@ const PaymentLinksTable = ({
                   zIndex: 2,
                   backgroundColor: headBg,
                   // Flat header: paper surface + hairline rule instead of a filled band.
-                  "& .MuiTableCell-root": { borderBottom: `1px solid ${hairline(theme)}`, py: "10px" },
+                  "& .MuiTableCell-root": { borderBottom: `1px solid ${hairline(theme)}`, py: "14px" },
                 }}
               >
                 <TableRow sx={{ backgroundColor: headBg }}>
@@ -714,7 +714,7 @@ const PaymentLinksTable = ({
                       <TableRow
                         key={`skel-${i}`}
                         sx={{
-                          height: "52px",
+                          height: "64px",
                           borderTop: i === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
                         }}
                       >
@@ -738,9 +738,10 @@ const PaymentLinksTable = ({
                     {...rowKeyProps(() => openDetail(row))}
                     onClick={() => openDetail(row)}
                     sx={{
-                      // L1 — tighter row density: was 59/63px, now 48/52px so ~15% more rows
-                      // fit above the fold on a 900px viewport without feeling cramped.
-                      height: isMobile ? "48px" : "52px",
+                      // Roomier row rhythm (2026-10 polish): 64px desktop / 56px mobile
+                      // gives the list clear breathing room so it no longer feels cramped,
+                      // while still fitting plenty of rows above the fold.
+                      height: isMobile ? "56px" : "64px",
                       borderTop: index === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
                       cursor: "pointer",
                       transition: "background-color 120ms ease",
@@ -779,7 +780,7 @@ const PaymentLinksTable = ({
                         </Box>
                       )}
                     </TableBodyCell>
-                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right" }}>{row.usdValue}</TableBodyCell>
+                    <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right", fontWeight: 600 }}>{row.usdValue}</TableBodyCell>
                     <TableBodyCell><LinkCoinsBadge value={row.cryptoValue} /></TableBodyCell>
                     {/* Created + expiry stacked in ONE column — frees ~150px so
                         Status and Last 30 days fit without a horizontal scroll. */}

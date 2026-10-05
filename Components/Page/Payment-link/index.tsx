@@ -189,7 +189,7 @@ const PaymentLinksPage = ({
         flex: 1,
         minHeight: 0,
         "> :not(:last-child)": {
-          marginBottom: isMobile ? "10px" : "20px",
+          marginBottom: isMobile ? "12px" : "24px",
         },
       }}
     >
