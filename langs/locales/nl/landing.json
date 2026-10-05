@@ -19,7 +19,8 @@
       "paymentsLabel": "Betalingen deze maand afgewikkeld",
       "uptimeLabel": "Uptime over 90 dagen",
       "countriesLabel": "Landen bediend",
-      "statusLink": "Bekijk live status"
+      "statusLink": "Bekijk live status",
+      "eyebrow": "Live bewijs"
     },
     "how": {
       "eyebrow": "Hoe het werkt",
@@ -132,6 +133,28 @@
       "body": "Maak je eerste betaling in enkele minuten. Geen creditcard, geen contracten — gewoon betaald worden.",
       "primary": "Gratis starten",
       "secondary": "Lees de documentatie"
+    },
+    "security": {
+      "eyebrow": "Beveiliging en naleving",
+      "headline": "Gebouwd om met geld te worden vertrouwd",
+      "body": "Geld beweegt via routes die je kunt verifiëren — nooit geparkeerd op een saldo dat je niet ziet.",
+      "noncustodial": {
+        "title": "Non-custodiaal van opzet",
+        "body": "Afgewikkelde bedragen gaan rechtstreeks naar de wallet die jij beheert. Dynopay houdt je saldo er nooit tussenin vast."
+      },
+      "compliance": {
+        "title": "KYC en AML ingebouwd",
+        "body": "Identiteits- en antiwitwascontroles gelden voor handelaren boven de wettelijke drempels, zodat je account in goede staat blijft."
+      },
+      "keys": {
+        "title": "Geharde sleutelinfrastructuur",
+        "body": "Wallet-sleutels zijn versleuteld en geïsoleerd. Ondertekenen gebeurt in een beschermde omgeving — nooit in de browser."
+      },
+      "uptime": {
+        "title": "Verifieerbare beschikbaarheid",
+        "body": "Een openbare statuspagina en monitoring rond de klok laten je bevestigen dat betalingen en afwikkeling gezond zijn."
+      },
+      "trustLink": "Bezoek het Trust Center"
     }
   },
   "howItWorks": "Hoe het werkt",

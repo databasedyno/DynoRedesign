@@ -133,6 +133,11 @@ const CreatePaymentLinkPage = ({
   const expireTriggerRef = useRef<HTMLDivElement>(null);
   const [expireOpen, setExpireOpen] = useState<boolean>(false);
   const [successModalOpen, setSuccessModalOpen] = useState<boolean>(false);
+  // Reward tiers mirrored from CampaignManager (edit mode) so the live preview
+  // can show them. Stays empty in create mode (tiers are managed after save).
+  const [campaignTiers, setCampaignTiers] = useState<
+    { tier_id: number; min_amount: number; title: string; description?: string | null }[]
+  >([]);
   const [saveChangeModalOpen, setSaveChangeModalOpen] =
     useState<boolean>(false);
   const [paymentLink, setPaymentLink] = useState("");
@@ -1443,6 +1448,7 @@ const CreatePaymentLinkPage = ({
     coins: paymentSettings.acceptedCryptoCurrency || [],
     expire: paymentSettings.expire,
     feePayer: paymentSettings.blockchainFees,
+    tiers: campaignTiers,
   };
   const previewAmountNum = parseFloat(paymentSettings.value);
   const previewCurrency = paymentSettings.currency || "USD";
@@ -1831,6 +1837,7 @@ const CreatePaymentLinkPage = ({
                 <CampaignManager
                   linkId={paymentSettings.linkId}
                   currency={paymentSettings.currency}
+                  onTiersChange={setCampaignTiers}
                 />
               )}
 

@@ -19,7 +19,8 @@
       "paymentsLabel": "Diesen Monat abgewickelte Zahlungen",
       "uptimeLabel": "Uptime über 90 Tage",
       "countriesLabel": "Belieferte Länder",
-      "statusLink": "Live-Status ansehen"
+      "statusLink": "Live-Status ansehen",
+      "eyebrow": "Live-Nachweis"
     },
     "how": {
       "eyebrow": "So funktioniert's",
@@ -132,6 +133,28 @@
       "body": "Erstelle deine erste Zahlung in Minuten. Keine Kreditkarte, keine Verträge – einfach bezahlt werden.",
       "primary": "Kostenlos starten",
       "secondary": "Doku lesen"
+    },
+    "security": {
+      "eyebrow": "Sicherheit und Compliance",
+      "headline": "Gebaut, um mit Geld betraut zu werden",
+      "body": "Gelder bewegen sich auf Wegen, die Sie überprüfen können – niemals geparkt auf einem Guthaben, das Sie nicht sehen.",
+      "noncustodial": {
+        "title": "Nicht-verwahrend von Grund auf",
+        "body": "Abgewickelte Gelder gehen direkt in die von Ihnen kontrollierte Wallet. Dynopay hält Ihr Guthaben zwischendurch nie."
+      },
+      "compliance": {
+        "title": "KYC und AML integriert",
+        "body": "Identitäts- und Geldwäscheprüfungen gelten für Händler oberhalb der regulatorischen Schwellenwerte und halten Ihr Konto in gutem Stand."
+      },
+      "keys": {
+        "title": "Gehärtete Schlüssel-Infrastruktur",
+        "body": "Wallet-Schlüssel werden verschlüsselt und isoliert. Das Signieren erfolgt in einer geschützten Umgebung – niemals im Browser."
+      },
+      "uptime": {
+        "title": "Nachprüfbare Verfügbarkeit",
+        "body": "Eine öffentliche Statusseite und eine Rund-um-die-Uhr-Überwachung lassen Sie bestätigen, dass Zahlungen und Abwicklung einwandfrei laufen."
+      },
+      "trustLink": "Zum Trust Center"
     }
   },
   "howItWorks": "So funktioniert's",

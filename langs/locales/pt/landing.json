@@ -19,7 +19,8 @@
       "paymentsLabel": "Pagamentos liquidados este mês",
       "uptimeLabel": "Disponibilidade em 90 dias",
       "countriesLabel": "Países atendidos",
-      "statusLink": "Ver status ao vivo"
+      "statusLink": "Ver status ao vivo",
+      "eyebrow": "Prova ao vivo"
     },
     "how": {
       "eyebrow": "Como funciona",
@@ -132,6 +133,28 @@
       "body": "Crie seu primeiro pagamento em minutos. Sem cartão de crédito, sem contratos — é só receber.",
       "primary": "Começar grátis",
       "secondary": "Ler a documentação"
+    },
+    "security": {
+      "eyebrow": "Segurança e conformidade",
+      "headline": "Feito para merecer a confiança do seu dinheiro",
+      "body": "Os fundos circulam por trilhos que você pode verificar — nunca parados num saldo que você não vê.",
+      "noncustodial": {
+        "title": "Sem custódia, por princípio",
+        "body": "Os fundos liquidados vão direto para a carteira que você controla. A Dynopay nunca retém o seu saldo no meio do caminho."
+      },
+      "compliance": {
+        "title": "KYC e AML integrados",
+        "body": "As verificações de identidade e de combate à lavagem de dinheiro aplicam-se aos comerciantes acima dos limites regulatórios, mantendo a sua conta em conformidade."
+      },
+      "keys": {
+        "title": "Infraestrutura de chaves reforçada",
+        "body": "As chaves das carteiras são criptografadas e isoladas. A assinatura ocorre num ambiente protegido — nunca no navegador."
+      },
+      "uptime": {
+        "title": "Disponibilidade verificável",
+        "body": "Uma página de status pública e monitoramento ininterrupto permitem confirmar que os pagamentos e a liquidação estão saudáveis."
+      },
+      "trustLink": "Visite a Central de Confiança"
     }
   },
   "howItWorks": "Como funciona",

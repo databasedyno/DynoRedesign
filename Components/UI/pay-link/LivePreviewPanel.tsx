@@ -13,6 +13,13 @@ import { formatWithSymbol } from "@/utils/locale";
 import type { DonationSettingsState } from "./DonationSettingsSection";
 import type { LinkKind } from "./LinkTypeSelector";
 
+interface PreviewTier {
+  tier_id: number;
+  min_amount: number;
+  title: string;
+  description?: string | null;
+}
+
 interface LivePreviewPanelProps {
   linkKind: LinkKind;
   amount: string;
@@ -27,6 +34,8 @@ interface LivePreviewPanelProps {
   coins?: string[];
   expire?: string;
   feePayer?: string;
+  /** Reward tiers to mirror in the donation preview (populated in edit mode). */
+  tiers?: PreviewTier[];
   /** Hide the eyebrow + hint (parent renders its own toggle header). */
   compact?: boolean;
 }
@@ -47,6 +56,7 @@ const LivePreviewPanel = ({
   coins = [],
   expire,
   feePayer,
+  tiers = [],
   compact = false,
 }: LivePreviewPanelProps) => {
   const theme = useTheme();
@@ -196,6 +206,34 @@ const LivePreviewPanel = ({
           </Box>
           <Box sx={{ mt: 0.6, fontFamily: "var(--font-sans)", fontSize: 10.5, color: muted }}>
             {t("previewDonorWallSample", { defaultValue: "Sample — real supporters appear here once you're live." })}
+          </Box>
+        </Box>
+      )}
+      {tiers.length > 0 && (
+        <Box sx={{ mt: 1.75 }} data-testid="preview-reward-tiers">
+          <Box sx={{ ...eyebrowSx, mb: 0.75 }}>{t("previewRewardTiers", { defaultValue: "Reward tiers" })}</Box>
+          <Box sx={{ display: "grid", gap: 0.75 }}>
+            {tiers.slice(0, 4).map((tier, i) => (
+              <Box
+                key={tier.tier_id ?? i}
+                data-testid={`preview-reward-tier-${i}`}
+                sx={{ borderRadius: "10px", border: `1px solid ${border}`, px: 1.25, py: 0.9 }}
+              >
+                <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1 }}>
+                  <Box sx={{ minWidth: 0, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {tier.title}
+                  </Box>
+                  <Box sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 700, color: green, flexShrink: 0 }}>
+                    {t("previewTierFrom", { amount: fmt(Number(tier.min_amount) || 0), defaultValue: "from {{amount}}" })}
+                  </Box>
+                </Box>
+                {tier.description ? (
+                  <Typography sx={{ mt: 0.25, fontFamily: "var(--font-sans)", fontSize: 11, color: muted, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                    {tier.description}
+                  </Typography>
+                ) : null}
+              </Box>
+            ))}
           </Box>
         </Box>
       )}

@@ -322,5 +322,13 @@
   "previewDonorJustNow": "just now",
   "previewDonorMinsAgo": "2m ago",
   "previewDonorA": "Amara",
-  "previewDonorB": "Leo"
+  "previewDonorB": "Leo",
+  "nextStepsTitle": "What's next",
+  "nextManageLinks": "See all links",
+  "nextManageCampaigns": "See all campaigns",
+  "nextShareQr": "Share & QR",
+  "nextTrack": "Track payments",
+  "successDone": "Done",
+  "previewRewardTiers": "Reward tiers",
+  "previewTierFrom": "from {{amount}}"
 }

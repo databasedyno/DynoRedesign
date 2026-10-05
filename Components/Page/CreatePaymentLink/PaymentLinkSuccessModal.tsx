@@ -3,6 +3,7 @@ import useIsMobile from "@/hooks/useIsMobile";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 import {
@@ -67,6 +68,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
 }) => {
   const isMobile = useIsMobile("md");
   const theme = useTheme();
+  const router = useRouter();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("createPaymentLinkScreen");
   const tPaymentLink = useCallback(
@@ -333,6 +335,38 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
               </Box>
             </PaymentDetailsContainer>
 
+            {/* What's next — consistent 3-action panel for BOTH payment and
+                donation links: where it lives (manage) · share · track.
+                Mirrors the product post-creation panel (product-next-steps). */}
+            <Box data-testid="paylink-next-steps" sx={{ borderTop: `1px solid ${border}`, pt: 2, display: "flex", flexDirection: "column", gap: 1.25 }}>
+              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: ink }}>
+                {tPaymentLink("nextStepsTitle", { defaultValue: "What's next" })}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexDirection: { xs: "column", sm: "row" }, "& > *": { flex: 1 }, "& button": { width: "100%", minHeight: 44 } }}>
+                <CustomButton
+                  label={isDonation ? tPaymentLink("nextManageCampaigns", { defaultValue: "See all campaigns" }) : tPaymentLink("nextManageLinks", { defaultValue: "See all links" })}
+                  variant="outlined"
+                  startIcon={<Icon name="list" size={16} />}
+                  onClick={() => { onClose(); router.push("/pay-links"); }}
+                  data-testid="paylink-next-manage"
+                />
+                <CustomButton
+                  label={tPaymentLink("nextShareQr", { defaultValue: "Share & QR" })}
+                  variant="outlined"
+                  startIcon={<Icon name="share-2" size={16} />}
+                  onClick={handleSharePaymentLink}
+                  data-testid="paylink-next-share"
+                />
+                <CustomButton
+                  label={tPaymentLink("nextTrack", { defaultValue: "Track payments" })}
+                  variant="outlined"
+                  startIcon={<Icon name="activity" size={16} />}
+                  onClick={() => { onClose(); router.push("/transactions"); }}
+                  data-testid="paylink-next-track"
+                />
+              </Box>
+            </Box>
+
             <Box sx={{ display: "flex", gap: 1.25, flexDirection: { xs: "column", sm: "row" } }}>
               {onCreateAnother && (
                 <Box sx={{ flex: 1, "& button": { width: "100%", minHeight: 44 } }}>
@@ -340,7 +374,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                 </Box>
               )}
               <Box sx={{ flex: 1, "& button": { width: "100%", minHeight: 44 } }}>
-                <CustomButton label={tPaymentLink("successViewLinks", { defaultValue: "View all links" })} variant={onCreateAnother ? "primary" : "secondary"} onClick={onClose} data-testid="paylink-success-view-links" />
+                <CustomButton label={tPaymentLink("successDone", { defaultValue: "Done" })} variant={onCreateAnother ? "primary" : "secondary"} onClick={onClose} data-testid="paylink-success-view-links" />
               </Box>
             </Box>
           </Box>

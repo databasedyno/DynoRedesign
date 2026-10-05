@@ -1,4 +1,53 @@
 # ============================================================================
+# >>> 2026-10-05 (CREATE-FLOWS ENHANCEMENTS, 4 items) — NEEDS testing_agent (frontend)
+# ============================================================================
+#  App: DynoPay. Preview URL = https://d6222e9a-f1c4-40a1-8da5-57359e7eb131.preview.emergentagent.com
+#  Env: Next.js FE in DEV mode (hot reload), ts-node backend :8001, LIVE prod DB in SAFE MODE.
+#  Gates BEFORE this run: `tsc --noEmit` = 0 errors; eslint (project config) = 0 on the 4
+#  changed TS files; strip_unused_imports --check = 0 unused imports. All green.
+#
+#  LOGIN for tests: merchant onarrival21@gmail.com / Katiekendra123@ (company 1 "The Dev Store"
+#  = owner's OWN test brand → real saves OK). Quick no-OTP login: set localStorage token from
+#  /app/memory/tmp/merchant_token.txt + last_company_id=1, then navigate. ALWAYS send a real
+#  browser User-Agent (bot UAs get 403'd). SAFE MODE: MOCK writes on any OTHER merchant.
+#
+#  WHAT CHANGED (all frontend / i18n — NO backend changes):
+#
+#  #4 Inline field error on brand save — Components/UI/CompanySettingsDialog/index.tsx
+#     Save button is now type="submit" (gated disabled={loading || !isDirty}); submitting runs
+#     FormManager yup validation → sets touched+errors so invalid fields show inline messages
+#     (company_name / email / address_line_1) instead of a silently-grey button.
+#     TEST: /settings?section=company → Brand details. (a) blank Brand name OR invalid email →
+#     click Save → the SPECIFIC field shows an inline error (not just a toast); Save stays usable.
+#     (b) fix it → Save persists. (c) regression: normal country/address change still enables+saves.
+#     Desktop + mobile 390.
+#
+#  #3 Post-creation "What's next" 3-action panel — Components/Page/CreatePaymentLink/PaymentLinkSuccessModal.tsx
+#     Added a consistent 3-action row (data-testid paylink-next-steps) for BOTH payment and donation
+#     success: paylink-next-manage → /pay-links, paylink-next-share → native share/copy,
+#     paylink-next-track → /transactions. Footer now "Create another" + "Done" (paylink-success-view-links).
+#     TEST: create a payment link AND a fundraiser as company 1 → success modal shows the 3 actions;
+#     manage routes to /pay-links, track routes to /transactions, share copies/shares. Desktop + mobile.
+#
+#  #1 Reward tiers in the fundraiser LIVE PREVIEW — CampaignManager.tsx (+ onTiersChange prop via ref),
+#     CreatePaymentLink/index.tsx (campaignTiers state → livePreviewProps.tiers + onTiersChange=setCampaignTiers),
+#     LivePreviewPanel.tsx (new `tiers` prop → compact shelf, data-testid preview-reward-tiers /
+#     preview-reward-tier-<i>, shown after the donor wall in the donation preview).
+#     TEST: edit an existing DONATION campaign for company 1 → CampaignManager (Tiers tab) add/edit a
+#     tier → it appears LIVE in the phone preview (preview-reward-tiers); delete → it disappears.
+#     Public campaign page (RewardTierShelf) must still render tiers unchanged. (Create mode shows no
+#     tiers by design — tiers are managed after first save.)
+#
+#  #2 Landing i18n propagation — langs/locales/{es,fr,de,pt,nl}/landing.json
+#     Added the 13 missing v7.security.* keys + v7.trust.eyebrow (were English-fallback before).
+#     Also added createPaymentLinkScreen keys (nextStepsTitle/nextManage*/nextShareQr/nextTrack/
+#     successDone/previewRewardTiers/previewTierFrom) to en + 5 locales via
+#     scripts/copy/propagate_handoff_i18n.py (idempotent). All JSON validated.
+#     Self-verified: /?lang=es renders the trust bar + hero in Spanish ("PRUEBA EN VIVO", etc.).
+#     TEST: /?lang=es and /?lang=fr on / → Security section (Seguridad y cumplimiento / Sécurité et
+#     conformité) + the 4 cards read translated (not English). Trust eyebrow reads "Prueba en vivo".
+#
+# ============================================================================
 # >>> 2026-10-05 (BUG FIX) ✅ VERIFIED by testing_agent — Brand details "Save changes" was greyed
 #     despite unsaved changes (country/address). ✅✅✅ VERIFIED by testing_agent
 # ============================================================================

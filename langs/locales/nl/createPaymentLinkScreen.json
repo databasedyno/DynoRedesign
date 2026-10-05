@@ -322,5 +322,13 @@
   "previewDonorJustNow": "zojuist",
   "previewDonorMinsAgo": "2 min geleden",
   "previewDonorA": "Amara",
-  "previewDonorB": "Leo"
+  "previewDonorB": "Leo",
+  "nextStepsTitle": "Wat nu?",
+  "nextManageLinks": "Alle links bekijken",
+  "nextManageCampaigns": "Alle campagnes bekijken",
+  "nextShareQr": "Delen & QR",
+  "nextTrack": "Betalingen volgen",
+  "successDone": "Klaar",
+  "previewRewardTiers": "Beloningsniveaus",
+  "previewTierFrom": "vanaf {{amount}}"
 }

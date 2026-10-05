@@ -19,7 +19,8 @@
       "paymentsLabel": "Paiements réglés ce mois-ci",
       "uptimeLabel": "Disponibilité sur 90 jours",
       "countriesLabel": "Pays desservis",
-      "statusLink": "Voir l'état en direct"
+      "statusLink": "Voir l'état en direct",
+      "eyebrow": "Preuve en direct"
     },
     "how": {
       "eyebrow": "Comment ça marche",
@@ -132,6 +133,28 @@
       "body": "Créez votre premier paiement en quelques minutes. Sans carte bancaire, sans contrat — soyez simplement payé.",
       "primary": "Commencer gratuitement",
       "secondary": "Lire la documentation"
+    },
+    "security": {
+      "eyebrow": "Sécurité et conformité",
+      "headline": "Conçu pour qu'on vous confie de l'argent",
+      "body": "Les fonds circulent sur des rails que vous pouvez vérifier, jamais immobilisés sur un solde invisible.",
+      "noncustodial": {
+        "title": "Sans conservation, par conception",
+        "body": "Les fonds réglés vont directement vers le portefeuille que vous contrôlez. Dynopay ne détient jamais votre solde entre-temps."
+      },
+      "compliance": {
+        "title": "KYC et LAB intégrés",
+        "body": "Les contrôles d'identité et de lutte contre le blanchiment s'appliquent aux marchands dépassant les seuils réglementaires, afin que votre compte reste en règle."
+      },
+      "keys": {
+        "title": "Infrastructure de clés renforcée",
+        "body": "Les clés des portefeuilles sont chiffrées et isolées. La signature se fait dans un environnement protégé, jamais dans le navigateur."
+      },
+      "uptime": {
+        "title": "Disponibilité vérifiable",
+        "body": "Une page de statut publique et une surveillance permanente vous permettent de confirmer que les paiements et les règlements sont opérationnels."
+      },
+      "trustLink": "Visitez le Centre de confiance"
     }
   },
   "howItWorks": "Comment ça marche",

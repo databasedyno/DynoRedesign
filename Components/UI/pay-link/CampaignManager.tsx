@@ -10,7 +10,7 @@
  *
  * Uses the crowdfundingController endpoints under `/api/pay/campaign/:id/{tiers,updates}` etc.
  */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { formatDateTimeI18n } from "@/utils/formatDate";
 import { formatLocaleInt } from "@/utils/locale";
 import {
@@ -62,9 +62,12 @@ interface CampaignSupporter {
 interface CampaignManagerProps {
   linkId: string | number;
   currency: string;
+  /** Fired after tiers load / create / update / delete so a parent (e.g. the
+   *  live preview) can mirror the current tier list without its own fetch. */
+  onTiersChange?: (tiers: Tier[]) => void;
 }
 
-const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
+const CampaignManager = ({ linkId, currency, onTiersChange }: CampaignManagerProps) => {
   const theme = useTheme();
   const { t } = useTranslation("createPaymentLinkScreen");
   const green = "#10B981";
@@ -83,6 +86,14 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
   const [tierDraft, setTierDraft] = useState({ title: "", min_amount: "", description: "" });
   const [editingTierId, setEditingTierId] = useState<number | null>(null);
 
+  // Keep the latest onTiersChange in a ref so `load` (memoised on [linkId]) can
+  // call it without taking it as a dep — a parent passing an inline callback
+  // would otherwise re-create `load` every render and trigger a refetch loop.
+  const onTiersChangeRef = useRef(onTiersChange);
+  useEffect(() => {
+    onTiersChangeRef.current = onTiersChange;
+  }, [onTiersChange]);
+
   // ── new-update form state ──
   const [updateDraft, setUpdateDraft] = useState({ title: "", body_md: "", notify_contributors: false });
   const [editingUpdateId, setEditingUpdateId] = useState<number | null>(null);
@@ -97,6 +108,7 @@ const CampaignManager = ({ linkId, currency }: CampaignManagerProps) => {
         axiosBaseApi.get(API_ENDPOINTS.pay.campaignWall(linkId)),
       ]);
       setTiers(tiersRes.data?.data || []);
+      onTiersChangeRef.current?.(tiersRes.data?.data || []);
       setUpdates(updatesRes.data?.data || []);
       const wallItems: CampaignSupporter[] = wallRes.data?.data?.items || [];
       setSupporters(wallItems);
