@@ -45,6 +45,7 @@ import { startWebhookWorker, getQueueHealth, getDLQItems, retryDLQItem, shutdown
 import { sweepExpiredPaymentLinks } from "./services/paymentExpirySweeper";
 import { processWebhookJob } from "./services/webhookProcessor";
 import { runStartupReconciliation, reconcileFailedStatePayments, clearStaleTatumWebhooks } from "./services/reconciliation";
+import { runWithTatumSource } from "./services/tatumMeter";
 import { startVolatilityMonitor, getAllMarketStates, runMonitorCycle } from "./services/volatilityMonitorService";
 import { startBinanceWebSocket, getStatus as getWsStatus } from "./services/binanceWebSocketService";
 import { detectBinanceAccess, forceProxyState, getProxyState } from "./services/binanceService";
@@ -873,7 +874,7 @@ leaderCron.schedule("0 */2 * * *", async function () {
   if (!lockAcquired) return;
   try {
     log("Cron: USDT check running", "info");
-    await paymentController.checkingUSDT();
+    await runWithTatumSource("cron:checkingUSDT", () => paymentController.checkingUSDT());
   } catch (err) {
     log(`Cron: checkingUSDT failed: ${(err as Error).message}`, "error");
     captureError(err as Error, 'cron', { extraContext: 'checkingUSDT' });
@@ -887,7 +888,7 @@ leaderCron.schedule("*/30 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:sweepNativeAdminFees", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
-    await paymentController.sweepNativeAdminFees();
+    await runWithTatumSource("cron:sweepNativeAdminFees", () => paymentController.sweepNativeAdminFees());
   } catch (err) {
     log(`Cron: sweepNativeAdminFees failed: ${(err as Error).message}`, "error");
     captureError(err as Error, 'cron', { extraContext: 'sweepNativeAdminFees' });
@@ -900,7 +901,7 @@ leaderCron.schedule("*/30 * * * *", async () => {
   const lockAcquired = await acquireLock("cron:processIncompletePayments", 540, 1, 100, true);
   if (!lockAcquired) return; // silent skip
   try {
-    await paymentController.processIncompletePayments();
+    await runWithTatumSource("cron:processIncompletePayments", () => paymentController.processIncompletePayments());
   } finally {
     await releaseLock("cron:processIncompletePayments");
   }
@@ -1029,7 +1030,7 @@ leaderCron.schedule("0 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:checkFeeBalance", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
-    await paymentController.checkFeeBalance();
+    await runWithTatumSource("cron:checkFeeBalance", () => paymentController.checkFeeBalance());
   } catch (err) {
     log(`Cron: checkFeeBalance failed: ${(err as Error).message}`, "error");
     captureError(err as Error, 'cron', { extraContext: 'checkFeeBalance' });
@@ -1063,7 +1064,7 @@ leaderCron.schedule("*/30 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:performScheduledSweeps", 180, 1, 100, true);
   if (!lockAcquired) return; // silent skip — lock contention is normal
   try {
-    await merchantPoolService.performScheduledSweeps();
+    await runWithTatumSource("cron:performScheduledSweeps", () => merchantPoolService.performScheduledSweeps());
   } catch (err) {
     log(`Cron: Sweep failed, will retry next cycle: ${err.message}`, "error");
     captureError(err, 'cron', { extraContext: 'performScheduledSweeps' });
@@ -1154,7 +1155,7 @@ leaderCron.schedule("*/2 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:preWarmAddressPool", 120, 1, 100, true);
   if (!lockAcquired) return;
   try {
-    await merchantPoolService.preWarmAddressPool();
+    await runWithTatumSource("cron:preWarmAddressPool", () => merchantPoolService.preWarmAddressPool());
   } catch (err) {
     const errMsg = getErrorMessage(err);
     log(`Cron: preWarmAddressPool failed: ${errMsg}`, "error");
@@ -1171,7 +1172,7 @@ leaderCron.schedule("0 */6 * * *", async function () {
   if (!lockAcquired) return;
   try {
     log("Cron: ensurePoolSubscriptions running", "info");
-    await merchantPoolService.ensurePoolSubscriptions();
+    await runWithTatumSource("cron:ensurePoolSubscriptions", () => merchantPoolService.ensurePoolSubscriptions());
   } catch (err) {
     log(`Cron: Subscription health check failed: ${(err as Error).message}`, "error");
     captureError(err as Error, 'cron', { extraContext: 'ensurePoolSubscriptions' });
@@ -1187,7 +1188,7 @@ leaderCron.schedule("0 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:checkMissedPayments", 600, 1, 100, true);
   if (!lockAcquired) return; // silent skip
   try {
-    await merchantPoolService.checkMissedPayments();
+    await runWithTatumSource("cron:checkMissedPayments", () => merchantPoolService.checkMissedPayments());
   } catch (err) {
     log(`Cron: Missed payments check failed: ${err.message}`, "error");
     captureError(err, 'cron', { extraContext: 'checkMissedPayments' });
@@ -1206,7 +1207,7 @@ leaderCron.schedule("0 */6 * * *", async function () {
   if (!lockAcquired) { log("Cron: detectOrphanPayments skipped (already running)", "info"); return; }
   try {
     log("Cron: detectOrphanPayments running", "info");
-    await merchantPoolService.detectOrphanPayments();
+    await runWithTatumSource("cron:detectOrphanPayments", () => merchantPoolService.detectOrphanPayments());
   } catch (err) {
     log(`Cron: Orphan payment detection failed: ${err.message}`, "error");
     captureError(err, 'cron', { extraContext: 'detectOrphanPayments' });
@@ -1223,7 +1224,7 @@ const runWrongAssetRecovery = async () => {
   if (!lockAcquired) { log("Cron: wrongAssetRecovery skipped (already running)", "info"); return; }
   try {
     log("Cron: wrongAssetRecovery running", "info");
-    const r = await merchantPoolService.recoverWrongAssetDeposits();
+    const r = await runWithTatumSource("cron:wrongAssetRecovery", () => merchantPoolService.recoverWrongAssetDeposits());
     if (r.recovered || r.feeSwept || r.errors.length) log(`Cron: wrongAssetRecovery — recovered ${r.recovered}, fee sweeps ${r.feeSwept}, errors ${r.errors.length}`, r.errors.length ? "error" : "info");
   } catch (err) {
     log(`Cron: wrongAssetRecovery failed: ${getErrorMessage(err)}`, "error");
@@ -1243,9 +1244,11 @@ leaderCron.schedule("*/30 * * * *", async function () {
   const lockAcquired = await acquireLock("cron:prewarmPoolAddresses", 300, 1, 100, true);
   if (!lockAcquired) return;
   try {
-    await merchantPoolService.prewarmPoolAddresses();
-    // Also retry any RLUSD addresses with pending trust lines
-    await merchantPoolService.retryPendingTrustLines();
+    await runWithTatumSource("cron:prewarmPoolAddresses", async () => {
+      await merchantPoolService.prewarmPoolAddresses();
+      // Also retry any RLUSD addresses with pending trust lines
+      await merchantPoolService.retryPendingTrustLines();
+    });
   } catch (err) {
     log(`Cron: Pool pre-warming failed: ${(err as Error).message}`, "error");
     captureError(err as Error, 'cron', { extraContext: 'prewarmPoolAddresses' });

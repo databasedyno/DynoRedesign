@@ -9,6 +9,7 @@ import {
 } from "../middleware";
 import { paymentRateLimiter, publicReadRateLimiter } from "../middleware/rateLimitMiddleware";
 import { walletTxSubmitted } from "../controller/payment/walletTxHint";
+import { tatumSourceMiddleware } from "../services/tatumMeter";
 
 const paymentRouter = express.Router();
 
@@ -107,6 +108,7 @@ paymentRouter.post(
 paymentRouter.post(
   "/verifyCryptoPayment",
   customerAuthMiddleware,
+  tatumSourceMiddleware("http:verifyCryptoPayment"),
   paymentController.verifyCryptoPayment
 );
 
@@ -116,6 +118,7 @@ paymentRouter.get(
   "/stream",
   paymentController.tokenFromQuery,
   customerAuthMiddleware,
+  tatumSourceMiddleware("http:checkoutStatusStream"),
   paymentController.checkoutStatusStream
 );
 

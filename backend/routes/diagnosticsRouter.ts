@@ -15,6 +15,7 @@ import { sweepExpiredPaymentLinks } from "../services/paymentExpirySweeper";
 import { webhookLogs } from "../utils/loggers";
 import tatumHttp from "../utils/tatumHttp";
 import { toFixedStr, toNumber } from "../utils/money";
+import { getMeterSnapshot } from "../services/tatumMeter";
 // Audited custody boundary for private keys — do NOT decrypt key material directly.
 import * as keyCustody from "../services/keyCustody/keyCustodyService";
 import fs from "fs";
@@ -2027,6 +2028,24 @@ router.get("/tier2-health", adminAuthMiddleware, async (_req: express.Request, r
     key_access_audit_24h: keyAudit24h,
     timestamp: new Date().toISOString(),
   });
+});
+
+/**
+ * GET /diagnostics/tatum-usage?hours=6
+ * Read-only Tatum call attribution from the Phase 1 meter. Shows, per hourly
+ * bucket, how many logical Tatum reads each job/source made per chain, with
+ * cache hit/miss/bypass outcomes — so the runaway LTC/DOGE spend can be traced
+ * to a specific caller WITHOUT the Tatum dashboard. No addresses/keys/PII.
+ * Admin only.
+ */
+router.get("/tatum-usage", adminAuthMiddleware, async (req: express.Request, res: express.Response) => {
+  try {
+    const hours = Math.max(1, Math.min(Number(req.query.hours) || 6, 72));
+    const snapshot = await getMeterSnapshot(hours);
+    res.status(200).json({ success: true, ...snapshot });
+  } catch (err) {
+    res.status(500).json({ success: false, error: (err as Error).message });
+  }
 });
 
 export default router;

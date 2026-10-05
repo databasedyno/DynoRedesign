@@ -19,6 +19,9 @@ import { Crc32c } from "@aws-crypto/crc32c";
 import { buildUrl } from "../helper";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { withSdkFallback } from "../utils/rpcFallback";
+// Phase 1 Tatum cost observability: attribute every logical read to a
+// caller/job + chain so we can locate the runaway LTC/DOGE spend. Fire-and-forget.
+import { recordTatumCall } from "../services/tatumMeter";
 import {
   calculateOptimalFeeLimit,
   calculateDynamicTRC20Fee,
@@ -2211,12 +2214,14 @@ const validateTronAddress = (address) => {
 const BALANCE_CACHE_TTL_SECONDS = 600; // 10 minutes
 
 const getAddressBalance = async (address: string, currency: string, skipCache: boolean = false) => {
+  const __mtStart = Date.now();
   // Check Redis cache first (unless caller needs real-time data)
   if (!skipCache) {
     const cacheKey = `tatum:balance:${currency}:${address}`;
     try {
       const cached = await getRedisItem(cacheKey);
       if (cached !== null && cached !== undefined) {
+        recordTatumCall({ operation: "getAddressBalance", chain: currency, cache: "hit", status: "ok" });
         return cached as { balance: string; incoming?: string; outgoing?: string };
       }
     } catch {
@@ -2567,10 +2572,20 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
     }
   }
 
+  // TATUM METER: a real provider call was made (cache miss, or bypass when skipCache).
+  recordTatumCall({
+    operation: "getAddressBalance",
+    chain: currency,
+    cache: skipCache ? "bypass" : "miss",
+    status: "ok",
+    ms: Date.now() - __mtStart,
+  });
+
   return res;
 };
 
 const getCurrentPaymentStatus = async (address: string, currency) => {
+  const __mtStart = Date.now();
   const tatumSdk = await getTatumSDK();
   let res = {
     paymentStatus: "not_found",
@@ -2770,6 +2785,7 @@ const getCurrentPaymentStatus = async (address: string, currency) => {
 
   // For chains not explicitly handled above (SOL, XRP, POLYGON, USDT-POLYGON, etc.),
   // use fallback balance-based detection instead of returning "not_found"
+  recordTatumCall({ operation: "getCurrentPaymentStatus", chain: currency, cache: "bypass", status: "ok", ms: Date.now() - __mtStart });
   if (res.paymentStatus === "not_found") {
     const fallbackResult = await getPaymentStatusFallback(address, currency, 0);
     if (fallbackResult.paymentStatus !== "not_found") {
@@ -2846,6 +2862,7 @@ const getUtxoAddressTransactions = async (
   limit: number = 20
 ): Promise<UtxoAddressTx[]> => {
   const tatumSdk = await getTatumSDK();
+  recordTatumCall({ operation: "getUtxoAddressTransactions", chain: currency, cache: "bypass", status: "ok" });
   if (currency === "BTC") {
     return ((await tatumSdk.blockchain.bitcoin.btcGetTxByAddress(address, limit, 0)) as UtxoAddressTx[]) || [];
   }
@@ -2873,6 +2890,7 @@ const getIncomingTransactions = async (
   limit: number = 10,
   filterDestinationTag?: number | null
 ): Promise<{ txId: string; amount: number; timestamp: number; destinationTag?: number | null }[]> => {
+  const __mtStart = Date.now();
   const tatumSdk = await getTatumSDK();
   const transactions: { txId: string; amount: number; timestamp: number; destinationTag?: number | null }[] = [];
 
@@ -3293,6 +3311,7 @@ const getIncomingTransactions = async (
     cronLogger.error(`[getIncomingTransactions] Error fetching transactions for ${currency}:`, error.message);
   }
 
+  recordTatumCall({ operation: "getIncomingTransactions", chain: currency, cache: "bypass", status: "ok", ms: Date.now() - __mtStart });
   // Sort by timestamp descending (most recent first)
   return transactions.sort((a, b) => b.timestamp - a.timestamp);
 };

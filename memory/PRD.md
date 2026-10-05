@@ -1,3 +1,9 @@
+# 2026-10-05 (fork, pod 33379795) — TATUM COST PHASE 1: call meter + hourly budget guard + admin attribution endpoint (GET /api/diagnostics/tatum-usage). Observability only, no payment-behaviour change. Verified in preview (tsc 0, endpoint live); real attribution accrues in PROD after deploy. See CHANGELOG.md for full detail.
+#   NEXT (Phase 2, meter-driven once prod data lands): identify exact LTC/DOGE caller → scope UTXO polling to active payment states, state-aware cache TTLs + single-flight, bound reconciliation/orphan scans, prevent idle/pre-warmed-address subscription creation (don't mass-delete), right-size pool pre-reservation, trace+throttle SafeDeal request flood separately.
+# ============================================================================================
+
+
+
 # 2026-10-05 (pod 33379795) — /pay-links POLISH TEST + IN-APP UX AUDIT — report only, NO code changes
 # testing_agent iteration_265 (frontend, read-only): 15/15 functional flows pass; HIGH regression open — sticky ACTIONS column
 #   covers STATUS / LAST 30 DAYS at <=1440 px (table ~1354 px vs 1134 px card). Fix options + all findings:
