@@ -137,7 +137,9 @@ while true; do
     k=0
     until curl -sf "http://127.0.0.1:$BACKEND_PORT/health" >/dev/null 2>&1; do
       if ! kill -0 $BACKEND_PID 2>/dev/null; then break; fi
-      k=$((k+1)); [ "$k" -ge 60 ] && break; sleep 1
+      k=$((k+1))
+      if [ "$k" -ge 60 ]; then break; fi
+      sleep 1
     done
     echo "[start-all] Backend respawned (ready after ~${k}s)."
   fi
