@@ -10,6 +10,8 @@ import Stack from "@mui/material/Stack";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import MuiCard from "@mui/material/Card";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import adminBaseApi from "@/axiosAdmin";
@@ -76,6 +78,7 @@ const AdminLogin = () => {
   const [qr, setQr] = React.useState("");
   const [secret, setSecret] = React.useState("");
   const [backupCodes, setBackupCodes] = React.useState<string[]>([]);
+  const [trustDevice, setTrustDevice] = React.useState(true);
 
   const finish = (token: string) => {
     localStorage.setItem("admin_token", token);
@@ -89,6 +92,12 @@ const AdminLogin = () => {
       const {
         data: { data },
       } = await adminBaseApi.post("/admin/login/password", { email, password });
+      if (data.status === "OK") {
+        // Recognized (trusted) browser — TOTP skipped, signed in directly.
+        finish(data.accessToken);
+        router.replace("/admin");
+        return;
+      }
       if (data.status === "TOTP_REQUIRED") {
         setChallengeToken(data.challengeToken);
         setCode("");
@@ -118,7 +127,7 @@ const AdminLogin = () => {
     try {
       const {
         data: { data },
-      } = await adminBaseApi.post("/admin/login/totp", { challengeToken, code });
+      } = await adminBaseApi.post("/admin/login/totp", { challengeToken, code, trustDevice });
       finish(data.accessToken);
       router.replace("/admin");
     } catch (e) {
@@ -135,7 +144,7 @@ const AdminLogin = () => {
     try {
       const {
         data: { data },
-      } = await adminBaseApi.post("/admin/enroll/complete", { enrollToken, code });
+      } = await adminBaseApi.post("/admin/enroll/complete", { enrollToken, code, trustDevice });
       finish(data.accessToken);
       setBackupCodes(data.backupCodes || []);
       setStep("backup");
@@ -162,6 +171,20 @@ const AdminLogin = () => {
         onChange={(e) => setCode(e.target.value.replace(/\s/g, ""))}
       />
     </FormControl>
+  );
+
+  const TrustCheckbox = (
+    <FormControlLabel
+      control={
+        <Checkbox
+          checked={trustDevice}
+          onChange={(e) => setTrustDevice(e.target.checked)}
+          data-testid="admin-trust-device-checkbox"
+        />
+      }
+      label="Trust this browser for 30 days (skip the code next time)"
+      sx={{ mt: -1 }}
+    />
   );
 
   return (
@@ -230,6 +253,7 @@ const AdminLogin = () => {
               Enter the 6-digit code from your authenticator app (or a backup code).
             </Typography>
             {CodeField}
+            {TrustCheckbox}
             <Button type="submit" fullWidth variant="contained" disabled={loading} data-testid="admin-2fa-verify-btn">
               {loading ? <CircularProgress size={22} /> : "Verify & sign in"}
             </Button>
@@ -253,6 +277,7 @@ const AdminLogin = () => {
               </Typography>
             )}
             {CodeField}
+            {TrustCheckbox}
             <Button type="submit" fullWidth variant="contained" disabled={loading} data-testid="admin-enroll-verify-btn">
               {loading ? <CircularProgress size={22} /> : "Enable & sign in"}
             </Button>

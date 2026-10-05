@@ -30,6 +30,7 @@ import {
   generateBackupCodes,
   matchBackupCode,
 } from "./adminTotpService";
+import { isAdminTrustedDevice } from "./adminTrustedDevice";
 
 const BCRYPT_ROUNDS = 12;
 const ADMIN_ISSUER = envRaw("ADMIN_ISSUER") || "dynopay-admin";
@@ -185,6 +186,7 @@ const issueSession = async (
 };
 
 export type PasswordPhaseResult =
+  | { status: "OK"; accessToken: string; expiresAt: string }
   | { status: "TOTP_REQUIRED"; challengeToken: string }
   | { status: "ENROLL_REQUIRED"; enrollToken: string };
 
@@ -216,6 +218,14 @@ export const passwordPhase = async (
     return { status: "ENROLL_REQUIRED", enrollToken };
   }
 
+  // Trusted-device skip: a browser that previously passed TOTP (and still carries
+  // a live, unrevoked trust cookie) signs in with PASSWORD ONLY — no TOTP prompt.
+  if (await isAdminTrustedDevice(admin.admin_id, req)) {
+    const session = await issueSession(admin, req);
+    adminLogger.info(`[adminAuth] trusted-device login (TOTP skipped) admin=${admin.admin_id} ip=${clientIp(req)}`);
+    return { status: "OK", ...session };
+  }
+
   const challengeToken = rand();
   await redis.set(challengeKey(challengeToken), JSON.stringify({ admin_id: admin.admin_id }), {
     EX: CHALLENGE_TTL,
@@ -245,7 +255,7 @@ export const completeEnrollment = async (
   enrollToken: string,
   code: string,
   req: express.Request
-): Promise<{ accessToken: string; expiresAt: string; backupCodes: string[] }> => {
+): Promise<{ accessToken: string; expiresAt: string; backupCodes: string[]; adminId: number }> => {
   const raw = await redis.get(enrollKey(enrollToken));
   if (!raw) throw new AdminAuthError(400, "Enrollment session expired. Please sign in again.");
   const parsed = JSON.parse(raw) as { admin_id: number; secret?: string };
@@ -268,7 +278,7 @@ export const completeEnrollment = async (
   const admin = await getAdminById(parsed.admin_id);
   adminLogger.info(`[adminAuth] TOTP enrolled admin=${parsed.admin_id}`);
   const session = await issueSession(admin!, req);
-  return { ...session, backupCodes: plain };
+  return { ...session, backupCodes: plain, adminId: parsed.admin_id };
 };
 
 /** Step 2: verify the TOTP (or a backup code) and issue a session. */
@@ -276,7 +286,7 @@ export const totpPhase = async (
   challengeToken: string,
   code: string,
   req: express.Request
-): Promise<{ accessToken: string; expiresAt: string; usedBackupCode?: boolean }> => {
+): Promise<{ accessToken: string; expiresAt: string; usedBackupCode?: boolean; adminId: number }> => {
   const raw = await redis.getDel(challengeKey(challengeToken)); // one-use
   if (!raw) throw new AdminAuthError(400, "Verification expired. Please sign in again.");
   const { admin_id } = JSON.parse(raw) as { admin_id: number };
@@ -287,7 +297,7 @@ export const totpPhase = async (
   if (verifyAdminTotp(input, admin.totp_secret)) {
     await resetFailures(admin.admin_id);
     const session = await issueSession(admin, req);
-    return session;
+    return { ...session, adminId: admin.admin_id };
   }
   const backup = matchBackupCode(input, admin.totp_backup_codes);
   if (backup.matched) {
@@ -297,7 +307,7 @@ export const totpPhase = async (
     );
     adminLogger.warn(`[adminAuth] backup code used admin=${admin.admin_id} remaining=${backup.remaining.length}`);
     const session = await issueSession(admin, req);
-    return { ...session, usedBackupCode: true };
+    return { ...session, usedBackupCode: true, adminId: admin.admin_id };
   }
   await recordFailure(admin.admin_id);
   adminLogger.warn(`[adminAuth] failed TOTP admin=${admin.admin_id}`);

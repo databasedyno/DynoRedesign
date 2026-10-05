@@ -7,6 +7,7 @@ const apiBaseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
 
 const adminBaseApi = axios.create({
   baseURL: apiBaseUrl + "/api/",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

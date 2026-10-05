@@ -17,6 +17,11 @@ import {
   getAdminStatus,
   AdminAuthError,
 } from "../services/adminAuthService";
+import {
+  trustAdminDevice,
+  clearAdminDeviceCookie,
+  revokeAllAdminTrustedDevices,
+} from "../services/adminTrustedDevice";
 
 const fail = (res: express.Response, e: unknown) => {
   if (e instanceof AdminAuthError) return errorResponseHelper(res, e.status, e.message);
@@ -29,7 +34,8 @@ const loginPassword = async (req: express.Request, res: express.Response) => {
     const { email, password } = req.body || {};
     if (!email || !password) throw new AdminAuthError(400, "Email and password are required.");
     const result = await passwordPhase(email, password, req);
-    return successResponseHelper(res, 200, "Enter your verification code", result);
+    const msg = result.status === "OK" ? "Login Success!" : "Enter your verification code";
+    return successResponseHelper(res, 200, msg, result);
   } catch (e) {
     return fail(res, e);
   }
@@ -37,9 +43,10 @@ const loginPassword = async (req: express.Request, res: express.Response) => {
 
 const loginTotp = async (req: express.Request, res: express.Response) => {
   try {
-    const { challengeToken, code } = req.body || {};
+    const { challengeToken, code, trustDevice } = req.body || {};
     if (!challengeToken || !code) throw new AdminAuthError(400, "Verification code is required.");
-    const result = await totpPhase(String(challengeToken), String(code), req);
+    const { adminId, ...result } = await totpPhase(String(challengeToken), String(code), req);
+    if (trustDevice !== false) await trustAdminDevice(adminId, req, res);
     return successResponseHelper(res, 200, "Login Success!", result);
   } catch (e) {
     return fail(res, e);
@@ -59,9 +66,10 @@ const enrollBegin = async (req: express.Request, res: express.Response) => {
 
 const enrollComplete = async (req: express.Request, res: express.Response) => {
   try {
-    const { enrollToken, code } = req.body || {};
+    const { enrollToken, code, trustDevice } = req.body || {};
     if (!enrollToken || !code) throw new AdminAuthError(400, "Verification code is required.");
-    const result = await completeEnrollment(String(enrollToken), String(code), req);
+    const { adminId, ...result } = await completeEnrollment(String(enrollToken), String(code), req);
+    if (trustDevice !== false) await trustAdminDevice(adminId, req, res);
     return successResponseHelper(res, 200, "Two-factor authentication enabled", result);
   } catch (e) {
     return fail(res, e);
@@ -81,7 +89,11 @@ const logout = async (_req: express.Request, res: express.Response) => {
 const logoutAll = async (_req: express.Request, res: express.Response) => {
   try {
     const user = res.locals.user as { admin_id?: number };
-    if (user?.admin_id) await revokeAllSessions(user.admin_id);
+    if (user?.admin_id) {
+      await revokeAllSessions(user.admin_id);
+      await revokeAllAdminTrustedDevices(user.admin_id);
+    }
+    clearAdminDeviceCookie(res);
     return successResponseHelper(res, 200, "Signed out of all devices");
   } catch (e) {
     return fail(res, e);
