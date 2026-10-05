@@ -1,5 +1,5 @@
 import { GOLD, GOLD_DEEP, BRAND_ACCENT, BRAND_ACCENT_HOVER, BRAND_ON_ACCENT } from "@/constants/theme";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Button, useTheme } from "@mui/material";
 import AddRounded from "@mui/icons-material/AddRounded";
