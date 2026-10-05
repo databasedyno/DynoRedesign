@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -14,6 +14,7 @@ import { ShieldOutlined, MailOutline } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import OtpInputPanel from "@/Components/UI/OtpInputPanel";
 import CustomButton from "@/Components/UI/Buttons";
+import useAutoFocusField from "@/hooks/useAutoFocusField";
 import { brandFg } from "@/constants/theme";
 import ResetViaEmailPanel from "./ResetViaEmailPanel";
 import { useResendChallengeCode } from "./useResendChallengeCode";
@@ -45,7 +46,17 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
   const [mode, setMode] = useState<Mode>("code");
   const [backupCode, setBackupCode] = useState("");
   const [resetKey, setResetKey] = useState(0);
+  const backupRef = useRef<HTMLInputElement | null>(null);
+  const backupSubmittedRef = useRef("");
   const resend = useResendChallengeCode(challengeToken, open && method === "email");
+
+  // When the backup-code field appears, drop the caret into it (resilient to
+  // the dialog transition). Inert while in "code"/"reset" mode.
+  useAutoFocusField(mode, () => backupRef.current);
+
+  useEffect(() => {
+    backupSubmittedRef.current = "";
+  }, [mode, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -126,11 +137,23 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
               fullWidth
               size="small"
               autoFocus
+              inputRef={backupRef}
               autoComplete="off"
               placeholder="XXXX-XXXX"
               value={backupCode}
               disabled={loading}
-              onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
+              onChange={(e) => {
+                const next = e.target.value.toUpperCase();
+                setBackupCode(next);
+                // Auto-verify the instant a complete backup code is entered.
+                const v = next.trim();
+                if (BACKUP_CODE_RE.test(v) && !loading && v !== backupSubmittedRef.current) {
+                  backupSubmittedRef.current = v;
+                  onVerify(v);
+                } else if (!BACKUP_CODE_RE.test(v)) {
+                  backupSubmittedRef.current = "";
+                }
+              }}
               onKeyDown={(e) => { if (e.key === "Enter" && backupValid && !loading) onVerify(backupCode.trim()); }}
               inputProps={{ "data-testid": "login-2fa-backup-input", style: { fontFamily: "var(--font-mono, monospace)", letterSpacing: "0.08em" } }}
               sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}

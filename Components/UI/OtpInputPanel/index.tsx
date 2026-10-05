@@ -4,6 +4,7 @@ import FormManager from "@/Components/Page/Common/FormManager";
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
+import useAutoFocusField from "@/hooks/useAutoFocusField";
 import { CheckCircleRounded, Info } from "@mui/icons-material";
 import { Box, CircularProgress, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
@@ -157,7 +158,7 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
     return yup.object().shape(shape);
   }, [otpLength, t]);
 
-  // Reset state on mount / resetKey change. Also auto-focus first box.
+  // Reset state on mount / resetKey change.
   useEffect(() => {
     previousOtpRef.current = "";
     isSubmittingRef.current = false;
@@ -166,16 +167,12 @@ const OtpInputPanel: React.FC<OtpInputPanelProps> = ({
     if (resetFormRef.current) {
       resetFormRef.current(otpInitial);
     }
-    const focusFirst = () => {
-      const firstInput = inputRefs.current[0];
-      if (firstInput) firstInput.focus();
-    };
-    if (typeof window !== "undefined") {
-      const id = window.requestAnimationFrame(focusFirst);
-      return () => window.cancelAnimationFrame(id);
-    }
-    focusFirst();
   }, [resetKey, otpInitial]);
+
+  // Put the caret in the first box the instant the panel appears — resiliently,
+  // so a MUI Dialog's open transition + focus-trap can't swallow it. Won't steal
+  // focus once the user has started typing in one of the boxes.
+  useAutoFocusField(resetKey, () => inputRefs.current);
 
   // When an external error appears, allow the user to retype without our
   // de-dup guard blocking a fresh submit attempt.
