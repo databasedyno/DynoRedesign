@@ -1605,7 +1605,21 @@
     "aiDetect": "Automatisch detecteren met AI",
     "aiReasonPrefix": "AI:",
     "reducedCategory": "Categorie met verlaagd tarief",
-    "reducedCategoryHint": "Tarief is indicatief en varieert per land — bevestig geschiktheid met je belastingadviseur."
+    "reducedCategoryHint": "Tarief is indicatief en varieert per land — bevestig geschiktheid met je belastingadviseur.",
+    "secBasicsTitle": "Productbasis",
+    "secBasicsSub": "Geef een naam en beschrijving van wat je verkoopt. Dit zien kopers als eerste op je productpagina.",
+    "secImagesTitle": "Afbeeldingen",
+    "secImagesSub": "Voeg een omslag en enkele galerijfoto's toe — dit zien kopers op je productpagina.",
+    "secPriceTitle": "Prijs & voorraad",
+    "secPriceSub": "Stel je prijs en valuta in. Kopers betalen het crypto-equivalent; je ontvangt de betaalde coin, tenzij automatische omzetting aanstaat.",
+    "secDeliverySub": "Kies hoe kopers ontvangen waarvoor ze betaalden — een bestand, een link of licentiesleutels. Levering gebeurt automatisch na betaling.",
+    "secTaxSub": "Optioneel. Bepaal of er belasting wordt toegevoegd bij het afrekenen en hoe dit product wordt gecategoriseerd.",
+    "secVariantsSub": "Bied hetzelfde product aan in verschillende opties (bijv. maten of niveaus), elk met een eigen prijs en voorraad.",
+    "nextTitle": "Je product staat live",
+    "nextSub": "Hier staat het, en zo deel en volg je het.",
+    "nextSeeAll": "Alle producten bekijken",
+    "nextShare": "Delen & QR",
+    "nextTrack": "Verkoop volgen"
   },
   "products": {
     "viewLabel": "Weergave",

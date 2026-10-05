@@ -1605,7 +1605,21 @@
     "aiDetect": "Auto-detect with AI",
     "aiReasonPrefix": "AI:",
     "reducedCategory": "Reduced-rate category",
-    "reducedCategoryHint": "Rates are indicative and vary by country — confirm eligibility with your tax adviser."
+    "reducedCategoryHint": "Rates are indicative and vary by country — confirm eligibility with your tax adviser.",
+    "secBasicsTitle": "Product basics",
+    "secBasicsSub": "Name and describe what you're selling. Buyers see this first on your product page.",
+    "secImagesTitle": "Images",
+    "secImagesSub": "Add a cover and up to a few gallery photos — this is what buyers see on your product page.",
+    "secPriceTitle": "Price & stock",
+    "secPriceSub": "Set your price and currency. Buyers pay the crypto equivalent at checkout; you receive the coin they pay unless auto-convert is on.",
+    "secDeliverySub": "Choose how buyers get what they paid for — a file, a link or license keys. Delivery happens automatically after payment.",
+    "secTaxSub": "Optional. Control whether tax is added at checkout and how this product is categorised.",
+    "secVariantsSub": "Offer the same product in different options (e.g. sizes or tiers), each with its own price and stock.",
+    "nextTitle": "Your product is live",
+    "nextSub": "Here's where it lives, and how to share and track it.",
+    "nextSeeAll": "See all products",
+    "nextShare": "Share & QR",
+    "nextTrack": "Track sales"
   },
   "products": {
     "viewLabel": "View",

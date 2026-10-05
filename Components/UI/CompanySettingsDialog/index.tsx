@@ -7,6 +7,7 @@ import * as yup from "yup";
 
 import FormManager from "@/Components/Page/Common/FormManager";
 import type { Values } from "@/Components/Page/Common/FormManager/types";
+import checkValidation from "@/helpers/checkValidationHelper";
 import CustomButton from "@/Components/UI/Buttons";
 import PopupModal from "@/Components/UI/PopupModal";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -411,6 +412,18 @@ export default function CompanySettingsDialog({
       }
     }
 
+    // Save is enabled whenever there are unsaved changes; validate the visible
+    // fields here so an invalid value surfaces a clear message instead of
+    // silently greying the Save button (the previous behaviour).
+    const validationErrors = checkValidation(schema, values);
+    if (validationErrors) {
+      const firstMsg = Object.values(validationErrors).find(
+        (m) => typeof m === "string" && m,
+      ) as string | undefined;
+      showToast(firstMsg || "Please fix the highlighted fields before saving.", "error");
+      return;
+    }
+
     // Only send the fields that belong to the sections on screen. In the
     // Payments-only view this keeps hidden Company identity fields (email,
     // address, …) from being overwritten with empty strings.
@@ -561,20 +574,16 @@ export default function CompanySettingsDialog({
               handleBlur,
               handleChange,
               handleFieldsChange,
-              submitDisable,
               touched,
               values,
             }) => {
+              const isDirty =
+                !!mediaFile ||
+                accountTypeChoice !== originalAccountType ||
+                JSON.stringify(values) !== JSON.stringify(initialValues);
               return (
                 <>
-                  <DirtyReporter
-                    section={dirtySection}
-                    dirty={
-                      !!mediaFile ||
-                      accountTypeChoice !== originalAccountType ||
-                      JSON.stringify(values) !== JSON.stringify(initialValues)
-                    }
-                  />
+                  <DirtyReporter section={dirtySection} dirty={isDirty} />
                   {sections.includes("company") && (
                   <CompanyDetailsSection
                     values={{
@@ -727,7 +736,7 @@ export default function CompanySettingsDialog({
                         variant="primary"
                         size={isMobile ? "small" : "medium"}
                         onClick={() => handleSubmit(values)}
-                        disabled={submitDisable || companyState.loading}
+                        disabled={companyState.loading || !isDirty}
                         sx={{
                           fontSize: "15px",
                           [theme.breakpoints.down("md")]: { fontSize: "13px" },

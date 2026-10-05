@@ -892,5 +892,6 @@
     "cta": "View transactions",
     "dismiss": "Keep going",
     "footnote": "We'll email you a receipt for every payment you receive."
-  }
+  },
+  "hubMostUsed": "Most used"
 }

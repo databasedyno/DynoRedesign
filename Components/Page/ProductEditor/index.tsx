@@ -16,6 +16,8 @@ import AddRounded from "@mui/icons-material/AddRounded";
 import DeleteOutlineRounded from "@mui/icons-material/DeleteOutlineRounded";
 import CloudUploadRounded from "@mui/icons-material/CloudUploadRounded";
 import ReceiptLongRounded from "@mui/icons-material/ReceiptLongRounded";
+import IosShareRounded from "@mui/icons-material/IosShareRounded";
+import InsightsRounded from "@mui/icons-material/InsightsRounded";
 import { useRouter } from "next/router";
 import type { ProductDraft } from "./ProductLivePreview";
 import { useTranslation } from "react-i18next";
@@ -758,7 +760,41 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
 
   return (
     <Stack spacing={2} data-testid="product-editor">
-      <PanelCard title={mode === "new" ? t("productEditor.newProduct", { defaultValue: "New product" }) : t("productEditor.editProduct", { defaultValue: "Edit product" })}>
+      {isLive && (
+        <PanelCard
+          title={t("productEditor.nextTitle", { defaultValue: "Your product is live" })}
+          subTitle={t("productEditor.nextSub", { defaultValue: "Here's where it lives, and how to share and track it." })}
+          sx={{ borderColor: "success.main" }}
+        >
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1} data-testid="product-next-steps">
+            <CustomButton
+              label={t("productEditor.nextSeeAll", { defaultValue: "See all products" })}
+              variant="outlined"
+              startIcon={<ReceiptLongRounded />}
+              onClick={() => router.push("/storefront?tab=products")}
+              data-testid="product-next-see"
+            />
+            <CustomButton
+              label={t("productEditor.nextShare", { defaultValue: "Share & QR" })}
+              variant="outlined"
+              startIcon={<IosShareRounded />}
+              onClick={() => router.push("/storefront?tab=share")}
+              data-testid="product-next-share"
+            />
+            <CustomButton
+              label={t("productEditor.nextTrack", { defaultValue: "Track sales" })}
+              variant="outlined"
+              startIcon={<InsightsRounded />}
+              onClick={() => router.push("/transactions")}
+              data-testid="product-next-track"
+            />
+          </Stack>
+        </PanelCard>
+      )}
+      <PanelCard
+        title={t("productEditor.secBasicsTitle", { defaultValue: "Product basics" })}
+        subTitle={t("productEditor.secBasicsSub", { defaultValue: "Name and describe what you're selling. Buyers see this first on your product page." })}
+      >
         <Stack spacing={2}>
           {product && (
             <Stack direction="row" spacing={1} alignItems="center">
@@ -797,6 +833,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
             onChange={(e) => setDescription(e.target.value)}
             inputProps={{ "data-testid": "product-description-input" }}
           />
+        </Stack>
+      </PanelCard>
+
+      <PanelCard
+        title={t("productEditor.secImagesTitle", { defaultValue: "Images" })}
+        subTitle={t("productEditor.secImagesSub", { defaultValue: "Add a cover and up to a few gallery photos — this is what buyers see on your product page." })}
+      >
+        <Stack spacing={2}>
           {/* Cover image: URL field + Upload button + preview — the whole block is a drop target */}
           <ImageDropTarget onFile={handleCoverFile} disabled={coverUploading} radius={10} testId="product-cover-dropzone">
           <Stack spacing={1}>
@@ -996,7 +1040,14 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
             )}
           </Stack>
           </ImageDropTarget>
+        </Stack>
+      </PanelCard>
 
+      <PanelCard
+        title={t("productEditor.secPriceTitle", { defaultValue: "Price & stock" })}
+        subTitle={t("productEditor.secPriceSub", { defaultValue: "Set your price and currency. Buyers pay the crypto equivalent at checkout; you receive the coin they pay unless auto-convert is on." })}
+      >
+        <Stack spacing={2}>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <TextField
               label={hasVariants ? t("productEditor.basePriceInfo", { defaultValue: "Base price (informational, variants override)" }) : t("productEditor.price", { defaultValue: "Price" })}
@@ -1034,7 +1085,10 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
         </Stack>
       </PanelCard>
 
-      <PanelCard title={t("productEditor.digitalDelivery", { defaultValue: "Digital delivery" })}>
+      <PanelCard
+        title={t("productEditor.digitalDelivery", { defaultValue: "Digital delivery" })}
+        subTitle={t("productEditor.secDeliverySub", { defaultValue: "Choose how buyers get what they paid for — a file, a link or license keys. Delivery happens automatically after payment." })}
+      >
         <Stack spacing={2}>
           <FormControl fullWidth>
             <InputLabel id="delivery-label">{t("productEditor.deliveryMethod", { defaultValue: "Delivery method" })}</InputLabel>
@@ -1149,7 +1203,10 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
         </Stack>
       </PanelCard>
 
-      <PanelCard title={t("productEditor.taxVat", { defaultValue: "Tax & VAT" })}>
+      <PanelCard
+        title={t("productEditor.taxVat", { defaultValue: "Tax & VAT" })}
+        subTitle={t("productEditor.secTaxSub", { defaultValue: "Optional. Control whether tax is added at checkout and how this product is categorised." })}
+      >
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary" data-testid="product-tax-intro">
             {t("productEditor.taxIntro", { defaultValue: "Choose whether buyers are charged tax on this product. This is exactly what shows on your storefront checkout." })}
@@ -1330,6 +1387,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
 
       <PanelCard
         title={t("productEditor.variantsOptional", { defaultValue: "Variants (optional)" })}
+        subTitle={t("productEditor.secVariantsSub", { defaultValue: "Offer the same product in different options (e.g. sizes or tiers), each with its own price and stock." })}
         headerAction={
           product && (
             <CustomButton

@@ -892,5 +892,6 @@
   "hubProductDesc": "Vendez un produit avec variantes, images et stock.",
   "hubCreatorDesc": "Une page partageable pour les pourboires et le soutien, sur votre dynopay.com/pseudo.",
   "hubSettlementNote": "Vous recevez la crypto payée par chaque client. Activez la conversion automatique pour être réglé en stablecoin.",
-  "hubSettlementCta": "Paramètres de conversion automatique"
+  "hubSettlementCta": "Paramètres de conversion automatique",
+  "hubMostUsed": "Le plus utilisé"
 }

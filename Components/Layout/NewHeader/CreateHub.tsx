@@ -90,6 +90,7 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
       onClick: () => void;
       testId: string;
       full?: { label: string; onClick: () => void; testId: string };
+      mostUsed?: boolean;
     }> = [
       {
         key: "paylink",
@@ -134,10 +135,11 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
       },
     ];
     const usage = readUsage(selectedCompanyId ?? null);
-    return base
+    const ranked = base
       .map((it, i) => ({ it, i, used: usage[it.key] || 0 }))
-      .sort((a, b) => b.used - a.used || a.i - b.i)
-      .map((x) => x.it);
+      .sort((a, b) => b.used - a.used || a.i - b.i);
+    const topUsedKey = ranked.length && ranked[0].used > 0 ? ranked[0].it.key : null;
+    return ranked.map((x) => ({ ...x.it, mostUsed: x.it.key === topUsedKey }));
   }, [t, theme.palette.primary.main, quickPaylink, go, selectedCompanyId]);
 
   const border = isDark ? "rgba(255,255,255,0.10)" : "#E9ECF2";
@@ -232,9 +234,31 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
                 <Icon icon={it.icon} width={22} />
               </Box>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 14.5, color: theme.palette.text.primary, lineHeight: 1.3 }}>
-                  {it.title}
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, flexWrap: "wrap" }}>
+                  <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 14.5, color: theme.palette.text.primary, lineHeight: 1.3 }}>
+                    {it.title}
+                  </Typography>
+                  {it.mostUsed && (
+                    <Box
+                      component="span"
+                      data-testid={`${it.testId}-mostused`}
+                      sx={{
+                        fontFamily: "var(--font-sans)",
+                        fontSize: 10,
+                        fontWeight: 800,
+                        letterSpacing: 0.4,
+                        textTransform: "uppercase",
+                        px: 0.75,
+                        py: 0.15,
+                        borderRadius: 999,
+                        color: it.accent,
+                        backgroundColor: isDark ? `${it.accent}22` : `${it.accent}14`,
+                      }}
+                    >
+                      {t("hubMostUsed", { defaultValue: "Most used" })}
+                    </Box>
+                  )}
+                </Box>
                 <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.secondary, lineHeight: 1.45, mt: 0.25 }}>
                   {it.desc}
                 </Typography>

@@ -1605,7 +1605,21 @@
     "aiDetect": "Deteção automática com IA",
     "aiReasonPrefix": "IA:",
     "reducedCategory": "Categoria de taxa reduzida",
-    "reducedCategoryHint": "As taxas são indicativas e variam por país — confirme a elegibilidade com o seu consultor fiscal."
+    "reducedCategoryHint": "As taxas são indicativas e variam por país — confirme a elegibilidade com o seu consultor fiscal.",
+    "secBasicsTitle": "Dados do produto",
+    "secBasicsSub": "Nomeie e descreva o que você vende. É o que os compradores veem primeiro na sua página de produto.",
+    "secImagesTitle": "Imagens",
+    "secImagesSub": "Adicione uma capa e algumas fotos de galeria — é o que os compradores veem na sua página de produto.",
+    "secPriceTitle": "Preço e estoque",
+    "secPriceSub": "Defina seu preço e moeda. Os compradores pagam o equivalente em cripto; você recebe a moeda paga, a menos que a conversão automática esteja ativa.",
+    "secDeliverySub": "Escolha como os compradores recebem o que pagaram — um arquivo, um link ou chaves de licença. A entrega é automática após o pagamento.",
+    "secTaxSub": "Opcional. Controle se o imposto é adicionado no checkout e como este produto é categorizado.",
+    "secVariantsSub": "Ofereça o mesmo produto em diferentes opções (ex.: tamanhos ou níveis), cada uma com seu preço e estoque.",
+    "nextTitle": "Seu produto está no ar",
+    "nextSub": "Aqui está onde ele fica e como compartilhar e acompanhar.",
+    "nextSeeAll": "Ver todos os produtos",
+    "nextShare": "Compartilhar e QR",
+    "nextTrack": "Acompanhar vendas"
   },
   "products": {
     "viewLabel": "Vista",

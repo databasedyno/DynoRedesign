@@ -892,5 +892,6 @@
   "hubProductDesc": "Verkaufe ein Produkt mit Varianten, Bildern und Lagerbestand.",
   "hubCreatorDesc": "Eine teilbare Seite für Trinkgeld und Unterstützung unter deiner dynopay.com/handle.",
   "hubSettlementNote": "Du erhältst die Coin, die jeder Kunde zahlt. Aktiviere die Auto-Konvertierung, um stattdessen in einem Stablecoin ausgezahlt zu werden.",
-  "hubSettlementCta": "Auto-Konvertierung-Einstellungen"
+  "hubSettlementCta": "Auto-Konvertierung-Einstellungen",
+  "hubMostUsed": "Am häufigsten genutzt"
 }

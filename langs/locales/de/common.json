@@ -1605,7 +1605,21 @@
     "aiDetect": "Automatische Erkennung mit KI",
     "aiReasonPrefix": "KI:",
     "reducedCategory": "Kategorie mit ermäßigtem Satz",
-    "reducedCategoryHint": "Sätze sind indikativ und variieren je nach Land – bestätigen Sie die Berechtigung mit Ihrem Steuerberater."
+    "reducedCategoryHint": "Sätze sind indikativ und variieren je nach Land – bestätigen Sie die Berechtigung mit Ihrem Steuerberater.",
+    "secBasicsTitle": "Produkt-Basics",
+    "secBasicsSub": "Benenne und beschreibe, was du verkaufst. Käufer sehen dies zuerst auf deiner Produktseite.",
+    "secImagesTitle": "Bilder",
+    "secImagesSub": "Füge ein Titelbild und einige Galeriefotos hinzu – das sehen Käufer auf deiner Produktseite.",
+    "secPriceTitle": "Preis & Bestand",
+    "secPriceSub": "Lege Preis und Währung fest. Käufer zahlen den Krypto-Gegenwert; du erhältst die gezahlte Coin, sofern die Auto-Konvertierung nicht aktiviert ist.",
+    "secDeliverySub": "Wähle, wie Käufer ihren Kauf erhalten – eine Datei, einen Link oder Lizenzschlüssel. Die Lieferung erfolgt automatisch nach der Zahlung.",
+    "secTaxSub": "Optional. Steuere, ob beim Checkout Steuer hinzugefügt wird und wie dieses Produkt kategorisiert ist.",
+    "secVariantsSub": "Biete dasselbe Produkt in verschiedenen Optionen an (z. B. Größen oder Stufen), jeweils mit eigenem Preis und Bestand.",
+    "nextTitle": "Dein Produkt ist live",
+    "nextSub": "Hier findest du es und kannst es teilen und verfolgen.",
+    "nextSeeAll": "Alle Produkte ansehen",
+    "nextShare": "Teilen & QR",
+    "nextTrack": "Verkäufe verfolgen"
   },
   "products": {
     "viewLabel": "Ansicht",

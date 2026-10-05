@@ -892,5 +892,6 @@
   "hubProductDesc": "Venda um produto com variações, imagens e estoque.",
   "hubCreatorDesc": "Uma página para compartilhar, com gorjetas e apoio, no seu dynopay.com/usuario.",
   "hubSettlementNote": "Você recebe a mesma moeda que cada cliente paga. Ative a conversão automática para liquidar em uma stablecoin.",
-  "hubSettlementCta": "Configurações de conversão automática"
+  "hubSettlementCta": "Configurações de conversão automática",
+  "hubMostUsed": "Mais usado"
 }

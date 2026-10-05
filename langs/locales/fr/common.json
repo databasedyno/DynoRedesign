@@ -1605,7 +1605,21 @@
     "aiDetect": "Détection automatique avec l'IA",
     "aiReasonPrefix": "IA :",
     "reducedCategory": "Catégorie à taux réduit",
-    "reducedCategoryHint": "Les taux sont indicatifs et varient selon le pays — confirmez l'éligibilité avec votre conseiller fiscal."
+    "reducedCategoryHint": "Les taux sont indicatifs et varient selon le pays — confirmez l'éligibilité avec votre conseiller fiscal.",
+    "secBasicsTitle": "Informations du produit",
+    "secBasicsSub": "Nommez et décrivez ce que vous vendez. C'est ce que les acheteurs voient en premier sur votre page produit.",
+    "secImagesTitle": "Images",
+    "secImagesSub": "Ajoutez une couverture et quelques photos de galerie — c'est ce que voient les acheteurs sur votre page produit.",
+    "secPriceTitle": "Prix et stock",
+    "secPriceSub": "Définissez votre prix et votre devise. Les acheteurs paient l'équivalent en crypto ; vous recevez la crypto payée, sauf si la conversion automatique est activée.",
+    "secDeliverySub": "Choisissez comment les acheteurs reçoivent leur achat — un fichier, un lien ou des clés de licence. La livraison est automatique après le paiement.",
+    "secTaxSub": "Facultatif. Contrôlez si une taxe est ajoutée au paiement et comment ce produit est catégorisé.",
+    "secVariantsSub": "Proposez le même produit en différentes options (par ex. tailles ou niveaux), chacune avec son prix et son stock.",
+    "nextTitle": "Votre produit est en ligne",
+    "nextSub": "Voici où le retrouver, et comment le partager et le suivre.",
+    "nextSeeAll": "Voir tous les produits",
+    "nextShare": "Partager et QR",
+    "nextTrack": "Suivre les ventes"
   },
   "products": {
     "viewLabel": "Affichage",
