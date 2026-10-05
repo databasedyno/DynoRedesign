@@ -7,7 +7,7 @@
       "eyebrow": "Cryptobetalingen, vereenvoudigd",
       "headline1": "Accepteer cryptobetalingen.",
       "headline2": "Word betaald zoals jij wilt.",
-      "body": "Ontvang Bitcoin, Ethereum, USDT en 40+ assets — en laat automatisch uitbetalen in de valuta of wallet die jij kiest. Geen terugboekingen, geen custody, binnen enkele minuten live.",
+      "body": "Accepteer Bitcoin, Ethereum, USDT en 40+ assets en behoud de ontvangen coin — of zet automatische omzetting aan om in een stablecoin uit te betalen. Non-custodial, geen terugboekingen, binnen enkele minuten live.",
       "primary": "Gratis starten",
       "secondary": "Bekijk hoe het werkt",
       "note": "Geen creditcard · Je eerste betaling is gratis"
@@ -36,7 +36,7 @@
         },
         "settle": {
           "title": "Jij ontvangt zoals jij wilt",
-          "body": "Wij zetten automatisch om en betalen uit in de valuta of wallet die jij kiest."
+          "body": "Ontvang de coin die je klant betaalde, of zet automatische omzetting aan om in een stablecoin uit te betalen — rechtstreeks naar de wallet die jij beheert."
         }
       }
     },
@@ -123,7 +123,7 @@
       },
       "coins": {
         "q": "Met welke munten kunnen klanten betalen?",
-        "a": "Bitcoin, Ethereum, USDT, USDC en 40+ assets op grote blockchains. Jij kiest in welke valuta je wilt ontvangen."
+        "a": "Bitcoin, Ethereum, USDT, USDC en 40+ assets op de grote chains. Standaard ontvang je dezelfde coin die je klant betaalde; zet automatische omzetting aan om in een stablecoin zoals USDC uit te betalen."
       }
     },
     "finalCta": {

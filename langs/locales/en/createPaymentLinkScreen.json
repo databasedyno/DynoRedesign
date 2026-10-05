@@ -315,5 +315,12 @@
   "campaignDelete": "Delete",
   "campaignRemoveReply": "Remove reply",
   "advancedOptionsHintSingleForm": "Coins, expiry, fees, customer email, tax, webhooks",
-  "advancedOptionsHintSingleFormEdit": "Coins, expiry, fees, customer email, tax"
+  "advancedOptionsHintSingleFormEdit": "Coins, expiry, fees, customer email, tax",
+  "donationPresetsSuggest": "Suggest amounts",
+  "previewDonorWall": "Recent supporters",
+  "previewDonorWallSample": "Sample — real supporters appear here once you're live.",
+  "previewDonorJustNow": "just now",
+  "previewDonorMinsAgo": "2m ago",
+  "previewDonorA": "Amara",
+  "previewDonorB": "Leo"
 }

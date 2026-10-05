@@ -37,7 +37,7 @@
   "allStatuses": "Alle statussen",
   "timesUsedTooltip": "Aantal voltooide betalingen via deze link.",
   "paymentsReceivedShort": "{{count}}× betaald",
-  "donationBadge": "Crowdfunding",
+  "donationBadge": "Inzamelingsactie",
   "copyLinkTooltip": "Kopieer link",
   "editLinkTooltip": "Bewerk link",
   "viewTransactionsTooltip": "Bekijk transacties",

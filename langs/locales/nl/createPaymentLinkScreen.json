@@ -100,8 +100,8 @@
   "youReceive": "U ontvangt",
   "linkTypeStandard": "Betaallink",
   "linkTypeStandardHint": "Vraag een vast bedrag voor een product, factuur of dienst.",
-  "linkTypeDonation": "Crowdfunding",
-  "linkTypeDonationHint": "Verzamel bijdragen voor een doel — donateurs kiezen het bedrag.",
+  "linkTypeDonation": "Inzamelingsactie",
+  "linkTypeDonationHint": "Verzamel donaties voor een doel, met voortgangsbalk en donateurswand.",
   "donationTitleLabel": "Campagnetitel",
   "donationTitlePlaceholder": "bijv. Help ons de buurttuin te bouwen",
   "donationTitleRequired": "Campagnetitel is verplicht",
@@ -163,7 +163,7 @@
   "advancedOptions": "Geavanceerde opties",
   "advancedOptionsHint": "Klant-e-mail, belasting",
   "createDonation": "Donatie aanmaken",
-  "createDonationTitle": "Donatie aanmaken",
+  "createDonationTitle": "Een inzamelingsactie maken",
   "donationSuccessfullyCreated": "Donatie aangemaakt",
   "shareDonationToStartCollecting": "Deel het om donaties te ontvangen",
   "productQuickSell": {
@@ -315,5 +315,12 @@
   "campaignDelete": "Verwijderen",
   "campaignRemoveReply": "Verwijder antwoord",
   "advancedOptionsHintSingleForm": "Coins, vervaldatum, kosten, klant-e-mail, btw, webhooks",
-  "advancedOptionsHintSingleFormEdit": "Coins, vervaldatum, kosten, klant-e-mail, btw"
+  "advancedOptionsHintSingleFormEdit": "Coins, vervaldatum, kosten, klant-e-mail, btw",
+  "donationPresetsSuggest": "Bedragen voorstellen",
+  "previewDonorWall": "Recente supporters",
+  "previewDonorWallSample": "Voorbeeld — echte supporters verschijnen hier zodra je live bent.",
+  "previewDonorJustNow": "zojuist",
+  "previewDonorMinsAgo": "2 min geleden",
+  "previewDonorA": "Amara",
+  "previewDonorB": "Leo"
 }

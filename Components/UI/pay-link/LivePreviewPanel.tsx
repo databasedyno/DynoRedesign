@@ -137,6 +137,11 @@ const LivePreviewPanel = ({
     </>
   );
 
+  const sampleDonors = [
+    { name: t("previewDonorA", { defaultValue: "Amara" }), amount: donation.presets[1] || donation.presets[0] || 50, when: t("previewDonorJustNow", { defaultValue: "just now" }) },
+    { name: t("previewDonorB", { defaultValue: "Leo" }), amount: donation.presets[0] || 25, when: t("previewDonorMinsAgo", { defaultValue: "2m ago" }) },
+  ];
+
   const donationBody = (
     <>
       {brandRow}
@@ -168,6 +173,30 @@ const LivePreviewPanel = ({
               {t("previewSupporters", { defaultValue: "0 supporters" })}
             </Box>
           )}
+        </Box>
+      )}
+      {donation.showSupporters && (
+        <Box sx={{ mt: 1.75 }} data-testid="preview-donor-wall">
+          <Box sx={{ ...eyebrowSx, mb: 0.75 }}>{t("previewDonorWall", { defaultValue: "Recent supporters" })}</Box>
+          <Box sx={{ display: "grid", gap: 0.85 }}>
+            {sampleDonors.map((d, i) => (
+              <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Box sx={{ width: 24, height: 24, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 11, color: "#FFFFFF", backgroundColor: indigo }}>
+                  {d.name.charAt(0)}
+                </Box>
+                <Box sx={{ flex: 1, minWidth: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {d.name}
+                  <Box component="span" sx={{ fontWeight: 500, color: muted }}>{" · "}{d.when}</Box>
+                </Box>
+                <Box sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 700, color: green, flexShrink: 0 }}>
+                  {fmt(d.amount)}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+          <Box sx={{ mt: 0.6, fontFamily: "var(--font-sans)", fontSize: 10.5, color: muted }}>
+            {t("previewDonorWallSample", { defaultValue: "Sample — real supporters appear here once you're live." })}
+          </Box>
         </Box>
       )}
       {donation.presets.length > 0 && (

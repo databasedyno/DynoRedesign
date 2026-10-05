@@ -7,7 +7,7 @@
       "eyebrow": "Pagamentos em cripto, simplificados",
       "headline1": "Aceite pagamentos em cripto.",
       "headline2": "Receba do seu jeito.",
-      "body": "Aceite Bitcoin, Ethereum, USDT e mais de 40 ativos — e liquide automaticamente na moeda ou carteira que você escolher. Sem estornos, sem custódia, no ar em minutos.",
+      "body": "Aceite Bitcoin, Ethereum, USDT e mais de 40 ativos e fique com a moeda que recebeu — ou ative a conversão automática para liquidar em uma stablecoin. Sem custódia, sem estornos, no ar em minutos.",
       "primary": "Começar grátis",
       "secondary": "Veja como funciona",
       "note": "Sem cartão de crédito · Seu primeiro pagamento é grátis"
@@ -36,7 +36,7 @@
         },
         "settle": {
           "title": "Você recebe do seu jeito",
-          "body": "Convertemos automaticamente e liquidamos na moeda ou carteira que você escolher."
+          "body": "Receba a moeda que seu cliente pagou, ou ative a conversão automática para liquidar em uma stablecoin — direto para a carteira que você controla."
         }
       }
     },
@@ -123,7 +123,7 @@
       },
       "coins": {
         "q": "Com quais moedas os clientes podem pagar?",
-        "a": "Bitcoin, Ethereum, USDT, USDC e mais de 40 ativos nas principais redes. Você escolhe em qual moeda quer receber."
+        "a": "Bitcoin, Ethereum, USDT, USDC e mais de 40 ativos nas principais redes. Por padrão, você recebe a mesma moeda que seu cliente pagou; ative a conversão automática para liquidar em uma stablecoin como a USDC."
       }
     },
     "finalCta": {

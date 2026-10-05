@@ -100,8 +100,8 @@
   "youReceive": "Sie erhalten",
   "linkTypeStandard": "Zahlungslink",
   "linkTypeStandardHint": "Fordere einen festen Betrag für ein Produkt, eine Rechnung oder eine Dienstleistung an.",
-  "linkTypeDonation": "Crowdfunding",
-  "linkTypeDonationHint": "Sammle Beiträge für ein Ziel — Spender wählen den Betrag.",
+  "linkTypeDonation": "Spendenaktion",
+  "linkTypeDonationHint": "Sammle Spenden für ein Ziel – mit Fortschrittsbalken und Spenderwand.",
   "donationTitleLabel": "Kampagnentitel",
   "donationTitlePlaceholder": "z. B. Hilf uns, den Gemeinschaftsgarten zu bauen",
   "donationTitleRequired": "Kampagnentitel ist erforderlich",
@@ -163,7 +163,7 @@
   "advancedOptions": "Erweiterte Optionen",
   "advancedOptionsHint": "Kunden-E-Mail, Steuer",
   "createDonation": "Spende erstellen",
-  "createDonationTitle": "Spende erstellen",
+  "createDonationTitle": "Spendenaktion erstellen",
   "donationSuccessfullyCreated": "Spende erstellt",
   "shareDonationToStartCollecting": "Teilen Sie ihn, um Spenden zu sammeln",
   "donationCreatorHintTitle": "Das wird deine \"Buy me a coffee\"-Trinkgeldbox",
@@ -315,5 +315,12 @@
   "campaignDelete": "Löschen",
   "campaignRemoveReply": "Antwort entfernen",
   "advancedOptionsHintSingleForm": "Coins, Ablauf, Gebühren, Kunden-E-Mail, Steuer, Webhooks",
-  "advancedOptionsHintSingleFormEdit": "Coins, Ablauf, Gebühren, Kunden-E-Mail, Steuer"
+  "advancedOptionsHintSingleFormEdit": "Coins, Ablauf, Gebühren, Kunden-E-Mail, Steuer",
+  "donationPresetsSuggest": "Beträge vorschlagen",
+  "previewDonorWall": "Neueste Unterstützer",
+  "previewDonorWallSample": "Beispiel – echte Unterstützer erscheinen hier, sobald du live bist.",
+  "previewDonorJustNow": "gerade eben",
+  "previewDonorMinsAgo": "vor 2 Min.",
+  "previewDonorA": "Amara",
+  "previewDonorB": "Leo"
 }

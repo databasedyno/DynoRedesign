@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { AddRounded, HelpOutlineRounded } from "@mui/icons-material";
 import { useRouter } from "next/router";
+import { OPEN_CREATE_HUB_EVENT } from "@/Components/Common/CommandPalette";
 import { useTheme } from "@mui/material/styles";
 import AddWalletModal from "../AddWalletModal";
 import CreateApiModel from "../ApiKeysModel/CreateApiModel";
@@ -83,7 +84,9 @@ const EmptyDataModel = ({
             description: t("EmptyPaymentLinkDescription"),
             icon: paymentLinks,
             buttonLabel: t("createPaymentLink"),
-            buttonLink: "/create-pay-link",
+            buttonClick: () => {
+                if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(OPEN_CREATE_HUB_EVENT));
+            },
         },
     };
 

@@ -880,5 +880,17 @@
     "cta": "Voir les transactions",
     "dismiss": "Continuer",
     "footnote": "Nous vous enverrons un reçu par e-mail pour chaque paiement que vous recevez."
-  }
+  },
+  "navClose": "Fermer",
+  "navNewFundraiser": "Collecte de fonds",
+  "navNewCreatorPage": "Page créateur",
+  "hubTitle": "Créer",
+  "hubSubtitle": "Que souhaitez-vous configurer ?",
+  "hubPaylinkDesc": "Demandez un montant fixe pour un produit, une facture ou un service.",
+  "hubPaylinkFull": "Options complètes : taxes, expiration, cryptos acceptées",
+  "hubFundraiserDesc": "Collectez des dons pour atteindre un objectif, avec barre de progression et mur des donateurs.",
+  "hubProductDesc": "Vendez un produit avec variantes, images et stock.",
+  "hubCreatorDesc": "Une page partageable pour les pourboires et le soutien, sur votre dynopay.com/pseudo.",
+  "hubSettlementNote": "Vous recevez la crypto payée par chaque client. Activez la conversion automatique pour être réglé en stablecoin.",
+  "hubSettlementCta": "Paramètres de conversion automatique"
 }

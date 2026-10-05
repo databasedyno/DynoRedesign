@@ -100,8 +100,8 @@
   "youReceive": "Vous recevez",
   "linkTypeStandard": "Lien de paiement",
   "linkTypeStandardHint": "Demandez un montant fixe pour un produit, une facture ou un service.",
-  "linkTypeDonation": "Crowdfunding",
-  "linkTypeDonationHint": "Collectez des contributions vers un objectif — les donateurs choisissent le montant.",
+  "linkTypeDonation": "Collecte de fonds",
+  "linkTypeDonationHint": "Collectez des dons pour atteindre un objectif, avec barre de progression et mur des donateurs.",
   "donationTitleLabel": "Titre de la campagne",
   "donationTitlePlaceholder": "p. ex. Aidez-nous à construire le jardin communautaire",
   "donationTitleRequired": "Le titre de la campagne est requis",
@@ -163,7 +163,7 @@
   "advancedOptions": "Options avancées",
   "advancedOptionsHint": "E-mail client, taxes",
   "createDonation": "Créer un don",
-  "createDonationTitle": "Créer un don",
+  "createDonationTitle": "Créer une collecte de fonds",
   "donationSuccessfullyCreated": "Don créé",
   "shareDonationToStartCollecting": "Partagez-le pour commencer à collecter des dons",
   "donationCreatorHintTitle": "Ceci devient votre boîte de pourboire « Buy me a coffee »",
@@ -315,5 +315,12 @@
   "campaignDelete": "Supprimer",
   "campaignRemoveReply": "Supprimer la réponse",
   "advancedOptionsHintSingleForm": "Cryptos, expiration, frais, e-mail client, taxes, webhooks",
-  "advancedOptionsHintSingleFormEdit": "Cryptos, expiration, frais, e-mail client, taxes"
+  "advancedOptionsHintSingleFormEdit": "Cryptos, expiration, frais, e-mail client, taxes",
+  "donationPresetsSuggest": "Suggérer des montants",
+  "previewDonorWall": "Soutiens récents",
+  "previewDonorWallSample": "Exemple — les vrais soutiens apparaîtront ici une fois en ligne.",
+  "previewDonorJustNow": "à l'instant",
+  "previewDonorMinsAgo": "il y a 2 min",
+  "previewDonorA": "Amara",
+  "previewDonorB": "Leo"
 }

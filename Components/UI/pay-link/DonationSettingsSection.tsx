@@ -293,6 +293,50 @@ const DonationSettingsSection = ({
     onChange({ presets: settings.presets.filter((p) => p !== n) });
   };
 
+  // ── Smart suggestions (fundraiser flow redesign) ───────────────────
+  // Common starter goals (in the selected currency), shown only until the
+  // organiser sets a goal so a brand-new campaign isn't just a blank field.
+  const GOAL_SUGGESTIONS = [1000, 5000, 10000, 25000, 50000, 100000];
+
+  const applyGoal = (n: number) => {
+    onChange({ goalAmount: String(n) });
+    clearError("goalAmount");
+  };
+
+  // Round to a "nice" number (1 / 2 / 5 × 10^k) so suggested amounts read well.
+  const niceRound = (n: number): number => {
+    if (!Number.isFinite(n) || n <= 0) return 0;
+    const mag = Math.pow(10, Math.floor(Math.log10(n)));
+    const f = n / mag;
+    const nice = f < 1.5 ? 1 : f < 3.5 ? 2 : f < 7.5 ? 5 : 10;
+    return nice * mag;
+  };
+
+  // Suggested donation amounts: scaled from the goal when one is set, otherwise
+  // a sensible default ladder. Deduped, sorted, respects the minimum, capped.
+  const computeSuggestedPresets = (): number[] => {
+    const goal = parseFloat(settings.goalAmount);
+    const min = Math.max(1, parseFloat(settings.minAmount) || 0);
+    const base =
+      Number.isFinite(goal) && goal > 0
+        ? [goal * 0.001, goal * 0.0025, goal * 0.005, goal * 0.01].map(niceRound)
+        : [10, 25, 50, 100];
+    const out: number[] = [];
+    for (const v of base) {
+      const num = toNumber(v, 2);
+      if (num > 0 && num >= min && !out.includes(num)) out.push(num);
+    }
+    return out.sort((a, b) => a - b).slice(0, MAX_PRESETS);
+  };
+
+  const applySuggestedPresets = () => {
+    const next = computeSuggestedPresets();
+    if (next.length) {
+      onChange({ presets: next });
+      clearError("presets");
+    }
+  };
+
   // ── Gallery helpers (session 53 — new UI) ──
   const addGalleryPhoto = () => {
     setGalleryError("");
@@ -465,6 +509,40 @@ const DonationSettingsSection = ({
               {t("donationGoalHint", { defaultValue: "Leave empty for an open-ended collection." })}
             </Typography>
           )}
+          {!settings.goalAmount && (
+            <Box display="flex" flexWrap="wrap" gap={0.75} mt={1} data-testid="donation-goal-suggestions">
+              {GOAL_SUGGESTIONS.map((g) => (
+                <Box
+                  key={g}
+                  role="button"
+                  tabIndex={0}
+                  data-testid={`donation-goal-suggestion-${g}`}
+                  onClick={() => applyGoal(g)}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      applyGoal(g);
+                    }
+                  }}
+                  sx={{
+                    cursor: "pointer",
+                    px: 1,
+                    py: 0.4,
+                    borderRadius: "999px",
+                    border: `1px solid ${theme.palette.border.main}`,
+                    fontFamily: "var(--font-sans)",
+                    fontSize: 12.5,
+                    fontWeight: 600,
+                    color: theme.palette.text.secondary,
+                    fontVariantNumeric: "tabular-nums",
+                    "&:hover": { borderColor: green, color: green },
+                  }}
+                >
+                  {g.toLocaleString()} {currency}
+                </Box>
+              ))}
+            </Box>
+          )}
         </Box>
         <Box>
           <Typography sx={labelSx}>{t("donationMinLabel", { defaultValue: "Minimum donation" })}</Typography>
@@ -492,12 +570,45 @@ const DonationSettingsSection = ({
 
       {/* Preset amounts */}
       <Box>
-        <Typography sx={labelSx}>
-          {t("donationPresetsLabel", { defaultValue: "Suggested amounts" })}{" "}
-          <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
-            ({t("donationPresetsMax", { defaultValue: "up to 6" })})
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
+          <Typography sx={labelSx}>
+            {t("donationPresetsLabel", { defaultValue: "Suggested amounts" })}{" "}
+            <Typography component="span" sx={{ ...hintSx, display: "inline" }}>
+              ({t("donationPresetsMax", { defaultValue: "up to 6" })})
+            </Typography>
           </Typography>
-        </Typography>
+          <Box
+            role="button"
+            tabIndex={0}
+            data-testid="donation-preset-suggest"
+            onClick={applySuggestedPresets}
+            onKeyDown={(e: React.KeyboardEvent) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                applySuggestedPresets();
+              }
+            }}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.5,
+              cursor: "pointer",
+              px: 1,
+              py: 0.4,
+              mb: 0.75,
+              borderRadius: "999px",
+              border: `1px dashed ${green}`,
+              color: green,
+              fontFamily: "var(--font-sans)",
+              fontSize: 12.5,
+              fontWeight: 600,
+              "&:hover": { backgroundColor: isDark ? "rgba(16,185,129,0.12)" : "rgba(16,185,129,0.07)" },
+            }}
+          >
+            <Icon icon="mdi:auto-fix" width={15} />
+            {t("donationPresetsSuggest", { defaultValue: "Suggest amounts" })}
+          </Box>
+        </Box>
         <Box display="flex" flexWrap="wrap" gap={1} mb={settings.presets.length ? 1 : 0}>
           {settings.presets.map((p) => (
             <Box

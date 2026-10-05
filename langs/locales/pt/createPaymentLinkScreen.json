@@ -100,8 +100,8 @@
   "youReceive": "Você recebe",
   "linkTypeStandard": "Link de pagamento",
   "linkTypeStandardHint": "Solicite um valor fixo por um produto, fatura ou serviço.",
-  "linkTypeDonation": "Crowdfunding",
-  "linkTypeDonationHint": "Receba contribuições para uma meta — os doadores escolhem o valor.",
+  "linkTypeDonation": "Arrecadação",
+  "linkTypeDonationHint": "Receba doações para uma meta, com barra de progresso e mural de doadores.",
   "donationTitleLabel": "Título da campanha",
   "donationTitlePlaceholder": "ex.: Ajude-nos a construir a horta comunitária",
   "donationTitleRequired": "O título da campanha é obrigatório",
@@ -163,7 +163,7 @@
   "advancedOptions": "Opções avançadas",
   "advancedOptionsHint": "E-mail do cliente, imposto",
   "createDonation": "Criar doação",
-  "createDonationTitle": "Criar doação",
+  "createDonationTitle": "Criar uma arrecadação",
   "donationSuccessfullyCreated": "Doação criada",
   "shareDonationToStartCollecting": "Compartilhe para começar a receber doações",
   "donationCreatorHintTitle": "Isto vira sua caixa de gorjetas \"Buy me a coffee\"",
@@ -315,5 +315,12 @@
   "campaignDelete": "Eliminar",
   "campaignRemoveReply": "Remover resposta",
   "advancedOptionsHintSingleForm": "Moedas, validade, taxas, e-mail do cliente, impostos, webhooks",
-  "advancedOptionsHintSingleFormEdit": "Moedas, validade, taxas, e-mail do cliente, impostos"
+  "advancedOptionsHintSingleFormEdit": "Moedas, validade, taxas, e-mail do cliente, impostos",
+  "donationPresetsSuggest": "Sugerir valores",
+  "previewDonorWall": "Apoiadores recentes",
+  "previewDonorWallSample": "Exemplo — os apoiadores reais aparecerão aqui quando você estiver no ar.",
+  "previewDonorJustNow": "agora mesmo",
+  "previewDonorMinsAgo": "há 2 min",
+  "previewDonorA": "Amara",
+  "previewDonorB": "Leo"
 }

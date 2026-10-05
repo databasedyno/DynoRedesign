@@ -6,7 +6,7 @@ import AddRounded from "@mui/icons-material/AddRounded";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import QuickCreateLinkPanel from "@/Components/Page/Payment-link/QuickCreateLinkPanel";
 import CreateHub from "./CreateHub";
-import { QUICK_CREATE_LINK_EVENT } from "@/Components/Common/CommandPalette";
+import { OPEN_CREATE_HUB_EVENT, QUICK_CREATE_LINK_EVENT } from "@/Components/Common/CommandPalette";
 
 /**
  * CreateNewButton — the ONE create control in the app chrome (audit F3 / N3).
@@ -76,6 +76,16 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
     const onQuickCreate = () => setQuickCreateOpen(true);
     window.addEventListener(QUICK_CREATE_LINK_EVENT, onQuickCreate);
     return () => window.removeEventListener(QUICK_CREATE_LINK_EVENT, onQuickCreate);
+  }, [isTab]);
+
+  // Empty states / CTAs across the app dispatch OPEN_CREATE_HUB_EVENT to open
+  // the Create hub (so "create" always lands in the one place that lists all
+  // four types, incl. Fundraiser). Header instance only — see `n` note above.
+  useEffect(() => {
+    if (isTab) return;
+    const onOpenHub = () => setHubOpen(true);
+    window.addEventListener(OPEN_CREATE_HUB_EVENT, onOpenHub);
+    return () => window.removeEventListener(OPEN_CREATE_HUB_EVENT, onOpenHub);
   }, [isTab]);
 
   const isDark = theme.palette.mode === "dark";

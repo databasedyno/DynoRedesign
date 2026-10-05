@@ -33,6 +33,9 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 /** Fired by the palette's "Create payment link" action; CreateNewButton listens. */
 export const QUICK_CREATE_LINK_EVENT = "dynopay:quick-create-link";
 
+/** Fired by empty states / CTAs to open the Create hub; CreateNewButton listens. */
+export const OPEN_CREATE_HUB_EVENT = "dynopay:open-create-hub";
+
 type Item = {
   id: string;
   group: "pages" | "actions" | "customers" | "links" | "transactions" | "admin";

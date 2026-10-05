@@ -880,5 +880,17 @@
     "cta": "Ver transacciones",
     "dismiss": "Seguir adelante",
     "footnote": "Te enviaremos un recibo por cada pago que recibas."
-  }
+  },
+  "navClose": "Cerrar",
+  "navNewFundraiser": "Recaudación",
+  "navNewCreatorPage": "Página de creador",
+  "hubTitle": "Crear",
+  "hubSubtitle": "¿Qué quieres crear?",
+  "hubPaylinkDesc": "Solicita un importe fijo por un producto, factura o servicio.",
+  "hubPaylinkFull": "Opciones completas: impuestos, caducidad, monedas aceptadas",
+  "hubFundraiserDesc": "Recauda donaciones hacia una meta, con barra de progreso y muro de donantes.",
+  "hubProductDesc": "Vende un producto con variantes, imágenes e inventario.",
+  "hubCreatorDesc": "Una página para compartir, con propinas y apoyo, en tu dynopay.com/usuario.",
+  "hubSettlementNote": "Recibirás la misma moneda que paga cada cliente. Activa la conversión automática para liquidar en una stablecoin.",
+  "hubSettlementCta": "Ajustes de conversión automática"
 }

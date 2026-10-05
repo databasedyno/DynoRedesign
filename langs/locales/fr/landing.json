@@ -7,7 +7,7 @@
       "eyebrow": "Les paiements crypto, simplifiés",
       "headline1": "Acceptez les paiements crypto.",
       "headline2": "Soyez payé comme vous voulez.",
-      "body": "Acceptez Bitcoin, Ethereum, USDT et plus de 40 actifs, puis recevez automatiquement dans la devise ou le wallet de votre choix. Aucun rejet de paiement, aucune conservation, en ligne en quelques minutes.",
+      "body": "Acceptez Bitcoin, Ethereum, USDT et plus de 40 actifs, et conservez la crypto reçue — ou activez la conversion automatique pour être réglé en stablecoin. Non-dépositaire, zéro rétrofacturation, opérationnel en quelques minutes.",
       "primary": "Commencer gratuitement",
       "secondary": "Voir comment ça marche",
       "note": "Sans carte bancaire · Votre premier paiement est gratuit"
@@ -36,7 +36,7 @@
         },
         "settle": {
           "title": "Vous êtes réglé comme vous voulez",
-          "body": "Nous convertissons automatiquement et réglons dans la devise ou le wallet de votre choix."
+          "body": "Recevez la crypto payée par votre client, ou activez la conversion automatique pour un règlement en stablecoin — directement vers le portefeuille que vous contrôlez."
         }
       }
     },
@@ -123,7 +123,7 @@
       },
       "coins": {
         "q": "Avec quelles cryptos les clients peuvent-ils payer ?",
-        "a": "Bitcoin, Ethereum, USDT, USDC et plus de 40 actifs sur les grandes blockchains. Vous choisissez la devise dans laquelle vous voulez recevoir."
+        "a": "Bitcoin, Ethereum, USDT, USDC et plus de 40 actifs sur les principales blockchains. Par défaut, vous recevez la crypto payée par votre client ; activez la conversion automatique pour être réglé en stablecoin comme l'USDC."
       }
     },
     "finalCta": {

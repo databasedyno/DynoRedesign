@@ -7,7 +7,7 @@
       "eyebrow": "Krypto-Zahlungen, vereinfacht",
       "headline1": "Krypto-Zahlungen akzeptieren.",
       "headline2": "Werde bezahlt, wie du willst.",
-      "body": "Nimm Bitcoin, Ethereum, USDT und 40+ Assets an – und lass automatisch in die Währung oder Wallet deiner Wahl auszahlen. Keine Rückbuchungen, keine Verwahrung, in Minuten live.",
+      "body": "Akzeptiere Bitcoin, Ethereum, USDT und über 40 Assets und behalte die gezahlte Coin – oder aktiviere die Auto-Konvertierung, um in einem Stablecoin ausgezahlt zu werden. Nicht-verwahrend, keine Rückbuchungen, in Minuten startklar.",
       "primary": "Kostenlos starten",
       "secondary": "So funktioniert's",
       "note": "Keine Kreditkarte · Deine erste Zahlung ist kostenlos"
@@ -36,7 +36,7 @@
         },
         "settle": {
           "title": "Du wirst ausgezahlt, wie du willst",
-          "body": "Wir konvertieren automatisch und zahlen in die Währung oder Wallet deiner Wahl aus."
+          "body": "Erhalte die Coin, die dein Kunde gezahlt hat, oder aktiviere die Auto-Konvertierung für die Auszahlung in einem Stablecoin – direkt in die Wallet, die du kontrollierst."
         }
       }
     },
@@ -123,7 +123,7 @@
       },
       "coins": {
         "q": "Mit welchen Coins können Kunden zahlen?",
-        "a": "Bitcoin, Ethereum, USDT, USDC und 40+ Assets auf großen Blockchains. Du wählst, in welcher Währung du empfangen möchtest."
+        "a": "Bitcoin, Ethereum, USDT, USDC und über 40 Assets auf den wichtigsten Chains. Standardmäßig erhältst du dieselbe Coin, die dein Kunde gezahlt hat; aktiviere die Auto-Konvertierung, um stattdessen in einem Stablecoin wie USDC ausgezahlt zu werden."
       }
     },
     "finalCta": {

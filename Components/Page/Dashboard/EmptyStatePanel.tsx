@@ -10,6 +10,7 @@ import {
 } from "@mui/icons-material";
 import { Box, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
+import { OPEN_CREATE_HUB_EVENT } from "@/Components/Common/CommandPalette";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -104,7 +105,7 @@ const EmptyStatePanel: React.FC<EmptyStatePanelProps> = ({
                 variant="primary"
                 size={isMobile ? "small" : "medium"}
                 endIcon={<ArrowOutward sx={{ fontSize: 16 }} />}
-                onClick={onCreateLink || (() => router.push("/create-pay-link"))}
+                onClick={onCreateLink || (() => { if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(OPEN_CREATE_HUB_EVENT)); })}
               />
               <Box
                 role="button"

@@ -880,5 +880,17 @@
     "cta": "Transaktionen ansehen",
     "dismiss": "Weiter machen",
     "footnote": "Wir senden dir eine Quittung für jede Zahlung, die du erhältst."
-  }
+  },
+  "navClose": "Schließen",
+  "navNewFundraiser": "Spendenaktion",
+  "navNewCreatorPage": "Creator-Seite",
+  "hubTitle": "Erstellen",
+  "hubSubtitle": "Was möchtest du einrichten?",
+  "hubPaylinkDesc": "Fordere einen festen Betrag für ein Produkt, eine Rechnung oder eine Dienstleistung an.",
+  "hubPaylinkFull": "Alle Optionen: Steuern, Ablauf, akzeptierte Coins",
+  "hubFundraiserDesc": "Sammle Spenden für ein Ziel – mit Fortschrittsbalken und Spenderwand.",
+  "hubProductDesc": "Verkaufe ein Produkt mit Varianten, Bildern und Lagerbestand.",
+  "hubCreatorDesc": "Eine teilbare Seite für Trinkgeld und Unterstützung unter deiner dynopay.com/handle.",
+  "hubSettlementNote": "Du erhältst die Coin, die jeder Kunde zahlt. Aktiviere die Auto-Konvertierung, um stattdessen in einem Stablecoin ausgezahlt zu werden.",
+  "hubSettlementCta": "Auto-Konvertierung-Einstellungen"
 }
