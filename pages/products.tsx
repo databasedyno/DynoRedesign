@@ -1,73 +1,75 @@
 import React, { memo } from "react";
 import Head from "next/head";
-import { Box, Typography } from "@mui/material";
-import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
-import ShoppingCartCheckoutRoundedIcon from "@mui/icons-material/ShoppingCartCheckoutRounded";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
-import VolunteerActivismRoundedIcon from "@mui/icons-material/VolunteerActivismRounded";
-import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
-import PaymentsRoundedIcon from "@mui/icons-material/PaymentsRounded";
-import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { FONT_BODY, FONT_HERO, useAurora } from "@/Components/Page/Home/v3/theme.v3";
-import { AuroraInk } from "@/Components/Page/Home/v3/styled.v3";
-import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
-import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
-import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx, goStart } from "@/Components/Page/Home/v5/shared";
-import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
+import { Box, Typography } from "@mui/material";
+import { Icon } from "@iconify/react";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import {
+  FONT_BODY,
+  FONT_DISPLAY,
+  GradientText,
+  PrimaryBtn,
+  SecondaryBtn,
+  Reveal,
+  SectionV8,
+  SectionHeadV8,
+  goStart,
+  useConsole,
+} from "@/Components/Page/Home/v8/kit";
+import PageHeroV8 from "@/Components/Page/Home/v8/PageHeroV8";
+import CtaBandV8 from "@/Components/Page/Home/v8/CtaBandV8";
 
 /**
- * /products — the seven Dynopay ways to get paid, moved off the homepage in the
- * 2026-06 Bybit-style revamp. Same public marketing shell + tokens as /fees so
- * the whole site reads as one product.
+ * /products — every DynoPay way to get paid, rebuilt on the 2026-10 "v8"
+ * marketing system (same tokens/motion as the homepage). SafeDeal escrow is a
+ * separate product and intentionally excluded. Real product list + routes kept.
  */
 const PRODUCTS = [
   {
-    Icon: LinkRoundedIcon,
+    icon: "mdi:link-variant",
     title: "Payment Links",
     body: "Create a shareable payment link in seconds and get paid in crypto — no website or code required.",
     cta: "Create a link",
     href: "/create-pay-link",
   },
   {
-    Icon: ShoppingCartCheckoutRoundedIcon,
+    icon: "mdi:cart-outline",
     title: "Hosted Checkout",
     body: "A drop-in, conversion-optimised checkout that handles coins, live rates and confirmations for you.",
-    cta: "See the demo",
-    href: "/pay/demo",
+    cta: "Explore Checkout",
+    href: "/products/checkout",
   },
   {
-    Icon: AutoAwesomeRoundedIcon,
+    icon: "mdi:account-star-outline",
     title: "Creator Pages",
     body: "A branded page where fans and customers can pay you directly — perfect for creators and freelancers.",
     cta: "Explore creator pages",
     href: "/for/creators",
   },
   {
-    Icon: VolunteerActivismRoundedIcon,
+    icon: "mdi:hand-heart-outline",
     title: "Donations",
     body: "Accept one-off or recurring crypto donations with a simple, trustworthy donation page.",
     cta: "Try a donation page",
     href: "/pay/donation-demo",
   },
   {
-    Icon: ReceiptLongRoundedIcon,
+    icon: "mdi:receipt-text-outline",
     title: "Invoices",
-    body: "Send professional crypto invoices with due dates and automatic reconciliation when they’re paid.",
+    body: "Send professional crypto invoices with due dates and automatic reconciliation when they're paid.",
     cta: "See how invoicing works",
     href: "/documentation",
   },
   {
-    Icon: PaymentsRoundedIcon,
+    icon: "mdi:send-outline",
     title: "Payouts",
     body: "Pay contractors, affiliates and suppliers in crypto — single or in bulk — straight from your balance.",
     cta: "Read the payouts guide",
     href: "/documentation",
   },
   {
-    Icon: CodeRoundedIcon,
+    icon: "mdi:code-tags",
     title: "Developer API",
     body: "One clean REST API to create payments, run checkouts and receive webhooks. Built to ship fast.",
     cta: "Read the docs",
@@ -76,12 +78,12 @@ const PRODUCTS = [
 ];
 
 const Products: React.FC = () => {
-  const s = useAurora();
+  const s = useConsole();
   const router = useRouter();
   const { t } = useTranslation("pageTitles");
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%", background: s.canvas }}>
       <Head>
         <title>{t("products_title", { defaultValue: "Products — every way to accept crypto | Dynopay" })}</title>
         <meta
@@ -91,21 +93,21 @@ const Products: React.FC = () => {
         <link rel="canonical" href="https://dynopay.com/products" />
       </Head>
 
-      <PublicPageHero
+      <PageHeroV8
         testId="products-hero"
         eyebrow="Products"
         title={
           <>
-            Every way to <AuroraInk>accept crypto</AuroraInk>
+            Every way to <GradientText>accept crypto</GradientText>
           </>
         }
         body="From a no-code payment link to a full developer API — pick the surface that fits how you get paid, and settle to the currency or wallet you choose."
         actions={
           <>
-            <PrimaryBtn data-testid="products-hero-start" onClick={() => goStart(router, "products_hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
+            <PrimaryBtn data-testid="products-hero-start" onClick={() => goStart(router, "products_hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ px: 3.25, py: 1.5, fontSize: 16 }}>
               Start free
             </PrimaryBtn>
-            <SecondaryBtn onDark={s.dark} data-testid="products-hero-pricing" href="/fees">
+            <SecondaryBtn data-testid="products-hero-pricing" href="/fees" sx={{ px: 3.25, py: 1.5, fontSize: 16 }}>
               See pricing
             </SecondaryBtn>
           </>
@@ -113,41 +115,73 @@ const Products: React.FC = () => {
         note="No credit card · Your first payment is free"
       />
 
-      <Section testId="products-grid">
-        <SectionHead
+      <SectionV8 testId="products-grid">
+        <SectionHeadV8
           center
           eyebrow="Seven surfaces"
-          headline="One platform, seven ways to get paid"
-          body="Mix and match — start with a link today and add the API when you’re ready."
+          title="One platform, seven ways to get paid"
+          lead="Mix and match — start with a link today and add the API when you're ready."
           maxWidth={720}
           testId="products-grid-head"
         />
-        <Stagger step={0.08} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: { xs: 2.5, md: 3 } }}>
-          {PRODUCTS.map(({ Icon, title, body, cta, href }, i) => (
-            <StaggerItem key={title} i={i} y={16}>
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" },
+            gap: { xs: 2.5, md: 3 },
+          }}
+        >
+          {PRODUCTS.map((p, i) => (
+            <Reveal key={p.title} delay={(i % 3) * 0.08}>
               <Box
                 component="a"
-                href={href}
-                data-testid={`product-${title.toLowerCase().replace(/\s+/g, "-")}`}
-                sx={{ ...cardSx(s), display: "flex", flexDirection: "column", p: { xs: 3, md: 3.5 }, height: "100%", textDecoration: "none" }}
+                href={p.href}
+                data-testid={`product-${p.title.toLowerCase().replace(/\s+/g, "-")}`}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  p: { xs: 3, md: 3.5 },
+                  height: "100%",
+                  borderRadius: "18px",
+                  textDecoration: "none",
+                  border: `1px solid ${s.line}`,
+                  background: s.surface,
+                  transition: "transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    borderColor: s.lineStrong,
+                    boxShadow: s.dark ? "0 24px 50px -30px rgba(0,0,0,0.6)" : "0 24px 50px -28px rgba(0,0,0,0.25)",
+                  },
+                  "&:hover .pcta": { gap: 1 },
+                }}
               >
                 <Box sx={{ width: 48, height: 48, borderRadius: "12px", display: "grid", placeItems: "center", background: s.accentSoft, color: s.accent, mb: 2.5 }}>
-                  <Icon sx={{ fontSize: 24 }} />
+                  <Icon icon={p.icon} width={24} height={24} />
                 </Box>
-                <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontWeight: 600, fontSize: { xs: 18.5, md: 20 }, letterSpacing: "-0.01em", color: s.ink, mb: 1.25 }}>
-                  {title}
+                <Typography component="h3" sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: { xs: 18.5, md: 20 }, letterSpacing: "-0.01em", color: s.ink, mb: 1.25 }}>
+                  {p.title}
                 </Typography>
-                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.6, color: s.ink2, flexGrow: 1 }}>{body}</Typography>
-                <Typography sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 2.5, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 600, color: s.accent }}>
-                  {cta} <ArrowForwardIcon sx={{ fontSize: 16 }} />
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.6, color: s.ink2, flexGrow: 1 }}>{p.body}</Typography>
+                <Typography className="pcta" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, mt: 2.5, fontFamily: FONT_BODY, fontSize: 14.5, fontWeight: 700, color: s.accent, transition: "gap 180ms ease" }}>
+                  {p.cta} <ArrowForwardIcon sx={{ fontSize: 16 }} />
                 </Typography>
               </Box>
-            </StaggerItem>
+            </Reveal>
           ))}
-        </Stagger>
-      </Section>
+        </Box>
+      </SectionV8>
 
-      <PublicFinalCta attributionRef="products" />
+      <CtaBandV8
+        testId="products-cta"
+        badge="Live in minutes · no credit card"
+        title="Pick a surface and"
+        highlight="start getting paid."
+        body="Start with a no-code link and add the API when you scale — all from one non-custodial platform."
+        primaryLabel="Start free"
+        primaryRef="products_final"
+        secondaryLabel="See pricing"
+        secondaryHref="/fees"
+      />
     </Box>
   );
 };

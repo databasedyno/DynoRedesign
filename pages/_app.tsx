@@ -313,6 +313,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
     if (
       homePaths.has(pathname) ||
       pathname.startsWith("/blog/") ||
+      pathname.startsWith("/products/") ||
       pathname.startsWith("/accept-crypto-payments-in/") ||
       pathname.startsWith("/for/") ||
       pathname.startsWith("/compare/")

@@ -1,4 +1,29 @@
 # ============================================================================
+# >>> 2026-10-06 — PHASE 2: CONVERSION PAGES ON v8 SYSTEM (frontend-only)
+# ============================================================================
+#  Rebuilt three public marketing pages on the v8 system (same tokens/motion as
+#  the new homepage). NO backend changes.
+#    /fees              (pages/fees.tsx) — v8 re-skin; SAME real tier model
+#                       (Starter 1.5% / Growth 1.0% / Scale 0.7% / Enterprise 0.5%),
+#                       SAME live network-fee calculator (GET /api/pay/network-fees),
+#                       comparison, FAQ, JSON-LD. All data-testids preserved:
+#                       fees-hero, fees-tiers, fees-tier-*, fees-calculator,
+#                       fee-breakdown, fee-live-badge, fee-calc-amount-input,
+#                       fee-calc-currency-select, fee-cheapest-hint, fee-use-cheapest,
+#                       fee-row-value-0/1, fee-breakdown-net, fees-calc-cta,
+#                       fees-compare, fees-who-pays, fees-included, fees-security,
+#                       fees-faq-section, fees-faq-*, fees-final-cta.
+#    /products          (pages/products.tsx) — v8 re-skin; 7 real products kept;
+#                       "Hosted Checkout" now links to /products/checkout.
+#    /products/checkout (pages/products/checkout.tsx) — NEW flagship product page.
+#  New reusable v8 blocks: PageHeroV8, CtaBandV8 (Components/Page/Home/v8/).
+#  _app.tsx layout resolver: added pathname.startsWith("/products/") so product
+#  sub-pages use the public marketing shell.
+#  Serving PRODUCTION build (.next-prod). All four pages verified 200 (local+ext).
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-10-06 — HOMEPAGE "BYBIT-TIER" REDESIGN (Phase 1, frontend-only)
 #     ✅✅✅ VERIFIED BY testing_agent — ALL TESTS PASSED ✅✅✅
 # ============================================================================
