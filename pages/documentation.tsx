@@ -3,10 +3,20 @@ import { Box, Typography, useTheme, Grid, Autocomplete, TextField, InputBase, Dr
 import { brandFg } from "@/constants/theme";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
-import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
-import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
 import { PrimaryBtn, SecondaryBtn } from "@/Components/Page/Home/v5/shared";
-import { AuroraInk } from "@/Components/Page/Home/v3/styled.v3";
+import { Icon } from "@iconify/react";
+import {
+  EyebrowV8,
+  GradientText,
+  PANEL,
+  PANEL_GLOW,
+  GRID_BG,
+  FONT_DISPLAY as V8_DISPLAY,
+  FONT_BODY as V8_BODY,
+  FONT_MONO as V8_MONO,
+} from "@/Components/Page/Home/v8/kit";
+import CtaBandV8 from "@/Components/Page/Home/v8/CtaBandV8";
+import { ApiMock } from "@/Components/Page/Product/mocks";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import useIsMobile from "@/hooks/useIsMobile";
 import CodeIcon from "@mui/icons-material/Code";
@@ -1484,29 +1494,39 @@ const DocumentationPage = () => {
   return (
     <>
       <PageWrapper>
-        {/* ===== HERO ===== */}
-        <PublicPageHero
-          testId="docs-hero"
-          compact
-          eyebrow="Developer Documentation"
-          title={
-            <>
-              Dynopay <AuroraInk>API Reference</AuroraInk>
-            </>
-          }
-          body="Everything you need to accept crypto payments, manage customer wallets, and track transactions programmatically."
-          actions={
-            <>
-              <PrimaryBtn data-testid="docs-hero-api-key" onClick={() => router.push("/auth/register?ref=docs_hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-                Get your API key
-              </PrimaryBtn>
-              <Box data-testid="docs-base-url" sx={{ display: "inline-flex", alignItems: "center", gap: 1.5, background: dk ? "#0D0F1A" : "#1E1E2E", borderRadius: "999px", px: 2.25, py: 1.25, border: `1px solid ${dk ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)"}` }}>
-                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "rgba(255,255,255,0.5)" }}>Base URL</Typography>
-                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12.5, color: "#CDD6F4", fontWeight: 600 }}>https://dynopay.com/api/user</Typography>
+        {/* ===== HERO (v8) ===== */}
+        <Box component="section" data-testid="docs-hero" sx={{ position: "relative", overflow: "hidden", pt: { xs: 5, md: 8 }, pb: { xs: 6, md: 9 } }}>
+          <Box aria-hidden sx={{ position: "absolute", top: -120, right: -100, width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,209,0,0.14), transparent 62%)", pointerEvents: "none" }} />
+          <Container sx={{ position: "relative", zIndex: 1 }}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0,1fr) minmax(0,0.9fr)" }, gap: { xs: 5, lg: 7 }, alignItems: "center" }}>
+              <Box sx={{ maxWidth: 560 }}>
+                <EyebrowV8 sx={{ mb: 2.5 }}>Developer Documentation</EyebrowV8>
+                <Typography component="h1" sx={{ fontFamily: V8_DISPLAY, fontWeight: 700, fontSize: "clamp(34px,5vw,56px)", lineHeight: 1.05, letterSpacing: "-0.03em", color: dk ? "#F6F6F3" : "#15150F" }}>
+                  DynoPay <GradientText>API Reference</GradientText>
+                </Typography>
+                <Typography sx={{ fontFamily: V8_BODY, color: dk ? "rgba(255,255,255,0.68)" : "#52525B", fontSize: { xs: 16, md: 18.5 }, lineHeight: 1.6, mt: 2.5, maxWidth: 480 }}>
+                  Everything you need to accept crypto payments, manage customer wallets, and track transactions programmatically.
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 1.5, mt: 4 }}>
+                  <PrimaryBtn data-testid="docs-hero-api-key" onClick={() => router.push("/auth/register?ref=docs_hero")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
+                    Get your API key
+                  </PrimaryBtn>
+                  <Box data-testid="docs-base-url" sx={{ display: "inline-flex", alignItems: "center", gap: 1.5, background: "#0E0E0D", borderRadius: "999px", px: 2.25, py: 1.25, border: "1px solid rgba(255,255,255,0.12)" }}>
+                    <Typography sx={{ fontFamily: V8_MONO, fontSize: 12.5, color: "rgba(255,255,255,0.5)" }}>Base URL</Typography>
+                    <Typography sx={{ fontFamily: V8_MONO, fontSize: 12.5, color: "#FFD100", fontWeight: 600 }}>https://dynopay.com/api/user</Typography>
+                  </Box>
+                </Box>
               </Box>
-            </>
-          }
-        />
+              <Box sx={{ position: "relative", display: { xs: "none", lg: "flex" }, justifyContent: "center" }}>
+                <Box aria-hidden sx={{ position: "absolute", inset: "-8% -4%", borderRadius: "24px", background: PANEL_GLOW, pointerEvents: "none" }} />
+                <Box sx={{ position: "relative", width: "100%", maxWidth: 420, borderRadius: "22px", p: 3, background: "linear-gradient(170deg,#171715 0%,#0B0B0A 100%)", border: `1px solid ${PANEL.lineStrong}`, boxShadow: "0 40px 90px -30px rgba(0,0,0,0.5)" }}>
+                  <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: GRID_BG, backgroundSize: "24px 24px", maskImage: "radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 75%)", WebkitMaskImage: "radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 75%)", opacity: 0.7 }} />
+                  <Box sx={{ position: "relative" }}><ApiMock /></Box>
+                </Box>
+              </Box>
+            </Box>
+          </Container>
+        </Box>
 
         {/* ===== PRODUCT CARDS ===== */}
         <Container>
@@ -2525,21 +2545,16 @@ app.post('/webhooks/dynopay', (req, res) => {
           </Box>
         </Container>
 
-        <PublicFinalCta
-          attributionRef="docs_final"
+        <CtaBandV8
           testId="docs-final-cta"
-          title="Ready to get started?"
-          body="Non-custodial, from 0.5%, no chargebacks — create your API key and take your first payment."
-          actions={
-            <>
-              <PrimaryBtn data-testid="docs-cta-api-key" onClick={() => router.push("/auth/register?ref=docs_final")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-                Get your API Key
-              </PrimaryBtn>
-              <SecondaryBtn onDark data-testid="docs-cta-fees" href="/fees">
-                View Fees
-              </SecondaryBtn>
-            </>
-          }
+          badge="From 0.5% · no chargebacks"
+          title="Ready to"
+          highlight="ship?"
+          body="Non-custodial, from 0.5%, no chargebacks — create your API key and take your first payment today."
+          primaryLabel="Get your API key"
+          primaryRef="docs_final"
+          secondaryLabel="View fees"
+          secondaryHref="/fees"
         />
 
         {/* Back-to-top is provided globally by <ScrollToTopButton/> in the layout. */}

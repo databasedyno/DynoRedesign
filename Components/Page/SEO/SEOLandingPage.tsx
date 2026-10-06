@@ -1,31 +1,29 @@
 import React, { memo } from "react";
 import Head from "next/head";
-import Link from "next/link";
 import { Box, Typography } from "@mui/material";
+import { Icon } from "@iconify/react";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
-import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
-import PublicFinalCta from "@/Components/Page/Home/v5/PublicFinalCta";
-import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Components/Page/Home/v5/shared";
-import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
-import CheckoutMock from "@/Components/Page/Home/v7/mock/CheckoutMock";
-import { MockPlinth } from "@/Components/Page/Home/v7/mock/MockPlinth";
-import { VERTICAL_PAYMENTS } from "@/Components/Page/Home/v7/mock/payments";
-
+import { useTranslation } from "react-i18next";
+import {
+  EyebrowV8,
+  FONT_BODY,
+  FONT_DISPLAY,
+  FONT_MONO,
+  GradientText,
+  PrimaryBtn,
+  SecondaryBtn,
+  useConsole,
+} from "@/Components/Page/Home/v8/kit";
+import StatBandV8 from "@/Components/Page/Home/v8/StatBandV8";
+import CtaBandV8 from "@/Components/Page/Home/v8/CtaBandV8";
 import type { SEOPageContent, SEOPageIndexEntry } from "@/utils/seoContent";
-import { BRAND_ACCENT, BRAND_ON_ACCENT } from "@/constants/theme";
-import SEOIllustration from "./SEOIllustration";
-import { useTranslation } from 'react-i18next';
 import { useVerticalAccent, type Vertical } from "@/Components/UI/_shared";
+import SEOHeroMock from "./SEOHeroMock";
+import { SEOFaqV8, SEOFeatures, SEOIntro, SEORelated, SEOSteps } from "./SEOSectionsV8";
 
 /**
- * Slug → Vertical map for `/for/{slug}` pages. Only these four verticals get
- * a per-audience accent applied; country pages (`/accept-crypto-payments-in/*`)
- * and any future slugs fall back to the default indigo merchant tint.
+ * Slug → Vertical map for `/for/{slug}` pages (drives the "For creators" eyebrow).
+ * Other slugs fall back to the generic "Industries" label.
  */
 const SEO_SLUG_TO_VERTICAL: Record<string, Vertical> = {
   merchants: "merchants",
@@ -58,35 +56,26 @@ const SEO_HREFLANGS = ["en", "pt", "fr", "es", "de", "nl"];
 const breadcrumbLabelFor = (kind: SEOPageContent["_kind"], t: (k: string) => string) =>
   kind === "country" ? t('seo.countries') : t('seo.industries');
 
-/** Colours `part` inside `title` (mirrors the old HomeSectionTitle highlight behaviour). */
-const highlight = (title: string, part: string, color: string): React.ReactNode => {
-  if (!part || !title.includes(part)) return title;
-  const [before, ...rest] = title.split(part);
-  return (
-    <>
-      {before}
-      <Box component="span" sx={{ color }}>{part}</Box>
-      {rest.join(part)}
-    </>
-  );
+/** Splits a headline so its closing phrase (last two 4+ letter words) gets the gold gradient. */
+const splitTail = (text: string): [string, string] => {
+  const words = text.trim().split(/\s+/);
+  let i = words.length;
+  let content = 0;
+  while (i > 0 && content < 2 && words.length - i < 4) {
+    i -= 1;
+    if (words[i].replace(/[^A-Za-z0-9\u00C0-\u024F]/g, "").length >= 4) content += 1;
+  }
+  return [words.slice(0, i).join(" "), words.slice(i).join(" ")];
 };
 
 const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages = [], localeAlternates }) => {
   const { t } = useTranslation('landing');
-  const s = useAurora();
-  const accentInk = s.dark ? "#FFD100" : "#8B5E00";
+  const s = useConsole();
 
-  // ─── Vertical-specific accent (design audit 2026-08-05, Phase 4) ────
-  // /for/{slug} pages inherit the accent of the matching vertical so a
-  // creator lands on a volt-lime hero, a fundraiser on violet, and a
-  // developer on obsidian-with-volt. Country pages fall through to the
-  // default merchant indigo. The `override` arg on useVerticalAccent()
-  // means the route heuristic can't misfire here.
   const verticalOverride: Vertical | undefined =
     content._kind === "vertical"
       ? SEO_SLUG_TO_VERTICAL[content._slug || ""]
       : undefined;
-  // Kept for the eyebrow label ("For creators"); colours now come from the shared aurora system.
   const accent = useVerticalAccent(verticalOverride);
   const heroEyebrow =
     content._kind === "vertical" && verticalOverride
@@ -248,194 +237,85 @@ const SEOLandingPage: React.FC<Props> = ({ content, canonicalUrl, relatedPages =
         />
       </Head>
 
-      <PublicPageHero
-        testId="seo-hero"
-        eyebrow={heroEyebrow}
-        title={content.h1}
-        body={content.subheading}
-        topSlot={
-          <Box component="nav" aria-label="Breadcrumb" data-testid="seo-breadcrumbs">
-            <Typography sx={{ fontFamily: FONT_TECH, color: s.ink3, fontSize: 12.5, letterSpacing: "0.04em" }}>
-              <Box component="a" href="/" sx={{ color: "inherit", textDecoration: "none", "&:hover": { color: s.ink } }}>
-                {t('seo.home')}
+      <Box sx={{ width: "100%", background: s.canvas }}>
+        <SEOHero content={content} eyebrow={heroEyebrow} breadcrumbLabel={breadcrumbLabel} signupHref={signupHref} />
+        <StatBandV8 />
+        {content.intro_paragraph ? <SEOIntro name={content._display_name} text={content.intro_paragraph} /> : null}
+        <SEOFeatures features={content.features} />
+        <SEOSteps steps={content.how_it_works} />
+        <SEOFaqV8 faqs={content.faqs} />
+        {relatedPages.length > 0 ? <SEORelated pages={relatedPages} /> : null}
+        <CtaBandV8
+          testId="seo-final-cta"
+          badge={t("seo.ctaBadge")}
+          title={content.cta_headline}
+          body={content.cta_body}
+          primaryLabel={t("createFreeAccount")}
+          primaryHref={signupHref}
+          secondaryLabel={t("v5.hero.secondary")}
+          secondaryHref="/pay/demo"
+        />
+      </Box>
+    </>
+  );
+};
+
+interface HeroProps {
+  content: SEOPageContent;
+  eyebrow: string;
+  breadcrumbLabel: string;
+  signupHref: string;
+}
+
+const SEOHero: React.FC<HeroProps> = ({ content, eyebrow, breadcrumbLabel, signupHref }) => {
+  const { t } = useTranslation("landing");
+  const s = useConsole();
+  const [lead, tail] = splitTail(content.h1);
+  const trust = [t("footerNav.trust.nonCustodial"), t("footerNav.trust.noChargebacks"), t("footerNav.trust.chains")];
+  return (
+    <Box component="section" data-testid="seo-hero" sx={{ position: "relative", background: s.canvas, overflow: "hidden", pt: { xs: 10, md: 13 }, pb: { xs: 8, md: 12 } }}>
+      <Box aria-hidden sx={{ position: "absolute", top: -140, right: -120, width: 640, height: 640, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,209,0,0.14), transparent 62%)", pointerEvents: "none" }} />
+      <Box sx={{ position: "relative", zIndex: 1, maxWidth: 1200, mx: "auto", px: { xs: 3, md: 6 }, display: "grid", gridTemplateColumns: { xs: "minmax(0,1fr)", lg: "minmax(0,1fr) minmax(0,1fr)" }, gap: { xs: 7, lg: 8 }, alignItems: "center" }}>
+        <Box sx={{ maxWidth: 580, minWidth: 0 }}>
+          <Box component="nav" aria-label="Breadcrumb" data-testid="seo-breadcrumbs" sx={{ mb: 3 }}>
+            <Typography sx={{ fontFamily: FONT_MONO, color: s.ink3, fontSize: 12, letterSpacing: "0.04em" }}>
+              <Box component="a" href="/" sx={{ color: "inherit", textDecoration: "none", transition: "color 160ms ease", "&:hover": { color: s.ink } }}>
+                {t("seo.home")}
               </Box>
               {" / "}
-              <Box component="span" sx={{ color: "inherit" }}>{breadcrumbLabel}</Box>
+              <Box component="span">{breadcrumbLabel}</Box>
               {" / "}
               <Box component="span" sx={{ color: s.ink, fontWeight: 600 }}>{content._display_name}</Box>
             </Typography>
           </Box>
-        }
-        actions={
-          <>
-            <PrimaryBtn data-testid="seo-hero-cta" href={signupHref} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-              {content.cta_headline}
+          <EyebrowV8 sx={{ mb: 2.5 }}>{eyebrow}</EyebrowV8>
+          <Typography component="h1" data-testid="seo-hero-title" sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: "clamp(32px, 4.6vw, 54px)", lineHeight: 1.06, letterSpacing: "-0.03em", color: s.ink, overflowWrap: "break-word" }}>
+            {lead ? `${lead} ` : null}
+            <GradientText>{tail}</GradientText>
+          </Typography>
+          <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: { xs: 16.5, md: 19 }, lineHeight: 1.62, mt: 3, maxWidth: 520 }}>
+            {content.subheading}
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mt: 4.5 }}>
+            <PrimaryBtn data-testid="seo-hero-cta" href={signupHref} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ px: 3.25, py: 1.5, fontSize: 16 }}>
+              {t("createFreeAccount")}
             </PrimaryBtn>
-            <SecondaryBtn data-testid="seo-hero-fees" href="/fees">
-              {t('v3.nav.pricing')}
+            <SecondaryBtn data-testid="seo-hero-fees" href="/fees" sx={{ px: 3.25, py: 1.5, fontSize: 16 }}>
+              {t("v3.nav.pricing")}
             </SecondaryBtn>
-          </>
-        }
-        aside={
-          <Box data-testid="seo-hero-illustration" sx={{ display: { xs: "none", md: "block" }, position: "relative", pr: { md: 2 } }}>
-            <MockPlinth compact>
-              <CheckoutMock payments={[VERTICAL_PAYMENTS[content._slug || ""] || VERTICAL_PAYMENTS.ecommerce]} compact />
-            </MockPlinth>
-            <Box sx={{ position: "absolute", left: -28, bottom: -24, p: 1.25, borderRadius: "20px", background: s.surface, border: `1px solid ${s.line}`, boxShadow: s.dark ? "0 24px 48px -28px rgba(0,0,0,0.9)" : "0 24px 48px -28px rgba(10,10,10,0.35)" }}>
-              <SEOIllustration slug={content._slug || ""} kind={content._kind} flag={content._flag} size={64} hero />
-            </Box>
           </Box>
-        }
-      />
-
-      {/* ── Intro (hand-authored, previously unused) ───────────────────── */}
-      {content.intro_paragraph ? (
-        <Section alt testId="seo-intro" narrow sx={{ py: { xs: 7, md: 10 } }}>
-          <Stagger step={0.1} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "220px minmax(0, 1fr)" }, gap: { xs: 2, md: 6 }, alignItems: "start" }}>
-            <StaggerItem i={0} y={12}>
-              <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: accentInk, fontWeight: 500 }}>
-                {t('seo.introEyebrow')}
-              </Typography>
-            </StaggerItem>
-            <StaggerItem i={1} y={14}>
-              <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: { xs: 16.5, md: 19 }, lineHeight: 1.6, color: s.ink2, letterSpacing: "-0.005em" }}>
-                {content.intro_paragraph}
-              </Typography>
-            </StaggerItem>
-          </Stagger>
-        </Section>
-      ) : null}
-
-      {/* ── Features grid ─────────────────────────────────────────────── */}
-      <Section testId="seo-features">
-        <SectionHead center maxWidth={720} eyebrow={t('seo.whyDynopayBadge')} headline={highlight(t('seo.whyDynopayTitle'), t('seo.whyDynopayHighlight'), accentInk)} body={t('seo.whyDynopaySubtitle')} />
-        <Stagger step={0.07} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" }, gap: 2 }}>
-          {content.features.map((f, idx) => (
-            <StaggerItem key={idx} i={idx} y={16}>
-              <Box data-testid={`seo-feature-${idx}`} sx={{ ...cardSx(s), height: "100%", p: { xs: 2.75, md: 3.25 }, display: "flex", flexDirection: "column" }}>
-                <Box sx={{ width: 40, height: 40, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.09)", color: accentInk, fontFamily: FONT_TECH, fontWeight: 700, fontSize: 15, mb: 2 }}>
-                  {String(idx + 1).padStart(2, "0")}
-                </Box>
-                <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontSize: { xs: 17, md: 18.5 }, fontWeight: 700, color: s.ink, mb: 1, lineHeight: 1.3, letterSpacing: "-0.015em" }}>
-                  {f.title}
-                </Typography>
-                <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.6, color: s.ink2 }}>
-                  {f.description}
-                </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2.5, mt: 4 }}>
+            {trust.map((x) => (
+              <Box key={x} sx={{ display: "inline-flex", alignItems: "center", gap: 0.8 }}>
+                <Icon icon="mdi:check-circle" width={16} height={16} color={s.accent} />
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, color: s.ink2 }}>{x}</Typography>
               </Box>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </Section>
-
-      {/* ── How it works ──────────────────────────────────────────────── */}
-      <Section alt testId="seo-how-it-works" narrow>
-        <SectionHead center maxWidth={720} eyebrow={t('seo.howItWorksBadge')} headline={highlight(t('seo.howItWorksTitle'), t('seo.howItWorksHighlight'), accentInk)} body={t('seo.howItWorksSubtitle')} />
-        <Stagger step={0.08} component="ol" sx={{ listStyle: "none", p: 0, m: 0, display: "flex", flexDirection: "column", gap: 1.5 }}>
-          {content.how_it_works.map((step, idx) => (
-            <StaggerItem key={idx} i={idx} y={14}>
-              <Box component="li" data-testid={`seo-step-${idx}`} sx={{ ...cardSx(s, { hover: false }), display: "flex", gap: 2.5, alignItems: "flex-start", p: { xs: 2.5, md: 3 } }}>
-                <Box sx={{ flexShrink: 0, display: "grid", placeItems: "center", width: 36, height: 36, borderRadius: "50%", bgcolor: BRAND_ACCENT, color: BRAND_ON_ACCENT, fontFamily: FONT_TECH, fontWeight: 700, fontSize: 14 }}>
-                  {idx + 1}
-                </Box>
-                <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: { xs: 15, md: 16.5 }, lineHeight: 1.6, color: s.ink, pt: 0.5 }}>
-                  {step}
-                </Typography>
-              </Box>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </Section>
-
-      {/* ── FAQ ───────────────────────────────────────────────────────── */}
-      <Section testId="seo-faq" narrow>
-        <SectionHead center maxWidth={720} eyebrow={t('seo.faqBadge')} headline={highlight(t('seo.faqTitle'), t('seo.faqHighlight'), accentInk)} body={t('seo.faqSubtitle')} />
-        <Stagger step={0.05} sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-          {content.faqs.map((faq, idx) => (
-            <StaggerItem key={idx} i={idx} y={12}>
-              <Accordion
-                disableGutters
-                elevation={0}
-                sx={{
-                  ...cardSx(s, { hover: false }),
-                  "&:before": { display: "none" },
-                  "&.Mui-expanded": { margin: 0, borderColor: `${BRAND_ACCENT}55` },
-                  "&:first-of-type, &:last-of-type": { borderRadius: "18px" },
-                }}
-              >
-                <AccordionSummary
-                  data-testid={`seo-faq-${idx}`}
-                  expandIcon={<ExpandMoreIcon sx={{ color: s.ink }} />}
-                  sx={{ px: { xs: 2.5, md: 3 }, py: 0.5, "& .MuiAccordionSummary-content": { my: 2 } }}
-                >
-                  <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontSize: { xs: 16, md: 17.5 }, fontWeight: 700, color: s.ink, m: 0, letterSpacing: "-0.01em" }}>
-                    {faq.question}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails data-testid={`seo-faq-answer-${idx}`} sx={{ px: { xs: 2.5, md: 3 }, pt: 0, pb: 3 }}>
-                  <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.7, color: s.ink2 }}>
-                    {faq.answer}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            </StaggerItem>
-          ))}
-        </Stagger>
-      </Section>
-
-      {/* ── Related pages (cross-link for SEO crawl depth) ─────────────── */}
-      {relatedPages.length > 0 ? (
-        <Section alt testId="seo-related-pages">
-          <Box component="div" aria-labelledby="seo-related-pages-heading">
-            <SectionHead center maxWidth={720} eyebrow={t('seo.exploreMoreBadge')} headline={<span id="seo-related-pages-heading">{highlight(t('seo.exploreMoreTitle'), t('seo.whyDynopayHighlight'), accentInk)}</span>} body={t('seo.exploreMoreSubtitle')} />
-            <Stagger step={0.07} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" }, gap: 2 }}>
-              {relatedPages.map((rp, idx) => (
-                <StaggerItem key={rp.slug} i={idx} y={16}>
-                  <Link href={rp.urlPath} passHref legacyBehavior>
-                    <Box
-                      component="a"
-                      data-testid={`seo-related-link-${rp.kind}-${rp.slug}`}
-                      sx={{ ...cardSx(s), display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1.5, height: "100%", p: { xs: 2.5, md: 3 }, textDecoration: "none" }}
-                    >
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "100%" }}>
-                        <SEOIllustration slug={rp.slug} kind={rp.kind} flag={rp.flag} size={44} />
-                        <Typography component="h3" sx={{ fontFamily: FONT_HERO, fontSize: { xs: 16, md: 17.5 }, fontWeight: 700, color: s.ink, m: 0, lineHeight: 1.3, letterSpacing: "-0.01em" }}>
-                          {rp.kind === "country"
-                            ? t('seo.relatedCountry', { name: rp.displayName })
-                            : t('seo.relatedVertical', { name: rp.displayName })}
-                        </Typography>
-                      </Box>
-                      <Typography component="span" sx={{ fontFamily: FONT_BODY, fontSize: 14, color: accentInk, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 0.5, mt: "auto" }}>
-                        {t('readTheGuide')}
-                        <ArrowForwardIcon sx={{ fontSize: 16 }} />
-                      </Typography>
-                    </Box>
-                  </Link>
-                </StaggerItem>
-              ))}
-            </Stagger>
+            ))}
           </Box>
-        </Section>
-      ) : null}
-
-      {/* ── Final CTA (shared band, page-specific copy) ────────────────── */}
-      <PublicFinalCta
-        attributionRef={`seo_${content._kind}_${content._slug}`}
-        testId="seo-final-cta"
-        title={content.cta_headline}
-        body={content.cta_body}
-        actions={
-          <>
-            <PrimaryBtn data-testid="seo-cta-signup" href={signupHref} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-              {t('createFreeAccount')}
-            </PrimaryBtn>
-            <SecondaryBtn onDark data-testid="seo-cta-demo" href="/pay/demo">
-              {t('v5.hero.secondary')}
-            </SecondaryBtn>
-          </>
-        }
-      />
-    </>
+        </Box>
+        <SEOHeroMock content={content} />
+      </Box>
+    </Box>
   );
 };
 

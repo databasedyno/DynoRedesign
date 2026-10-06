@@ -18,6 +18,8 @@ interface Props {
   body?: React.ReactNode;
   primaryLabel?: string;
   primaryRef?: string;
+  /** Explicit primary destination (e.g. attributed signup URL) instead of goStart(). */
+  primaryHref?: string;
   secondaryLabel?: string;
   secondaryHref?: string;
   trust?: string[];
@@ -31,6 +33,7 @@ const CtaBandV8: React.FC<Props> = ({
   body,
   primaryLabel = "Start free",
   primaryRef = "cta",
+  primaryHref,
   secondaryLabel,
   secondaryHref,
   trust = [],
@@ -75,7 +78,7 @@ const CtaBandV8: React.FC<Props> = ({
           </Typography>
         ) : null}
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.5, mt: 5 }}>
-          <PrimaryBtn data-testid={`${testId}-primary`} onClick={() => goStart(router, primaryRef)} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ px: 3.5, py: 1.6, fontSize: 16.5 }}>
+          <PrimaryBtn data-testid={`${testId}-primary`} {...(primaryHref ? { href: primaryHref } : { onClick: () => goStart(router, primaryRef) })} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ px: 3.5, py: 1.6, fontSize: 16.5 }}>
             {primaryLabel}
           </PrimaryBtn>
           {secondaryLabel && secondaryHref ? (

@@ -169,6 +169,21 @@ export const SectionV8: React.FC<SectionProps> = ({
   );
 };
 
+/* ── MockPanelV8: dark glowing plinth that frames a hero product mockup ───── */
+export const MockPanelV8: React.FC<{ children: React.ReactNode; maxWidth?: number; testId?: string }> = ({
+  children,
+  maxWidth = 480,
+  testId,
+}) => (
+  <Box data-testid={testId} sx={{ position: "relative", display: "flex", justifyContent: "center" }}>
+    <Box aria-hidden sx={{ position: "absolute", inset: "-8% -4%", borderRadius: "28px", background: PANEL_GLOW, pointerEvents: "none" }} />
+    <Box sx={{ position: "relative", width: "100%", maxWidth, borderRadius: "28px", p: { xs: 2.5, md: 4 }, background: "linear-gradient(170deg, #171715 0%, #0B0B0A 100%)", border: `1px solid ${PANEL.lineStrong}`, boxShadow: "0 50px 120px -30px rgba(0,0,0,0.6)" }}>
+      <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: GRID_BG, backgroundSize: "26px 26px", maskImage: "radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 75%)", WebkitMaskImage: "radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 75%)", opacity: 0.7 }} />
+      <Box sx={{ position: "relative" }}>{children}</Box>
+    </Box>
+  </Box>
+);
+
 /* ── Eyebrow: small uppercase mono tag with a gold tick ───────────────────── */
 export const EyebrowV8: React.FC<{ children: React.ReactNode; dark?: boolean; sx?: object }> = ({
   children,

@@ -1177,7 +1177,9 @@
     "relatedCountry": "Accepteer crypto in {{name}}",
     "relatedVertical": "Cryptobetalingen voor {{name}}",
     "compareEyebrow": "Vergelijk",
-    "introEyebrow": "In het kort"
+    "introEyebrow": "In het kort",
+    "ctaBadge": "Binnen minuten live · geen creditcard",
+    "stepLabel": "Stap"
   },
   "cart": {
     "store": {
@@ -2044,6 +2046,15 @@
     "cta": {
       "primary": "Maak je eerste link",
       "secondary": "Lees de documentatie"
+    }
+  },
+  "v8": {
+    "stats": {
+      "payments": "Afgehandelde betalingen deze maand",
+      "countries": "Bediende landen",
+      "assets": "Ondersteunde crypto-assets",
+      "uptime": "Uptime over 90 dagen",
+      "note": "Live platformcijfers · continu bijgewerkt"
     }
   }
 }

@@ -1,4 +1,20 @@
 # ============================================================================
+# >>> 2026-10-06 — PHASE 3 (batch 2): DEVELOPERS HUB chrome re-skin (frontend-only)
+# ============================================================================
+#  /documentation (pages/documentation.tsx): replaced ONLY the chrome with v8 —
+#    - HERO: new v8 split hero (testid docs-hero) with gold-gradient "API
+#      Reference", a dark API terminal mockup (reuses Product/mocks ApiMock),
+#      "Get your API key" button (docs-hero-api-key) + Base URL chip (docs-base-url).
+#    - FINAL CTA: now CtaBandV8 (testid docs-final-cta; primary=docs-final-cta-primary,
+#      secondary=docs-final-cta-secondary -> /fees).
+#  The ENTIRE API reference body is UNCHANGED (product cards, sidebar nav, search,
+#  endpoint expand/collapse, copy buttons, guides, tables). Removed now-unused
+#  v3/v5 imports (PublicPageHero, PublicFinalCta, AuroraInk). tsc clean.
+#  Serving PRODUCTION build; /documentation 200 (local + ext).
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-10-06 — PHASE 3 (batch 1): REMAINING PRODUCT PAGES (frontend-only)
 # ============================================================================
 #  Added 6 product detail pages on a shared v8 template (ProductPageV8) with

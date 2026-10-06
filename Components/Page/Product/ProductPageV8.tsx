@@ -11,7 +11,7 @@ import {
   FONT_DISPLAY,
   FONT_MONO,
   GradientText,
-  GRID_BG,
+  MockPanelV8,
   PANEL,
   PANEL_GLOW,
   PrimaryBtn,
@@ -108,14 +108,7 @@ const ProductPageV8: React.FC<{ config: ProductPageConfig }> = ({ config: c }) =
               </Box>
             </Box>
 
-            {/* mockup plinth */}
-            <Box sx={{ position: "relative", display: "flex", justifyContent: "center" }}>
-              <Box aria-hidden sx={{ position: "absolute", inset: "-8% -4%", borderRadius: "28px", background: PANEL_GLOW, pointerEvents: "none" }} />
-              <Box sx={{ position: "relative", width: "100%", maxWidth: 480, borderRadius: "28px", p: { xs: 2.5, md: 4 }, background: "linear-gradient(170deg, #171715 0%, #0B0B0A 100%)", border: `1px solid ${PANEL.lineStrong}`, boxShadow: "0 50px 120px -30px rgba(0,0,0,0.6)" }}>
-                <Box aria-hidden sx={{ position: "absolute", inset: 0, backgroundImage: GRID_BG, backgroundSize: "26px 26px", maskImage: "radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 75%)", WebkitMaskImage: "radial-gradient(70% 70% at 50% 40%, #000 20%, transparent 75%)", opacity: 0.7 }} />
-                <Box sx={{ position: "relative" }}>{c.mockup}</Box>
-              </Box>
-            </Box>
+            <MockPanelV8>{c.mockup}</MockPanelV8>
           </Box>
         </Box>
 

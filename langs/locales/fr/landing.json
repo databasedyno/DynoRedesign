@@ -1177,7 +1177,9 @@
     "relatedCountry": "Accepter la crypto en {{name}}",
     "relatedVertical": "Paiements en crypto pour {{name}}",
     "compareEyebrow": "Comparer",
-    "introEyebrow": "En bref"
+    "introEyebrow": "En bref",
+    "ctaBadge": "En ligne en quelques minutes · sans carte bancaire",
+    "stepLabel": "Étape"
   },
   "cart": {
     "store": {
@@ -2044,6 +2046,15 @@
     "cta": {
       "primary": "Créez votre premier lien",
       "secondary": "Lire la documentation"
+    }
+  },
+  "v8": {
+    "stats": {
+      "payments": "Paiements réglés ce mois-ci",
+      "countries": "Pays desservis",
+      "assets": "Cryptoactifs pris en charge",
+      "uptime": "Disponibilité sur 90 jours",
+      "note": "Chiffres réels de la plateforme · mis à jour en continu"
     }
   }
 }

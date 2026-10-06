@@ -19,10 +19,13 @@ interface Props {
   amount?: string;
   network?: string;
   qrValue?: string;
+  address?: string;
   scale?: number;
 }
 
 const STEPS = ["Waiting", "Detected", "Confirmed"] as const;
+
+const NETWORK_ICON: Record<string, string> = { Polygon: "matic", Tron: "trx", Ethereum: "eth", Bitcoin: "btc", Solana: "sol", Litecoin: "ltc" };
 
 const CheckoutCard: React.FC<Props> = ({
   merchant = "Metricly",
@@ -32,8 +35,11 @@ const CheckoutCard: React.FC<Props> = ({
   amount = "79.00",
   network = "Polygon",
   qrValue = "https://dynopay.com/pay/demo",
+  address = "0x8b1d…07af",
   scale = 1,
 }) => {
+  const netIcon = `cryptocurrency-color:${NETWORK_ICON[network] || "matic"}`;
+  const assetIcon = `cryptocurrency-color:${asset.toLowerCase()}`;
   return (
     <Box
       data-testid="checkout-card"
@@ -59,7 +65,7 @@ const CheckoutCard: React.FC<Props> = ({
         <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.7 }}>
           <Icon icon="mdi:lock" width={11} height={11} color={PANEL.ink3} />
           <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, color: PANEL.ink3 }}>
-            checkout.dynopay.com/pay/{merchant.toLowerCase()}
+            checkout.dynopay.com/pay/{merchant.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}
           </Typography>
         </Box>
       </Box>
@@ -98,7 +104,7 @@ const CheckoutCard: React.FC<Props> = ({
 
           <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>
             <Box sx={{ width: 20, height: 20, borderRadius: "6px", background: PANEL.gold, display: "grid", placeItems: "center" }}>
-              <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 12, fontWeight: 800, color: "#0B0B0A" }}>M</Typography>
+              <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 12, fontWeight: 800, color: "#0B0B0A" }}>{merchant.charAt(0).toUpperCase()}</Typography>
             </Box>
             <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 15, fontWeight: 700, color: PANEL.ink }}>
               Pay {merchant}
@@ -120,8 +126,8 @@ const CheckoutCard: React.FC<Props> = ({
 
           <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
             {[
-              { label: "Network", value: network, icon: "cryptocurrency-color:matic" },
-              { label: "Asset", value: asset, icon: "cryptocurrency-color:usdc" },
+              { label: "Network", value: network, icon: netIcon },
+              { label: "Asset", value: asset, icon: assetIcon },
             ].map((f) => (
               <Box key={f.label} sx={{ flex: 1, border: `1px solid ${PANEL.line}`, borderRadius: "10px", p: 1, background: PANEL.surface }}>
                 <Typography sx={{ fontFamily: FONT_MONO, fontSize: 8.5, letterSpacing: "0.08em", color: PANEL.ink3, textTransform: "uppercase" }}>
@@ -148,7 +154,7 @@ const CheckoutCard: React.FC<Props> = ({
             <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700, color: PANEL.gold }}>{amount}</Typography>
             <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, color: PANEL.ink2 }}>{asset}</Typography>
           </Box>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, color: PANEL.ink3, mt: 0.3 }}>0x8b1d…07af</Typography>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, color: PANEL.ink3, mt: 0.3 }}>{address}</Typography>
         </Box>
       </Box>
 

@@ -1177,7 +1177,9 @@
     "relatedCountry": "Krypto in {{name}} akzeptieren",
     "relatedVertical": "Krypto-Zahlungen für {{name}}",
     "compareEyebrow": "Vergleich",
-    "introEyebrow": "Kurz gesagt"
+    "introEyebrow": "Kurz gesagt",
+    "ctaBadge": "In Minuten live · keine Kreditkarte",
+    "stepLabel": "Schritt"
   },
   "cart": {
     "store": {
@@ -2044,6 +2046,15 @@
     "cta": {
       "primary": "Ersten Link erstellen",
       "secondary": "Doku lesen"
+    }
+  },
+  "v8": {
+    "stats": {
+      "payments": "Abgewickelte Zahlungen diesen Monat",
+      "countries": "Bediente Länder",
+      "assets": "Unterstützte Krypto-Assets",
+      "uptime": "Verfügbarkeit über 90 Tage",
+      "note": "Live-Plattformdaten · laufend aktualisiert"
     }
   }
 }

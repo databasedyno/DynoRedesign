@@ -1177,7 +1177,9 @@
     "relatedCountry": "Accept crypto in {{name}}",
     "relatedVertical": "Crypto payments for {{name}}",
     "compareEyebrow": "Compare",
-    "introEyebrow": "In short"
+    "introEyebrow": "In short",
+    "ctaBadge": "Live in minutes · no credit card",
+    "stepLabel": "Step"
   },
   "cart": {
     "store": {
@@ -2044,6 +2046,15 @@
     "cta": {
       "primary": "Create your first link",
       "secondary": "Read the docs"
+    }
+  },
+  "v8": {
+    "stats": {
+      "payments": "Payments settled this month",
+      "countries": "Countries served",
+      "assets": "Crypto assets supported",
+      "uptime": "Uptime over 90 days",
+      "note": "Live platform figures · updated continuously"
     }
   }
 }
