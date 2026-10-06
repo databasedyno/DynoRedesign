@@ -1,4 +1,4 @@
-import { pageProps, } from "@/utils/types";
+import { pageProps } from "@/utils/types";
 import { HelpArticle } from "@/pages/help-support/index";
 import { Box, Typography, Button } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -7,19 +7,15 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import useIsMobile from "@/hooks/useIsMobile";
-import { theme } from "@/styles/theme";
-import { TextDecoration } from "@/Components/Page/HelpAndSupport/styled";
-import BackArrow from "@/assets/Icons/BackArrow.svg";
-import Image from "next/image";
 import axiosBaseApi from "@/axiosConfig";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
-import { BRAND_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import HelpAndSupportData from "@/hooks/useHelpAndSupportData";
 import GettingStartedWithDynopay from "@/Components/Page/HelpAndSupport/Slugs/getting-started-with-dynopay";
 import HelpArticleBody from "@/Components/Page/HelpAndSupport/HelpArticleBody";
+import { FONT_BODY, FONT_DISPLAY, FONT_MONO, useConsole } from "@/Components/Page/Home/v8/kit";
 
 const SITE_URL = "https://dynopay.com";
 
@@ -44,13 +40,10 @@ const RICH_ARTICLES: Record<string, React.ComponentType<{ data: HelpArticle }>> 
 };
 
 interface HelpDetailProps extends pageProps {
-  /** DB-backed article when the knowledge base has one for this slug. */
   article: KBArticleDetail | null;
-  /** Static fallback (title + description) for the published help-center list. */
   stub: HelpArticle | null;
 }
 
-/** Plain-text meta description from a DB article (excerpt → stripped content). */
 const dbMetaDescription = (article: KBArticleDetail): string => {
   const raw = article.excerpt || article.content || "";
   const text = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -61,6 +54,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
   const isMobile = useIsMobile("md");
   const { t, i18n } = useTranslation("helpAndSupport");
   const router = useRouter();
+  const s = useConsole();
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   useEffect(() => {
@@ -86,14 +80,9 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     if (feedbackSubmitted) return;
     try {
       if (article?.article_id) {
-        await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedback(article.article_id), {
-          is_helpful: isHelpful,
-        });
+        await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedback(article.article_id), { is_helpful: isHelpful });
       } else if (slug) {
-        // Static / hand-authored article — record feedback by slug (QA PUB-007 #5).
-        await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedbackBySlug(slug), {
-          is_helpful: isHelpful,
-        });
+        await axiosBaseApi.post(API_ENDPOINTS.kb.articleFeedbackBySlug(slug), { is_helpful: isHelpful });
       } else {
         return;
       }
@@ -103,18 +92,27 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     }
   };
 
-  // Shared "Was this article helpful?" widget — used by both DB-backed and
-  // static articles so every help article can collect feedback (QA PUB-007 #5).
+  const feedbackBtnSx = {
+    border: `1px solid ${s.line}`,
+    borderRadius: "10px",
+    color: s.ink,
+    textTransform: "none" as const,
+    fontFamily: FONT_BODY,
+    fontWeight: 600,
+    px: 3,
+    transition: "background-color 0.18s ease, border-color 0.18s ease",
+  };
+
   const feedbackBox = (
-    <Box sx={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.border.main}`, borderRadius: "14px", padding: "20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+    <Box sx={{ backgroundColor: s.surface, border: `1px solid ${s.line}`, borderRadius: "16px", padding: "22px", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
       {feedbackSubmitted ? (
-        <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("feedbackThanks")}</Typography>
+        <Typography sx={{ fontSize: 15, fontFamily: FONT_BODY, color: s.ink }}>{t("feedbackThanks")}</Typography>
       ) : (
         <>
-          <Typography sx={{ fontSize: "15px", fontFamily: "var(--font-sans)", color: theme.palette.text.primary }}>{t("wasArticleHelpful")}</Typography>
+          <Typography sx={{ fontSize: 15, fontFamily: FONT_DISPLAY, fontWeight: 600, color: s.ink }}>{t("wasArticleHelpful")}</Typography>
           <Box sx={{ display: "flex", gap: 2 }}>
-            <Button data-testid="help-feedback-yes" onClick={() => handleFeedback(true)} startIcon={<ThumbUpIcon />} sx={{ border: `1px solid ${theme.palette.border.main}`, borderRadius: "8px", color: theme.palette.text.primary, textTransform: "none", fontFamily: "var(--font-sans)", px: 3, "&:hover": { backgroundColor: "rgba(0, 200, 83, 0.08)", borderColor: "#00C853" } }}>Yes</Button>
-            <Button data-testid="help-feedback-no" onClick={() => handleFeedback(false)} startIcon={<ThumbDownIcon />} sx={{ border: `1px solid ${theme.palette.border.main}`, borderRadius: "8px", color: theme.palette.text.primary, textTransform: "none", fontFamily: "var(--font-sans)", px: 3, "&:hover": { backgroundColor: "rgba(255, 0, 0, 0.08)", borderColor: "#FF0000" } }}>No</Button>
+            <Button data-testid="help-feedback-yes" onClick={() => handleFeedback(true)} startIcon={<ThumbUpIcon sx={{ fontSize: 18 }} />} sx={{ ...feedbackBtnSx, "&:hover": { backgroundColor: "rgba(34,197,94,0.1)", borderColor: "#22C55E" } }}>Yes</Button>
+            <Button data-testid="help-feedback-no" onClick={() => handleFeedback(false)} startIcon={<ThumbDownIcon sx={{ fontSize: 18 }} />} sx={{ ...feedbackBtnSx, "&:hover": { backgroundColor: "rgba(239,68,68,0.1)", borderColor: "#EF4444" } }}>No</Button>
           </Box>
         </>
       )}
@@ -139,17 +137,28 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     </Head>
   );
 
+  const backButton = (
+    <Box
+      component="a"
+      data-testid="help-article-back"
+      sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, cursor: "pointer", color: s.accent, fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 14, "& .arr": { transition: "transform 200ms cubic-bezier(0.2,0.8,0.2,1)" }, "&:hover .arr": { transform: "translateX(-3px)" } }}
+      onClick={() => router.push("/help-support")}
+    >
+      <span className="arr">&larr;</span> {t("backToHelpSupport")}
+    </Box>
+  );
+
   // ── 1. Static hand-authored article (fully server-rendered) ──
   if (!article && stub) {
     const Bespoke = RICH_ARTICLES[slug];
     return (
       <>
         {head}
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, width: "100%", overflowY: "auto" }}>
-          <Box sx={{ display: "flex", pt: { xs: 2, md: 3.5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
+        <Box data-testid="help-article-page" sx={{ background: s.canvas, flex: 1, display: "flex", flexDirection: "column", minHeight: 0, width: "100%", overflowY: "auto" }}>
+          <Box sx={{ display: "flex", pt: { xs: 3, md: 5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
             {Bespoke ? <Bespoke data={stub} /> : <HelpArticleBody slug={slug} title={title} />}
           </Box>
-          <Box sx={{ width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, pb: { xs: "16px", md: "24px" }, mt: 3 }}>
+          <Box sx={{ width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, pb: { xs: "24px", md: "40px" }, mt: 3 }}>
             <Box sx={{ maxWidth: 728 }}>{feedbackBox}</Box>
           </Box>
         </Box>
@@ -157,60 +166,45 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
     );
   }
 
-  const backButton = (
-    <Box
-      sx={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
-      onClick={() => router.push("/help-support")}
-    >
-      <Image src={BackArrow} alt="Back" width={16} height={16} />
-      <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-        {t("backToHelpSupport")}
-      </Typography>
-    </Box>
-  );
-
   // ── 2. DB-backed article (sanitized HTML body + feedback) ──
   if (article) {
     return (
       <>
         {head}
-        <Box sx={{ flex: 1, display: "flex", minHeight: 0, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {backButton}
-              <TextDecoration {...({ component: "h1" } as { component: string })} style={{ fontSize: isMobile ? "20px" : "28px", color: theme.palette.text.primary, lineHeight: 1.3, margin: 0 }}>
-                {article.title}
-              </TextDecoration>
-              <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                {article.category_name && (
-                  <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: BRAND_ACCENT, backgroundColor: "rgba(0, 4, 255, 0.08)", px: 1.5, py: 0.5, borderRadius: "4px" }}>
-                    {article.category_name}
-                  </Typography>
-                )}
-                {article.reading_time_minutes && (
-                  <Typography sx={{ fontSize: "13px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
-                    {article.reading_time_minutes} min read
-                  </Typography>
-                )}
-              </Box>
-              <Box
-                sx={{
-                  backgroundColor: theme.palette.background.paper,
-                  border: `1px solid ${theme.palette.border.main}`,
-                  borderRadius: "14px",
-                  padding: isMobile ? "16px" : "32px",
-                  "& h1, & h2, & h3": { fontFamily: "var(--font-sans)", color: theme.palette.text.primary, marginTop: "24px", marginBottom: "12px" },
-                  "& h2": { fontSize: isMobile ? "18px" : "22px" },
-                  "& h3": { fontSize: isMobile ? "16px" : "18px" },
-                  "& p": { fontFamily: "var(--font-sans)", fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary, lineHeight: 1.7, marginBottom: "12px" },
-                  "& ul, & ol": { paddingLeft: "24px", marginBottom: "12px" },
-                  "& li": { fontFamily: "var(--font-sans)", fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary, lineHeight: 1.7, marginBottom: "6px" },
-                  "& a": { color: "inherit", fontWeight: 600, textDecoration: "underline", textDecorationColor: "rgba(139,94,0,0.6)", "&:hover": { color: "#8B5E00" } },
-                }}
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
-              />
-              {feedbackBox}
+        <Box data-testid="help-article-page" sx={{ background: s.canvas }}>
+          <Box sx={{ width: "100%", maxWidth: 820, mx: "auto", px: { xs: "16px", md: "20px" }, pt: { xs: 5, md: 7 }, pb: { xs: 6, md: 9 }, display: "flex", flexDirection: "column", gap: "20px" }}>
+            {backButton}
+            <Typography component="h1" sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: s.ink, fontSize: { xs: 26, md: 38 }, lineHeight: 1.12, letterSpacing: "-0.028em", margin: 0 }}>
+              {article.title}
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", flexWrap: "wrap" }}>
+              {article.category_name && (
+                <Typography sx={{ fontSize: 10.5, fontFamily: FONT_MONO, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: s.accent, backgroundColor: s.accentSoft, px: 1.25, py: 0.4, borderRadius: "999px" }}>
+                  {article.category_name}
+                </Typography>
+              )}
+              {article.reading_time_minutes ? (
+                <Typography sx={{ fontSize: 12.5, fontFamily: FONT_BODY, color: s.ink3 }}>{article.reading_time_minutes} min read</Typography>
+              ) : null}
             </Box>
+            <Box
+              sx={{
+                backgroundColor: s.surface,
+                border: `1px solid ${s.line}`,
+                borderRadius: "16px",
+                padding: isMobile ? "18px" : "32px",
+                "& h1, & h2, & h3": { fontFamily: FONT_DISPLAY, fontWeight: 600, color: s.ink, marginTop: "24px", marginBottom: "12px" },
+                "& h2": { fontSize: isMobile ? "19px" : "24px" },
+                "& h3": { fontSize: isMobile ? "16px" : "19px" },
+                "& p": { fontFamily: FONT_BODY, fontSize: isMobile ? "14.5px" : "16.5px", color: s.ink2, lineHeight: 1.75, marginBottom: "14px" },
+                "& ul, & ol": { paddingLeft: "22px", marginBottom: "14px" },
+                "& li": { fontFamily: FONT_BODY, fontSize: isMobile ? "14.5px" : "16.5px", color: s.ink2, lineHeight: 1.75, marginBottom: "8px" },
+                "& a": { color: s.accent, fontWeight: 600, textDecoration: "underline", textDecorationColor: `${s.accent}99`, "&:hover": { textDecorationColor: s.accent } },
+                "& code": { background: s.dark ? "#1E2030" : "#F1F1EE", padding: "1px 6px", borderRadius: "5px", fontSize: "13.5px", fontFamily: "var(--font-tech), monospace" },
+              }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }}
+            />
+            {feedbackBox}
           </Box>
         </Box>
       </>
@@ -221,17 +215,17 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
   return (
     <>
       {head}
-      <Box sx={{ flex: 1, display: "flex", minHeight: 0, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "20px", maxWidth: "728px" }}>
+      <Box data-testid="help-article-page" sx={{ background: s.canvas }}>
+        <Box sx={{ width: "100%", maxWidth: 820, mx: "auto", px: { xs: "16px", md: "20px" }, pt: { xs: 5, md: 7 }, pb: { xs: 6, md: 9 }, display: "flex", flexDirection: "column", gap: "20px" }}>
           {backButton}
-          <TextDecoration {...({ component: "h1" } as { component: string })} style={{ fontSize: isMobile ? "20px" : "28px", color: theme.palette.text.primary, lineHeight: 1.3, margin: 0 }}>
+          <Typography component="h1" sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, color: s.ink, fontSize: { xs: 26, md: 38 }, lineHeight: 1.12, letterSpacing: "-0.028em", margin: 0 }}>
             {title}
-          </TextDecoration>
-          <Box sx={{ backgroundColor: theme.palette.background.paper, border: `1px solid ${theme.palette.border.main}`, borderRadius: "14px", padding: isMobile ? "16px" : "32px" }}>
-            <Typography component="p" sx={{ fontFamily: "var(--font-sans)", fontSize: isMobile ? "14px" : "16px", color: theme.palette.text.primary, lineHeight: 1.7 }}>
+          </Typography>
+          <Box sx={{ backgroundColor: s.surface, border: `1px solid ${s.line}`, borderRadius: "16px", padding: isMobile ? "18px" : "32px" }}>
+            <Typography component="p" sx={{ fontFamily: FONT_BODY, fontSize: isMobile ? 15 : 16.5, color: s.ink, lineHeight: 1.75 }}>
               {stub?.description}
             </Typography>
-            <Typography component="p" sx={{ mt: 2, fontFamily: "var(--font-sans)", fontSize: isMobile ? "13px" : "15px", color: theme.palette.text.secondary, lineHeight: 1.7 }}>
+            <Typography component="p" sx={{ mt: 2, fontFamily: FONT_BODY, fontSize: isMobile ? 14 : 15.5, color: s.ink2, lineHeight: 1.75 }}>
               {t("articleStubMore", { defaultValue: "Need a hand with this topic? Our support team is one tap away — just open the chat from any page and we'll help you out." })}
             </Typography>
           </Box>
@@ -243,8 +237,7 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
 };
 
 /**
- * SSR so crawlers get the real title, body and canonical in the initial HTML
- * (previously the article was fetched client-side and the server sent a spinner).
+ * SSR so crawlers get the real title, body and canonical in the initial HTML.
  * Content source order: knowledge-base DB → hand-authored static article →
  * published-list stub. An unknown slug returns 404 so we never index an empty shell.
  */
@@ -260,12 +253,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     ""
   ).replace(/\/+$/, "");
 
-  // Prefer a published DB article when one exists (auto-upgrades thin stubs).
   if (base && slug) {
     try {
-      const r = await fetch(`${base}/api${API_ENDPOINTS.kb.article(slug)}`, {
-        headers: { Accept: "application/json" },
-      });
+      const r = await fetch(`${base}/api${API_ENDPOINTS.kb.article(slug)}`, { headers: { Accept: "application/json" } });
       if (r.ok) {
         const json = await r.json();
         const article = json?.data?.article as KBArticleDetail | undefined;
@@ -279,7 +269,6 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     }
   }
 
-  // Static content path — only for slugs that are part of the published list.
   if (!stub) return { notFound: true };
   ctx.res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=86400");
   return { props: { article: null, stub } };

@@ -1,226 +1,452 @@
 {
+  "v8_design_system_overview": {
+    "philosophy": "LIGHT-FIRST, airy, high-contrast marketing sections punctuated by NEAR-BLACK data/mockup panels with a signature gold glow. Manrope display headings, IBM Plex Sans body, IBM Plex Mono for technical tags, hairline borders, left-aligned typography, and fast, functional motion.",
+    "kit_path": "/app/Components/Page/Home/v8/kit.tsx",
+    "page_hero_path": "/app/Components/Page/Home/v8/PageHeroV8.tsx",
+    "cta_band_path": "/app/Components/Page/Home/v8/FinalCTAV8.tsx",
+    "theme_path": "/app/constants/theme.ts"
+  },
   "typography": {
-    "font_families": {
-      "headings": "Manrope, sans-serif",
-      "body": "'IBM Plex Sans', sans-serif",
-      "mono": "'IBM Plex Mono', monospace"
-    },
+    "font_family_display": "Manrope, var(--font-display), -apple-system, sans-serif",
+    "font_family_body": "IBM Plex Sans, var(--font-sans), -apple-system, sans-serif",
+    "font_family_mono": "IBM Plex Mono, var(--font-tech), monospace",
     "scale": {
-      "kpi_number": {
-        "size": "32px",
-        "weight": "400",
-        "line_height": "1.2",
-        "letter_spacing": "-0.02em",
-        "features": "tnum"
+      "h1_hero": {
+        "fontSize": "clamp(34px, 5vw, 60px)",
+        "fontWeight": 700,
+        "lineHeight": 1.04,
+        "letterSpacing": "-0.03em"
       },
-      "page_title": {
-        "size": "24px",
-        "weight": "500",
-        "line_height": "1.3",
-        "letter_spacing": "-0.01em"
+      "h2_section": {
+        "fontSize": { "xs": "30px", "md": "44px" },
+        "fontWeight": 600,
+        "lineHeight": 1.08,
+        "letterSpacing": "-0.028em"
       },
-      "title": {
-        "size": "18px",
-        "weight": "500",
-        "line_height": "1.4",
-        "letter_spacing": "0"
+      "h3_card_heading": {
+        "fontSize": { "xs": "20px", "md": "24px" },
+        "fontWeight": 600,
+        "lineHeight": 1.25,
+        "letterSpacing": "-0.015em"
       },
-      "body": {
-        "size": "14px",
-        "weight": "400",
-        "line_height": "1.5",
-        "letter_spacing": "0"
+      "h4_subheading": {
+        "fontSize": { "xs": "16px", "md": "18px" },
+        "fontWeight": 600,
+        "lineHeight": 1.35
       },
-      "table_cell": {
-        "size": "13px",
-        "weight": "400",
-        "line_height": "1.5",
-        "letter_spacing": "0",
-        "features": "tnum"
+      "body_primary": {
+        "fontSize": { "xs": "15px", "md": "17px" },
+        "fontWeight": 400,
+        "lineHeight": 1.65
       },
-      "caption": {
-        "size": "12px",
-        "weight": "500",
-        "line_height": "1.4",
-        "letter_spacing": "0"
+      "body_secondary": {
+        "fontSize": { "xs": "13.5px", "md": "14.5px" },
+        "fontWeight": 400,
+        "lineHeight": 1.60
       },
-      "eyebrow": {
-        "size": "11px",
-        "weight": "600",
-        "line_height": "1.4",
-        "letter_spacing": "0.05em",
-        "text_transform": "uppercase"
+      "eyebrow_label": {
+        "fontSize": "11.5px",
+        "fontWeight": 600,
+        "letterSpacing": "0.16em",
+        "textTransform": "uppercase"
       }
-    },
-    "rules": [
-      "Use tabular numerals (tnum) for all financial figures, amounts, and dates so columns align perfectly.",
-      "Reserve IBM Plex Mono strictly for IDs, hashes, and wallet addresses. DO NOT use it for regular amounts.",
-      "Unbounded is strictly FORBIDDEN in the in-app chrome. Stick to Manrope for headings."
-    ]
+    }
   },
   "colors": {
-    "dark": {
-      "canvas": "#131312",
-      "surface": "#1A1A19",
-      "raised_card": "#222221",
-      "border_hairline": "rgba(255, 255, 255, 0.06)",
-      "border_strong": "rgba(255, 255, 255, 0.15)",
-      "ink_primary": "#F2F2F0",
-      "ink_secondary": "#A3A3A0",
-      "ink_muted": "#70706E",
-      "accent": "#FFD100",
-      "on_accent": "#1A1A19",
-      "semantic": {
-        "success_bg": "#1C3325",
-        "success_text": "#4ADE80",
-        "warning_bg": "#332B14",
-        "warning_text": "#FBBF24",
-        "error_bg": "#331C1C",
-        "error_text": "#F87171",
-        "info_bg": "#1C2633",
-        "info_text": "#60A5FA"
-      }
+    "brand": {
+      "primary_accent": "#FFD100",
+      "primary_accent_dark": "#F0C300",
+      "brand_on_accent": "#121214",
+      "gold_deep_light_text": "#8B5E00",
+      "gold_gradient": "linear-gradient(118deg, #FFE55C 0%, #FFD100 46%, #F5A800 100%)",
+      "aqua_micro_accent": "#2BD4C4"
     },
-    "light": {
+    "panel_dark": {
+      "bg": "#0B0B0A",
+      "bg_raised": "#121210",
+      "surface": "rgba(255,255,255,0.045)",
+      "surface_strong": "rgba(255,255,255,0.07)",
+      "line_hairline": "rgba(255,255,255,0.09)",
+      "line_strong": "rgba(255,255,255,0.18)",
+      "ink": "#F6F6F3",
+      "ink_secondary": "#ABABA5",
+      "ink_muted": "#6F6F6B",
+      "gold_glow": "radial-gradient(60% 70% at 72% 18%, rgba(255,209,0,0.20), transparent 62%), radial-gradient(50% 60% at 15% 90%, rgba(255,209,0,0.08), transparent 60%)",
+      "grid_bg": "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)"
+    },
+    "light_theme": {
       "canvas": "#F9F9F8",
       "surface": "#FFFFFF",
-      "raised_card": "#FFFFFF",
-      "border_hairline": "rgba(0, 0, 0, 0.08)",
-      "border_strong": "rgba(0, 0, 0, 0.15)",
-      "ink_primary": "#1A1A19",
-      "ink_secondary": "#666664",
-      "ink_muted": "#999996",
-      "accent": "#FFD100",
-      "on_accent": "#1A1A19",
-      "semantic": {
-        "success_bg": "#E8F5E9",
-        "success_text": "#2E7D32",
-        "warning_bg": "#FFF8E1",
-        "warning_text": "#F57F17",
-        "error_bg": "#FFEBEE",
-        "error_text": "#C62828",
-        "info_bg": "#E3F2FD",
-        "info_text": "#1565C0"
-      }
+      "raised": "#F2F2F0",
+      "border_hairline": "rgba(0,0,0,0.06)",
+      "border_strong": "#EAEAE7",
+      "text_primary": "#1A1A19",
+      "text_secondary": "#666664",
+      "text_muted": "#999996"
+    },
+    "dark_theme": {
+      "canvas": "#131312",
+      "surface": "#1A1A19",
+      "raised": "#222221",
+      "border_hairline": "rgba(255,255,255,0.06)",
+      "border_strong": "#2B2B29",
+      "text_primary": "#F2F2F0",
+      "text_secondary": "#A3A3A0",
+      "text_muted": "#70706E"
     }
   },
-  "visual_enhancers": {
-    "depth": {
-      "shadows": {
-        "soft": "0 2px 8px rgba(0, 0, 0, 0.04)",
-        "medium": "0 8px 24px rgba(0, 0, 0, 0.08)",
-        "slide_over": "-8px 0 32px rgba(0, 0, 0, 0.12)"
-      }
+  "status_color_system": {
+    "operational": {
+      "indicator_dot": "#22C55E",
+      "text_dark": "#4ADE80",
+      "text_light": "#15803D",
+      "background_soft": "rgba(34,197,94,0.10)",
+      "border": "rgba(34,197,94,0.22)",
+      "glow": "0 0 16px rgba(74,222,128,0.20)"
     },
-    "radii": {
-      "sm": "6px",
-      "md": "8px",
-      "lg": "12px",
-      "xl": "16px",
-      "full": "9999px"
+    "degraded": {
+      "indicator_dot": "#F59E0B",
+      "text_dark": "#FBBF24",
+      "text_light": "#B45309",
+      "background_soft": "rgba(245,158,11,0.10)",
+      "border": "rgba(245,158,11,0.22)"
     },
-    "glass": {
-      "rule": "Reserved ONLY for sticky bars (top nav, filter bars) and overlays. Do not spray across normal cards.",
-      "css": "backdrop-filter: blur(12px); background: rgba(var(--surface-rgb), 0.7);"
+    "outage": {
+      "indicator_dot": "#EF4444",
+      "text_dark": "#F87171",
+      "text_light": "#B91C1C",
+      "background_soft": "rgba(239,68,68,0.10)",
+      "border": "rgba(239,68,68,0.22)"
+    },
+    "neutral": {
+      "indicator_dot": "#8A8A86",
+      "text_dark": "#A3A3A0",
+      "text_light": "#666664",
+      "background_soft": "rgba(255,255,255,0.06)"
     }
   },
-  "grids_and_spacing": {
-    "scale": {
-      "xs": "4px",
-      "sm": "8px",
-      "md": "16px",
-      "lg": "24px",
-      "xl": "32px",
-      "2xl": "48px"
+  "blog_category_signature_colors": {
+    "Integration Guide": "#5865F2",
+    "Business Strategy": "#10B981",
+    "Cost Analysis": "#F59E0B",
+    "Developer Guide": "#FFD100"
+  },
+  "pages_blueprint": {
+    "blog_index": {
+      "route": "/blog",
+      "sections": [
+        {
+          "id": "blog-hero",
+          "component": "PageHeroV8",
+          "eyebrow": "DYNAMIC INSIGHTS",
+          "title_structure": "Crypto Payments & <GradientText>Merchant Strategy</GradientText>",
+          "subtitle": "Actionable guides, cost breakdowns, and engineering walkthroughs for web3 checkout.",
+          "background": "light_first_with_gold_glow"
+        },
+        {
+          "id": "blog-category-filter",
+          "type": "light_canvas_section",
+          "layout": "Flex wrap container for chips with 10px gap",
+          "chip_active_style": {
+            "background": "#FFD100",
+            "color": "#121214",
+            "border": "1px solid #FFD100",
+            "fontFamily": "IBM Plex Mono",
+            "fontSize": "12px",
+            "fontWeight": 600,
+            "borderRadius": "999px"
+          },
+          "chip_idle_style": {
+            "background": "${categoryColor}15",
+            "color": "${categoryColor}",
+            "border": "1px solid ${categoryColor}30",
+            "fontFamily": "IBM Plex Mono",
+            "fontSize": "12px",
+            "fontWeight": 600,
+            "borderRadius": "999px"
+          }
+        },
+        {
+          "id": "blog-grid",
+          "type": "light_canvas_section",
+          "layout": "2-column grid (`gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }`) with step stagger animation",
+          "card_anatomy": {
+            "container": "v8 card surface, radius 16px, padding 24px/28px, hairline border 1px solid theme border, transition 0.2s ease",
+            "hover": "translateY(-4px), border-color #FFD100, shadow 0 12px 32px rgba(0,0,0,0.08)",
+            "cover_image": "Aspect ratio 1200/630, radius 12px, scale 1.03 on card hover, dark background #050720",
+            "meta_row": "Category chip (mono uppercase tag) + Read time (IBM Plex Sans 12px)",
+            "title": "Manrope 20px/22px bold, line-height 1.3, color theme text primary",
+            "excerpt": "IBM Plex Sans 14px, color text secondary, line-height 1.6",
+            "footer": "Author avatar + Name + Date on left, 'Read the guide →' with gold accent on right"
+          }
+        },
+        {
+          "id": "blog-closing-cta",
+          "component": "PublicFinalCta",
+          "type": "dark_panel_section"
+        }
+      ]
     },
-    "layout": {
-      "nav_rail_width": "240px",
-      "nav_rail_collapsed_width": "72px",
-      "top_bar_height": "64px",
-      "content_max_width": "1200px"
+    "blog_article": {
+      "route": "/blog/[slug]",
+      "sections": [
+        {
+          "id": "article-hero",
+          "type": "light_hero",
+          "elements": [
+            "Breadcrumb: Home → Blog → Category",
+            "Title: H1 Manrope clamp(28px, 4vw, 44px) bold",
+            "Meta bar: Author avatar, Author name & role, Published date, Read time, Category badge"
+          ]
+        },
+        {
+          "id": "article-layout",
+          "type": "light_canvas_section",
+          "layout": "Responsive editorial split layout: 780px main content column + 300px sticky table-of-contents / section nav sidebar on desktop; 1-column on mobile",
+          "sidebar_elements": [
+            "Table of contents jump links with active scroll spy highlight",
+            "Reading progress bar",
+            "Social share buttons (X/Twitter, LinkedIn, Copy Link)"
+          ],
+          "body_typography": {
+            "h2": "Manrope 28px/32px bold with hairline bottom border or left gold tick",
+            "h3": "Manrope 22px bold",
+            "p": "IBM Plex Sans 16px/18px, line-height 1.75, color theme text primary",
+            "list": "Custom gold tick or dot bullet list item with 12px gap",
+            "code": "MockPanelV8 frame, dark background #0B0B0A, border 1px solid rgba(255,255,255,0.12), IBM Plex Mono 13.5px",
+            "callout": "Soft yellow/emerald box with 3px solid #FFD100 left accent border, padding 20px, radius 12px"
+          }
+        },
+        {
+          "id": "article-footer",
+          "type": "light_canvas_section",
+          "elements": [
+            "Next / Previous Article cards in 2-column grid",
+            "Share article banner"
+          ]
+        },
+        {
+          "id": "article-closing-cta",
+          "component": "PublicFinalCta",
+          "type": "dark_panel_section"
+        }
+      ]
+    },
+    "help_support_index": {
+      "route": "/help-support",
+      "sections": [
+        {
+          "id": "help-hero",
+          "component": "PageHeroV8",
+          "eyebrow": "KNOWLEDGE BASE",
+          "title_structure": "How Can We <GradientText>Help You?</GradientText>",
+          "subtitle": "Search our documentation, integration guides, and FAQs or chat with support."
+        },
+        {
+          "id": "help-search-section",
+          "type": "light_canvas_section",
+          "layout": "Centered search input box (maxWidth 680px), height 48px, radius 14px",
+          "input_style": {
+            "border": "1px solid theme border",
+            "background": "theme surface",
+            "focusRing": "0 0 0 3px rgba(255,209,0,0.35)",
+            "focusBorder": "#FFD100",
+            "icon": "SearchIcon on left with 55% opacity"
+          }
+        },
+        {
+          "id": "help-topics-grid",
+          "type": "light_canvas_section",
+          "layout": "3-column responsive grid (`gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }`) with gap 20px",
+          "card_anatomy": {
+            "container": "minHeight 180px, padding 24px, radius 16px, background theme surface, border 1px solid theme divider",
+            "hover": "translateY(-3px), border-color #FFD100, shadow 0 8px 24px rgba(0,0,0,0.08)",
+            "title": "Manrope 18px bold, line-height 1.3, color theme text primary",
+            "description": "IBM Plex Sans 14px, 2-line clamp, color theme text secondary",
+            "action": "36x36px square button with ArrowOutwardIcon, turns primary gold on card hover"
+          }
+        },
+        {
+          "id": "help-contact-cta",
+          "type": "dark_panel_section",
+          "layout": "Centered dark glowing plinth (`MockPanelV8`) framing AI Support Chat trigger",
+          "elements": [
+            "SectionHeadV8 with dark={true}, title 'Still Need Assistance?'",
+            "Primary CTA: Signal Gold button with ChatBubbleOutlineRoundedIcon",
+            "Average response time badge: Mono label 'Average response time < 2 mins'"
+          ]
+        }
+      ]
+    },
+    "help_support_article": {
+      "route": "/help-support/[slug]",
+      "sections": [
+        {
+          "id": "help-article-container",
+          "type": "light_canvas_section",
+          "layout": "Centered 1-column container (maxWidth 800px)",
+          "elements": [
+            "Back button: ← Back to Help Center",
+            "Title: H1 Manrope 32px bold",
+            "Meta tags: Category tag + Read time",
+            "Card container for article body: padding 32px, radius 16px, border 1px solid theme border, background theme surface",
+            "Feedback box: 'Was this article helpful?' with Yes/No interactive buttons"
+          ]
+        }
+      ]
+    },
+    "system_status": {
+      "route": "/system-status",
+      "sections": [
+        {
+          "id": "status-hero",
+          "component": "PageHeroV8",
+          "eyebrow": "LIVE OPERATIONAL METRICS",
+          "title_structure": "DynoPay <GradientText>System Status</GradientText>",
+          "subtitle": "Real-time health, latency metrics, and 90-day availability across all payment infrastructure.",
+          "actions_slot": "Overall Status Pill (All Systems Operational / Partial Outage / Degraded) with glowing halo dot"
+        },
+        {
+          "id": "status-services-panel",
+          "type": "dark_panel_section",
+          "glow": true,
+          "layout": "Dark glowing panel container (`PANEL.bg` #0B0B0A, border `1px solid rgba(255,255,255,0.12)`, radius 16px)",
+          "header": "Service Monitor header with service icon + 'Core Services' title in Manrope 18px",
+          "row_anatomy": {
+            "height": { "xs": "auto", "md": "58px" },
+            "padding": "0 24px",
+            "borderTop": "1px solid rgba(255,255,255,0.08)",
+            "left_side": "Status dot (8px circle with halo) + Service Name (IBM Plex Sans 15px, color #F6F6F3)",
+            "right_side": "Uptime % (e.g. 99.98%) + Latency (e.g. 42ms in IBM Plex Mono #ABABA5) + Status label (e.g. Operational in #4ADE80)",
+            "hover": "background rgba(255,255,255,0.03)"
+          }
+        },
+        {
+          "id": "status-uptime-chart-section",
+          "type": "light_canvas_section",
+          "layout": "Card container (border 1px solid theme border, radius 16px, padding 28px)",
+          "header": "90-Day Uptime History + Overall Uptime %",
+          "chart_bars": "90 vertical daily status bars with status colors (Green = Operational, Amber = Degraded, Red = Outage, Gray = No Data)",
+          "footer": "Timeline labels ('90 days ago' <-> Legend <-> 'Today')"
+        },
+        {
+          "id": "status-recent-incidents-section",
+          "type": "light_canvas_section",
+          "layout": "Recent Incidents container (maxWidth 800px)",
+          "empty_state": "Soft panel card with message 'All systems operational. No incidents reported in the last 90 days.'",
+          "incident_card_anatomy": {
+            "border": "1px solid theme border",
+            "radius": "16px",
+            "padding": "24px",
+            "header": "Incident Title + Formatted Date (IBM Plex Mono)",
+            "body": "Description text in IBM Plex Sans 14px",
+            "affected_tags": "Service pills in IBM Plex Mono 11px",
+            "status_badge": "Resolved dot + label (#22C55E) or Investigating (#F59E0B)"
+          }
+        },
+        {
+          "id": "status-footer-note",
+          "type": "light_canvas_section",
+          "element": "Mono small text: 'Auto-refreshes every 60 seconds • Powered by DynoPay Health Engine'"
+        },
+        {
+          "id": "status-closing-cta",
+          "component": "PublicFinalCta",
+          "type": "dark_panel_section"
+        }
+      ]
     }
   },
-  "motion": {
-    "duration": {
-      "fast": "150ms",
-      "normal": "200ms",
-      "slide": "300ms"
-    },
-    "easing": {
-      "default": "cubic-bezier(0.4, 0, 0.2, 1)",
-      "slide": "cubic-bezier(0.32, 0.72, 0, 1)"
-    },
-    "rules": [
-      "Motion should be fast and functional. Avoid bouncy or springy animations.",
-      "Use slide-overs for details, sliding in from the right.",
-      "Hover states on table rows should be a gentle, quick transition of background color."
-    ]
+  "component_path": {
+    "v8_kit": "/app/Components/Page/Home/v8/kit.tsx",
+    "page_hero": "/app/Components/Page/Home/v8/PageHeroV8.tsx",
+    "final_cta": "/app/Components/Page/Home/v8/FinalCTAV8.tsx",
+    "cta_band": "/app/Components/Page/Home/v8/CtaBandV8.tsx",
+    "mock_panel": "/app/Components/Page/Home/v8/MockPanelV8.tsx",
+    "blog_data": "/app/utils/blogData.ts",
+    "help_data": "/app/hooks/useHelpAndSupportData.ts",
+    "theme_constants": "/app/constants/theme.ts"
   },
-  "components": {
-    "AppChrome": {
-      "nav_rail": "Quieter left navigation rail. Dark mode uses canvas color, Light mode uses canvas color. Active states highlighted subtly. No loud backgrounds.",
-      "top_bar": "Cleaner top bar with sticky glassmorphism. Contains breadcrumbs or simple title, plus user/brand actions.",
-      "brand_switcher": "Refined company switcher. This is the ONLY place where a merchant's custom accent color should appear (as an avatar/identicon).",
-      "theme_density_toggles": "Subtle icon buttons in the nav rail or top bar footer."
+  "visual_enhancers_and_motion": {
+    "reveal_wrapper": "Use `<Reveal y={22} delay={0.1}>` for scroll-triggered entrance animations",
+    "stagger_wrapper": "Use `<Stagger step={0.06}>` and `<StaggerItem i={index}>` for list and grid entrances",
+    "framer_motion": "Wrap interactive elements using `component={motion.div}` with specific transitions (never `transition: all`)",
+    "hover_effects": "Card hover states use `transform: translateY(-3px)` and `borderColor: '#FFD100'` or `s.accent`",
+    "reduced_motion": "All motion primitives leverage `useMotionOK()` to respect system preferences"
+  },
+  "responsive_grid_and_layout": {
+    "mobile_390px": {
+      "container_padding": "px: 2, py: 5",
+      "hero_title_fontSize": "34px",
+      "grid_columns": "1fr",
+      "card_padding": "16px or 20px"
     },
-    "PageHeader": {
-      "structure": "Title (text-2xl), Context line/subtitle below it (text-sm, ink-secondary), Primary action button right-aligned.",
-      "padding": "py-6 px-8",
-      "data-testid": "page-header"
-    },
-    "SummaryStrip": {
-      "structure": "Small band of key figures. Horizontal flex or grid of 3-4 tiles.",
-      "tile_anatomy": "Caption/Eyebrow label (text-xs, ink-secondary), KPI Number (text-4xl, tabular nums, ink-primary).",
-      "styling": "No heavy borders, minimal separators between tiles. Airy and confident.",
-      "data-testid": "summary-strip"
-    },
-    "DataTable": {
-      "structure": "Financial-statement style. Pinned header, airy rows.",
-      "grouping": "Group transactions by date (Today, Yesterday, This week). Date header rows should be subdued (ink-secondary, border-b hairline).",
-      "cell_anatomy": "Right-align all numbers. Use tnum. Distinct styling for balance vs amount (e.g., amount is ink-primary, balance is ink-muted).",
-      "hover": "Calm hover: bg-[rgba(255,255,255,0.03)] on dark, bg-[rgba(0,0,0,0.02)] on light. Cursor pointer.",
-      "data-testid": "data-table"
-    },
-    "SlideOver": {
-      "structure": "Opens from right. Width ~400px. Used for transaction timeline + details/actions.",
-      "styling": "Surface color background. Left shadow `-8px 0 32px rgba(0,0,0,0.12)`. Pinned header with close button.",
-      "data-testid": "detail-slide-over"
-    },
-    "StatusDot": {
-      "structure": "Low-chroma dot + label. Replacing loud solid chips.",
-      "styling": "Dot: 6px x 6px circle, colored by status. Text: 12px or 13px ink-secondary. Wrapper: flex, items-center, gap-2.",
-      "data-testid": "status-indicator"
-    },
-    "FilterBar": {
-      "structure": "Search input, Status dropdown, Date range picker.",
-      "styling": "Hairline borders, 8px radius. Background transparent or surface. Quiet and out of the way.",
-      "data-testid": "filter-bar"
+    "desktop_1920px": {
+      "container_maxWidth": "1200px (or 1280px)",
+      "container_padding": "px: 6, py: 13",
+      "grid_columns": "2-column or 3-column",
+      "card_padding": "28px or 32px"
     }
   },
-  "instructions_to_main_agent": {
-    "theme_integration": [
-      "The codebase uses MUI (sx/styled) and a token file at constants/theme.ts. Update the DARK and LIGHT objects in constants/theme.ts with the exact hex values provided in this JSON.",
-      "In styles/appTheme.ts (MUI createTheme overrides), map the semantic colors and typography scales to the MUI theme.",
-      "Use MUI's sx prop for spacing, applying the hairline borders and soft shadows defined here.",
-      "Since lucide-react is the icon library, replace any existing MUI icons or custom SVGs with Lucide icons (e.g., ChevronRight, Search, Activity, Users, Link)."
+  "empty_loading_skeleton_states": {
+    "blog_skeleton": "2-column grid of Skeleton cards with 1200x630 cover placeholder, title line, and meta placeholder",
+    "help_skeleton": "3-column grid of Skeleton topic cards (height 180px, radius 16px)",
+    "status_skeleton": "Skeleton overall status pill + 5 stacked service row Skeletons matching exact 58px row height + Uptime chart Skeleton bar block"
+  },
+  "light_dark_theme_behavior": {
+    "dark_panels": "Fixed dark palette (PANEL.bg #0B0B0A) with gold glow (PANEL_GLOW) and grid floor (GRID_BG) used for high-impact data sections in BOTH light and dark modes",
+    "light_canvas_sections": "Use `s.canvas` and `s.surface` from `useConsole()` hook, adapting background and text colors dynamically between light (#F9F9F8) and dark (#131312) modes",
+    "theme_toggle": "Header theme toggle seamlessly updates `s.canvas`, `s.surface`, `s.border`, `s.ink`, and `s.ink2` without breaking contrast"
+  },
+  "testing_attributes": {
+    "blog": [
+      "blog-hero",
+      "blog-category-filters",
+      "blog-category-filter-all",
+      "blog-category-filter-{slug}",
+      "blog-card-{slug}",
+      "blog-card-cover-{slug}",
+      "blog-card-category-{slug}",
+      "blog-article-page",
+      "blog-article-toc"
     ],
-    "development_guidelines": [
-      "Do not build a thick, card-heavy UI. The UI should be almost flat, separated by hairline borders and whitespace, similar to Mercury.",
-      "Ensure all amounts use tabular numerals (fontVariantNumeric: 'tabular-nums' in sx).",
-      "Keep the Dynopay gold (#FFD100) strictly for the primary action button and key active states. Do not use it as a general highlight color.",
-      "Ensure the slide-over opens on row click, preserving the main list context.",
-      "Implement the 'Needs Attention' area using a subtle warning or info semantic style."
+    "help": [
+      "help-hero",
+      "help-search-input",
+      "help-topics-grid",
+      "help-article-card-{index}",
+      "help-chat-cta",
+      "help-open-chat-button",
+      "help-feedback-yes",
+      "help-feedback-no"
+    ],
+    "status": [
+      "system-status-page",
+      "status-hero",
+      "status-overall-chip",
+      "status-services-list",
+      "status-service-row-{id}",
+      "status-uptime-chart",
+      "status-recent-incidents"
     ]
   },
-  "universal_guidelines": {
-    "rules": [
-      "NEVER use generic centered layouts. Content must be left-aligned for data readability.",
-      "NEVER use complete transparent background in headers, overlays, or surfaces with content underneath. Always use the specified glass rule or solid surface color.",
-      "ALWAYS include data-testid attributes (kebab-case, role-based) on all interactive elements (buttons, table rows, filter inputs, toggles).",
-      "Use generous spacing (p-6, p-8) between main structural elements to avoid a cramped spreadsheet look.",
-      "Transitions should target specific properties (e.g., background-color, transform) and NOT 'all'.",
-      "Data empty states should be graceful: a quiet icon, a subtle message in ink-secondary, and a clear action if applicable.",
-      "Skeletons must match the table row height and column widths perfectly."
-    ]
-  }
+  "instructions_to_main_agent": [
+    "1. Replace all legacy v3/v5 components (PublicPageHero, PublicFinalCta, cardSx, AuroraInk, useAurora) on /blog, /blog/[slug], /help-support, /help-support/[slug], and /system-status with v8 kit primitives (PageHeroV8, SectionV8, SectionHeadV8, EyebrowV8, GradientText, MockPanelV8, Reveal, PublicFinalCta).",
+    "2. Ensure all text and headings use the v8 typography variables (FONT_DISPLAY, FONT_BODY, FONT_MONO) and adhere strictly to the established scale.",
+    "3. Maintain light-first section canvas for content reading, punctuated by dark PANEL blocks for high-impact data displays (Status Service Monitor, Support Chat Plinth, Closing CTAs).",
+    "4. For System Status: use status tones (#22C55E operational, #F59E0B degraded, #EF4444 outage) as subtle dots, borders, and crisp labels, paired harmoniously with gold brand highlights.",
+    "5. Ensure all interactive buttons, cards, inputs, and links include exact kebab-case `data-testid` attributes.",
+    "6. Test responsive layouts at mobile (390px) and desktop (1920px), verifying grid collapse, image scaling, and padding safety."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Avoid generic centered layouts, simplistic gradients, and uniform styling.",
+    "DO NOT use dark colors as global gradients. Dark colors look best when solid or with localized radial glows.",
+    "Create depth through layered design elements and hairline borders.",
+    "Use glass-morphism or crisp solid surfaces with subtle backdrop blur where appropriate.",
+    "Never apply universal transitions like `transition: all`. Specify individual properties (transform, opacity, border-color).",
+    "Do NOT center align the app container. Respect natural reading hierarchy.",
+    "Never use AI assistant emoji characters (🤖, 🧠, 💡, etc.) for UI icons. Use Phosphor, Lucide, or Material icons.",
+    "Ensure generous spacing (2-3x typical padding) to avoid cramped layouts.",
+    "All key interactive elements MUST include kebab-case role-based `data-testid` attributes."
+  ]
 }

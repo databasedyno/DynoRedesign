@@ -38,7 +38,7 @@ const openSupportChat = () => {
 const norm = (s: string) =>
     (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-const HelpAndSupport = () => {
+const HelpAndSupport = ({ searchBg }: { searchBg?: string }) => {
     const theme = useTheme();
     const isMobile = useIsMobile("md");
     const { t } = useTranslation("helpAndSupport");
@@ -209,7 +209,7 @@ const HelpAndSupport = () => {
                     top: 0,
                     left: 0,
                     pb: "20px",
-                    backgroundColor: theme.palette.secondary.main,
+                    backgroundColor: searchBg || theme.palette.secondary.main,
                     zIndex: 1,
                 }}
             >
