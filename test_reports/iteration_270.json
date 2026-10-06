@@ -1,0 +1,21 @@
+{
+  "summary": "Independently verified the Telegram login widget blink fix on /safedeal/signin. Marked the initial Telegram <iframe> with a data attribute, installed a MutationObserver on the host element [aria-label=\"Log in with Telegram\"], then typed a 21-character email character-by-character to force many parent re-renders (each keystroke changes parent state and passes a new inline onSuccess closure). After ~4s of observation post-typing: original iframe node still attached (document.contains === true), initial-marker still present, iframeCountInHost === 1, and the MutationObserver recorded 0 childList mutations (0 iframe removals, 0 iframe re-adds). This confirms the widget is injected exactly once and is NOT re-created on parent re-renders — the blinking bug is resolved. 'Bot domain invalid' message appears as expected (preview host not registered with Telegram bot) and does not affect the fix.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix in Components/SafeDeal/TelegramLoginButton.tsx is correct: injection effect depends only on [bot] and callbacks are read from handlersRef, preventing re-injection on parent re-render. Keeping the host Box mounted and only toggling CSS display during busy state is the right pattern."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Telegram widget blink fix on SafeDeal signin is verified. Measured: 0 iframe removals/adds during 21 keystrokes + 4s observation, original iframe node preserved. Same shared component is also used in Components/SafeDeal/Home/TelegramAlertsCard.tsx (mode='link') behind auth — not retested but uses identical fixed component.",
+  "rca of the issue": "Previous bug: injection useEffect in TelegramLoginButton.tsx depended on inline callback props whose identity changed on every parent render, causing host.innerHTML wipe and iframe re-creation on every keystroke -> visible blink. Fix: effect deps reduced to [bot]; callbacks accessed via a mutable ref (handlersRef). Verified in this run."
+}
