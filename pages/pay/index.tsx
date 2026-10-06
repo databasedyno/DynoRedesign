@@ -1,5 +1,4 @@
-import copyToClipboard from "@/helpers/copyToClipboard";
-import { BRAND_ACCENT, brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
+import copyToClipboard from "@/helpers/copyToClipboard";import { BRAND_ACCENT, brandFg, BRAND_ON_ACCENT } from "@/constants/theme";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import axiosBaseApi from '@/axiosConfig'
 import { clearCheckoutToken, setCheckoutToken } from '@/helpers/checkoutSession'
@@ -179,6 +178,28 @@ export const currencyOptions = [
   { code: 'MZN', labelKey: 'currency.MZN', icon: <Image src={MZNIcon} alt='MZN' width={20} height={20} />, currency: 'MZN', symbol: 'MT', decimals: 2 },
   { code: 'CDF', labelKey: 'currency.CDF', icon: <Image src={CDFIcon} alt='CDF' width={20} height={20} />, currency: 'CDF', symbol: 'FC', decimals: 2 },
 ]
+
+// Fire-and-forget buyer drop-off beacon (admin "Activation & Drop-off" analytics).
+// Records that a buyer opened this checkout (and, when known, that an address was
+// shown). Wrapped so it can NEVER block, delay, or throw into the payment flow.
+const fireCheckoutBeacon = (
+  ref: string,
+  stage: "viewed" | "address_shown",
+  extra?: Record<string, unknown>
+) => {
+  try {
+    if (!ref || typeof window === "undefined") return;
+    const base = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
+    void fetch(`${base}/api/track/checkout`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ref, stage, ...(extra || {}) }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    /* analytics must never affect checkout */
+  }
+};
 
 const Payment = () => {
   const theme = useTheme()
@@ -450,6 +471,7 @@ const Payment = () => {
     if (ref) {
       if (fetchedRefRef.current === ref) return
       fetchedRefRef.current = ref
+      fireCheckoutBeacon(ref, 'viewed')
       getQueryData()
     } else {
       setLoading(false)
@@ -457,6 +479,19 @@ const Payment = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query?.d])
+
+  // Buyer funnel: beacon "address_shown" once a payment address becomes visible
+  // (returning-buyer incomplete-payment case). Guarded so it fires at most once.
+  const addrBeaconedRef = useRef(false)
+  useEffect(() => {
+    const ref = typeof router.query?.d === 'string' ? router.query.d : ''
+    const addr = incompletePayment?.address
+    if (ref && addr && !addrBeaconedRef.current) {
+      addrBeaconedRef.current = true
+      fireCheckoutBeacon(ref, 'address_shown', { address: addr, currency: incompletePayment?.currency })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incompletePayment, router.query?.d])
 
   const getQueryData = async (refOverride?: string) => {
     try {

@@ -299,4 +299,65 @@ trackRouter.post("/bot-hit", async (req: express.Request, res: express.Response)
   }
 });
 
+/**
+ * POST /api/track/checkout — no auth. Beaconed fire-and-forget from the public
+ * /pay checkout page. Body: { ref, stage: "viewed" | "address_shown", address?,
+ * currency?, amount? }. Durably records that a buyer OPENED a checkout (and, when
+ * known, that a payment address was shown) so drop-off/abandonment is measurable
+ * beyond the ephemeral Redis crypto-{address} key. One upsert row per ref. Never
+ * errors to the caller; never touches the payment flow.
+ */
+trackRouter.post("/checkout", async (req: express.Request, res: express.Response) => {
+  try {
+    const b = (req.body || {}) as Record<string, unknown>;
+    const ref = typeof b.ref === "string" ? b.ref.trim().slice(0, 120) : "";
+    if (!ref) return res.status(200).json({ ok: false });
+
+    const stage = b.stage === "address_shown" ? "address_shown" : "viewed";
+    const address = typeof b.address === "string" ? b.address.slice(0, 120) : null;
+    const currency = typeof b.currency === "string" ? b.currency.slice(0, 20) : null;
+    const amount = typeof b.amount === "number" && isFinite(b.amount) ? b.amount : null;
+    const ua = typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"].slice(0, 300) : null;
+
+    const { default: checkoutSessionModel } = await import("../models/checkoutSessionModel");
+    const now = new Date();
+    const [row, created] = await checkoutSessionModel.findOrCreate({
+      where: { ref },
+      defaults: {
+        ref,
+        address,
+        currency,
+        amount,
+        user_agent: ua,
+        view_count: 1,
+        viewed_at: now,
+        address_shown_at: stage === "address_shown" ? now : null,
+        updated_at: now,
+      } as never,
+    });
+
+    if (!created) {
+      const r = row as unknown as {
+        address: string | null;
+        currency: string | null;
+        amount: number | null;
+        address_shown_at: Date | null;
+        view_count: number;
+      };
+      const patch: Record<string, unknown> = { updated_at: now };
+      if (stage === "viewed") patch.view_count = (r.view_count || 0) + 1;
+      if (address && !r.address) patch.address = address;
+      if (currency && !r.currency) patch.currency = currency;
+      if (amount != null && r.amount == null) patch.amount = amount;
+      if (stage === "address_shown" && !r.address_shown_at) patch.address_shown_at = now;
+      await (row as unknown as { update: (p: Record<string, unknown>) => Promise<unknown> }).update(patch);
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    apiLogger.error("[Track] checkout error:", err);
+    return res.status(200).json({ ok: false });
+  }
+});
+
 export default trackRouter;

@@ -6,6 +6,7 @@ import {
   HandshakeRounded,
   HomeRounded,
   HubRounded,
+  InsightsRounded,
   TuneRounded,
   LocalGasStationRounded,
   ReceiptLongRounded,
@@ -83,6 +84,11 @@ const adminMenus = [
     icon: <GroupsRounded color="inherit" />,
     name: "Merchants",
     link: "/admin/merchants",
+  },
+  {
+    icon: <InsightsRounded color="inherit" />,
+    name: "Activation & Drop-off",
+    link: "/admin/analytics",
   },
   {
     icon: <HandshakeRounded color="inherit" />,

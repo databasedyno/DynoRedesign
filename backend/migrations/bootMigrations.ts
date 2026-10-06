@@ -1159,6 +1159,31 @@ const createAdminTrustedDeviceTable = async (): Promise<void> => {
   await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_admin_trusted_device_admin" ON "tbl_admin_trusted_device" ("admin_id", "revoked_at")`);
 };
 
+/**
+ * 0063 — tbl_checkout_session: one durable row per buyer checkout "ref" (opened a
+ * /pay page) for drop-off/abandonment analytics. Beacon-fed, never on the money
+ * path. New table, safe on live prod.
+ */
+const createCheckoutSessionTable = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_checkout_session" (
+       "id" SERIAL PRIMARY KEY,
+       "ref" VARCHAR(120) NOT NULL UNIQUE,
+       "address" VARCHAR(120),
+       "currency" VARCHAR(20),
+       "amount" DOUBLE PRECISION,
+       "country" VARCHAR(64),
+       "user_agent" VARCHAR(300),
+       "view_count" INTEGER NOT NULL DEFAULT 1,
+       "viewed_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+       "address_shown_at" TIMESTAMPTZ,
+       "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_checkout_session_viewed" ON "tbl_checkout_session" ("viewed_at" DESC)`);
+};
+
 
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
@@ -1220,6 +1245,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0060_email_log_fallback", up: addEmailLogFallback },
     { version: "0061_bot_hit", up: createBotHitTable },
     { version: "0062_admin_trusted_device", up: createAdminTrustedDeviceTable },
+    { version: "0063_checkout_session", up: createCheckoutSessionTable },
     ...perfMigrations,
     ...securityMigrations,
   ];

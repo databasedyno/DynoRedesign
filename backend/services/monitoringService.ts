@@ -3,6 +3,7 @@ import { QueryTypes } from "sequelize";
 import serviceHealthModel from "../models/serviceHealthModel";
 import { redis } from "../utils/redisInstance";
 import { log } from "../utils/loggers";
+import { TatumCircuitBreaker } from "../utils/circuitBreaker";
 
 /**
  * Infrastructure Monitoring Service
@@ -97,7 +98,26 @@ const MONITORED_SERVICES = [
           "SELECT (SELECT 1 FROM tbl_payment_link LIMIT 1) AS pl, (SELECT 1 FROM tbl_customer_transaction LIMIT 1) AS ct",
           { type: QueryTypes.SELECT }
         );
-        return { healthy: true, latency: Date.now() - start };
+        const latency = Date.now() - start;
+        // TRUTHFUL status — do NOT let the raw probe wall-clock drive it. Under
+        // production load the event loop / connection pool can inflate the probe's
+        // measured latency past the 800ms budget and falsely flag "degraded" even
+        // though the query is instant and payments are settling normally (same
+        // false-signal class the webhook_delivery check was moved off of). The
+        // real payment-processing impairment signal is the Tatum detection circuit
+        // breaker: OPEN/HALF_OPEN = on-chain payment detection is down/recovering.
+        // Mirrors status/gatewayController.ts so the public page and the
+        // merchant-facing gateway health tell the same story.
+        let status: "operational" | "degraded" | "outage" = "operational";
+        try {
+          const breaker = TatumCircuitBreaker.getStats();
+          if (!TatumCircuitBreaker.isOperational() || breaker.state === "HALF_OPEN") {
+            status = "degraded";
+          }
+        } catch {
+          /* breaker stats unavailable — fall back to accessibility (operational) */
+        }
+        return { healthy: true, latency, status };
       } catch (error: unknown) {
         return { healthy: false, latency: Date.now() - start, error: (error as { message?: string }).message };
       }

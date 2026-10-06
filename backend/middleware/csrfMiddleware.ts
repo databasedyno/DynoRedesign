@@ -96,6 +96,8 @@ const EXEMPT_PATHS = [
   // (no session/cookie exists). Re-validates the bot against its UA, soft-capped
   // and de-duplicated; only inserts an analytics row (no auth, no funds, no PII).
   "/api/track/bot-hit",
+  // Buyer checkout drop-off beacon — public, fire-and-forget from the /pay page.
+  "/api/track/checkout",
   // Storefront visit beacon — public, rate-limited, only bumps Redis counters
   // (path prefix covers /api/pay/creator/<handle>/visit; the GETs are unaffected).
   "/api/pay/creator/",

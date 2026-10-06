@@ -7,6 +7,7 @@ import emailLogController from "../controller/emailLogController";
 import feeReconciliationController from "../controller/admin/feeReconciliationController";
 import chainReadinessController from "../controller/admin/chainReadinessController";
 import botAnalyticsController from "../controller/admin/botAnalyticsController";
+import dropoffAnalyticsController from "../controller/admin/dropoffAnalyticsController";
 import platformSettingsController from "../controller/admin/platformSettingsController";
 import { adminAuthMiddleware } from "../middleware";
 import { requireAdminStepUp } from "../middleware/adminAuthMiddleware";
@@ -48,6 +49,12 @@ adminRouter.get("/chain-readiness", adminAuthMiddleware, chainReadinessControlle
 
 // AI crawler analytics (ChatGPT / Perplexity / Claude / CCBot … page fetches)
 adminRouter.get("/bot-analytics", adminAuthMiddleware, botAnalyticsController.getReport);
+
+// Activation & drop-off analytics (merchant signup→first-payment funnel + stuck
+// merchants drill-down + buyer checkout/abandonment funnel)
+adminRouter.get("/analytics/activation-funnel", adminAuthMiddleware, dropoffAnalyticsController.getActivationFunnel);
+adminRouter.get("/analytics/stuck-merchants", adminAuthMiddleware, dropoffAnalyticsController.getStuckMerchants);
+adminRouter.get("/analytics/checkout-funnel", adminAuthMiddleware, dropoffAnalyticsController.getCheckoutFunnel);
 
 // ── Platform Settings (Deliverable 2): dashboard-managed config + kill switches ──
 adminRouter.get("/settings", adminAuthMiddleware, platformSettingsController.getAll);
