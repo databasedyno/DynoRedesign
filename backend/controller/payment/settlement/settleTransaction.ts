@@ -848,6 +848,14 @@ export const settleCryptoTransaction = async ({
         );
 
         totalBlockchainFee = totalGasDeduction;
+        // The broadcast layer may clamp a full-balance native payout by a few wei so that
+        // value + gas fits the balance exactly — book what actually left the address.
+        const nativeSent = Number((merchantTransactionDetails as { amountSent?: string } | undefined)?.amountSent);
+        if (nativeSent > 0 && nativeSent < merchantSendAmount) {
+          cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: broadcast clamped payout ${merchantSendAmount} → ${nativeSent} (balance − gas)`);
+          merchantSendAmount = nativeSent;
+          networkFeeDeductedToken = toNumber(sub(effectiveNativeBase, merchantSendAmount), 8);
+        }
         cronLogger.info(`[settleCryptoTransaction] Account chain ${currency}: totalBlockchainFee = ${totalBlockchainFee} (transfer only, no sweep gas)`);
       }
     }

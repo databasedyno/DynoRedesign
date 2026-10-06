@@ -70,6 +70,23 @@
    "timeToFirstLabel": "Temps jusqu'au premier paiement",
    "daysValue": "{{days}} jours après l'inscription",
    "noEmail": "Aucun e-mail fourni",
+   "paymentTypeLabel": "Type de paiement",
+   "countryLabel": "Pays",
+   "websiteLabel": "Site web",
+   "activityLabel": "Activité à ce jour",
+   "activityApi": "{{count}} requêtes API",
+   "activityLinks": "{{count}} liens de paiement",
+   "activityInvoices": "{{count}} factures",
+   "activityWebhooks": "{{count}} livraisons de webhook",
+   "types": {
+    "payment_link": "Lien de paiement",
+    "api": "API",
+    "tip": "Pourboire",
+    "product": "Boutique",
+    "contribution": "Don",
+    "safedeal": "SafeDeal",
+    "direct": "Direct"
+   },
    "milestone": "C'est une étape clé — le marchand traite désormais activement des paiements.",
    "outro": "Vous pouvez consulter tous les détails de la transaction dans le tableau de bord d'administration."
   },

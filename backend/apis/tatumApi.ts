@@ -1640,7 +1640,7 @@ const assetToOtherAddress = async ({
       gasLimit,
     });
     cronLogger.info(`[assetToOtherAddress] ✅ ${currency} via ethers.js: ${evm.txHash} (maxFee ${evm.gasPriceGwei} gwei, tip ${evm.priorityFeeGwei} gwei, base ${evm.baseFeeGwei} gwei, gasLimit ${evm.gasLimit})`);
-    transaction = { txId: evm.txHash, nonce: evm.nonce, gasPriceGwei: evm.gasPriceGwei, priorityFeeGwei: evm.priorityFeeGwei, baseFeeGwei: evm.baseFeeGwei, gasLimit: evm.gasLimit };
+    transaction = { txId: evm.txHash, nonce: evm.nonce, gasPriceGwei: evm.gasPriceGwei, priorityFeeGwei: evm.priorityFeeGwei, baseFeeGwei: evm.baseFeeGwei, gasLimit: evm.gasLimit, amountSent: evm.amountSent };
   } else if (currency === "TRX") {
     transaction = await tatumSdk.blockchain.tron.tronTransfer({
       fromPrivateKey: privateKey,

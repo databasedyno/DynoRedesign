@@ -40,7 +40,7 @@ export const calculatePolygonGasFee = (
   const bufferedPrice = Math.ceil(gasPrice * POLYGON_GAS_CONSTANTS.BUFFER_MULTIPLIER + POLYGON_GAS_CONSTANTS.PRIORITY_TIP_GWEI);
 
   return {
-    fast: toFixedStr(Number((bufferedPrice * effectiveGasLimit) / 1e9), 8),
+    fast: toFixedStr(Number((bufferedPrice * effectiveGasLimit) / 1e9), 8, "up"),
     gasPrice: bufferedPrice,
     gasLimit: effectiveGasLimit,
   };

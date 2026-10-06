@@ -6,6 +6,7 @@
  * of rounding up to integer gwei, and native transfers are charged for the 21000 gas actually
  * burned rather than the SDK's padded 100000 limit.
  */
+import { ethers } from "ethers";
 import { calculateEvmGasFee, EVM_MIN_GWEI } from "../services/chains/evmChain";
 
 describe("calculateEvmGasFee", () => {
@@ -57,7 +58,9 @@ describe("calculateEvmGasFee", () => {
     const r = calculateEvmGasFee(0.12, 48000, true, eth);
     expect(r.gasLimit).toBe(48000);
     expect(r.gasPrice).toBeCloseTo(0.188, 4);
-    expect(Number(r.fast)).toBeCloseTo((0.188 * 48000) / 1e9, 8);
+    // 0.188 × 48000 = 0.000009024 → quoted UP to 8 dp (0.00000903) so it always covers gas
+    expect(Number(r.fast)).toBeGreaterThanOrEqual((0.188 * 48000) / 1e9);
+    expect(Number(r.fast) - (0.188 * 48000) / 1e9).toBeLessThan(1e-8);
     expect(r.medium).toBeUndefined();
   });
 
@@ -67,5 +70,34 @@ describe("calculateEvmGasFee", () => {
     expect(r.gasLimit).toBe(21000);
     const floored = calculateEvmGasFee(3, 21000, false, { minGas: 25, maxGas: 1000 });
     expect(floored.gasPrice).toBeCloseTo(25 * 1.15 + 0.05, 4);
+  });
+
+  // Prod 2026-10-06 (payment 3105cb92): 1.221 gwei × 21000 = 0.000025641 ETH was quoted as
+  // 0.00002564 → payout = balance − quote was 1 gwei MORE than the node allows → INSUFFICIENT_FUNDS.
+  describe("quote always covers gasLimit × gasPrice (rounded UP to 8 dp)", () => {
+    const feeWei = (gwei: number, gas: number) => ethers.parseUnits(gwei.toFixed(9), "gwei") * BigInt(gas);
+    const quoteWei = (fee: string) => ethers.parseEther(fee);
+
+    it("1.221 gwei × 21000 → 0.00002565 (not 0.00002564)", () => {
+      // raw 1.0183 → ×1.15 + 0.05 = 1.221045 → roundGwei → 1.221
+      const r = calculateEvmGasFee(1.0183, 21000, false, eth);
+      expect(r.gasPrice).toBe(1.221);
+      expect(r.fast).toBe("0.00002565");
+      expect(quoteWei(r.fast) >= feeWei(r.gasPrice, 21000)).toBe(true);
+    });
+
+    it("never under-quotes across a sweep of market prices, and never over-quotes by more than 1e-8", () => {
+      for (let raw = 0.01; raw < 60; raw += 0.0137) {
+        const r = calculateEvmGasFee(raw, 21000, false, eth);
+        const exact = feeWei(r.gasPrice, 21000);
+        expect(quoteWei(r.fast) >= exact).toBe(true);
+        expect(quoteWei(r.fast) - exact < 10_000_000_000n).toBe(true); // < 1e-8 ETH
+      }
+    });
+
+    it("token quotes round up too (gas is charged from the token payout as USD)", () => {
+      const r = calculateEvmGasFee(1.0183, 48000, true, eth);
+      expect(quoteWei(r.fast) >= feeWei(r.gasPrice, 48000)).toBe(true);
+    });
   });
 });

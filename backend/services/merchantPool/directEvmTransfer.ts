@@ -162,7 +162,12 @@ export interface DirectEvmSweepResult {
   priorityFeeGwei: string;
   baseFeeGwei: string;
   gasLimit: number;
+  /** Amount actually signed into the TX (native coin or token units) — may be clamped below the request. */
+  amountSent: string;
 }
+
+/** Largest shortfall the native clamp will absorb silently: 100× an 8-dp rounding step. */
+const NATIVE_CLAMP_MAX_WEI = 1_000_000_000_000n; // 0.000001 ETH
 
 /**
  * Check if a wallet type supports direct EVM transfer
@@ -340,6 +345,7 @@ export async function directEvmSweep(params: {
 
       // 3. Build transaction
       let tx: ethers.TransactionRequest;
+      let amountSent: string;
 
       if (config.isToken && config.contractAddress) {
         // ERC20 token transfer — encode transfer(to, amount) calldata
@@ -354,6 +360,7 @@ export async function directEvmSweep(params: {
           params.toAddress,
           amountBN,
         ]);
+        amountSent = truncatedAmount.toString();
 
         tx = {
           to: config.contractAddress,
@@ -373,7 +380,27 @@ export async function directEvmSweep(params: {
         // Native transfer (ETH or POLYGON/POL)
         const truncatedAmount =
           toNumber(params.amount, 8, "down");
-        const value = ethers.parseEther(truncatedAmount.toString());
+        let value = ethers.parseEther(truncatedAmount.toString());
+
+        // Wei-exact guard: the node requires value + gasLimit × maxFeePerGas ≤ balance. Upstream
+        // quotes are 8-dp decimals, so a full-balance payout can land a few wei short and be
+        // rejected with INSUFFICIENT_FUNDS (prod 2026-10-06: short by exactly 1 gwei). Absorb a
+        // rounding-sized shortfall here; anything larger is a real bug and must surface.
+        const balance = await provider.getBalance(params.fromAddress, "latest");
+        const maxValue = balance - BigInt(gasLimit) * maxFeePerGas;
+        if (value > maxValue) {
+          const shortfall = value - maxValue;
+          if (maxValue <= 0n || shortfall > NATIVE_CLAMP_MAX_WEI) {
+            throw new Error(
+              `${LOG_PREFIX} insufficient funds: balance ${ethers.formatEther(balance)} cannot cover ${truncatedAmount} + gas ${ethers.formatEther(BigInt(gasLimit) * maxFeePerGas)} (short ${shortfall} wei)`
+            );
+          }
+          cronLogger.warn(
+            `${LOG_PREFIX} value ${truncatedAmount} exceeds sendable ${ethers.formatEther(maxValue)} by ${shortfall} wei — clamping to balance − gas`
+          );
+          value = maxValue;
+        }
+        amountSent = ethers.formatEther(value);
 
         tx = {
           to: params.toAddress,
@@ -386,7 +413,7 @@ export async function directEvmSweep(params: {
         };
 
         cronLogger.info(
-          `${LOG_PREFIX} Native sweep: ${truncatedAmount} → ${params.toAddress}`
+          `${LOG_PREFIX} Native sweep: ${amountSent} → ${params.toAddress}`
         );
       }
 
@@ -431,6 +458,7 @@ export async function directEvmSweep(params: {
         priorityFeeGwei: ethers.formatUnits(maxPriorityFeePerGas, "gwei"),
         baseFeeGwei: ethers.formatUnits(baseFee, "gwei"),
         gasLimit,
+        amountSent,
       };
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);

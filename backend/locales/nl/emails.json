@@ -70,6 +70,23 @@
    "timeToFirstLabel": "Tijd tot eerste betaling",
    "daysValue": "{{days}} dagen na registratie",
    "noEmail": "Geen e-mail opgegeven",
+   "paymentTypeLabel": "Betalingstype",
+   "countryLabel": "Land",
+   "websiteLabel": "Website",
+   "activityLabel": "Activiteit tot nu toe",
+   "activityApi": "{{count}} API-verzoeken",
+   "activityLinks": "{{count}} betaallinks",
+   "activityInvoices": "{{count}} facturen",
+   "activityWebhooks": "{{count}} webhook-leveringen",
+   "types": {
+    "payment_link": "Betaallink",
+    "api": "API",
+    "tip": "Fooi",
+    "product": "Winkel",
+    "contribution": "Donatie",
+    "safedeal": "SafeDeal",
+    "direct": "Direct"
+   },
    "milestone": "Dit is een belangrijke mijlpaal — de handelaar verwerkt nu actief betalingen.",
    "outro": "Je kunt alle transactiedetails bekijken in het beheerdersdashboard."
   },

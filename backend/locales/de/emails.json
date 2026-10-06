@@ -70,6 +70,23 @@
    "timeToFirstLabel": "Zeit bis zur ersten Zahlung",
    "daysValue": "{{days}} Tage nach der Registrierung",
    "noEmail": "Keine E-Mail angegeben",
+   "paymentTypeLabel": "Zahlungstyp",
+   "countryLabel": "Land",
+   "websiteLabel": "Website",
+   "activityLabel": "Bisherige Aktivität",
+   "activityApi": "{{count}} API-Anfragen",
+   "activityLinks": "{{count}} Zahlungslinks",
+   "activityInvoices": "{{count}} Rechnungen",
+   "activityWebhooks": "{{count}} Webhook-Zustellungen",
+   "types": {
+    "payment_link": "Zahlungslink",
+    "api": "API",
+    "tip": "Trinkgeld",
+    "product": "Shop",
+    "contribution": "Spende",
+    "safedeal": "SafeDeal",
+    "direct": "Direkt"
+   },
    "milestone": "Das ist ein wichtiger Meilenstein — der Händler verarbeitet jetzt aktiv Zahlungen.",
    "outro": "Die vollständigen Transaktionsdetails findest du im Admin-Dashboard."
   },

@@ -70,6 +70,23 @@
    "timeToFirstLabel": "Time to First Payment",
    "daysValue": "{{days}} days after registration",
    "noEmail": "No email provided",
+   "paymentTypeLabel": "Payment type",
+   "countryLabel": "Country",
+   "websiteLabel": "Website",
+   "activityLabel": "Activity so far",
+   "activityApi": "{{count}} API requests",
+   "activityLinks": "{{count}} payment links",
+   "activityInvoices": "{{count}} invoices",
+   "activityWebhooks": "{{count}} webhook deliveries",
+   "types": {
+    "payment_link": "Payment link",
+    "api": "API",
+    "tip": "Tip",
+    "product": "Store",
+    "contribution": "Donation",
+    "safedeal": "SafeDeal",
+    "direct": "Direct"
+   },
    "milestone": "This is a key milestone — the merchant is now actively processing payments.",
    "outro": "You can view the full transaction details in the admin dashboard."
   },

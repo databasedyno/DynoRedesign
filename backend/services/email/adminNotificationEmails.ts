@@ -260,6 +260,15 @@ export const sendFirstPaymentAdminEmail = async (data: {
   transaction_id: string;
   registered_at?: string | null;
   days_since_registration?: number | null;
+  country?: string | null;
+  website?: string | null;
+  payment_type?: string | null;
+  activity?: {
+    apiRequests: number;
+    paymentLinks: number;
+    invoices: number;
+    webhookDeliveries: number;
+  } | null;
 }) => {
   try {
     const adminEmail = config.raw("ADMIN_EMAIL");
@@ -273,17 +282,34 @@ export const sendFirstPaymentAdminEmail = async (data: {
 
     const subject = t(ak("firstPayment.subject"), L, { name: merchantName, amount: formatCryptoAmount(data.amount, data.currency), currency: data.currency });
 
+    const paymentTypeLabel = data.payment_type
+      ? t(ak(`firstPayment.types.${data.payment_type}`), L)
+      : t(ak("na"), L);
+    const act = data.activity;
+    const activityValue = act
+      ? [
+          t(ak("firstPayment.activityApi"), L, { count: act.apiRequests }),
+          t(ak("firstPayment.activityLinks"), L, { count: act.paymentLinks }),
+          t(ak("firstPayment.activityInvoices"), L, { count: act.invoices }),
+          t(ak("firstPayment.activityWebhooks"), L, { count: act.webhookDeliveries }),
+        ].join(" · ")
+      : t(ak("na"), L);
+
     const content = `${p(t(ak("firstPayment.intro"), L))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t(ak("firstPayment.merchantLabel"), L), escapeHtml(merchantName))}
         ${dataRow(t(ak("firstPayment.emailLabel"), L), escapeHtml(data.merchant_email || t(ak("na"), L)))}
         ${dataRow(t(ak("firstPayment.companyLabel"), L), escapeHtml(data.company_name || t(ak("na"), L)))}
+        ${dataRow(t(ak("firstPayment.countryLabel"), L), escapeHtml(data.country || t(ak("na"), L)))}
+        ${data.website ? dataRow(t(ak("firstPayment.websiteLabel"), L), escapeHtml(data.website)) : ""}
         ${dataRow(t(ak("firstPayment.userIdLabel"), L), String(data.user_id))}
         ${dataRow(t(ak("firstPayment.amountLabel"), L), `<strong>${formatCryptoAmount(data.amount, data.currency)} ${escapeHtml(data.currency)}</strong>${data.amount_usd ? ` (~$${escapeHtml(data.amount_usd)} USD)` : ''}`)}
         ${dataRow(t(ak("firstPayment.methodLabel"), L), escapeHtml(data.payment_method))}
+        ${dataRow(t(ak("firstPayment.paymentTypeLabel"), L), escapeHtml(paymentTypeLabel))}
         ${dataRow(t(ak("firstPayment.customerLabel"), L), isPlaceholderBuyerEmail(data.customer_email) ? t(ak("firstPayment.noEmail"), L) : escapeHtml(String(data.customer_email)))}
         ${dataRow(t(ak("firstPayment.txLabel"), L), escapeHtml(data.transaction_id))}
+        ${dataRow(t(ak("firstPayment.activityLabel"), L), escapeHtml(activityValue))}
         ${dataRow(t(ak("firstPayment.timeToFirstLabel"), L), daysStr, true)}
       </table>
     `, EMAIL_TOKENS.brand)}

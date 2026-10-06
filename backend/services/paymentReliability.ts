@@ -15,7 +15,7 @@ import { Op } from "sequelize";
 import { raw as envRaw } from "../utils/config";
 import PaymentJournal from "../models/paymentJournalModel";
 import { cronLogger, webhookLogs } from "../utils/loggers";
-import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem } from "../utils/redisInstance";
+import { getRedisItem, setRedisItem, setRedisTTL, deleteRedisItem, releaseLock } from "../utils/redisInstance";
 import { captureError } from "./errorMonitoringService";
 import { getQueueHealth } from "./webhookQueue";
 import { EVM_NATIVE, EVM_TOKEN, parseEvmNative, parseEvmToken } from "./chainTxVerifier";
@@ -387,7 +387,7 @@ export async function checkSettlementIdempotency(
             });
             // Also clear any Redis entries
             await deleteRedisItem(redisKey);
-            await deleteRedisItem(`settlement-claim-${paymentId}`);
+            await releaseSettlementClaim(paymentId);
             // Fall through to allow retry
           } else {
             // TX confirmed on-chain — block as duplicate
@@ -461,7 +461,7 @@ export async function checkSettlementIdempotency(
   // With BullMQ concurrency=5, multiple webhook workers can pass the checks above
   // simultaneously. Use Redis NX (set-if-not-exists) for atomic mutual exclusion.
   const { acquireLock } = require("../utils/redisInstance");
-  const claimed = await acquireLock(`settlement-claim-${paymentId}`, 600, 1, 0, false, true);
+  const claimed = await acquireLock(settlementClaimKey(paymentId), 600, 1, 0, false, true);
   if (!claimed) {
     cronLogger.warn(
       `[SettlementIdempotency] ⏳ Atomic claim failed for ${paymentId} — another worker won the race. Blocking duplicate.`
@@ -470,6 +470,23 @@ export async function checkSettlementIdempotency(
   }
 
   return { alreadySettled: false, existingTxId: null };
+}
+
+/** Lock name passed to acquireLock (which stores it under `lock:<name>`). */
+const settlementClaimKey = (paymentId: string) => `settlement-claim-${paymentId}`;
+
+/**
+ * Release the atomic settlement claim so the very next retry can settle.
+ * Must go through releaseLock: acquireLock stores the claim at `lock:settlement-claim-<id>`,
+ * so a plain deleteRedisItem('settlement-claim-<id>') never touched it and every retry for
+ * the 10-min TTL was rejected as "another worker won the race" (prod 2026-10-06, 19-min delay).
+ */
+export async function releaseSettlementClaim(paymentId: string): Promise<void> {
+  try {
+    await releaseLock(settlementClaimKey(paymentId), true);
+  } catch (err) {
+    cronLogger.warn(`[SettlementIdempotency] Claim release failed for ${paymentId}: ${(err as Error).message}`);
+  }
 }
 
 /** A payout already mined on-chain is the truth — persist it (Redis + journal) so retries stop. */
@@ -547,6 +564,7 @@ export async function markSettlementCompleted(
     completedAt: Date.now(),
   });
   await setRedisTTL(redisKey, 86400 * 7); // 7 days
+  await releaseSettlementClaim(paymentId);
 
   // Journal to PostgreSQL
   try {
@@ -604,10 +622,9 @@ export async function markSettlementFailed(paymentId: string, error: string): Pr
   });
   await setRedisTTL(redisKey, 300); // 5 min — allow retry after cooldown
   
-  // Also release the atomic claim lock so retries can proceed
-  try {
-    await deleteRedisItem(`settlement-claim-${paymentId}`);
-  } catch (_) { /* non-critical */ }
+  // Release the atomic claim so the WebhookProcessor's own retries (2s/4s) can settle
+  // immediately instead of waiting out the 10-min claim TTL + the next reconciliation tick.
+  await releaseSettlementClaim(paymentId);
 }
 
 

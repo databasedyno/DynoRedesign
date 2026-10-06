@@ -1443,8 +1443,10 @@ async function handleNewTransaction(
     // persist it (setRedisItem uses SET which clears the TTL → durable for reconciliation),
     // and do NOT fire the alarming `payment.settlement_failed` webhook for a transient
     // condition (avoids false "not forwarded" alerts to the merchant).
-    if (typeof err.message === "string" && err.message.startsWith("DEFERRED:")) {
-      webhookLogs.warn(`[WebhookProcessor] ⏸️ Settlement DEFERRED (gas) — will auto-retry when gas is available: addr=${address}, tx=${payload.txId}, reason=${err.message}`);
+    // cryptoVerification returns {status:500, message} and the retry loop re-wraps it as
+    // "cryptoVerification error 500: DEFERRED: …" — so match anywhere, not just at the start.
+    if (typeof err.message === "string" && err.message.includes("DEFERRED:")) {
+      webhookLogs.warn(`[WebhookProcessor] ⏸️ Settlement DEFERRED — not a failure, will auto-retry: addr=${address}, tx=${payload.txId}, reason=${err.message}`);
       await setRedisItem(redisKey, {
         ...items, status: "gas_pending", receivedAmount: incomingAmount,
         txId: payload.txId, deferredAt: new Date().toISOString(), lastError: err.message,

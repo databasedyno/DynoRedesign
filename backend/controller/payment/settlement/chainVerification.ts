@@ -891,6 +891,18 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 );
                 
                 // Don't throw — fall through to the normal DB update path below
+              } else if (adminTransferResult.status === 'settlement_in_progress') {
+                // Another worker holds the settlement claim and the funds are still in the pool:
+                // nothing failed — defer. webhookProcessor keeps the session out of `failed`,
+                // withholds payment.settlement_failed and lets BullMQ / reconciliation retry.
+                // (prod 2026-10-06: this path marked the payment failed + sent 2 false
+                // settlement_failed webhooks while the payout simply hadn't happened yet.)
+                cronLogger.warn(
+                  `[cryptoVerification] ⏸️ Settlement for ${pId} is in progress elsewhere (funds still in pool, no payout tx) — deferring, will retry.`
+                );
+                throw new Error(
+                  `DEFERRED: Settlement for payment ${pId} is already in progress by another worker — retry pending.`
+                );
               } else {
                 // Funds still in pool or no outgoing TX found — original failure stands
                 cronLogger.error(
@@ -905,8 +917,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 );
               }
             } catch (recoveryErr: any) {
-              if (recoveryErr.message?.includes('Settlement idempotency returned')) {
-                throw recoveryErr; // Re-throw the intentional error from the else branch above
+              if (recoveryErr.message?.includes('Settlement idempotency returned') || recoveryErr.message?.startsWith('DEFERRED:')) {
+                throw recoveryErr; // Re-throw the intentional errors from the branches above
               }
               cronLogger.error(
                 `[cryptoVerification] ⛔ Auto-recovery check failed: ${recoveryErr.message}. ` +
@@ -1618,6 +1630,10 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // verifyCryptoPayment / PDF receipt so the customer sees the exact figures.
         const merchantAmountFinal = autoConvertEnabled ? originalUserAmount : userAmountToSend;
         const totalFeeFinal = autoConvertEnabled ? sub(adminAmountToSend, originalUserAmount).toNumber() : adminAmountToSend;
+        // Merchant webhook figures: what actually reached their wallet (post network fee).
+        // The pre-gas merchantAmountFinal overstated the payout (prod 2026-10-06: 0.00185436 vs 0.00184136 on-chain).
+        const merchantAmountSettled = autoConvertEnabled ? originalUserAmount : toNumber(actualMerchantAmount, 8);
+        const networkFeeSettled = autoConvertEnabled ? 0 : Math.max(0, toNumber(sub(userAmountToSend, actualMerchantAmount), 8));
         // FIXED: Use soft delete with 30-min TTL to allow checkout polling for status
         // Update status to successful before soft delete
         const settledPayload = {
@@ -1688,7 +1704,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 description: settledCustomerData.description || null,
                 link_id: settledLinkId,
                 fee_payer: tempData?.fee_payer || settledCustomerData.fee_payer || "company",
-                merchant_amount: merchantAmountFinal,
+                merchant_amount: merchantAmountSettled,
+                network_fee_amount: networkFeeSettled,
                 admin_fee_amount: totalFeeFinal,
                 settlement_tx_id: outgoingMerchantTxHash,
                 meta_data: settledMeta,
@@ -1705,7 +1722,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 created_at: new Date().toISOString(),
                 settled_at: new Date().toISOString(),
               } as Record<string, unknown>);
-              cronLogger.info(`[cryptoVerification] payment.settled webhook ${settledResult?.success ? "delivered" : "attempted"} (mode=${settledResult?.mode || "n/a"}) for ${settledPaymentId} — merchant_amount=${merchantAmountFinal}, fee=${totalFeeFinal}, settlement_tx=${outgoingMerchantTxHash || "N/A"}`);
+              cronLogger.info(`[cryptoVerification] payment.settled webhook ${settledResult?.success ? "delivered" : "attempted"} (mode=${settledResult?.mode || "n/a"}) for ${settledPaymentId} — merchant_amount=${merchantAmountSettled} (network fee ${networkFeeSettled}), fee=${totalFeeFinal}, settlement_tx=${outgoingMerchantTxHash || "N/A"}`);
             } catch (settledErr) {
               // A webhook must never break payment processing.
               cronLogger.error(`[cryptoVerification] payment.settled webhook error for ${settledPaymentId}: ${(settledErr as Error).message}`);

@@ -70,6 +70,23 @@
    "timeToFirstLabel": "Tempo até ao primeiro pagamento",
    "daysValue": "{{days}} dias após o registo",
    "noEmail": "Sem e-mail fornecido",
+   "paymentTypeLabel": "Tipo de pagamento",
+   "countryLabel": "País",
+   "websiteLabel": "Site",
+   "activityLabel": "Atividade até agora",
+   "activityApi": "{{count}} pedidos de API",
+   "activityLinks": "{{count}} links de pagamento",
+   "activityInvoices": "{{count}} faturas",
+   "activityWebhooks": "{{count}} entregas de webhook",
+   "types": {
+    "payment_link": "Link de pagamento",
+    "api": "API",
+    "tip": "Gorjeta",
+    "product": "Loja",
+    "contribution": "Doação",
+    "safedeal": "SafeDeal",
+    "direct": "Direto"
+   },
    "milestone": "Este é um marco importante — o comerciante está agora a processar pagamentos ativamente.",
    "outro": "Pode ver todos os detalhes da transação no painel de administração."
   },

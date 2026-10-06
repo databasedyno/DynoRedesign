@@ -7,7 +7,7 @@
 
 import { raw as envRaw } from "../../utils/config";
 import { FeeEstimate, ChainStrategy, IncomingTx } from './chainTypes';
-import { toFixedStr } from "../../utils/money";
+import { div, mul, toFixedStr } from "../../utils/money";
 
 const EVM_CURRENCIES = ['ETH', 'USDT-ERC20', 'USDC-ERC20', 'RLUSD-ERC20', 'BSC'];
 
@@ -63,8 +63,13 @@ export const calculateEvmGasFee = (
   // What the transfer will actually burn = what we deduct from the merchant.
   const burnGasLimit = effectiveGasLimit;
 
+  // Round UP to 8 dp: the quote is subtracted from a full-balance native payout, and the node
+  // checks value + gasLimit × maxFeePerGas ≤ balance in wei. 21000 × 1.221 gwei = 0.000025641 ETH
+  // truncated to 0.00002564 left the TX 1 gwei short → INSUFFICIENT_FUNDS (prod 2026-10-06).
+  const feeStr = (gwei: number) => toFixedStr(div(mul(gwei, burnGasLimit), 1e9), 8, "up");
+
   const result: { fast: string; medium?: string; slow?: string; gasPrice: number; gasLimit: number } = {
-    fast: toFixedStr(Number((bufferedGasPrice * burnGasLimit) / 1e9), 8),
+    fast: feeStr(bufferedGasPrice),
     gasPrice: bufferedGasPrice,
     gasLimit: effectiveGasLimit,
   };
@@ -73,8 +78,8 @@ export const calculateEvmGasFee = (
     // Speed tiers: vary gas price buffer (not gas limit) for native transfers
     const mediumGasPrice = roundGwei(Math.max(minGas, gasPrice + priorityTip * 0.5));
     const slowGasPrice = roundGwei(Math.max(minGas, gasPrice * 0.9));
-    result.medium = toFixedStr(Number((mediumGasPrice * burnGasLimit) / 1e9), 8);
-    result.slow = toFixedStr(Number((slowGasPrice * burnGasLimit) / 1e9), 8);
+    result.medium = feeStr(mediumGasPrice);
+    result.slow = feeStr(slowGasPrice);
   }
 
   return result;

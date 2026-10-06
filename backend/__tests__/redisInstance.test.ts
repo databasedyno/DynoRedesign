@@ -325,6 +325,29 @@ describe('Distributed Locking', () => {
   });
 
   describe('releaseLock', () => {
+    it('settlement-claim regression: deleteRedisItem(<name>) never touches lock:<name>; releaseLock does', async () => {
+      // prod 2026-10-06: the settlement claim was "released" with deleteRedisItem and stayed held for 10 min
+      const store = new Map<string, string>();
+      mockRedisClient.set.mockImplementation(async (k: string, v: string, opts?: { NX?: boolean }) => {
+        if (opts?.NX && store.has(k)) return null;
+        store.set(k, v); return 'OK';
+      });
+      mockRedisClient.del.mockImplementation(async (k: string) => (store.delete(k) ? 1 : 0));
+      mockRedisClient.get.mockImplementation(async (k: string) => store.get(k) ?? null);
+      mockRedisClient.ttl.mockResolvedValue(500);
+      mockRedisClient.eval.mockImplementation(async (_s: string, { keys, arguments: args }: { keys: string[]; arguments: string[] }) =>
+        store.get(keys[0]) === args[0] ? (store.delete(keys[0]), 1) : 0);
+
+      expect(await acquireLock('settlement-claim-p1', 600, 1, 0, false, true)).toBe(true);
+      await deleteRedisItem('settlement-claim-p1');                       // the old, wrong release
+      expect(store.has('lock:settlement-claim-p1')).toBe(true);           // claim still held
+      expect(await acquireLock('settlement-claim-p1', 600, 1, 0, false, true)).toBe(false); // retry blocked
+
+      await releaseLock('settlement-claim-p1', true);                     // the fix
+      expect(store.has('lock:settlement-claim-p1')).toBe(false);
+      expect(await acquireLock('settlement-claim-p1', 600, 1, 0, false, true)).toBe(true);  // retry proceeds
+    });
+
     it('releases owned lock via Lua atomic compare-and-delete', async () => {
       mockRedisClient.set.mockResolvedValueOnce('OK');
       await acquireLock('rel-test', 30);
