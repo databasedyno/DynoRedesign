@@ -2,39 +2,30 @@ import { FC, memo, useEffect } from "react";
 import { HomeWrapper } from "./styled";
 import { LandingMetricsContext, type LandingMetrics } from "./v5/useLandingMetrics";
 
-/* Landing v7 (2026-06 Bybit-style revamp): exactly nine sections, each answering
- * one visitor question. Static imports keep it simple and SSR renders the full
- * HTML for SEO. The old v3/v5/v6 sprawl is retired from the homepage (those
- * components still power other marketing pages like /fees). */
-import HeroV7 from "./v7/HeroV7";
-import CoinsStripV7 from "./v7/CoinsStripV7";
-import TrustBarV7 from "./v7/TrustBarV7";
-import HowItWorksV7 from "./v7/HowItWorksV7";
-import PricingV7 from "./v7/PricingV7";
-import SecurityV7 from "./v7/SecurityV7";
-import ThreeWaysV7 from "./v7/ThreeWaysV7";
-import ProofV7 from "./v7/ProofV7";
-import FAQV7 from "./v7/FAQV7";
-import FinalCTAV7 from "./v7/FinalCTAV7";
-
-/**
- * HomePage v7 — "Operations Console" rebuild (2026-10 Trust & Clarity restructure).
- * Mercury-style: calm, dark-first, LEFT-ALIGNED, almost flat, hairline-separated.
- * Nine content sections, each answering one visitor question:
+/* Landing v8 (2026-10 "Bybit-tier" rebuild): a premium, light-first marketing
+ * homepage punctuated by near-black live data/mockup panels. Rebuilt from
+ * scratch; the old v7 components still power other marketing pages (e.g. /fees).
  *
- *   1. HeroV7        — What is it?             (headline + live checkout panel)
- *   2. TrustBarV7    — Can I trust it?         (3 live metrics + live status)
- *   3. HowItWorksV7  — How does it work?       (3 steps)
- *   4. PricingV7     — What does it cost?      (from 1.5% → /fees)
- *   5. SecurityV7    — Is my money safe?       (non-custodial · KYC/AML · keys · uptime)
- *   6. ThreeWaysV7   — How can I use it?       (No code · Checkout · API)
- *   7. ProofV7       — Do others trust it?     (2 merchant stories)
- *   8. FAQV7         — What if…?               (4 questions + FAQPage JSON-LD)
- *   9. FinalCTAV7    — How do I get started?   (headline + Start free)
+ *   0. PriceTickerV8      — signature live market-price band (under the nav)
+ *   1. HeroV8             — value proposition + layered live checkout panel
+ *   2. StatBandV8         — animated count-up headline metrics (dark)
+ *   3. ProductShowcaseV8  — interactive Accept / Auto-convert / Payouts / Checkout
+ *   4. TrustBandV8        — rating, compliance badges, live supported-assets wall
+ *   5. HowItWorksV8       — animated 3-step flow            (#how-it-works)
+ *   6. AppShowcaseV8      — device + widget mockups, QR + store badges (dark)
+ *   7. FinalCTAV8         — closing conversion moment (dark)
  *
- * CoinsStripV7 is a quiet live supported-assets band under the hero.
- * Anchor ids (#how-it-works, #products, #pricing, #faq) keep header/footer hash links working.
+ * SafeDeal escrow is a separate product and is intentionally excluded.
  */
+import PriceTickerV8 from "./v8/PriceTickerV8";
+import HeroV8 from "./v8/HeroV8";
+import StatBandV8 from "./v8/StatBandV8";
+import ProductShowcaseV8 from "./v8/ProductShowcaseV8";
+import TrustBandV8 from "./v8/TrustBandV8";
+import HowItWorksV8 from "./v8/HowItWorksV8";
+import AppShowcaseV8 from "./v8/AppShowcaseV8";
+import FinalCTAV8 from "./v8/FinalCTAV8";
+
 const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetrics = null }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -55,18 +46,16 @@ const HomePage: FC<{ landingMetrics?: LandingMetrics | null }> = ({ landingMetri
 
   return (
     <LandingMetricsContext.Provider value={landingMetrics}>
-    <HomeWrapper>
-      <HeroV7 />
-      <CoinsStripV7 />
-      <TrustBarV7 />
-      <HowItWorksV7 />
-      <PricingV7 />
-      <SecurityV7 />
-      <ThreeWaysV7 />
-      <ProofV7 />
-      <FAQV7 />
-      <FinalCTAV7 />
-    </HomeWrapper>
+      <HomeWrapper>
+        <PriceTickerV8 />
+        <HeroV8 />
+        <StatBandV8 />
+        <ProductShowcaseV8 />
+        <TrustBandV8 />
+        <HowItWorksV8 />
+        <AppShowcaseV8 />
+        <FinalCTAV8 />
+      </HomeWrapper>
     </LandingMetricsContext.Provider>
   );
 };

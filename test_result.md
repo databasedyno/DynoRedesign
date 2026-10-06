@@ -1,4 +1,276 @@
 # ============================================================================
+# >>> 2026-10-06 — HOMEPAGE "BYBIT-TIER" REDESIGN (Phase 1, frontend-only)
+#     ✅✅✅ VERIFIED BY testing_agent — ALL TESTS PASSED ✅✅✅
+# ============================================================================
+#  WHAT CHANGED: The public homepage (/) was rebuilt from scratch to a premium,
+#  light-first marketing page punctuated by near-black live data/mockup panels.
+#  New code lives in Components/Page/Home/v8/* and is assembled by
+#  Components/Page/Home/index.tsx. The old v7 components are untouched and still
+#  power other marketing pages (e.g. /fees). NO backend changes.
+#
+#  Sections (top -> bottom), each has data-testid:
+#    price-ticker       live crypto price marquee under the nav (GET /api/public/tickers)
+#    hero               value prop + layered live checkout panel + floating cards
+#    stat-band          animated count-up metrics (dark)
+#    product-showcase   interactive tabs: product-tab-accept|convert|payouts|checkout
+#    trust-band         rating + compliance badges + live supported-assets wall
+#    how-it-works       animated 3-step flow (anchor #how-it-works)
+#    app-showcase       phone + widget mockups, QR, store badges (dark)
+#    final-cta          closing CTA (final-primary-cta -> Start free, final-secondary-cta -> /fees)
+#  CTAs: hero-primary-cta / product cta / final-primary-cta all call goStart()
+#  (existing Start-free flow). hero-secondary-cta -> /pay/demo.
+#  SafeDeal escrow is intentionally EXCLUDED from the homepage.
+#
+#  Serving PRODUCTION build (distDir=.next-prod). Preview URL (this pod):
+#  https://7220be15-93bb-4068-92f6-0a20be84ac87.preview.emergentagent.com
+#  Live tickers verified 200 through the ingress.
+#
+# ============================================================================
+# >>> TESTING AGENT VERIFICATION (2026-10-06) — Homepage Redesign ✅✅✅ <<<
+# ============================================================================
+#  Tested by: testing_agent (auto_frontend_testing_agent)
+#  Test date: 2026-10-06
+#  Test method: Python Playwright browser automation (READ-ONLY, public page)
+#  Base URL: https://7220be15-93bb-4068-92f6-0a20be84ac87.preview.emergentagent.com
+#  Environment: PRODUCTION Next.js build (.next-prod), public homepage
+#
+#  CONTEXT: Comprehensive verification of the newly rebuilt DynoPay marketing
+#  homepage — a premium "Bybit-tier" redesign. This is a VISUAL + INTERACTION
+#  verification of the homepage only (frontend-only, no backend changes).
+#
+#  TEST RESULTS: ✅✅✅✅ ALL TESTS PASSED (100%) ✅✅✅✅
+#
+#  ============================================================================
+#  DESKTOP TESTING (1920x1080) — 8/8 SECTIONS PASS ✅
+#  ============================================================================
+#
+#  ✅ SECTION 1: PRICE TICKER
+#     ✓ Price ticker section found and visible
+#     ✓ LIVE label present with green dot animation
+#     ✓ Ticker populated with 24 crypto prices (BTC, ETH, USDT, USDC, SOL, XRP, BNB, etc.)
+#     ✓ Each price shows USD value and 24h % change (green/red)
+#     ✓ Horizontal marquee animation working
+#     ✓ Dark band directly under navigation
+#
+#  ✅ SECTION 2: HERO
+#     ✓ Hero section found and visible
+#     ✓ Headline: "Accept crypto payments. Get paid your way." (with "your way" in gold)
+#     ✓ Subheading and body copy present
+#     ✓ Primary CTA "Start free" button found (data-testid: hero-primary-cta)
+#     ✓ Secondary CTA "See how it works" button found (data-testid: hero-secondary-cta)
+#     ✓ Trust row: All 3 items present (No credit card / Non-custodial / First payment free)
+#     ✓ Checkout card mockup visible (data-testid: checkout-card)
+#       - Shows $79.00 amount
+#       - Shows Network (Polygon) and Asset (USDC)
+#       - QR code section visible
+#       - Status stepper visible (Waiting / Detected / Confirmed)
+#     ✓ Floating confirmation card visible: "Payment confirmed +$79.00 settled"
+#     ✓ Floating auto-convert card visible: BTC → USDC with "Auto-convert" label
+#     ✓ Dark checkout panel on layered plinth with gold glow
+#     ✓ No clipping or awkward overflow
+#
+#  ✅ SECTION 3: STAT BAND
+#     ✓ Stat band section found and visible (dark band)
+#     ✓ All 4 metrics visible and populated:
+#       - Payments settled this month: 1,015
+#       - Countries served: 120+
+#       - Crypto assets supported: 40+
+#       - Uptime over 90 days: 99.94%
+#     ✓ Animated count-up working (numbers visible)
+#     ✓ "Live platform figures · updated continuously" note visible
+#
+#  ✅ SECTION 4: PRODUCT SHOWCASE (CRITICAL - INTERACTIVE TABS)
+#     ✓ Product showcase section found and visible
+#     ✓✓✓ ALL 4 TABS SWITCH CORRECTLY:
+#       - Accept payments tab (product-tab-accept): ✓ Active, visual panel shows coin grid
+#       - Auto-convert tab (product-tab-convert): ✓ Active, visual panel shows BTC→USDC conversion
+#       - Payouts tab (product-tab-payouts): ✓ Active, visual panel shows batch payout list
+#       - Checkout tab (product-tab-checkout): ✓ Active, visual panel shows payment link + button
+#     ✓ Tab switching updates aria-pressed attribute correctly
+#     ✓ Visual panel on right changes content to match active tab
+#     ✓ Tab descriptions expand when active
+#     ✓ Dark visual panel with gold glow
+#     ✓ Progress dots at bottom update correctly
+#
+#  ✅ SECTION 5: TRUST BAND
+#     ✓ Trust band section found and visible
+#     ✓ Heading: "Built for trust from day one"
+#     ✓ 4 metric cards visible:
+#       - 4.9/5 merchant rating with 5 stars
+#       - 40+ assets supported
+#       - 8 chains live
+#       - <2min median settle time
+#     ✓ Compliance badges row visible (5 badges):
+#       - Non-custodial — you hold the keys
+#       - KYC / AML compliant
+#       - 256-bit encryption
+#       - Zero chargebacks
+#       - GDPR ready
+#     ✓ Live supported-assets wall: Horizontal scrolling row of crypto coin logos with names
+#     ✓ Coins visible: Bitcoin, Ethereum, USDT, USDC, Solana, XRP, BNB, Litecoin, etc.
+#
+#  ✅ SECTION 6: HOW IT WORKS
+#     ✓ How it works section found and visible
+#     ✓ 3-step flow visible with numbered circular icons (1, 2, 3)
+#     ✓ Step 1: "Create a link or connect"
+#     ✓ Step 2: "Your customer pays"
+#     ✓ Step 3: "You get paid your way"
+#     ✓ Gold connector line animation (desktop)
+#     ✓ "Read the integration docs" link visible
+#
+#  ✅ SECTION 7: APP SHOWCASE
+#     ✓ App showcase section found and visible (dark section)
+#     ✓ Heading: "Your crypto payments, in your pocket"
+#     ✓ Phone mockup visible showing:
+#       - Available balance: $12,480
+#       - Recent payments list
+#       - Action buttons (Request, Payout, Convert)
+#     ✓ App Store badge visible
+#     ✓ Google Play badge visible
+#     ✓ QR code visible with "Scan to get started" text
+#     ✓ Floating "Embeddable widget" card visible with "Pay with crypto" button
+#
+#  ✅ SECTION 8: FINAL CTA
+#     ✓ Final CTA section found and visible (dark section)
+#     ✓ Heading: "Start accepting crypto today." (with "today." in gold)
+#     ✓ Primary CTA "Start free" button found (data-testid: final-primary-cta)
+#     ✓ Secondary CTA "See pricing" link found (data-testid: final-secondary-cta)
+#     ✓ Trust items visible: No setup fees / No lock-in / Cancel anytime
+#     ✓ Badge: "Live in minutes · no credit card"
+#
+#  ============================================================================
+#  INTERACTION TESTS (DESKTOP) — 2/2 PASS ✅
+#  ============================================================================
+#
+#  ✅ TEST 1: Hero "Start free" button (hero-primary-cta)
+#     ✓ Button clickable
+#     ✓ Navigates to: /auth/register?ref=hero (auth/signup route)
+#     ✓ Not a 404
+#     ✓ Successfully navigated back to homepage
+#
+#  ✅ TEST 2: Final "See pricing" link (final-secondary-cta)
+#     ✓ Link clickable
+#     ✓✓✓ Navigates to: /fees (pricing/fees page)
+#     ✓ Not a 404
+#     ✓ Correct destination
+#
+#  ============================================================================
+#  MOBILE TESTING (390x844) — 8/8 SECTIONS PASS ✅
+#  ============================================================================
+#
+#  ✅ ALL 8 SECTIONS VISIBLE ON MOBILE:
+#     ✓ Price Ticker: Found and visible
+#     ✓ Hero: Found and visible
+#     ✓ Stat Band: Found and visible
+#     ✓ Product Showcase: Found and visible
+#     ✓ Trust Band: Found and visible
+#     ✓ How It Works: Found and visible
+#     ✓ App Showcase: Found and visible
+#     ✓ Final CTA: Found and visible
+#
+#  ✅ MOBILE: PRODUCT SHOWCASE TAB SWITCHING
+#     ✓ Convert tab: Clickable and becomes active (aria-pressed=true)
+#     ✓ Payouts tab: Clickable and becomes active (aria-pressed=true)
+#     ✓ Tab switching works correctly on mobile
+#
+#  ✅ MOBILE: RESPONSIVE LAYOUT
+#     ✓ No horizontal overflow detected
+#     ✓ All sections fit within 390px viewport
+#     ✓ Content readable and accessible
+#     ✓ CTAs visible and accessible
+#
+#  ============================================================================
+#  QUALITY CHECKS — ALL PASS ✅
+#  ============================================================================
+#
+#  ✅ DESKTOP CHECKS:
+#     ✓ No horizontal overflow (scrollWidth = clientWidth)
+#     ✓ No console errors detected
+#     ✓ No page errors detected
+#     ✓ All images loaded correctly
+#     ✓ No broken icons
+#     ✓ No unreadable contrast issues
+#
+#  ✅ MOBILE CHECKS:
+#     ✓ No horizontal overflow (scrollWidth = clientWidth)
+#     ✓ No console errors detected
+#     ✓ No page errors detected
+#     ✓ Responsive layout working correctly
+#
+#  ============================================================================
+#  SCREENSHOTS CAPTURED
+#  ============================================================================
+#
+#  Desktop (1920x1080):
+#    - desktop-hero-full.png (Hero with checkout card + floating cards)
+#    - desktop-stat-band-full.png (4 metrics band)
+#    - desktop-product-tabs.png (Product showcase with tabs)
+#    - desktop-final-cta-full.png (Final CTA section)
+#
+#  Mobile (390x844):
+#    - mobile-hero.png (Hero section)
+#    - mobile-stat-band.png (Stat band)
+#    - mobile-product-showcase.png (Product tabs)
+#    - mobile-trust-band.png (Trust band)
+#    - mobile-final-cta.png (Final CTA)
+#
+#  ============================================================================
+#  VERDICT: ✅✅✅ HOMEPAGE REDESIGN VERIFIED — PRODUCTION READY ✅✅✅
+#  ============================================================================
+#
+#  The newly rebuilt DynoPay marketing homepage has been SUCCESSFULLY VERIFIED:
+#
+#  ✅ ALL 8 SECTIONS WORKING:
+#     1. Price ticker: Live crypto prices with marquee animation ✓
+#     2. Hero: Value prop + checkout mockup + floating cards ✓
+#     3. Stat band: 4 animated metrics (1,015 payments, 120+ countries, 40+ assets, 99.94% uptime) ✓
+#     4. Product showcase: Interactive 4-tab system (Accept/Convert/Payouts/Checkout) ✓
+#     5. Trust band: Rating + compliance badges + crypto coin wall ✓
+#     6. How it works: 3-step flow with animations ✓
+#     7. App showcase: Phone mockup + store badges + QR + widget card ✓
+#     8. Final CTA: Closing conversion moment ✓
+#
+#  ✅ CRITICAL FEATURE VERIFIED:
+#     Product showcase tab switching works perfectly on all 4 tabs (Accept, Convert,
+#     Payouts, Checkout). Clicking each tab updates the visual panel on the right
+#     with the correct content. This is the key interactive element of the homepage.
+#
+#  ✅ CTA NAVIGATION VERIFIED:
+#     - Hero "Start free" → /auth/register?ref=hero (correct)
+#     - Final "See pricing" → /fees (correct)
+#     - No 404 errors
+#
+#  ✅ RESPONSIVE DESIGN VERIFIED:
+#     - Desktop (1920x1080): All sections visible, no overflow ✓
+#     - Mobile (390x844): All sections visible, no overflow ✓
+#     - Tab switching works on both viewports ✓
+#
+#  ✅ VISUAL QUALITY VERIFIED:
+#     - Light-themed page with dark data/mockup panels ✓
+#     - Gold accent color ("your way", "today.") ✓
+#     - Checkout card mockup with QR code, Network/Asset, status stepper ✓
+#     - Floating cards (confirmation + auto-convert) ✓
+#     - No clipping, no broken images, no unreadable contrast ✓
+#
+#  ✅ NO ISSUES FOUND:
+#     - Zero console errors
+#     - Zero page errors
+#     - Zero horizontal overflow
+#     - Zero broken images or icons
+#     - All interactive elements working
+#
+#  The implementation matches the specification exactly. The homepage is a premium,
+#  "Bybit-tier" marketing page with live data, interactive tabs, and polished
+#  animations. All sections render correctly on both desktop and mobile viewports.
+#
+#  NEXT STEPS:
+#  - Deploy to production (the homepage is verified and ready)
+#  - Monitor user engagement metrics
+#  - Consider A/B testing different CTA copy or layouts
+# ============================================================================
+
+
+# ============================================================================
 # >>> 2026-10-06 (fork, pod 33379795) — SAFEDEAL FETCH-LOOP FIX + DEPLOY HA +
 #     TESTING-AGENT 429 GUIDANCE
 # ============================================================================
