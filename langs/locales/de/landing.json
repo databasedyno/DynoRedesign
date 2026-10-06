@@ -1321,6 +1321,10 @@
       "note": "Dynopay hält nie Kunden- oder Händlergelder: Jede Zahlung wird on-chain an die eigene Auszahlungsadresse des Händlers weitergeleitet."
     }
   },
+  "blogBackToBlog": "Zurück zum Blog",
+  "blogShare": "Teilen",
+  "blogCtaBadge": "In Minuten startklar · keine Kreditkarte",
+  "blogOnThisPage": "Auf dieser Seite",
   "blogIndex": {
     "metaTitle": "Krypto-Zahlungen Blog — Gebühren, Abrechnung & Integrationen · Dynopay",
     "metaDescription": "Leitfäden und Strategien für Verkauf, Trinkgelder und Spenden in Krypto — Gebühren senken, in Stablecoins abrechnen und mit Kryptozahlungen wachsen.",

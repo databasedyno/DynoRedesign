@@ -1,4 +1,11 @@
 {
+  "metaTitle": "System Status · Dynopay",
+  "statusHeroLead": "Dynopay",
+  "statusHeroAccent": "System Status",
+  "statusCtaBadge": "99.9% uptime SLA",
+  "statusCtaTitle": "Payment rails you can trust",
+  "statusCtaBody": "Accept crypto on infrastructure built for uptime — non-custodial and monitored around the clock.",
+  "statusCtaPrimary": "Start free",
   "allSystemsOperational": "All Systems Operational",
   "dynoPayStatus": "Dynopay Status",
   "statusSubtitle": "Current status of all Dynopay services",

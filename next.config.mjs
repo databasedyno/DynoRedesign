@@ -133,6 +133,17 @@ const nextConfig = {
     return { beforeFiles, afterFiles };
   },
 
+  // ─── 301: blog slug renamed for SEO (title/URL parity: title ends "in 2026") ───
+  async redirects() {
+    return [
+      {
+        source: "/blog/how-to-accept-crypto-payments-on-your-website",
+        destination: "/blog/how-to-accept-crypto-payments-on-your-website-in-2026",
+        permanent: true,
+      },
+    ];
+  },
+
 
   // ─── Opt-in to the User Preference Media-Features Client Hint so the
   //     browser sends `Sec-CH-Prefers-Color-Scheme` on every request. This

@@ -1,4 +1,11 @@
 {
+  "metaTitle": "Systemstatus · Dynopay",
+  "statusHeroLead": "Dynopay",
+  "statusHeroAccent": "Systemstatus",
+  "statusCtaBadge": "99,9 % Verfügbarkeits-SLA",
+  "statusCtaTitle": "Zahlungsinfrastruktur, der Sie vertrauen können",
+  "statusCtaBody": "Akzeptieren Sie Krypto auf einer Infrastruktur, die auf Verfügbarkeit ausgelegt ist – nicht-verwahrend und rund um die Uhr überwacht.",
+  "statusCtaPrimary": "Kostenlos starten",
   "allSystemsOperational": "Alle Systeme betriebsbereit",
   "dynoPayStatus": "Dynopay-Status",
   "statusSubtitle": "Aktueller Status aller Dynopay-Dienste",

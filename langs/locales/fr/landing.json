@@ -1321,6 +1321,10 @@
       "note": "Dynopay ne détient jamais les fonds des clients ni des marchands : chaque paiement est transféré on-chain vers l'adresse de versement du marchand."
     }
   },
+  "blogBackToBlog": "Retour au blog",
+  "blogShare": "Partager",
+  "blogCtaBadge": "Opérationnel en quelques minutes · sans carte bancaire",
+  "blogOnThisPage": "Sur cette page",
   "blogIndex": {
     "metaTitle": "Blog paiements crypto — frais, règlement & intégrations · Dynopay",
     "metaDescription": "Guides et stratégies pour vendre, recevoir des pourboires et collecter des fonds en crypto — réduisez les frais, réglez en stablecoins et développez-vous avec les paiements en cryptomonnaies.",

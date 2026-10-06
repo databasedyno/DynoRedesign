@@ -1,4 +1,11 @@
 {
+  "metaTitle": "Estado del sistema · Dynopay",
+  "statusHeroLead": "Dynopay",
+  "statusHeroAccent": "Estado del sistema",
+  "statusCtaBadge": "SLA de disponibilidad del 99,9 %",
+  "statusCtaTitle": "Infraestructura de pagos en la que puedes confiar",
+  "statusCtaBody": "Acepta cripto sobre una infraestructura diseñada para la disponibilidad: no custodial y monitoreada las 24 horas.",
+  "statusCtaPrimary": "Empezar gratis",
   "allSystemsOperational": "Todos los Sistemas Operativos",
   "dynoPayStatus": "Estado de Dynopay",
   "statusSubtitle": "Estado actual de todos los servicios de Dynopay",

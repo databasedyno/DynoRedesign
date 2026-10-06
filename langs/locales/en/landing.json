@@ -1321,6 +1321,10 @@
       "note": "Dynopay never holds customer or merchant funds: every payment is forwarded on-chain to the merchant's own payout address."
     }
   },
+  "blogBackToBlog": "Back to blog",
+  "blogShare": "Share",
+  "blogCtaBadge": "Live in minutes · no credit card",
+  "blogOnThisPage": "On this page",
   "blogIndex": {
     "metaTitle": "Crypto payments blog — fees, settlement & integrations · Dynopay",
     "metaDescription": "Guides and strategies for selling, tipping, and fundraising in crypto — reduce fees, settle to stablecoins, and grow with cryptocurrency payments.",

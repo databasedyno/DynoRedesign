@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Box, Typography, Divider, IconButton, Tooltip } from "@mui/material";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { formatDateI18n } from "@/utils/formatDate";
 import CodeCopyButton from "@/Components/UI/CodeCopyButton";
 import CtaBandV8 from "@/Components/Page/Home/v8/CtaBandV8";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { FONT_BODY, FONT_DISPLAY, FONT_MONO, useConsole } from "@/Components/Page/Home/v8/kit";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -23,12 +24,58 @@ interface BlogPostPageProps {
   slug: string;
 }
 
+const GOLD = "#FFD100";
+
+const slugify = (txt: string) =>
+  txt.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+// Table of contents from the article's `## ` headings (skips code fences and `###`).
+const buildToc = (content: string): { id: string; text: string }[] => {
+  const out: { id: string; text: string }[] = [];
+  let inCode = false;
+  for (const line of content.split("\n")) {
+    if (line.trim().startsWith("```")) {
+      inCode = !inCode;
+      continue;
+    }
+    if (inCode) continue;
+    const m = line.match(/^##\s+(.+)/);
+    if (m && !line.startsWith("###")) {
+      const text = m[1].trim();
+      out.push({ id: slugify(text), text });
+    }
+  }
+  return out;
+};
+
 const BlogPostPage = ({ slug }: BlogPostPageProps) => {
   const { t } = useTranslation("landing");
   const router = useRouter();
   const isMobile = useIsMobile("md");
   const s = useConsole();
   const post = getBlogPost(slug);
+  const articleRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: articleRef, offset: ["start start", "end end"] });
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.3 });
+  const toc = useMemo(() => buildToc(post?.content || ""), [post]);
+  const [activeId, setActiveId] = useState("");
+
+  useEffect(() => {
+    if (toc.length < 2) return;
+    const els = toc.map((h) => document.getElementById(h.id)).filter(Boolean) as HTMLElement[];
+    if (!els.length) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const vis = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (vis[0]) setActiveId(vis[0].target.id);
+      },
+      { rootMargin: "-88px 0px -70% 0px", threshold: 0 },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, [toc]);
 
   if (!post) {
     return (
@@ -219,9 +266,10 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       if (line.trim() === "") continue;
 
       if (line.startsWith("## ")) {
+        const h2text = line.replace("## ", "");
         elements.push(
-          <Typography key={`h2-${i}`} component="h2" sx={{ mt: 5, mb: 2, fontFamily: FONT_DISPLAY, fontWeight: 700, color: s.ink, fontSize: { xs: 22, md: 28 }, lineHeight: 1.2, letterSpacing: "-0.02em", borderLeft: `3px solid ${s.accent}`, pl: 2 }}>
-            {line.replace("## ", "")}
+          <Typography key={`h2-${i}`} id={slugify(h2text)} component="h2" sx={{ mt: 5, mb: 2, scrollMarginTop: "96px", fontFamily: FONT_DISPLAY, fontWeight: 700, color: s.ink, fontSize: { xs: 22, md: 28 }, lineHeight: 1.2, letterSpacing: "-0.02em", borderLeft: `3px solid ${s.accent}`, pl: 2 }}>
+            {h2text}
           </Typography>,
         );
         continue;
@@ -305,7 +353,13 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
       </Head>
 
       <Box data-testid="blog-article-page" sx={{ background: s.canvas }}>
-        <Box sx={{ pt: isMobile ? 6 : 9, pb: isMobile ? 6 : 10, px: isMobile ? 2 : 4, width: "100%", maxWidth: 820, mx: "auto" }}>
+        <motion.div
+          data-testid="blog-reading-progress"
+          style={{ position: "fixed", top: 0, left: 0, right: 0, height: 3, background: GOLD, transformOrigin: "0%", scaleX, zIndex: 1300 }}
+        />
+        <Box sx={{ width: "100%", maxWidth: 1120, mx: "auto", px: { xs: 2, md: 4 }, pt: { xs: 6, md: 9 }, pb: { xs: 6, md: 10 } }}>
+          <Box ref={articleRef} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0,1fr) 248px" }, columnGap: { lg: 7 }, alignItems: "start" }}>
+            <Box sx={{ minWidth: 0, maxWidth: { lg: 760 } }}>
           <Box
             component="a"
             onClick={() => router.push("/blog")}
@@ -357,11 +411,52 @@ const BlogPostPage = ({ slug }: BlogPostPageProps) => {
           <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
             <ShareButtons />
           </Box>
+            </Box>
+
+            {toc.length > 1 && (
+              <Box
+                component="nav"
+                aria-label="Table of contents"
+                data-testid="blog-toc"
+                sx={{ display: { xs: "none", lg: "block" }, position: "sticky", top: 104, alignSelf: "start", maxHeight: "calc(100vh - 140px)", overflowY: "auto", pl: 3, borderLeft: `1px solid ${s.line}` }}
+              >
+                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: s.ink3, mb: 2 }}>
+                  {t("blogOnThisPage", { defaultValue: "On this page" })}
+                </Typography>
+                <Box component="ul" sx={{ listStyle: "none", m: 0, p: 0, display: "flex", flexDirection: "column", gap: 0.25 }}>
+                  {toc.map((h) => {
+                    const active = activeId === h.id;
+                    return (
+                      <Box component="li" key={h.id}>
+                        <Box
+                          component="a"
+                          href={`#${h.id}`}
+                          data-testid={`blog-toc-link-${h.id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const el = document.getElementById(h.id);
+                            if (el) {
+                              const reduce = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                              el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+                              setActiveId(h.id);
+                            }
+                          }}
+                          sx={{ display: "block", py: 0.6, pl: 1.5, ml: "-1px", fontFamily: FONT_BODY, fontSize: 13, lineHeight: 1.4, cursor: "pointer", color: active ? s.ink : s.ink3, fontWeight: active ? 600 : 400, borderLeft: `2px solid ${active ? s.accent : "transparent"}`, transition: "color 160ms ease, border-color 160ms ease", "&:hover": { color: s.ink } }}
+                        >
+                          {h.text}
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              </Box>
+            )}
+          </Box>
         </Box>
 
         <CtaBandV8
           testId="blog-article-cta"
-          badge={t("v8.final.badge", { defaultValue: "Live in minutes · no credit card" })}
+          badge={t("blogCtaBadge")}
           title={t("blogReadyCta", { defaultValue: "Ready to accept crypto?" })}
           body={t("blogReadyCtaBody", { defaultValue: "Start accepting crypto payments today — non-custodial, zero chargebacks, and your first payment on us." })}
           primaryLabel={t("v3.hero.primaryCta", { defaultValue: "Start free" })}

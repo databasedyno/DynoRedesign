@@ -1321,6 +1321,10 @@
       "note": "Dynopay nunca retiene fondos de clientes ni de comercios: cada pago se reenvía on-chain a la dirección de cobro del propio comercio."
     }
   },
+  "blogBackToBlog": "Volver al blog",
+  "blogShare": "Compartir",
+  "blogCtaBadge": "Activo en minutos · sin tarjeta de crédito",
+  "blogOnThisPage": "En esta página",
   "blogIndex": {
     "metaTitle": "Blog de pagos cripto — comisiones, liquidación e integraciones · Dynopay",
     "metaDescription": "Guías y estrategias para vender, recibir propinas y recaudar fondos en cripto — reduce comisiones, liquida en stablecoins y crece con los pagos en criptomonedas.",

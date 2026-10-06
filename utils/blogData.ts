@@ -15,7 +15,7 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
-    slug: "how-to-accept-crypto-payments-on-your-website",
+    slug: "how-to-accept-crypto-payments-on-your-website-in-2026",
     title: "How to Accept Crypto Payments on Your Website in 2026",
     excerpt:
       "A step-by-step guide to integrating cryptocurrency payments into your e-commerce store or SaaS product — no blockchain expertise required.",

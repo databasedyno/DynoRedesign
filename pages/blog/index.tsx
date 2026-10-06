@@ -220,7 +220,7 @@ const BlogPage = () => {
 
       <CtaBandV8
         testId="blog-final-cta"
-        badge={t("v8.final.badge", { defaultValue: "Live in minutes · no credit card" })}
+        badge={t("blogCtaBadge")}
         title={t("blogReadyCta", { defaultValue: "Ready to accept crypto?" })}
         body={t("blogReadyCtaBody", { defaultValue: "Start accepting crypto payments today — non-custodial, zero chargebacks, and your first payment on us." })}
         primaryLabel={t("v3.hero.primaryCta", { defaultValue: "Start free" })}

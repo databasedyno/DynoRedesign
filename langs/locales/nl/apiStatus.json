@@ -1,4 +1,11 @@
 {
+  "metaTitle": "Systeemstatus · Dynopay",
+  "statusHeroLead": "Dynopay",
+  "statusHeroAccent": "Systeemstatus",
+  "statusCtaBadge": "99,9% uptime-SLA",
+  "statusCtaTitle": "Betaalinfrastructuur die je kunt vertrouwen",
+  "statusCtaBody": "Accepteer crypto op infrastructuur die is gebouwd voor uptime — niet-custodiaal en 24/7 bewaakt.",
+  "statusCtaPrimary": "Gratis starten",
   "allSystemsOperational": "Alle systemen operationeel",
   "dynoPayStatus": "Dynopay-status",
   "statusSubtitle": "Huidige status van alle Dynopay-diensten",

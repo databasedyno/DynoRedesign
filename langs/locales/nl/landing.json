@@ -1321,6 +1321,10 @@
       "note": "Dynopay bewaart nooit geld van klanten of verkopers: elke betaling wordt on-chain doorgestuurd naar het eigen uitbetalingsadres van de verkoper."
     }
   },
+  "blogBackToBlog": "Terug naar blog",
+  "blogShare": "Delen",
+  "blogCtaBadge": "In enkele minuten live · geen creditcard",
+  "blogOnThisPage": "Op deze pagina",
   "blogIndex": {
     "metaTitle": "Cryptobetalingen blog — kosten, afwikkeling & integraties · Dynopay",
     "metaDescription": "Gidsen en strategieën voor verkopen, fooien en inzamelen in crypto — verlaag kosten, reken af in stablecoins en groei met cryptobetalingen.",
