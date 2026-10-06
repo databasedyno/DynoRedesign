@@ -8,11 +8,11 @@
   },
   "verification_details": {
     "landing_page": {
-      "url": "https://33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com/",
+      "url": "https://secure-passphrase-15.preview.emergentagent.com/",
       "title": "Accept Crypto Payments — Get Paid Your Way · Dynopay",
       "ticker_symbols_found": ["USDT","USDC","BTC","ETH","LTC","DOGE","SOL","XRP","BCH","BNB"],
       "ticker_api_calls": [
-        "https://33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com/api/public/tickers (x4, same-origin)"
+        "https://secure-passphrase-15.preview.emergentagent.com/api/public/tickers (x4, same-origin)"
       ],
       "console_errors": 0,
       "stale_host_references_console": 0,
@@ -39,5 +39,5 @@
   "seed_data_creation": "None (SAFE MODE respected, no writes).",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Current pod preview URL = https://33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com (NOTE: /app/memory/test_credentials.md still mentions the old secure-passphrase-13 host as 'current' — stale documentation, actual env was repointed). Ticker fetch is now same-origin via /api/public/tickers and succeeds. Rebuilt .next-prod is live; auth/app shell intact."
+  "context_for_next_testing_agent": "Current pod preview URL = https://secure-passphrase-15.preview.emergentagent.com (NOTE: /app/memory/test_credentials.md still mentions the old secure-passphrase-13 host as 'current' — stale documentation, actual env was repointed). Ticker fetch is now same-origin via /api/public/tickers and succeeds. Rebuilt .next-prod is live; auth/app shell intact."
 }

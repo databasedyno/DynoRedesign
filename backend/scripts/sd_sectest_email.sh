@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # E2E test of the SafeDeal email-change security fix (step-up + session kill + 24h hold).
 set -u
-HOST="https://secure-passphrase-13.preview.emergentagent.com"
+HOST="https://secure-passphrase-15.preview.emergentagent.com"
 API="$HOST/api/safedeal"
 R=$RANDOM$RANDOM
 EMAIL="sd-sectest-$R@example.com"
