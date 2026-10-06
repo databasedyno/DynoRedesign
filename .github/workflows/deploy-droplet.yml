@@ -129,7 +129,7 @@ jobs:
             if [ -n "$SAFEDEAL_WEBHOOK_SECRET" ] && ! grep -q '^SAFEDEAL_WEBHOOK_SECRET=' .env; then echo "SAFEDEAL_WEBHOOK_SECRET=$SAFEDEAL_WEBHOOK_SECRET" >> .env; fi
             if ! grep -q 'safedeal.sh' /etc/caddy/Caddyfile; then
               cp /etc/caddy/Caddyfile /etc/caddy/Caddyfile.bak.$(date +%s)
-              printf '\nwww.safedeal.sh {\n\tredir https://safedeal.sh{uri} permanent\n}\n\nsafedeal.sh {\n\tencode gzip zstd\n\treverse_proxy 127.0.0.1:8001\n}\n' >> /etc/caddy/Caddyfile
+              printf '\nwww.safedeal.sh {\n\tredir https://safedeal.sh{uri} permanent\n}\n\nsafedeal.sh {\n\tencode gzip zstd\n\treverse_proxy 127.0.0.1:8001 127.0.0.1:8002 {\n\t\tlb_policy first\n\t\tlb_try_duration 5s\n\t\thealth_uri /health\n\t\thealth_interval 3s\n\t\thealth_timeout 2s\n\t\thealth_status 2xx\n\t\ttransport http {\n\t\t\tkeepalive 30s\n\t\t\tdial_timeout 2s\n\t\t}\n\t}\n}\n' >> /etc/caddy/Caddyfile
               caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
             fi
             echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin
@@ -171,6 +171,9 @@ jobs:
                   ENABLE_BACKGROUND_JOBS: "false"
                   WORKER_ROLE: secondary
                   INDEXNOW_DISABLED: "true"
+                volumes:
+                  - ./uploads:/app/uploads
+                  - ./logs:/app/backend/logs
                 ports:
                   - "127.0.0.1:8002:8001"
                 restart: "no"
@@ -192,8 +195,12 @@ jobs:
               docker compose ps
               exit 1
             fi
-            canary down --remove-orphans >/dev/null 2>&1 || true
-            rm -f docker-compose.canary.yml
+
+            # Canary STAYS UP on :8002 through the swap. Caddy (lb_policy first +
+            # active /health checks + lb_try_duration/dial_timeout) fails traffic
+            # over to the canary while the live :8001 container is recreated, then
+            # routes back to :8001 the moment it is healthy again — zero-downtime.
+            # The canary is only torn down after :8001 is confirmed healthy below.
 
             # ── 2. SWAP ───────────────────────────────────────────────────────────
             # Pin the immutable commit SHA (NOT the mutable :latest) so Compose sees a
@@ -218,9 +225,17 @@ jobs:
                 if curl -sf -m 5 -o /dev/null http://127.0.0.1:8001/health; then echo "rollback healthy after $((i*5))s"; break; fi
                 sleep 5
               done
+              canary down --remove-orphans >/dev/null 2>&1 || true
+              rm -f docker-compose.canary.yml
               docker compose ps
               exit 1
             fi
+
+            # Swap succeeded: live :8001 is healthy on the new image → retire the
+            # canary so Caddy's active health check drops :8002 out of rotation and
+            # all traffic serves from :8001 again.
+            canary down --remove-orphans >/dev/null 2>&1 || true
+            rm -f docker-compose.canary.yml
 
             # Keep exactly the new + previous image (instant rollback); drop older tags.
             docker images --format '{{.Repository}}:{{.Tag}}' | grep '^ghcr.io/databasedyno/dynopay:' \

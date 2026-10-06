@@ -1,4 +1,64 @@
 # ============================================================================
+# >>> 2026-10-06 (fork, pod 33379795) — SAFEDEAL FETCH-LOOP FIX + DEPLOY HA +
+#     TESTING-AGENT 429 GUIDANCE
+# ============================================================================
+#  Preview URL (THIS pod) = https://33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com
+#  Frontend = PRODUCTION Next build (distDir=.next-prod, NO hot reload). After FE
+#  edits: cd /app && NEXT_DIST_DIR=.next-prod-new node_modules/.bin/next build then
+#  rm -rf .next-prod-old && mv .next-prod .next-prod-old && mv .next-prod-new .next-prod
+#  && sudo supervisorctl restart frontend.
+#
+#  ---- TESTING-AGENT 429 GUIDANCE (IMPORTANT — READ BEFORE ANY UI RUN) ----------
+#  The 429s seen during agent testing come from the Emergent PREVIEW-DOMAIN
+#  CLOUDFLARE edge (headers: server: cloudflare, cf-ray, cf-cache-status), NOT the
+#  app backend and NOT production (prod shows server: nginx + via: 1.1 Caddy and no
+#  app-level 429 for this). DO NOT change the backend/app rate limiter for this.
+#  Instead, every testing-agent brief MUST:
+#    • navigate with >= 2.5 SECONDS between navigations,
+#    • reuse ONE browser context for the whole run (don't spin up many contexts),
+#    • avoid concurrent/bursty navigation or parallel chunk prefetch storms.
+#  Preview behaviour != production behaviour (different edge + stack).
+#
+#  ---- FIX #1: SafeDeal dashboard "Network error" — RUNAWAY FETCH LOOP (FIXED) ---
+#  SYMPTOM (production): one browser tab/IP hammered SafeDeal APIs (~75 req/s,
+#  ~4,500/min) → user saw a "Network error" on the SafeDeal dashboard; also added
+#  edge/app pressure. ROOT CAUSE: hooks/useToast.ts returned a FRESH showToast each
+#  render. In Components/SafeDeal/Home/SafeDealHome.tsx that cascaded:
+#    showToast (new) -> notify useCallback (new) -> load useCallback (new) ->
+#    useEffect([ready, load]) re-fires -> load() -> setState -> re-render -> repeat.
+#  Regressed in 14acb05fb (UX Polish Batch A/B) when notify deps went []→[showToast]
+#  while showToast stayed unstable.
+#  FIX (frontend, 1 file): hooks/useToast.ts now wraps showToast + hideToast in
+#  useCallback([dispatch]) (react-redux dispatch is stable) → stable identities →
+#  notify/load stable → effect runs ONCE. Helps all 14 useToast consumers.
+#  VERIFIED (preview, mocked SafeDeal endpoints + injected sd_token, /safedeal/deals):
+#    wallet/statement/deals hit 2× on initial load, then ZERO growth over the next
+#    6s idle (pre-fix this grew unbounded). Dashboard renders ("Hi QA"). PASS.
+#  SHIP: via Save to GitHub → DigitalOcean deploy (preview proves the fix; prod
+#  post-deploy should show per-tab/IP SafeDeal volume drop from thousands/min).
+#  TEST (optional retest): inject localStorage sd_token/sd_user, open /safedeal/deals,
+#  watch network — core SafeDeal calls must NOT keep climbing while idle.
+#
+#  ---- FIX #2: Zero-downtime deploy — eliminate the swap 502 window (DONE) -------
+#  Deploy previously tore the canary down BEFORE recreating live :8001, so during
+#  the recreate NOTHING served :8001 → Caddy 502 window. NOW:
+#   • LIVE Caddyfile (/etc/caddy/Caddyfile, applied + graceful-reloaded 2026-10-06):
+#     both site blocks reverse_proxy 127.0.0.1:8001 127.0.0.1:8002 { lb_policy first;
+#     lb_try_duration 5s; health_uri /health; health_interval 3s; health_timeout 2s;
+#     health_status 2xx; transport http { keepalive 30s; dial_timeout 2s } }.
+#     Verified: caddy validate OK, effective config dials :8001+:8002 with first
+#     policy, dynopay.com & safedeal.sh /health = 200 (10/10), /api/safedeal/deals
+#     = 401 (served, not 502). Backup at /etc/caddy/Caddyfile.bak.<ts>.
+#   • WORKFLOW (.github/workflows/deploy-droplet.yml): canary now mounts
+#     ./uploads + ./logs and STAYS UP on :8002 through the swap; torn down only
+#     after live :8001 is healthy (and in the rollback branch). Fresh-droplet Caddy
+#     bootstrap printf updated to the same HA block. Ships on next deploy.
+#  Steady state (no canary): Caddy active-health drops :8002, all traffic → :8001.
+#
+#  Prod log access documented in /app/memory/PROD_LOG_ACCESS_RUNBOOK.md.
+# ============================================================================
+
+# ============================================================================
 # >>> 2026-10-05 (CREATE-FLOWS ENHANCEMENTS, 4 items) — NEEDS testing_agent (frontend)
 # ============================================================================
 #  App: DynoPay. Preview URL = https://secure-passphrase-13.preview.emergentagent.com
