@@ -1,6 +1,6 @@
 # Prod ETH payment forensics — 2026-10-06 (read-only: prod Postgres + public ETH RPC)
 
-Droplet SSH: NEW key generated this pod `/root/.ssh/dynopay_prod_ed25519` (pub: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPQzcwFiFnLyHRucf2XexjqMu6sAbWuJ46wa5CEbxgM4 emergent-agent-dynopay-prodlogs-2026-10-06`) — NOT yet authorized on root@134.209.94.115 (Permission denied). Logs: `/opt/dynopay/logs/*.log`, `docker logs dynopay`.
+Droplet SSH: NEW key generated this pod `/root/.ssh/dynopay_prod_ed25519` (pub: `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPQzcwFiFnLyHRucf2XexjqMu6sAbWuJ46wa5CEbxgM4 emergent-agent-dynopay-prodlogs-2026-10-06`) — AUTHORIZED by owner 2026-10-06 ~17:50Z — `ssh -i /root/.ssh/dynopay_prod_ed25519 root@134.209.94.115` works (key wiped on new pods; re-generate + have owner run: mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '<pub>' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys). Logs: `/opt/dynopay/logs/*.log`, `docker logs dynopay`.
 
 ## Merchant
 - company_id 399 "intisearch" · user_id 394 "pace sec" · pacesec1337@gmail.com · US · individual · email verified · signed up 2026-10-04 22:21Z · fee_tier standard
@@ -21,3 +21,8 @@ Droplet SSH: NEW key generated this pod `/root/.ssh/dynopay_prod_ed25519` (pub: 
 
 ## Webhooks (tbl_webhook_delivery_log 4283-4286): ALL 4 failed HTTP 401 (pending, confirmed, settlement_failed, settled), retry_count 1.
 - Merchant's endpoint rejects → their system likely never credited the top-up. Also the settled payload says merchant_amount 0.00185436 but actual on-chain payout 0.00184136 (gas deducted).
+
+## ROOT CAUSE (confirmed from droplet logs cronLogger2.log + webhookLogs.log)
+1. **Off-by-1-gwei native sweep (PRIMARY)** — 17:01:08 settleTransaction.ts (Account chain ETH, ~L834) deducted network fee 0.00002564 ETH (21000 × 1.221 gwei = 0.000025641, truncated to 8 dp) → DirectEvmSweep (services/merchantPool/directEvmTransfer.ts ~L373 native branch) sent value 0.00182872 with maxFee 1.221 gwei → RPC INSUFFICIENT_FUNDS "have 1854360000000000 want 1854361000000000" (short by 1e9 wei). Fix: clamp native value in wei to `balance - gasLimit*maxFeePerGas` at sign time (or ceil the fee).
+2. **Settlement idempotency claim not released on failure** — paymentReliability.ts ~L467: retries 17:01:10, 17:01:15, 17:10:02-09 all hit "Atomic claim failed — another worker won the race" (the failed 17:01:07 attempt's in-progress claim). Claim expired before 17:20 reconciliation, which then succeeded at 0.488 gwei. → ~19 min delay + 2 false `payment.settlement_failed` webhooks.
+3. Minor: fee-free volume reversal log says "Remaining: $500" after reversing $5 (check reversal math). Webhook `merchant_amount` reports pre-gas amount.
