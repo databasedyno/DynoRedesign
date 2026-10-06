@@ -1,4 +1,12 @@
-# === 2026-10-06 (fork) — FIRST-PAYMENT ADMIN EMAIL now carries merchant CONTEXT (option a) — DONE & VERIFIED (render harness) ===
+# === 2026-10-06 (fork) — CI PREFLIGHT RED FIX: unused frontend imports in documentation.tsx — DONE & VERIFIED ===
+# USER: "github build and deploy failed" (supplied a classic PAT for read-only Actions log access).
+# FINDING (GitHub Actions API, read-only): on HEAD 967ff0e91 the "Deploy to Droplet (Option C)" workflow actually SUCCEEDED (app deployed); the RED ❌ was the "Preflight — type-check + exact Dockerfile build" workflow, job "frontend tsc --noEmit", step 7 "No unused imports (frontend)". scripts/qa/strip_unused_imports.cjs --check exited 1 on 2 unused import bindings (1 whole import statement) in ONE file. (Same class as the 2026-10-03 Preflight red.)
+# ROOT CAUSE: pages/documentation.tsx leftover imports from the v8 docs re-skin — `SecondaryBtn` (line 6, PrimaryBtn kept/used) + the whole `import { Icon } from "@iconify/react"` (line 7) were no longer referenced. The many other listed lines are non-import unused locals (93) the guard intentionally leaves alone — they do NOT fail CI.
+# FIX: line 6 → `import { PrimaryBtn } from "@/Components/Page/Home/v5/shared";` and deleted the Icon import line. VERIFIED locally with the exact CI command: strip_unused_imports --check exit 0 ("0 files, 0 unused import bindings"); frontend tsc --noEmit 0; backend tsc 0.
+# DEPLOY: fix is UNCOMMITTED in preview → user "Save to GitHub" → next Preflight goes green. SECURITY: PAT was used only in-shell (read-only Actions API), never written to disk/committed — advised the user to revoke/rotate it since it was pasted in chat.
+# ============================================================================================
+
+
 # USER: the first-payment milestone admin email lacked the merchant's country, brand, platform-activity summary, and the PAYMENT TYPE (API vs payment link). Chose option a = inject these into the template going forward.
 # SHIPPED (backend only):
 #   - utils/crons/firstPaymentMonitor.ts: first-payment query now also selects c.country/merchant_country_code/website + the payment-link/product-order source joins (pl DISTINCT-ON transaction_reference, parent_pl, po) so the payment ORIGIN is classified via resolveTransactionSource() — identical taxonomy to /transactions (api/payment_link/tip/product/contribution/safedeal/direct). Added a per-company activity snapshot query (SUM tbl_api.request_count, COUNT tbl_payment_link, COUNT tbl_invoice, COUNT tbl_webhook_delivery_log status='success'). Passes country/website/payment_type/activity to the email.

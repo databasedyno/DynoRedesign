@@ -3,8 +3,7 @@ import { Box, Typography, useTheme, Grid, Autocomplete, TextField, InputBase, Dr
 import { brandFg } from "@/constants/theme";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
-import { PrimaryBtn, SecondaryBtn } from "@/Components/Page/Home/v5/shared";
-import { Icon } from "@iconify/react";
+import { PrimaryBtn } from "@/Components/Page/Home/v5/shared";
 import {
   EyebrowV8,
   GradientText,
