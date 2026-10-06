@@ -73,6 +73,7 @@ const CONN_LABEL: Record<string, string> = {
   live: "Live",
   reconnecting: "Reconnecting…",
   offline: "Offline",
+  unauthorized: "Session expired",
 };
 
 const StatusDot: React.FC<{ ok: boolean; label: string }> = ({ ok, label }) => (
@@ -148,7 +149,13 @@ const AdminLiveConsole: React.FC = () => {
   };
 
   const isLive = connState === "live";
-  const stateColor = isLive ? "#37d67a" : connState === "reconnecting" ? "#ffbd2e" : "#8a94a6";
+  const stateColor = isLive
+    ? "#37d67a"
+    : connState === "reconnecting"
+    ? "#ffbd2e"
+    : connState === "unauthorized"
+    ? "#ff5f56"
+    : "#8a94a6";
   const rows = (visible ?? []).slice(-1500);
 
   return (
@@ -357,6 +364,8 @@ const AdminLiveConsole: React.FC = () => {
             >
               {connState === "live"
                 ? "Waiting for activity… trigger some traffic and it will appear here."
+                : connState === "unauthorized"
+                ? "Your admin session expired. Sign in again, then press Reconnect to resume the live stream."
                 : "Connecting to the live log stream…"}
             </Box>
           ) : (

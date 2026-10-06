@@ -23,7 +23,7 @@ export interface HealthSnapshot {
   level_counts: Record<string, number>;
 }
 
-export type ConnState = "connecting" | "live" | "reconnecting" | "offline";
+export type ConnState = "connecting" | "live" | "reconnecting" | "offline" | "unauthorized";
 
 const MAX_LOGS = 2000;
 const API_BASE = (process.env.NEXT_PUBLIC_BASE_URL || "").replace(/\/+$/, "");
@@ -47,6 +47,8 @@ export function useAdminLogStream(paused: boolean) {
   const abortRef = useRef<AbortController | null>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = useRef(true);
+  const authFailedRef = useRef(false);
+  const attemptsRef = useRef(0);
 
   const flushNow = useCallback(() => {
     if (flushTimerRef.current) {
@@ -123,7 +125,16 @@ export function useAdminLogStream(paused: boolean) {
       cache: "no-store",
     })
       .then(async (res) => {
+        // Expired/invalid admin session: stop the stream instead of hammering
+        // /stream every few seconds (an open console used to fire thousands of
+        // 403s/hour until manual re-login). Surface it so the UI prompts a sign-in.
+        if (res.status === 401 || res.status === 403) {
+          authFailedRef.current = true;
+          setConnState("unauthorized");
+          return;
+        }
         if (!res.ok || !res.body) throw new Error(`stream ${res.status}`);
+        attemptsRef.current = 0;
         setConnState("live");
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -147,11 +158,14 @@ export function useAdminLogStream(paused: boolean) {
         throw new Error("stream-ended");
       })
       .catch(() => {
-        if (ac.signal.aborted || !mountedRef.current) return;
+        if (ac.signal.aborted || !mountedRef.current || authFailedRef.current) return;
         setConnState("reconnecting");
+        // Exponential backoff (cap 20s) so a persistent failure never tight-loops.
+        const delay = Math.min(2500 * 2 ** attemptsRef.current, 20000);
+        attemptsRef.current += 1;
         retryRef.current = setTimeout(() => {
           if (mountedRef.current) connect();
-        }, 2500);
+        }, delay);
       });
   }, [handleFrame]);
 
@@ -179,6 +193,8 @@ export function useAdminLogStream(paused: boolean) {
   }, []);
 
   const reconnect = useCallback(() => {
+    authFailedRef.current = false;
+    attemptsRef.current = 0;
     if (abortRef.current) abortRef.current.abort();
     if (retryRef.current) clearTimeout(retryRef.current);
     connect();

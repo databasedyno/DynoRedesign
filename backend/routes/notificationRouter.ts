@@ -11,13 +11,22 @@ import jwt from "jsonwebtoken";
 
 const notificationRouter = express.Router();
 
-// Public endpoint - no auth needed for VAPID public key
+// Public endpoint - no auth needed for VAPID public key.
+// When web push is not configured we return 200 with enabled:false (not a 503)
+// so the browser treats it as a cleanly-disabled feature instead of logging an
+// error on every page load; the frontend already keys off vapid_public_key.
 notificationRouter.get("/push/vapid-key", (_req, res) => {
   const key = getVapidPublicKey();
   if (!key) {
-    return errorResponseHelper(res, 503, "Web Push not configured");
+    return successResponseHelper(res, 200, "Web Push not configured", {
+      vapid_public_key: null,
+      enabled: false,
+    });
   }
-  return successResponseHelper(res, 200, "VAPID public key", { vapid_public_key: key });
+  return successResponseHelper(res, 200, "VAPID public key", {
+    vapid_public_key: key,
+    enabled: true,
+  });
 });
 
 // All other notification routes require authentication

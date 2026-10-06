@@ -23,6 +23,7 @@ export function useAdminSupportStream(onEscalation: (e: SupportEscalationEvent) 
   const abortRef = useRef<AbortController | null>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mountedRef = useRef(true);
+  const authFailedRef = useRef(false);
 
   const handleFrame = useCallback((frame: string) => {
     let event = "message";
@@ -53,6 +54,12 @@ export function useAdminSupportStream(onEscalation: (e: SupportEscalationEvent) 
       cache: "no-store",
     })
       .then(async (res) => {
+        // Expired/invalid admin session: stop instead of reconnecting every 3s
+        // (this used to fire thousands of 403s/hour until manual re-login).
+        if (res.status === 401 || res.status === 403) {
+          authFailedRef.current = true;
+          return;
+        }
         if (!res.ok || !res.body) throw new Error(`stream ${res.status}`);
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
@@ -76,7 +83,7 @@ export function useAdminSupportStream(onEscalation: (e: SupportEscalationEvent) 
         throw new Error("stream-ended");
       })
       .catch(() => {
-        if (ac.signal.aborted || !mountedRef.current) return;
+        if (ac.signal.aborted || !mountedRef.current || authFailedRef.current) return;
         retryRef.current = setTimeout(() => {
           if (mountedRef.current) connect();
         }, 3000);
