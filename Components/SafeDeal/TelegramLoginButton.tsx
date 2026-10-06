@@ -26,19 +26,27 @@ export default function TelegramLoginButton({ bot, onSuccess, onError, mode = "s
   const ref = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
 
+  // Keep the latest callbacks/mode in a ref so the widget-injection effect below
+  // does NOT depend on them. Parents often pass fresh inline callbacks (or re-render
+  // on polling); if the effect depended on those it would re-run every render,
+  // wipe the host and re-inject Telegram's script — making the button flicker/blink.
+  const handlersRef = useRef({ onSuccess, onError, mode });
+  handlersRef.current = { onSuccess, onError, mode };
+
   useEffect(() => {
     (window as any)[CALLBACK] = async (user: Record<string, unknown>) => {
+      const { onSuccess: ok, onError: fail, mode: m } = handlersRef.current;
       setBusy(true);
       try {
-        if (mode === "link") {
+        if (m === "link") {
           await safedealApi.telegramLink(user);
         } else {
           const r = await safedealApi.telegramAuth(user);
           sdSession.set(r.token, r.user);
         }
-        onSuccess();
+        ok();
       } catch (e) {
-        onError(sdError(e));
+        fail(sdError(e));
       } finally {
         setBusy(false);
       }
@@ -63,19 +71,20 @@ export default function TelegramLoginButton({ bot, onSuccess, onError, mode = "s
         /* noop */
       }
     };
-  }, [bot, onSuccess, onError, mode]);
+    // Re-inject ONLY when the bot changes — never on callback/render churn.
+  }, [bot]);
 
   return (
     <Box data-testid={mode === "link" ? "sd-telegram-link-widget" : "sd-signin-telegram"}>
       <Stack direction="row" spacing={1} alignItems="center" justifyContent="center" sx={{ minHeight: 48 }}>
-        {busy ? (
+        {busy && (
           <Stack direction="row" spacing={1} alignItems="center" data-testid="sd-signin-telegram-busy">
             <CircularProgress size={18} sx={{ color: "#229ED9" }} />
             <Typography sx={{ fontSize: 13.5, color: "#6B7280", fontWeight: 700 }}>{mode === "link" ? "Linking your Telegram…" : "Signing you in with Telegram…"}</Typography>
           </Stack>
-        ) : (
-          <Box ref={ref} sx={{ display: "flex", justifyContent: "center" }} aria-label="Log in with Telegram" />
         )}
+        {/* Host stays mounted (just hidden while busy) so the widget persists and never re-injects. */}
+        <Box ref={ref} sx={{ display: busy ? "none" : "flex", justifyContent: "center" }} aria-label="Log in with Telegram" />
       </Stack>
       {!busy && (
         <Stack direction="row" spacing={0.6} alignItems="center" justifyContent="center" sx={{ mt: 0.8 }}>

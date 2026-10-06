@@ -1846,6 +1846,16 @@ const startServer = async () => {
     });
   }
 
+  // Idle-502 hardening: keep idle keep-alive sockets open LONGER than any
+  // upstream proxy (nginx keepalive_timeout 65s) so the proxy never reuses a
+  // socket this server has already closed — the classic "first request after
+  // idle 502s, instant retry recovers" race. Node's default keepAliveTimeout
+  // is only 5s; headersTimeout must stay above it.
+  if (httpServer) {
+    httpServer.keepAliveTimeout = 65000;
+    httpServer.headersTimeout = 66000;
+  }
+
   // ─── JSON 404 for unknown API routes (Express would otherwise send HTML) ────
   app.use("/api", (_req: express.Request, res: express.Response) => {
     res.status(404).json({ success: false, message: "Not found", statusCode: 404 });
