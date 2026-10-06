@@ -1,0 +1,47 @@
+{
+  "summary": "Phase-4 v8 Resources pages (Blog, Help/Support, System Status) tested as logged-out public pages at desktop (1920) and mobile (390). Overall: pages render on v8 design system, data-testids largely present, API-backed status page populates with real services, mobile has zero horizontal overflow, theme toggle switches cleanly between light/dark with legible contrast. Two defects found: (1) a blog article slug in the review brief does NOT exist (card links to a shorter slug), (2) help article is MISSING the required data-testid='help-article-back' back-link.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "HelpArticlePage (/help-support/[slug])",
+        "issue": "Required back-to-help-center link with data-testid='help-article-back' is MISSING on help article pages. Verified on /help-support/getting-started-with-dynopay and /help-support/fees-rates-and-conversion-logic — no element matches that selector; the only links back to /help-support are in the global footer. Users on an article have no obvious in-content way back to the index.",
+        "selector": "[data-testid='help-article-back']",
+        "priority": "HIGH"
+      },
+      {
+        "component": "Blog article slug / review brief mismatch",
+        "issue": "Review brief references /blog/how-to-accept-crypto-payments-on-your-website-in-2026 which returns a 404 'This page isn't available'. The actual card on /blog links to /blog/how-to-accept-crypto-payments-on-your-website (no trailing -in-2026), which loads correctly. Either the content slug should be renamed to include -in-2026 to match the published title/URL promised in the brief, or the brief should be updated. Also note the card data-testid is truncated at 'blog-card-how-to-accept-crypto-payments-on-your-website' (no -in-2026), consistent with the shorter slug.",
+        "selector": "/blog/how-to-accept-crypto-payments-on-your-website-in-2026",
+        "priority": "MEDIUM"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Add data-testid='help-article-back' back link on /help-support/[slug] pages (e.g. an in-page 'Back to Help Center' link above/below the article).",
+    "Reconcile blog slug: either rename the article slug to include '-in-2026' so the brief URL works, or update brief/links. Currently /blog/how-to-accept-crypto-payments-on-your-website-in-2026 → 404."
+  ],
+  "critical_code_review_comments": [
+    "Help article page should have an explicit back-link so users can navigate back without relying on the global footer.",
+    "Blog article data-testids and slugs are not consistent with the stated published URL in the task brief — alignment needed."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (not tested)", "frontend": "~90% (12/13 verified features pass; 1 missing testid, 1 404 slug)"},
+  "verified_features": {
+    "blog_index": "PASS — blog-hero, blog-category-filters (All + 4 categories = 5 chips), 12 cards render; category chip filters (12→3), 'All' restores (→12); blog-final-cta present; no horizontal overflow at 1920 or 390.",
+    "blog_article": "PASS at /blog/how-to-accept-crypto-payments-on-your-website — blog-article-page, blog-post-cover, blog-article-cta, 2 blog-code-block elements, long-form body visible.",
+    "help_support_public": "PASS — help-hero, help-center (light bg rgb(249,249,248) — NOT dark, requirement met), help-search-input live-filters grid (8→2 on 'fees'), help-article-card-* clickable, help-chat-cta present, help-final-cta present.",
+    "help_article": "PARTIAL — help-article-page renders, help-feedback-yes/no present and clicking Yes shows thank-you message. MISSING help-article-back testid.",
+    "system_status": "PASS — status-hero, status-overall-chip resolves to 'All Systems Operational', status-services-list populates 5 real rows (API Gateway 99.94%/4ms Operational, Payment Processing 98.93%/5ms, Wallet Services 99.64%/6ms, Webhook Delivery 99.18%/15ms, Dashboard 99.96%/6ms), status-uptime-chart with 98.00% legend, status-recent-incidents, status-final-cta.",
+    "responsive_mobile_390": "PASS — zero horizontal overflow on /blog, /help-support, /system-status (diff=0px).",
+    "theme_toggle": "PASS — theme-toggle-button switches to data-theme='dark'; status-hero bg=rgb(19,19,18), text=rgb(242,242,240) → high contrast; dark services panel stays legible."
+  },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "All blog cards use a slug WITHOUT the '-in-2026' suffix (e.g. /blog/how-to-accept-crypto-payments-on-your-website). The brief's URL '-in-2026' returns 404; use the shorter slug for retests. Theme toggle testid is 'theme-toggle-button' (desktop) / 'mobile-theme-toggle-button'. Help article pages currently lack the 'help-article-back' testid — this is the main defect to re-verify after fix.",
+  "rca of the issue": "help-article-back: the Phase-4 /help-support/[slug].tsx template was built without an in-content back link, likely because the shared Help component (used in logged-in compact view) doesn't need one; the public v8 article template should add an anchor <a href='/help-support' data-testid='help-article-back'>Back to Help Center</a> above or below the title. Blog slug mismatch: content JSON/MDX slug was shortened at some point; the brief wasn't updated to reflect the actual published slug."
+}

@@ -155,7 +155,10 @@ const HelpDetail = ({ article, stub, setPageName, setPageDescription }: HelpDeta
       <>
         {head}
         <Box data-testid="help-article-page" sx={{ background: s.canvas, flex: 1, display: "flex", flexDirection: "column", minHeight: 0, width: "100%", overflowY: "auto" }}>
-          <Box sx={{ display: "flex", pt: { xs: 3, md: 5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
+          <Box sx={{ width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, pt: { xs: 3, md: 5 } }}>
+            {backButton}
+          </Box>
+          <Box sx={{ display: "flex", pt: { xs: 2, md: 2.5 }, width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" } }}>
             {Bespoke ? <Bespoke data={stub} /> : <HelpArticleBody slug={slug} title={title} />}
           </Box>
           <Box sx={{ width: "100%", maxWidth: 1280, mx: "auto", px: { xs: "16px", md: "20px" }, pb: { xs: "24px", md: "40px" }, mt: 3 }}>
