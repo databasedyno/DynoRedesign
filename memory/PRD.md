@@ -1,4 +1,8 @@
-# === 2026-10-06 (fork) — v8 PHASE 5 POLISH: blog TOC + reading-progress, blog slug SEO rename, i18n sweep — DONE & VERIFIED (testing_agent iteration_275, FE 100%) ===
+# === 2026-10-06 (fork) — nl/pt LOCALE SPOT-CHECK — PASS (testing_agent iteration_276, FE 100% 16/16) ===
+# Verified Dutch & Portuguese on /blog, /help-support, /system-status + blog article at 390px AND 1440px: no horizontal overflow, status-overall-chip (nl 255px / pt 288px) + all CTA bands inside viewport, graceful hero/CTA wrapping (pt "Estado do sistema" wraps to 2 lines — fine), NO raw i18n keys leak, blog-article nav labels localized ("Terug naar blog"/"Voltar ao blog", "Op deze pagina"/"Nesta página"). No code changes needed — translations display correctly.
+# ============================================================================================
+
+
 # USER asks: (1) sticky Table of Contents + reading-progress bar on blog articles; (2) rename a blog article slug for SEO consistency; (3) i18n sweep across the new v8 Resources pages.
 # SHIPPED:
 #   - /app/pages/blog/[slug].tsx: buildToc() parses "## " H2s (skips code fences + "###") → sticky right-rail TOC (data-testid blog-toc, links blog-toc-link-{slug}) on lg+, hidden on mobile; grid layout minmax(0,1fr) 248px. Reading-progress bar via framer-motion useScroll+useSpring (motion.div data-testid blog-reading-progress, fixed gold top bar). IntersectionObserver scroll-spy sets active TOC item (bold + gold left-border). H2s get id={slugify} + scrollMarginTop; TOC click = smooth scroll (auto under prefers-reduced-motion). "On this page" = t('blogOnThisPage').

@@ -1,0 +1,19 @@
+{
+  "summary": "nl/pt locale/responsive spot-check for DynoPay v8 Resources pages (/blog, /help-support, /system-status, /blog/how-to-accept-crypto-payments-on-your-website-in-2026) at 390px and 1440px. All 16 (route x lang x viewport) combinations PASS: scrollWidth === clientWidth (no horizontal overflow), status-overall-chip / status-final-cta / help-final-cta / blog-final-cta all stay within viewport, and NO raw i18n keys leak (checked all 14 keys from the request). Hero/CTA/status-pill wrapping is graceful.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% (16/16 locale/viewport combinations)"},
+  "seed_data_creation": "",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "nl/pt v8 Resources pages verified: no 390px overflow, no raw-key leaks, status-overall-chip at 390px measures 255px (nl) / 288px (pt) — comfortably inside the 390px viewport. Blog-article page at 390/1440 for nl & pt also passes (nav labels 'Terug naar blog'/'Voltar ao blog', 'Op deze pagina'/'Nesta página', 'Delen'/'Partilhar' render correctly).",
+  "rca of the issue": "N/A — no issues found."
+}
