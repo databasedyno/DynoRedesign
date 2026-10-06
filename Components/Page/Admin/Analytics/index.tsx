@@ -385,8 +385,16 @@ const AdminAnalytics = () => {
                   <StatPill label="Confirmed payments" value={checkout.payments.confirmed.toLocaleString()} sub="authoritative" />
                   <StatPill
                     label="Opened but unpaid"
-                    value={Math.max(checkout.sessions.views - checkout.payments.confirmed, 0).toLocaleString()}
-                    sub={`${pct(checkout.payments.confirmed, checkout.sessions.views)}% converted`}
+                    value={
+                      checkout.sessions.views >= checkout.payments.confirmed && checkout.sessions.views > 0
+                        ? Math.max(checkout.sessions.views - checkout.payments.confirmed, 0).toLocaleString()
+                        : "—"
+                    }
+                    sub={
+                      checkout.sessions.views >= checkout.payments.confirmed && checkout.sessions.views > 0
+                        ? `${pct(checkout.payments.confirmed, checkout.sessions.views)}% converted`
+                        : "tracking still building"
+                    }
                   />
                 </Stack>
               </>

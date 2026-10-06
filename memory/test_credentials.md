@@ -1,3 +1,11 @@
+<!-- 2026-10-06 (fork, pod 33379795) — CURRENT POD URL (supersedes the secure-passphrase-13 lines below, which are STALE).
+     LIVE preview URL for THIS pod = https://33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com
+     Admin: moxxcompany@gmail.com / Katiekendra123@ (TOTP). Mint token: POST /api/admin/login/password -> data.challengeToken ; code=`cd /app/backend && node scripts/admin_2fa.cjs totp 1` ; POST /api/admin/login/totp {challengeToken,code} -> data.accessToken. Browser User-Agent REQUIRED (curl/python UAs 403'd). FE token = localStorage['admin_token'] (cached /app/memory/tmp/admin_token.txt, 12h). Merchant: onarrival21@gmail.com / Katiekendra123@ (user 1).
+     Frontend = PRODUCTION Next build (distDir=.next-prod, NO hot reload): after FE edits run `cd /app && NEXT_DIST_DIR=.next-prod-new node_modules/.bin/next build` then `rm -rf .next-prod-old && mv .next-prod .next-prod-old && mv .next-prod-new .next-prod && sudo supervisorctl restart frontend`.
+     NEW admin page /admin/analytics ("Activation & Drop-off"): data-testid admin-analytics-page; cards activation-funnel-card / stuck-merchants-card / checkout-funnel-card; range analytics-range-select (range-opt-7/30/90/0); stuck chips stuck-stage-{all,signed_up,verified,has_method}, rows stuck-row-<user_id>, stuck-load-more. SAFE MODE, live prod DB — endpoints are READ-ONLY. -->
+
+
+
 <!-- 2026-07 (CURRENT POD — supersedes every pod URL below) — set up from env.vault.enc via scripts/pod-bootstrap.sh.
      LIVE preview URL for THIS pod = https://secure-passphrase-13.preview.emergentagent.com
      (all env URLs were migrated to this pod by pod-bootstrap; the vault-init-7 URL below is now STALE).

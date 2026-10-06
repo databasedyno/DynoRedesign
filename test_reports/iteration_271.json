@@ -1,0 +1,27 @@
+{
+  "summary": "Frontend-only interactivity verification of the Admin 'Activation & Drop-off' analytics console (/admin/analytics). All six scoped features verified end-to-end against the live preview URL with the cached admin JWT injected via localStorage. Three activation-funnel cards render with correct inner stage bars and internally-consistent values. Range selector (MUI Select) swaps the dataset correctly across 7d (55 signups) / 90d default (221) / All time (321), with the analytics-loading CircularProgress appearing and resolving. Stuck-merchants chips filter the table (all=55 rows->shows first 25; verified=13 rows; has_method=42 rows after one 'Load more' click, confirming pagination 25->42). Buyer checkout funnel below the fold renders link-stage-created / link-stage-paid bars with paid-rate stat pills and the 'Checkout sessions (since tracking enabled)' block (6 opened / 0 reached payment / 20 confirmed / 0 opened-but-unpaid). Buyer drop-off beacon test: visiting /pay?d=rNtQRX with addPayment & verifyCryptoPayment mocked fired exactly one POST /api/track/checkout with payload {ref:'rNtQRX',stage:'viewed'} (fire-and-forget, no error to caller). No critical UI issues found; the feature is working as specified.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Buyer checkout funnel card - 'Opened but unpaid' pill", "issues": ["Secondary caption shows '333.3% converted' because the conversion ratio uses 20 confirmed buyer txns (authoritative, lifetime) against 6 checkout session opens (since-tracking cohort). The number is mathematically >100% and reads as a bug to end users. Suggestion: hide the conversion pill when confirmed_payments > checkouts_opened OR cap/clarify as 'conversions tracked lifetime' separate from the session cohort."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(Low) Fix misleading '333.3% converted' sub-caption under 'Opened but unpaid' on checkout-funnel-card by using same-cohort denominators or hiding when ratio > 100%."
+  ],
+  "critical_code_review_comments": [
+    "Components/Page/Admin/Analytics/index.tsx: data-testid wiring on cards works, but 'analytics-loading' only mounts conditionally -- fine, but tests should wait for its appearance via state='visible' then 'hidden' (which worked).",
+    "Range dropdown is a MUI Select (role=combobox), not a native <select>; select_option(value=...) silently no-ops. Documenting for future test agents: must click the select then click [data-testid=range-opt-N] with force=True."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "100% (6/6 scoped features)"},
+  "test_credentials": "Admin JWT loaded from /app/memory/tmp/admin_token.txt and injected into localStorage['admin_token']. No login UI exercised.",
+  "seed_data_creation": "None. SAFE MODE on live prod DB; only the fire-and-forget /api/track/checkout upsert was triggered (ref=rNtQRX, stage=viewed) which is the intended write path.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Admin analytics page is fully functional. Verified: 3 cards render, range selector (7/90/all) actually re-queries and changes numbers (55/221/321 for signed_up), stuck chips re-filter table (all/verified/has_method), 'Load more' pagination appends rows (25->42 on has_method), checkout funnel renders, beacon POST /api/track/checkout fires on /pay page load. The only cosmetic issue is 'Opened but unpaid' showing 333.3% converted because of cross-cohort denominators (20 lifetime confirmed vs 6 session opens). For admin UI testing, always inject localStorage['admin_token'] from /app/memory/tmp/admin_token.txt and use wait_until='domcontentloaded' (page polls, so networkidle never fires). For MUI Select, click wrapper then click option, don't use select_option().",
+  "rca of the issue": "No real defects found. The one aesthetic oddity (333.3% converted) is a UX/metric-definition issue: the numerator (confirmed_payments) is sourced from tbl_customer_transaction (authoritative, all-time) while the denominator (checkouts_opened) is sourced from tbl_checkout_session which only started collecting rows when the beacon shipped. Mitigation: either (a) scope confirmed_payments to the same since-beacon window, or (b) hide/relabel the conversion caption whenever confirmed > opened."
+}
