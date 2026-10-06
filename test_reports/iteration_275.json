@@ -1,0 +1,19 @@
+{
+  "summary": "Phase 5 polish verification (frontend only). Verified: (1) Blog article TOC on desktop ≥1200px shows 'On this page' with 5 H2 links (data-testid blog-toc + blog-toc-link-*); clicking first link scrolled page from 0 -> 806px; after scrolling to 3rd section, scroll-spy highlighted link 'supported-cryptocurrencies' (fontWeight 600, gold left-border rgb(138,109,0)) while others stay 400 / transparent border. (2) Reading-progress bar (data-testid blog-reading-progress) grew from scaleX 0 -> 0.91 at mid -> 0.998 at bottom; width goes 0 -> ~1437px. (3) Mobile 390px: blog-toc display:none (hidden), progress bar still present, NO horizontal overflow (scrollW=clientW=390), back link + h1 + cover render. (4) Blog slug redirect: GET /blog/how-to-accept-crypto-payments-on-your-website -> 308 Location:/blog/how-to-accept-crypto-payments-on-your-website-in-2026 -> 200. Blog index card navigates to NEW slug on click. (5) i18n: /system-status?lang=de renders 'Dynopay Systemstatus' + 'Aktueller Status aller Dynopay-Dienste' + 'Alle Systeme betriebsbereit' + 'Dienste'. /help-support?lang=fr renders 'Comment pouvons-nous aider'. /help-support?lang=es renders '¿En qué podemos ayudarte'. /blog?lang=de no raw keys. (6) Regression EN desktop + mobile: /blog, /help-support, /system-status all render, services panel populated (7 service elements), no horizontal overflow on mobile for any of the three. No raw i18n keys (helpHeroLead, statusCtaTitle, blogCtaBadge, blogOnThisPage, etc.) leaked on any screen tested.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_275.json"],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Phase 5 features (blog TOC + reading progress, slug redirect, i18n sweep for v8 Resources pages) all verified PASS on both 1440 desktop and 390 mobile. Preview is Next.js production build. Blog cards on /blog use onClick router.push (no <a href>), so to verify link target use click->url assertion rather than href scraping. Scroll-spy active style = fontWeight:600 + borderLeft gold (rgb(138,109,0)).",
+  "rca of the issue": "N/A - no issues found"
+}
