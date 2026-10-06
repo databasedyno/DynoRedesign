@@ -1,3 +1,12 @@
+# === 2026-10-06 (fork) — v8 REDESIGN PHASE 3: SOLUTIONS (/for/* + /compare/*) + v8 FOOTER — DONE & VERIFIED (testing_agent iteration_272, FE 100%) ===
+# USER choices: all 21 /for/* + 2 /compare/* pages (one shared template) · per-group hero mockup · include the global footer.
+# SHIPPED: Components/Page/SEO/SEOLandingPage.tsx rebuilt on v8 (Head/canonical/hreflang/4x JSON-LD untouched): split hero (breadcrumb, gold-gradient tail phrase via splitTail, attributed signup CTA, trust ticks) + SEOHeroMock (slug->group: checkout/invoice/donation/creator/payout/api/compare; CheckoutCard fed by VERTICAL_PAYMENTS + live prices) → StatBandV8 → SEOIntro → SEOFeatures (3-col / 2x2 for compare) → SEOSteps (dark) → SEOFaqV8 (2-col, + rotates) → SEORelated → CtaBandV8 (new primaryHref prop keeps ?src=seo attribution). New files: SEO/SEOHeroMock.tsx, SEO/SEOSectionsV8.tsx. kit.tsx: new MockPanelV8 (ProductPageV8 now uses it). CheckoutCard: coin/network icons, initial, slug url, address prop (homepage defaults unchanged).
+# FOOTER: Components/Layout/HomeFooter (index+styled) → always-dark PANEL #0B0B0A in both themes, gold hairline, status pill, 5 link columns, faded "dynopay" wordmark, trust pills, lang globe restyled for dark. testids: site-footer, footer-logo, footer-status-link, footer-link-*, footer-wordmark, footer-trust-row, footer-copyright, footer-social-*.
+# i18n: added v8.stats.{payments,countries,assets,uptime,note} + seo.ctaBadge + seo.stepLabel to all 6 landing.json (also translates the homepage stat band).
+# GATES: tsc 0, eslint 0, prod rebuilt (.next-prod-new → swap → restart). Changes UNCOMMITTED → "Save to GitHub".
+# NEXT: Resources pages (Blog, Help/Support, Status) on v8 (P1) → Final polish: motion/perf/i18n sweep (P2).
+# ============================================================================================
+
 # === 2026-10-06 (fork, pod 33379795) — PROD 36h LOG AUDIT + 3 FIXES (read-only SSH) ===
 # USER: audit prod logs 36h, list anomalies; "some API responses show a warning/maintenance icon". Prod is CLEAN (no crashes/OOM, only 9 true errors in 36h). The ⚠️ icon = 4xx (apiLogger: ✅2xx/⚠️4xx/❌5xx). Fixed all 3 approved issues:
 #   (1) Admin Live Console + Support Inbox SSE hooks hammered 403 every 2.5–3s when the 12h admin session expired (8,988 hits/4h) → now STOP on 401/403 + show "Session expired" + exponential backoff (useAdminLogStream.ts/useAdminSupportStream.ts/LiveConsole/index.tsx). FE tsc 0; 403 server-contract verified.

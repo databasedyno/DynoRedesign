@@ -141,7 +141,7 @@ export const SEOFaqV8: React.FC<{ faqs: SEOFaq[] }> = ({ faqs }) => {
             >
               <AccordionSummary
                 data-testid={`seo-faq-${i}`}
-                expandIcon={<Icon icon="mdi:plus" width={22} height={22} color={s.accent} />}
+                expandIcon={<Icon data-testid={`seo-faq-icon-${i}`} icon="mdi:plus" width={22} height={22} color={s.accent} />}
                 sx={{
                   px: 0,
                   "& .MuiAccordionSummary-content": { my: 2.5, mr: 2 },
