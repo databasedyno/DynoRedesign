@@ -1322,7 +1322,7 @@
     "addWallet": "Auszahlungsadresse hinzufügen"
   },
   "payouts": {
-    "pageName": "Auszahlungen",
+    "pageName": "Guthaben & Abwicklung",
     "pageDescription": "Ist Ihr Geld angekommen? Weitergeleitete Auszahlungen, Hänger und wohin die Mittel fließen.",
     "digestOn": "Wöchentlicher Auszahlungsbericht aktiviert",
     "digestOff": "Wöchentlicher Auszahlungsbericht deaktiviert",

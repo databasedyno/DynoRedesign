@@ -14,7 +14,7 @@ import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import MonitorHeartRoundedIcon from "@mui/icons-material/MonitorHeartRounded";
 import NewspaperRoundedIcon from "@mui/icons-material/NewspaperRounded";
 import RocketLaunchRoundedIcon from "@mui/icons-material/RocketLaunchRounded";
-import SendRoundedIcon from "@mui/icons-material/SendRounded";
+import AccountBalanceWalletRoundedIcon from "@mui/icons-material/AccountBalanceWalletRounded";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import ShoppingCartCheckoutRoundedIcon from "@mui/icons-material/ShoppingCartCheckoutRounded";
 import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
@@ -97,7 +97,7 @@ export const MENU_SECTIONS: readonly MegaSection[] = [
         titleKey: "nav.mega.payouts.title",
         descKey: "nav.mega.payouts.desc",
         href: "/#how-it-works",
-        Icon: SendRoundedIcon,
+        Icon: AccountBalanceWalletRoundedIcon,
       },
     ],
     featured: {

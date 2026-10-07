@@ -1322,7 +1322,7 @@
     "addWallet": "Adicionar um endereço de recebimento"
   },
   "payouts": {
-    "pageName": "Pagamentos",
+    "pageName": "Saldos e liquidação",
     "pageDescription": "O seu dinheiro chegou? Pagamentos encaminhados, o que está preso e onde os fundos aterram.",
     "digestOn": "Resumo de pagamentos semanal ativado",
     "digestOff": "Resumo de pagamentos semanal desativado",

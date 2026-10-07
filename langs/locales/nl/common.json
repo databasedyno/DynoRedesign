@@ -1322,7 +1322,7 @@
     "addWallet": "Uitbetalingsadres toevoegen"
   },
   "payouts": {
-    "pageName": "Uitbetalingen",
+    "pageName": "Saldi & afwikkeling",
     "pageDescription": "Is je geld aangekomen? Doorgestuurde uitbetalingen, wat vastzit en waar het geld landt.",
     "digestOn": "Wekelijkse uitbetalingssamenvatting ingeschakeld",
     "digestOff": "Wekelijkse uitbetalingssamenvatting uitgeschakeld",

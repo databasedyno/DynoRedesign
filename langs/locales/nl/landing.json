@@ -181,7 +181,7 @@
         "desc": "Je eigen gebrande fooien- en betaalpagina"
       },
       "payouts": {
-        "title": "Crypto-uitbetalingen",
+        "title": "Afwikkeling",
         "desc": "Volg saldi en betaal je geld uit naar een wallet die jij beheert"
       },
       "docs": {
@@ -1276,7 +1276,7 @@
     "stats": {
       "baseFee": "Basistarief — geen maandelijkse kosten",
       "chains": "Ondersteunde blockchains",
-      "nonCustodial": "Non-custodial uitbetalingen",
+      "nonCustodial": "Niet-custodiale afwikkeling",
       "since": "Actief sinds"
     },
     "values": {
@@ -1294,7 +1294,7 @@
       },
       "global": {
         "title": "Wereldwijd als standaard",
-        "body": "Accepteer Bitcoin, Ethereum en stablecoins van klanten overal ter wereld, met snelle uitbetalingen en zonder chargebacks."
+        "body": "Accepteer Bitcoin, Ethereum en stablecoins van klanten overal, met snelle afwikkeling en zonder terugboekingen."
       }
     },
     "buildTitle": "Waarop we bouwen",
@@ -2059,6 +2059,13 @@
       "assets": "Ondersteunde crypto-assets",
       "uptime": "Uptime over 90 dagen",
       "note": "Live platformcijfers · continu bijgewerkt"
+    },
+    "product": {
+      "lead": "Accepteren, converteren, afwikkelen en afrekenen — vanaf één niet-custodiaal platform voor bedrijven en creators.",
+      "settle": {
+        "title": "Afwikkeling",
+        "desc": "Je geld wordt direct afgewikkeld naar een wallet die jij beheert — houd de crypto of converteer automatisch naar USDT/USDC. Niet-custodiaal, on-chain, direct."
+      }
     }
   }
 }

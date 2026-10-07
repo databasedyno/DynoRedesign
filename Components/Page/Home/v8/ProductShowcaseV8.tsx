@@ -26,7 +26,7 @@ import { useMotionOK } from "../motion/tokens";
  * until the first manual interaction. Reduced-motion → instant switch.
  * ========================================================================== */
 
-type PillarKey = "accept" | "convert" | "payouts" | "checkout";
+type PillarKey = "accept" | "convert" | "settle" | "checkout";
 
 interface Pillar {
   key: PillarKey;
@@ -112,43 +112,50 @@ const ConvertVisual: React.FC = () => (
   </Box>
 );
 
-const PayoutsVisual: React.FC = () => {
-  const rows = [
-    { name: "Amara O.", role: "Contractor", amt: "1,250.00 USDT", icon: "cryptocurrency-color:usdt" },
-    { name: "Studio Nine", role: "Supplier", amt: "0.42 ETH", icon: "cryptocurrency-color:eth" },
-    { name: "Lee W.", role: "Affiliate", amt: "320.00 USDC", icon: "cryptocurrency-color:usdc" },
-  ];
-  return (
-    <Box>
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase" }}>
-        Batch payout · 3 recipients
-      </Typography>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1.5 }}>
-        {rows.map((r) => (
-          <Tile key={r.name} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-              <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: PANEL.surfaceStrong, display: "grid", placeItems: "center" }}>
-                <Icon icon="mdi:account" width={16} height={16} color={PANEL.ink2} />
-              </Box>
-              <Box>
-                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.ink }}>{r.name}</Typography>
-                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3 }}>{r.role}</Typography>
-              </Box>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <Icon icon={r.icon} width={18} height={18} />
-              <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, fontWeight: 700, color: PANEL.ink }}>{r.amt}</Typography>
-              <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.3, borderRadius: 999, background: PANEL.greenSoft }}>
-                <Icon icon="mdi:check" width={11} height={11} color={PANEL.green} />
-                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: 700, color: PANEL.green }}>Sent</Typography>
-              </Box>
-            </Box>
-          </Tile>
-        ))}
+const SettleVisual: React.FC = () => (
+  <Box>
+    <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase" }}>
+      Settled to your wallet
+    </Typography>
+    {/* Payment received → auto-converted */}
+    <Tile sx={{ mt: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Icon icon="cryptocurrency-color:btc" width={26} height={26} />
+        <Box>
+          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.ink }}>0.0042 BTC</Typography>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3 }}>payment received</Typography>
+        </Box>
       </Box>
-    </Box>
-  );
-};
+      <Icon icon="mdi:arrow-right-thin" width={22} height={22} color={PANEL.ink3} />
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ textAlign: "right" }}>
+          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.green }}>261.37 USDC</Typography>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3 }}>auto-converted</Typography>
+        </Box>
+        <Icon icon="cryptocurrency-color:usdc" width={26} height={26} />
+      </Box>
+    </Tile>
+    {/* Lands in the wallet only you control */}
+    <Tile sx={{ mt: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, minWidth: 0 }}>
+        <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: PANEL.surfaceStrong, display: "grid", placeItems: "center", flexShrink: 0 }}>
+          <Icon icon="mdi:wallet-outline" width={16} height={16} color={PANEL.gold} />
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.ink }}>Your wallet</Typography>
+          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>0x1a2b…9f3c</Typography>
+        </Box>
+      </Box>
+      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.3, borderRadius: 999, background: PANEL.greenSoft, flexShrink: 0 }}>
+        <Icon icon="mdi:check" width={11} height={11} color={PANEL.green} />
+        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: 700, color: PANEL.green }}>Settled</Typography>
+      </Box>
+    </Tile>
+    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12, color: PANEL.ink2, mt: 1.5 }}>
+      On-chain and non-custodial — funds land in a wallet only you control.
+    </Typography>
+  </Box>
+);
 
 const CheckoutVisual: React.FC = () => (
   <Box>
@@ -190,7 +197,7 @@ const CheckoutVisual: React.FC = () => (
 const VISUALS: Record<PillarKey, React.FC> = {
   accept: AcceptVisual,
   convert: ConvertVisual,
-  payouts: PayoutsVisual,
+  settle: SettleVisual,
   checkout: CheckoutVisual,
 };
 
@@ -218,11 +225,11 @@ const ProductShowcaseV8: React.FC = () => {
       bullets: ["Instant to USDT / USDC", "Locked settlement rate", "Keep the coin, or convert"],
     },
     {
-      key: "payouts",
-      icon: "mdi:send-outline",
-      title: t("v8.product.payouts.title", { defaultValue: "Payouts" }),
-      desc: t("v8.product.payouts.desc", { defaultValue: "Pay contractors, suppliers and affiliates in crypto, anywhere — single sends or batched in one click." }),
-      bullets: ["Single or batch sends", "Any supported asset", "Low, transparent fees"],
+      key: "settle",
+      icon: "mdi:bank-transfer-in",
+      title: t("v8.product.settle.title", { defaultValue: "Settlement" }),
+      desc: t("v8.product.settle.desc", { defaultValue: "Your money settles straight to a wallet you control — keep the crypto or auto-convert to USDT/USDC. Non-custodial, on-chain, instant." }),
+      bullets: ["Straight to your own wallet", "Keep or auto-convert", "Non-custodial, no holds"],
     },
     {
       key: "checkout",
@@ -260,7 +267,7 @@ const ProductShowcaseV8: React.FC = () => {
             <Box component="span" sx={{ color: s.accent }}>{t("v8.product.title2", { defaultValue: "get paid in crypto" })}</Box>
           </>
         }
-        lead={t("v8.product.lead", { defaultValue: "Accept, convert, pay out and check out — from a single non-custodial platform built for businesses and creators." })}
+        lead={t("v8.product.lead", { defaultValue: "Accept, convert, settle and check out — from a single non-custodial platform built for businesses and creators." })}
         maxWidth={760}
       />
 

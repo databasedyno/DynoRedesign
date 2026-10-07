@@ -1322,7 +1322,7 @@
     "addWallet": "Add a payout address"
   },
   "payouts": {
-    "pageName": "Payouts",
+    "pageName": "Balances & Settlement",
     "pageDescription": "Did your money reach your wallet? Forwarded payouts, anything stuck, and where funds land.",
     "digestOn": "Weekly payout digest turned on",
     "digestOff": "Weekly payout digest turned off",

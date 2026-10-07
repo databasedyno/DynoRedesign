@@ -1322,7 +1322,7 @@
     "addWallet": "Añadir una dirección de cobro"
   },
   "payouts": {
-    "pageName": "Pagos",
+    "pageName": "Saldos y liquidación",
     "pageDescription": "¿Llegó tu dinero? Pagos reenviados, lo que está atascado y dónde aterrizan los fondos.",
     "digestOn": "Resumen de pagos semanal activado",
     "digestOff": "Resumen de pagos semanal desactivado",

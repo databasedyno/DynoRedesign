@@ -181,7 +181,7 @@
         "desc": "Deine eigene gebrandete Trinkgeld- und Zahlungsseite"
       },
       "payouts": {
-        "title": "Krypto-Auszahlungen",
+        "title": "Abwicklung",
         "desc": "Guthaben verfolgen und Gelder in eine Wallet auszahlen, die du kontrollierst"
       },
       "docs": {
@@ -1276,7 +1276,7 @@
     "stats": {
       "baseFee": "Basisgebühr — keine monatlichen Kosten",
       "chains": "Unterstützte Blockchains",
-      "nonCustodial": "Non-custodial Auszahlungen",
+      "nonCustodial": "Nicht-verwahrende Abwicklung",
       "since": "Aktiv seit"
     },
     "values": {
@@ -1294,7 +1294,7 @@
       },
       "global": {
         "title": "Global von Anfang an",
-        "body": "Akzeptieren Sie Bitcoin, Ethereum und Stablecoins von Kunden weltweit — mit schnellen Auszahlungen und ohne Chargebacks."
+        "body": "Akzeptieren Sie Bitcoin, Ethereum und Stablecoins von Kunden überall – mit schneller Abwicklung und ohne Rückbuchungen."
       }
     },
     "buildTitle": "Worauf wir bauen",
@@ -2059,6 +2059,13 @@
       "assets": "Unterstützte Krypto-Assets",
       "uptime": "Verfügbarkeit über 90 Tage",
       "note": "Live-Plattformdaten · laufend aktualisiert"
+    },
+    "product": {
+      "lead": "Akzeptieren, konvertieren, abwickeln und auschecken – auf einer einzigen nicht-verwahrenden Plattform für Unternehmen und Creator.",
+      "settle": {
+        "title": "Abwicklung",
+        "desc": "Ihr Geld wird direkt in eine Wallet abgewickelt, die Sie kontrollieren – behalten Sie die Kryptowährung oder konvertieren Sie automatisch in USDT/USDC. Nicht-verwahrend, on-chain, sofort."
+      }
     }
   }
 }

@@ -1,3 +1,19 @@
+# === 2026-06 (fork) — "PAYOUTS → SETTLEMENT" SITE-WIDE COPY/ICON RENAME — DONE & VERIFIED ===
+# USER: the landing "Payouts" pillar + in-app nav misrepresent the product (we do NON-CUSTODIAL SETTLEMENT to a wallet the merchant controls, not outbound disbursement). Rename all VISIBLE copy to "Settlement" (marketing) / "Balances & Settlement" (in-app) across all 6 locales; KEEP the /payouts route + code vars unchanged. Scope kept tight to the rename (did NOT fully translate the rest of the v8 product showcase — accept/convert/checkout still fall back to EN in non-EN locales, pre-existing).
+# SHIPPED:
+#   - Components (already applied pre-fork, confirmed): Home/v8/ProductShowcaseV8.tsx settle pillar = "Settlement" + wallet visual (mdi:bank-transfer-in / mdi:wallet-outline); HomeHeader/menuData.tsx mega item uses AccountBalanceWalletRoundedIcon; MobileNavigationBar unchanged ("Money" tab → /payouts).
+#   - i18n (ran scripts/copy/fix_payouts_to_settlement_i18n.py, idempotent) across en/de/es/fr/nl/pt:
+#       landing.json: created v8.product={lead,settle{title,desc}} (was MISSING in all locales → fresh, destroyed nothing); nav.mega.payouts.title → Settlement/Abwicklung/Liquidación/Règlement/Afwikkeling/Liquidação; about.stats.nonCustodial + about.values.global.body reworded to "settlement".
+#       dashboardLayout.json: balancesPayouts → "Balances & Settlement" (+localized) — desktop NewSidebar (navSections.ts) + CommandPalette label.
+#       common.json: payouts.pageName → "Balances & Settlement" (+localized) — the /payouts page H1 (pages/payouts.tsx).
+#   - ROUTE UNCHANGED: navSections.ts still path:"/payouts"; MONEY_ROUTES, filenames, component vars all untouched.
+# VERIFIED: all 18 locale JSON parse clean; script printed no missing-key warnings; applied values confirmed per-locale. FE rebuilt (rm -rf .next-prod → restart; i18n namespaces are require()-BUNDLED at build via i18n.js, so the rebuild baked in the new JSON). curl localhost:3000/ → 200, EN landing renders "Settlement" + 0 "Payouts" leftover, /?lang=de renders "Abwicklung" → proves bundled locale JSON picked up. In-app label shares the identical require() bundling so it renders the new value in the same build. NOTE: the screenshot tool only returns its initial-navigation image (couldn't surface scrolled/authenticated shots) → verified via served HTML + bundling + code wiring instead.
+# MARKETING v8 STATUS (answers user's "aren't phase 2/3 done?"): /fees ✅ v8, /products ✅ v8, /documentation ✅ (mostly v8, reuses one v5 PrimaryBtn), /blog ✅ /help-support ✅ /system-status ✅ v8. REMAINING non-v8 public page = /about (pages/about.tsx still on v3/v5 kit: PublicPageHero + v5/shared Section + CtaBand). No standalone "checkout" or "developers-hub" marketing page beyond documentation.tsx (developer-keys.tsx is the authed in-app keys page, not marketing).
+# UNCOMMITTED (preview prod build) → Save to GitHub to deploy.
+# ============================================================================================
+
+
+
 # === 2026-10-06 (fork) — nl/pt LOCALE SPOT-CHECK — PASS (testing_agent iteration_276, FE 100% 16/16) ===
 # Verified Dutch & Portuguese on /blog, /help-support, /system-status + blog article at 390px AND 1440px: no horizontal overflow, status-overall-chip (nl 255px / pt 288px) + all CTA bands inside viewport, graceful hero/CTA wrapping (pt "Estado do sistema" wraps to 2 lines — fine), NO raw i18n keys leak, blog-article nav labels localized ("Terug naar blog"/"Voltar ao blog", "Op deze pagina"/"Nesta página"). No code changes needed — translations display correctly.
 # ============================================================================================

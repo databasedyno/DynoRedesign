@@ -181,7 +181,7 @@
         "desc": "Sua própria página de gorjetas e pagamentos personalizada"
       },
       "payouts": {
-        "title": "Envios de cripto",
+        "title": "Liquidação",
         "desc": "Acompanhe saldos e liquide seus fundos numa carteira que você controla"
       },
       "docs": {
@@ -1276,7 +1276,7 @@
     "stats": {
       "baseFee": "Taxa base — sem custo mensal",
       "chains": "Blockchains suportadas",
-      "nonCustodial": "Repasses sem custódia",
+      "nonCustodial": "Liquidação não custodial",
       "since": "Construindo desde"
     },
     "values": {
@@ -1294,7 +1294,7 @@
       },
       "global": {
         "title": "Global por padrão",
-        "body": "Aceite Bitcoin, Ethereum e stablecoins de clientes em qualquer lugar, com repasses rápidos e sem estornos."
+        "body": "Aceite Bitcoin, Ethereum e stablecoins de clientes em qualquer lugar, com liquidação rápida e sem estornos."
       }
     },
     "buildTitle": "No que nos baseamos",
@@ -2059,6 +2059,13 @@
       "assets": "Criptoativos suportados",
       "uptime": "Disponibilidade em 90 dias",
       "note": "Dados reais da plataforma · atualizados continuamente"
+    },
+    "product": {
+      "lead": "Aceite, converta, liquide e finalize — tudo numa única plataforma não custodial feita para empresas e criadores.",
+      "settle": {
+        "title": "Liquidação",
+        "desc": "O seu dinheiro é liquidado diretamente numa carteira que você controla — mantenha a cripto ou converta automaticamente para USDT/USDC. Não custodial, on-chain, instantâneo."
+      }
     }
   }
 }

@@ -1322,7 +1322,7 @@
     "addWallet": "Ajouter une adresse de versement"
   },
   "payouts": {
-    "pageName": "Paiements",
+    "pageName": "Soldes et règlement",
     "pageDescription": "Votre argent est-il arrivé ? Versements transférés, blocages et destination des fonds.",
     "digestOn": "Résumé des paiements hebdomadaires activé",
     "digestOff": "Résumé des paiements hebdomadaires désactivé",

@@ -181,7 +181,7 @@
         "desc": "Tu propia página de propinas y pagos personalizada"
       },
       "payouts": {
-        "title": "Envíos de cripto",
+        "title": "Liquidación",
         "desc": "Controla saldos y liquida tus fondos en una wallet que tú controlas"
       },
       "docs": {
@@ -1276,7 +1276,7 @@
     "stats": {
       "baseFee": "Comisión base — sin coste mensual",
       "chains": "Blockchains compatibles",
-      "nonCustodial": "Pagos sin custodia",
+      "nonCustodial": "Liquidación no custodial",
       "since": "Construyendo desde"
     },
     "values": {
@@ -1294,7 +1294,7 @@
       },
       "global": {
         "title": "Global por defecto",
-        "body": "Acepta Bitcoin, Ethereum y stablecoins de clientes en cualquier lugar, con pagos rápidos y sin contracargos."
+        "body": "Acepta Bitcoin, Ethereum y stablecoins de clientes en cualquier lugar, con liquidación rápida y sin contracargos."
       }
     },
     "buildTitle": "Sobre qué construimos",
@@ -2059,6 +2059,13 @@
       "assets": "Criptoactivos compatibles",
       "uptime": "Disponibilidad en 90 días",
       "note": "Cifras reales de la plataforma · actualizadas continuamente"
+    },
+    "product": {
+      "lead": "Acepta, convierte, liquida y cobra, todo desde una única plataforma no custodial creada para empresas y creadores.",
+      "settle": {
+        "title": "Liquidación",
+        "desc": "Tu dinero se liquida directamente en una wallet que tú controlas: conserva la cripto o conviértela automáticamente a USDT/USDC. No custodial, on-chain, al instante."
+      }
     }
   }
 }

@@ -181,7 +181,7 @@
         "desc": "Votre propre page de pourboires et de paiement personnalisée"
       },
       "payouts": {
-        "title": "Versements crypto",
+        "title": "Règlement",
         "desc": "Suivez vos soldes et réglez vos fonds sur un wallet que vous contrôlez"
       },
       "docs": {
@@ -1276,7 +1276,7 @@
     "stats": {
       "baseFee": "Frais de base — aucun coût mensuel",
       "chains": "Blockchains prises en charge",
-      "nonCustodial": "Paiements non-custodial",
+      "nonCustodial": "Règlement non dépositaire",
       "since": "En développement depuis"
     },
     "values": {
@@ -1294,7 +1294,7 @@
       },
       "global": {
         "title": "Mondial par défaut",
-        "body": "Acceptez Bitcoin, Ethereum et les stablecoins de clients partout dans le monde, avec des paiements rapides et sans rétrofacturation."
+        "body": "Acceptez Bitcoin, Ethereum et stablecoins de clients partout, avec un règlement rapide et sans rétrofacturation."
       }
     },
     "buildTitle": "Nos fondations",
@@ -2059,6 +2059,13 @@
       "assets": "Cryptoactifs pris en charge",
       "uptime": "Disponibilité sur 90 jours",
       "note": "Chiffres réels de la plateforme · mis à jour en continu"
+    },
+    "product": {
+      "lead": "Acceptez, convertissez, réglez et encaissez — depuis une seule plateforme non dépositaire conçue pour les entreprises et les créateurs.",
+      "settle": {
+        "title": "Règlement",
+        "desc": "Votre argent est réglé directement vers un portefeuille que vous contrôlez — gardez la crypto ou convertissez automatiquement en USDT/USDC. Non dépositaire, on-chain, instantané."
+      }
     }
   }
 }
