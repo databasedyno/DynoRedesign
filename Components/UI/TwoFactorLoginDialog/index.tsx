@@ -31,6 +31,8 @@ interface TwoFactorLoginDialogProps {
   challengeToken?: string;
   onVerify: (code: string) => void;
   onClose: () => void;
+  /** When true, render inline (no modal chrome) for the revamped login shell. */
+  inline?: boolean;
 }
 
 type Mode = "code" | "backup" | "reset";
@@ -38,7 +40,7 @@ const BACKUP_CODE_RE = /^[A-Za-z0-9]{4}-?[A-Za-z0-9]{4}$/;
 
 /** Second-factor prompt after the first factor succeeded on a browser this account hasn't trusted yet. */
 const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
-  open, loading = false, verified = false, error, method = "totp", maskedEmail = "", challengeToken = "", onVerify, onClose,
+  open, loading = false, verified = false, error, method = "totp", maskedEmail = "", challengeToken = "", onVerify, onClose, inline = false,
 }) => {
   const { t } = useTranslation("auth");
   const theme = useTheme();
@@ -73,10 +75,9 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
   const isEmail = method === "email";
   const Icon = isEmail ? MailOutline : ShieldOutlined;
 
-  return (
-    <Dialog open={open} onClose={loading || verified ? undefined : onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid="login-2fa-dialog">
-      <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
+  const body = (
+    <Box>
+      <Box sx={{ display: "flex", alignItems: "center", gap: "10px", mb: 2 }}>
           <Box sx={{ width: 40, height: 40, borderRadius: "10px", backgroundColor: isDark ? "rgba(255,209,0,0.18)" : "#FFF6CC", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Icon sx={{ color: brandFg(isDark), fontSize: 22 }} />
           </Box>
@@ -179,9 +180,11 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
         )}
 
         {mode === "reset" && <ResetViaEmailPanel challengeToken={challengeToken} onBack={() => setMode("code")} />}
-      </DialogContent>
+    </Box>
+  );
 
-      <DialogActions sx={{ px: "28px", pb: "20px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 0.5 }}>
+  const footer = (
+    <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 0.5, ...(inline ? { mt: 2 } : {}) }}>
         <Button onClick={onClose} disabled={loading} data-testid="login-2fa-cancel" sx={{ fontSize: "13px", color: theme.palette.text.secondary, textTransform: "none" }}>
           {t("twoFactor.cancel", { defaultValue: "Cancel" })}
         </Button>
@@ -211,6 +214,26 @@ const TwoFactorLoginDialog: React.FC<TwoFactorLoginDialogProps> = ({
             )}
           </Box>
         )}
+    </Box>
+  );
+
+  if (inline) {
+    if (!open) return null;
+    return (
+      <Box data-testid="login-2fa-inline">
+        {body}
+        {footer}
+      </Box>
+    );
+  }
+
+  return (
+    <Dialog open={open} onClose={loading || verified ? undefined : onClose} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: "12px" } }} data-testid="login-2fa-dialog">
+      <DialogContent sx={{ px: "28px", pt: "28px", pb: "12px" }}>
+        {body}
+      </DialogContent>
+      <DialogActions sx={{ px: "28px", pb: "20px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 0.5 }}>
+        {footer}
       </DialogActions>
     </Dialog>
   );

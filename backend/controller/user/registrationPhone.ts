@@ -1,5 +1,6 @@
 import { raw as envRaw } from "../../utils/config";
 import express from "express";
+import crypto from "crypto";
 import {
   downloadUserImage,
   errorResponseHelper,
@@ -16,6 +17,7 @@ import { getRedisItem, deleteRedisItem, setRedisItemWithTTL } from "../../utils/
 import { normalizeLang } from "../../utils/emailI18n";
 import { redeemUserReferralCode } from "../../services/referralService";
 import { _formatAttribution, createUserWallets, generateReferralCode, requires2FAChallenge, getAccessToken, sendTelnyxVerification, SMS_UNSUPPORTED_MESSAGE } from "./userShared";
+import { hashPassword, validatePasswordStrength } from "../../helper/passwordHelper";
 import { normalizeMobile, INVALID_MOBILE_MESSAGE } from "../../utils/phoneNumber";
 
 export const phoneTypeCheck = async (req: express.Request, res: express.Response) => {
@@ -222,12 +224,86 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
       });
     }
 
-    // Retrieve referral code if stored
+    // NEW account → number verified, but the account is NOT created here. Issue
+    // a short-lived, single-use "signup session" token (proof the number was
+    // verified). The final screen (first name, last name, password) calls
+    // POST /registerPhone/complete with this token to create the account.
+    const signupToken = crypto.randomBytes(32).toString("hex");
+    await setRedisItemWithTTL(
+      `signup-session-phone:${mobile}`,
+      { token: signupToken, createdAt: new Date().toISOString() },
+      900, // 15 minutes to finish setting up
+    );
+    userLogger.info(`[RegisterPhone] Number verified — signup session issued: ${mobile}`);
+    return successResponseHelper(res, 200, "Number verified. Finish setting up your account.", {
+      account_exists: false,
+      mobile,
+      signup_token: signupToken,
+    });
+
+  } catch (e) {
+      handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
+ * Simplified Phone Registration - Step 3: Set up account (name + password)
+ * POST /api/user/registerPhone/complete
+ *
+ * Validates the single-use signup session issued by the verify step, then
+ * creates the password-based account and signs the user in.
+ */
+export const registerPhoneComplete = async (req: express.Request, res: express.Response) => {
+  try {
+    const { mobile: rawMobile, signup_token, password } = req.body;
+
+    if (!rawMobile || !signup_token) {
+      return errorResponseHelper(res, 400, "Your verification session expired. Please start again.");
+    }
+
+    const normalized = normalizeMobile(rawMobile);
+    if (!normalized) {
+      return errorResponseHelper(res, 400, INVALID_MOBILE_MESSAGE);
+    }
+    const mobile = normalized.digits;
+
+    // Validate the single-use signup session (proof the number was verified).
+    const session = await getRedisItem(`signup-session-phone:${mobile}`);
+    if (!session || session.token !== signup_token) {
+      return errorResponseHelper(res, 400, "Your verification session expired. Please verify your number again.");
+    }
+
+    // Name — required so no account is created name-less.
+    const rawFirstPhone = typeof req.body?.first_name === "string" ? req.body.first_name.trim() : "";
+    const rawLastPhone = typeof req.body?.last_name === "string" ? req.body.last_name.trim() : "";
+    const fullNamePhone = `${rawFirstPhone} ${rawLastPhone}`.replace(/\s+/g, " ").trim();
+    if (!rawFirstPhone || !rawLastPhone || fullNamePhone.length < 2) {
+      return errorResponseHelper(res, 400, "Please enter your first and last name.");
+    }
+    const { first_name: firstNamePhone, last_name: lastNamePhone } = deriveNameParts({
+      first: rawFirstPhone,
+      last: rawLastPhone,
+      full: fullNamePhone,
+    });
+
+    // Password strength (OWASP — upper + lower + number + special, 8+).
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      return errorResponseHelper(res, 400, passwordError);
+    }
+
+    // Race guard — never create a duplicate account.
+    const mobileExists = await userModel.findOne({ where: { mobile } });
+    if (mobileExists) {
+      await deleteRedisItem(`signup-session-phone:${mobile}`);
+      return errorResponseHelper(res, 409, "This number is already registered. Please log in.");
+    }
+
+    // Retrieve referral / attribution / vertical stored at Step 1.
     const referralData = await getRedisItem(`reg-referral-phone:${mobile}`);
     const referral_code = referralData?.referral_code || null;
     if (referralData) await deleteRedisItem(`reg-referral-phone:${mobile}`);
 
-    // Retrieve SEO attribution (if the user arrived from an SEO landing page)
     const storedAttrPhone = await getRedisItem(`reg-attribution-phone:${mobile}`);
     if (storedAttrPhone) await deleteRedisItem(`reg-attribution-phone:${mobile}`);
     const requestAttrPhone = _formatAttribution(req.body?.attribution);
@@ -236,8 +312,6 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
     );
     const attrLogSuffixPhone = requestAttrPhone || storedAttrPhoneStr;
 
-    // Retrieve purpose vertical stored in Redis by Step 1 (design audit 2026-08-05).
-    // Also accept it directly in this request body as a fallback.
     const validVerticalsPhone = ["merchants", "fundraisers", "creators", "developers"] as const;
     const storedVerticalPhone = await getRedisItem(`reg-vertical-phone:${mobile}`);
     if (storedVerticalPhone) await deleteRedisItem(`reg-vertical-phone:${mobile}`);
@@ -249,28 +323,11 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
       typeof rawVerticalPhone === "string" && (validVerticalsPhone as readonly string[]).includes(rawVerticalPhone)
         ? rawVerticalPhone
         : null;
-    
-    // Capture the person's name (now collected on the OTP screen). Stored as a
-    // single "First Last" string; REQUIRED so no account is created name-less.
-    const rawFirstPhone = typeof req.body?.first_name === "string" ? req.body.first_name.trim() : "";
-    const rawLastPhone = typeof req.body?.last_name === "string" ? req.body.last_name.trim() : "";
-    const fullNamePhone = (rawFirstPhone || rawLastPhone)
-      ? `${rawFirstPhone} ${rawLastPhone}`.replace(/\s+/g, " ").trim()
-      : (typeof req.body?.name === "string" ? req.body.name.replace(/\s+/g, " ").trim() : "");
-    if (!fullNamePhone || fullNamePhone.length < 2) {
-      return errorResponseHelper(res, 400, "Please enter your first and last name.");
-    }
-    const { first_name: firstNamePhone, last_name: lastNamePhone } = deriveNameParts({
-      first: rawFirstPhone,
-      last: rawLastPhone,
-      full: fullNamePhone,
-    });
 
     const photoLocation = await downloadUserImage();
     const photo = envRaw("SERVER_URL") + photoLocation;
     const userReferralCode = generateReferralCode();
-    
-    // Create user with mobile + name; no password
+
     const createdUser = await userModel.create({
       name: fullNamePhone,
       first_name: firstNamePhone,
@@ -278,23 +335,17 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
       mobile,
       email: null,
       photo,
-      password: null,
+      password: hashPassword(password),
       login_type: "SMS",
       referral_code: userReferralCode,
       referred_by_code: referral_code,
       language: normalizeLang(req.body?.language),
       purpose_vertical: purposeVerticalPhone,
     });
-    
-    // Create wallets
-    await createUserWallets(createdUser.dataValues.user_id);
 
-    // Capture the real signup IP + country (non-blocking) for future investigations
+    await createUserWallets(createdUser.dataValues.user_id);
     captureSignupContext(createdUser.dataValues.user_id, req);
 
-    // Referral: unified service — creates the referral record AND grants the
-    // invitee their 50%/30d welcome discount (single source of truth; replaces
-    // the old inline block whose broken require path silently no-op'd).
     if (referral_code) {
       try {
         const r = await redeemUserReferralCode({
@@ -306,22 +357,24 @@ export const registerPhoneStep2 = async (req: express.Request, res: express.Resp
         userLogger.error("Error applying referral:", refError);
       }
     }
-    
-    const resData = await getAccessToken(createdUser.dataValues.user_id);
-    
-    userLogger.info(`[RegisterPhone] User registered via simplified phone flow: ${mobile}${attrLogSuffixPhone}`);
 
     emailService.sendNewUserAdminNotification({
       name: fullNamePhone || mobile, mobile, login_type: "SMS",
       user_id: createdUser.dataValues.user_id,
       signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
-    
-    successResponseHelper(res, 200, "Account created successfully!", {
+
+    // Consume the signup session — single use.
+    await deleteRedisItem(`signup-session-phone:${mobile}`);
+
+    const resData = await getAccessToken(createdUser.dataValues.user_id);
+    userLogger.info(`[RegisterPhone] Account created (password) via 3-step flow: ${mobile}${attrLogSuffixPhone}`);
+
+    return successResponseHelper(res, 200, "Account created successfully!", {
       ...resData,
       referral_code: userReferralCode,
     });
-    
+
   } catch (e) {
       handleControllerError(res, e, userLogger);
   }

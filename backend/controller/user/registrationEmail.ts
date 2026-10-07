@@ -1,5 +1,6 @@
 import { raw as envRaw } from "../../utils/config";
 import express from "express";
+import crypto from "crypto";
 import {
   downloadUserImage,
   errorResponseHelper,
@@ -221,24 +222,6 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
 
     const emailLower = email.toLowerCase().trim();
 
-    // Capture the person's name up-front (now collected on the OTP screen, product
-    // decision 2026-09-07). Stored as a single "First Last" string. Accept either
-    // structured {first_name,last_name} or a combined {name}. This is REQUIRED for
-    // new-account creation below; passwordless LOGIN of an existing account returns
-    // before the requirement, so returning users are unaffected.
-    const rawFirst = typeof req.body?.first_name === "string" ? req.body.first_name.trim() : "";
-    const rawLast = typeof req.body?.last_name === "string" ? req.body.last_name.trim() : "";
-    const fullName = (rawFirst || rawLast)
-      ? `${rawFirst} ${rawLast}`.replace(/\s+/g, " ").trim()
-      : (typeof req.body?.name === "string" ? req.body.name.replace(/\s+/g, " ").trim() : "");
-    // Split into discrete first/last for the dedicated columns (kept in sync
-    // with `name`). Structured first/last inputs win; else the combined name
-    // is split on the first space.
-    const { first_name: firstNameStored, last_name: lastNameStored } = deriveNameParts({
-      first: rawFirst,
-      last: rawLast,
-      full: fullName,
-    });
     const otpKey = `otp:${emailLower}`;
     const item = await getRedisItem(otpKey);
 
@@ -276,21 +259,95 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
       });
     }
 
-    // Retrieve referral code if stored
+    // NEW account → the email is now verified, but the account is NOT created
+    // here. We issue a short-lived, single-use "signup session" token (proof of
+    // email ownership) and return it. The final screen (first name, last name,
+    // password) calls POST /registerEmail/complete with this token to create
+    // the password-based account. This powers the clean 3-screen sign-up
+    // (Email → Code → Set up account).
+    const signupToken = crypto.randomBytes(32).toString("hex");
+    await setRedisItemWithTTL(
+      `signup-session:${emailLower}`,
+      { token: signupToken, createdAt: new Date().toISOString() },
+      900, // 15 minutes to finish setting up
+    );
+    userLogger.info(`[RegisterEmail] Email verified — signup session issued: ${emailLower}`);
+    return successResponseHelper(res, 200, "Email verified. Finish setting up your account.", {
+      account_exists: false,
+      email_verified: true,
+      signup_token: signupToken,
+    });
+
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+/**
+ * Simplified Email Registration - Step 3: Set up account (name + password)
+ * POST /api/user/registerEmail/complete
+ *
+ * Validates the single-use signup session issued by verify-otp, then creates
+ * the password-based account (bcrypt) and signs the user in. Consumes the
+ * session token exactly once.
+ */
+export const registerEmailComplete = async (req: express.Request, res: express.Response) => {
+  try {
+    const { email, signup_token, password } = req.body;
+
+    if (!email || !signup_token) {
+      return errorResponseHelper(res, 400, "Your verification session expired. Please start again.");
+    }
+
+    const emailForCheck = String(email).trim();
+    if (emailForCheck.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailForCheck)) {
+      return errorResponseHelper(res, 400, "Please enter a valid email address.");
+    }
+    const emailLower = email.toLowerCase().trim();
+
+    // Validate the single-use signup session (proof the email was verified).
+    const session = await getRedisItem(`signup-session:${emailLower}`);
+    if (!session || session.token !== signup_token) {
+      return errorResponseHelper(res, 400, "Your verification session expired. Please verify your email again.");
+    }
+
+    // Name — required so no account is created name-less.
+    const rawFirst = typeof req.body?.first_name === "string" ? req.body.first_name.trim() : "";
+    const rawLast = typeof req.body?.last_name === "string" ? req.body.last_name.trim() : "";
+    const fullName = `${rawFirst} ${rawLast}`.replace(/\s+/g, " ").trim();
+    if (!rawFirst || !rawLast || fullName.length < 2) {
+      return errorResponseHelper(res, 400, "Please enter your first and last name.");
+    }
+    const { first_name: firstNameStored, last_name: lastNameStored } = deriveNameParts({
+      first: rawFirst,
+      last: rawLast,
+      full: fullName,
+    });
+
+    // Password strength (OWASP — upper + lower + number + special, 8+).
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      return errorResponseHelper(res, 400, passwordError);
+    }
+
+    // Race guard — never create a duplicate account.
+    const existing = await userModel.findOne({ where: { email: emailLower } });
+    if (existing) {
+      await deleteRedisItem(`signup-session:${emailLower}`);
+      return errorResponseHelper(res, 409, "An account with this email already exists. Please log in.");
+    }
+
+    // Retrieve referral code / attribution / purpose vertical stored at Step 1.
     const referralData = await getRedisItem(`reg-referral:${emailLower}`);
     const referral_code = referralData?.referral_code || null;
     if (referralData) await deleteRedisItem(`reg-referral:${emailLower}`);
 
-    // Retrieve SEO attribution (if the user arrived from an SEO landing page)
     const storedAttr = await getRedisItem(`reg-attribution:${emailLower}`);
     if (storedAttr) await deleteRedisItem(`reg-attribution:${emailLower}`);
     const requestAttr = _formatAttribution(req.body?.attribution);
     const storedAttrStr = _formatAttribution(storedAttr && Object.keys(storedAttr).length > 0 ? storedAttr : null);
     const attrLogSuffix = requestAttr || storedAttrStr;
 
-    // Retrieve purpose vertical stored in Redis by Step 1 (design audit 2026-08-05).
-    // Also accept it directly in this request body as a fallback so callers can
-    // pass it end-to-end in one shot if they prefer.
     const validVerticals = ["merchants", "fundraisers", "creators", "developers"] as const;
     const storedVertical = await getRedisItem(`reg-vertical:${emailLower}`);
     if (storedVertical) await deleteRedisItem(`reg-vertical:${emailLower}`);
@@ -303,15 +360,6 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
         ? rawVertical
         : null;
 
-    // Guarantee a name is recorded for EVERY new account (product decision
-    // 2026-09-07). The email onboarding collects First + Last on the OTP screen,
-    // so a missing/blank name here means a malformed client request — reject it
-    // rather than silently create a nameless merchant.
-    if (!fullName || fullName.length < 2) {
-      return errorResponseHelper(res, 400, "Please enter your first and last name.");
-    }
-
-    // Create user — name captured on the OTP screen; no password (OTP-based)
     const photoLocation = await downloadUserImage();
     const photo = envRaw("SERVER_URL") + photoLocation;
     const userReferralCode = generateReferralCode();
@@ -322,8 +370,8 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
       last_name: lastNameStored,
       email: emailLower,
       photo,
-      password: null,
-      email_verified: true, // Already verified by OTP
+      password: hashPassword(password),
+      email_verified: true, // Already verified by OTP in the previous step
       referral_code: userReferralCode,
       referred_by_code: referral_code,
       login_type: "EMAIL",
@@ -331,16 +379,9 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
       purpose_vertical: purposeVertical,
     });
 
-    // Create wallets
     await createUserWallets(createdUser.dataValues.user_id);
-
-    // Capture the real signup IP + country (non-blocking) for future investigations
     captureSignupContext(createdUser.dataValues.user_id, req);
 
-    // Handle referral
-    // Referral: unified service — creates the referral record AND grants the
-    // invitee their 50%/30d welcome discount (single source of truth; replaces
-    // the old inline block whose broken require path silently no-op'd).
     if (referral_code) {
       try {
         const r = await redeemUserReferralCode({
@@ -353,21 +394,21 @@ export const registerEmailVerifyOtp = async (req: express.Request, res: express.
       }
     }
 
-    // Admin notification
     emailService.sendNewUserAdminNotification({
       name: fullName, email: emailLower, login_type: "Email",
       user_id: createdUser.dataValues.user_id,
       signup_ip: getClientIp(req),
     }).catch(err => userLogger.error("Admin notification error:", err));
 
-    // Welcome email
     emailService.sendWelcomeEmail(emailLower, rawFirst || fullName || "there").catch(err => {
       userLogger.error("Failed to send welcome email:", err);
     });
 
-    const resData = await getAccessToken(createdUser.dataValues.user_id);
+    // Consume the signup session — single use.
+    await deleteRedisItem(`signup-session:${emailLower}`);
 
-    userLogger.info(`[RegisterEmail] User registered via simplified email flow: ${emailLower}${attrLogSuffix}`);
+    const resData = await getAccessToken(createdUser.dataValues.user_id);
+    userLogger.info(`[RegisterEmail] Account created (password) via 3-step flow: ${emailLower}${attrLogSuffix}`);
 
     return successResponseHelper(res, 200, "Account created successfully!", {
       ...resData,

@@ -1165,6 +1165,38 @@ export default function Login() {
           />
           <AuthHeaderControls />
         </Box>
+        {userState.login2faRequired ? (
+          <TwoFactorLoginDialog
+            inline
+            open={!!userState.login2faRequired}
+            loading={!!userState.login2faLoading}
+            verified={!!userState.login2faVerified}
+            method={userState.login2faMethod === "email" ? "email" : "totp"}
+            maskedEmail={userState.login2faEmail || ""}
+            challengeToken={userState.login2faChallenge || ""}
+            error={
+              userState.error && userState.error.actionType === USER_VERIFY_2FA
+                ? userState.error.message
+                : undefined
+            }
+            onVerify={handle2FAVerify}
+            onClose={handle2FAClose}
+          />
+        ) : forgotPasswordDialogOpen ? (
+          <ForgotPasswordDialog
+            inline
+            open={forgotPasswordDialogOpen}
+            onClose={() => {
+              setForgotPasswordDialogOpen(false);
+              setForgotPasswordEmailError("");
+              setForgotPasswordOtpCountdown(0);
+              setForgotPasswordOtpError("");
+              setIsPasswordRecoveryMode(false);
+            }}
+            currentEmail={verifiedEmail}
+          />
+        ) : (
+        <>
         <TitleDescription
           title={t("login")}
           description={t("loginDescription")}
@@ -1959,6 +1991,8 @@ export default function Login() {
           </>
         )}
 
+        </>
+        )}
       </Box>
       </FormPanel>
       {/* Trust strip shows below the card on mobile/tablet; on desktop the
@@ -1999,35 +2033,9 @@ export default function Login() {
         }
       />
 
-      {/* TOTP 2FA step-up — shown when the first factor succeeded on an account with 2FA enabled */}
-      <TwoFactorLoginDialog
-        open={!!userState.login2faRequired}
-        loading={!!userState.login2faLoading}
-        verified={!!userState.login2faVerified}
-        method={userState.login2faMethod === "email" ? "email" : "totp"}
-        maskedEmail={userState.login2faEmail || ""}
-        challengeToken={userState.login2faChallenge || ""}
-        error={
-          userState.error && userState.error.actionType === USER_VERIFY_2FA
-            ? userState.error.message
-            : undefined
-        }
-        onVerify={handle2FAVerify}
-        onClose={handle2FAClose}
-      />
-
-      {/* Forgot Password Dialog */}
-      <ForgotPasswordDialog
-        open={forgotPasswordDialogOpen}
-        onClose={() => {
-          setForgotPasswordDialogOpen(false);
-          setForgotPasswordEmailError("");
-          setForgotPasswordOtpCountdown(0);
-          setForgotPasswordOtpError("");
-          setIsPasswordRecoveryMode(false);
-        }}
-        currentEmail={verifiedEmail}
-      />
+      {/* TOTP 2FA step-up + Forgot-password are now rendered INLINE inside the
+          form column (see the conditional near the top of FormPanel), matching
+          the revamped sign-up shell. The login-OTP step-up dialog stays modal. */}
     </AuthPageBackground>
   );
 }

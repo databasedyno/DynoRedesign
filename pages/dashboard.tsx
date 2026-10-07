@@ -1,5 +1,6 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import AutoClaimHandle from "@/Components/Page/Dashboard/AutoClaimHandle";
+import PurposeCard from "@/Components/Page/Dashboard/PurposeCard";
 import FirstRunRedirect from "@/Components/Page/GetStarted/FirstRunRedirect";
 import Dashboard2026 from "@/Components/Page/Dashboard/v2026";
 import { pageProps, rootReducer } from "@/utils/types";
@@ -98,6 +99,7 @@ export default function Home({
             } as React.CSSProperties
           }
         >
+          {!isMember && <PurposeCard />}
           <Dashboard2026 onboarding={!isMember} />
         </div>
       </main>

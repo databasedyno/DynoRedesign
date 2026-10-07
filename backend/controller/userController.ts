@@ -44,15 +44,15 @@ export * from "./user/creatorHandle";
 export * from "./user/creatorProfile";
 export * from "./user/preferences";
 
-import { registerUser, registerEmailStep1, registerEmailVerifyOtp } from "./user/registrationEmail";
-import { phoneTypeCheck, registerPhoneStep1, registerPhoneStep2, checkPhone } from "./user/registrationPhone";
+import { registerUser, registerEmailStep1, registerEmailVerifyOtp, registerEmailComplete } from "./user/registrationEmail";
+import { phoneTypeCheck, registerPhoneStep1, registerPhoneStep2, registerPhoneComplete, checkPhone } from "./user/registrationPhone";
 import { login, verifyLoginOTP, resendLoginOTP, checkEmail, generateOTP, confirmOTP } from "./user/authLogin";
 import { connectSocial, facebookSignIn } from "./user/socialConnect";
 import { googleSignIn, githubSignIn } from "./user/socialAuth";
 import { forgotPassword, forgotPasswordPhone, forgotPasswordVerifyOtp, forgotPasswordPhoneVerifyOtp, resetPassword } from "./user/passwordReset";
 import { changePassword, setPassword, getLoginActivity, flagLogin } from "./user/profileSecurity";
 import { signOutEverywhereConfirmPage, signOutEverywhereAction } from "./user/signoutEverywhere";
-import { updateUser, getProfile, updateProfile, updateDashboardQuickActions, updateLastCompany } from "./user/profile";
+import { updateUser, getProfile, updateProfile, updateDashboardQuickActions, updateLastCompany, setPurpose } from "./user/profile";
 import { changeEmail, removeEmail, addEmail, verifyAddEmail } from "./user/contactEmail";
 import { changePhone, removePhone, addPhone, verifyAddPhone } from "./user/contactPhone";
 import { deleteAccount, unsubscribeFromReminders, unsubscribeFromPaymentReminders } from "./user/accountLifecycle";
@@ -68,9 +68,11 @@ export default {
   registerUser,
   registerEmailStep1,
   registerEmailVerifyOtp,
+  registerEmailComplete,
   phoneTypeCheck,
   registerPhoneStep1,
   registerPhoneStep2,
+  registerPhoneComplete,
   login,
   verifyLoginOTP,
   resendLoginOTP,
@@ -104,6 +106,7 @@ export default {
   verifyEmail,
   resendVerification,
   updateLastCompany,
+  setPurpose,
   addEmail,
   verifyAddEmail,
   addPhone,

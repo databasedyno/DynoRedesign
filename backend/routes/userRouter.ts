@@ -30,10 +30,12 @@ const contactChangeStepUp = requireStepUp("security", {
 userRouter.post("/registerUser", moderateRateLimiter, validate(registerSchema), userMiddleware, userController.registerUser);
 userRouter.post("/registerPhone", moderateRateLimiter, userController.registerPhoneStep1);
 userRouter.post("/registerPhone/verify", moderateRateLimiter, userController.registerPhoneStep2);
+userRouter.post("/registerPhone/complete", moderateRateLimiter, userController.registerPhoneComplete);
 
-// Simplified registration (email/phone + OTP only, no password)
+// Simplified registration (email/phone + OTP; 3-screen: Email → Code → Set up account)
 userRouter.post("/registerEmail", otpRateLimiter, userController.registerEmailStep1);
 userRouter.post("/registerEmail/verify-otp", moderateRateLimiter, userController.registerEmailVerifyOtp);
+userRouter.post("/registerEmail/complete", moderateRateLimiter, userController.registerEmailComplete);
 userRouter.post("/phone-type-check", moderateRateLimiter, userController.phoneTypeCheck);
 
 // Login endpoint - strict rate limiting (5 per 15 min per IP+email combo) to prevent brute force
@@ -75,6 +77,7 @@ userRouter.post("/facebook-signin", moderateRateLimiter, userController.facebook
 userRouter.get("/profile", authMiddleware, userController.getProfile);
 userRouter.put("/profile", authMiddleware, userController.updateProfile);
 userRouter.put("/dashboard-quick-actions", authMiddleware, userController.updateDashboardQuickActions);
+userRouter.post("/purpose", authMiddleware, userController.setPurpose);
 userRouter.put("/email", authMiddleware, securityStepUp, userController.changeEmail);
 userRouter.put("/phone", authMiddleware, securityStepUp, userController.changePhone);
 userRouter.delete("/email", authMiddleware, securityStepUp, userController.removeEmail);

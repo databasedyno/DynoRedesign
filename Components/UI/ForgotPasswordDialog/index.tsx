@@ -36,6 +36,8 @@ export interface ForgotPasswordDialogProps {
   open: boolean;
   onClose: () => void;
   currentEmail?: string;
+  /** When true, render inline (no modal chrome) for the revamped login shell. */
+  inline?: boolean;
 }
 
 type ResetMethod = "email" | "phone";
@@ -47,6 +49,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   open,
   onClose,
   currentEmail,
+  inline = false,
 }) => {
   const { t } = useTranslation("auth");
   const theme = useTheme();
@@ -284,10 +287,14 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
     </Box>
   );
 
-  // ════════════════════════════════════════════
-  // STEP 1: Choose Method + Enter Email/Phone
-  // ════════════════════════════════════════════
-  if (step === "method") {
+  // Render helper: inline (login shell) renders bare content; otherwise the
+  // modal chrome. A plain function (not a component) so inputs keep focus
+  // across re-renders.
+  const wrap = (children: React.ReactNode) => {
+    if (inline) {
+      if (!open) return null;
+      return <Box data-testid="forgot-password-inline">{children}</Box>;
+    }
     return (
       <PopupModal open={open} handleClose={handleClose} showHeader={false} transparent sx={modalSx}>
         <PanelCard
@@ -299,6 +306,18 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
           sx={panelSx}
           bodySx={{ padding: "0" }}
         >
+          {children}
+        </PanelCard>
+      </PopupModal>
+    );
+  };
+
+  // ════════════════════════════════════════════
+  // STEP 1: Choose Method + Enter Email/Phone
+  // ════════════════════════════════════════════
+  if (step === "method") {
+    return (
+      wrap(<>
           {/* Header */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1 }}>
             <Box
@@ -421,8 +440,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               {t("forgotPasswordDialog.backToLogin")}
             </Link>
           </Box>
-        </PanelCard>
-      </PopupModal>
+      </>)
     );
   }
 
@@ -435,16 +453,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
       : phone.replace(/(\d{3})\d+(\d{2})/, "$1****$2");
 
     return (
-      <PopupModal open={open} handleClose={handleClose} showHeader={false} transparent sx={modalSx}>
-        <PanelCard
-          title=""
-          showHeaderBorder={false}
-          bodyPadding="0"
-          headerPadding="0 !important"
-          headerAction={closeBtn}
-          sx={panelSx}
-          bodySx={{ padding: "0" }}
-        >
+      wrap(<>
           {/* Header */}
           <Box sx={{ textAlign: "center", mb: 2.5 }}>
             <Box
@@ -501,8 +510,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
               {method === "email" ? t("forgotPasswordDialog.changeEmail") : t("forgotPasswordDialog.changePhone")}
             </Link>
           </Box>
-        </PanelCard>
-      </PopupModal>
+      </>)
     );
   }
 
@@ -511,16 +519,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
   // ════════════════════════════════════════════
   if (step === "newPassword") {
     return (
-      <PopupModal open={open} handleClose={handleClose} showHeader={false} transparent sx={modalSx}>
-        <PanelCard
-          title=""
-          showHeaderBorder={false}
-          bodyPadding="0"
-          headerPadding="0 !important"
-          headerAction={closeBtn}
-          sx={panelSx}
-          bodySx={{ padding: "0" }}
-        >
+      wrap(<>
           {/* Header */}
           <Box sx={{ textAlign: "center", mb: 2.5 }}>
             <Box
@@ -623,24 +622,14 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             endIcon={loading ? <LoadingIcon size={18} /> : undefined}
             hideLabelWhenLoading={true}
           />
-        </PanelCard>
-      </PopupModal>
+      </>)
     );
   }
 
   // ════════════════════════════════════════════
   // STEP 4: Success
   // ════════════════════════════════════════════
-  return (
-    <PopupModal open={open} handleClose={handleClose} showHeader={false} transparent sx={modalSx}>
-      <PanelCard
-        title=""
-        showHeaderBorder={false}
-        bodyPadding="0"
-        headerPadding="0 !important"
-        sx={panelSx}
-        bodySx={{ padding: "0" }}
-      >
+  return wrap(<>
         <Box sx={{ textAlign: "center", py: 2 }}>
           <Box
             sx={{
@@ -670,9 +659,7 @@ const ForgotPasswordDialog: React.FC<ForgotPasswordDialogProps> = ({
             sx={{ fontWeight: 700, padding: "14px 24px", borderRadius: "12px", fontSize: "15px" }}
           />
         </Box>
-      </PanelCard>
-    </PopupModal>
-  );
+      </>);
 };
 
 export default ForgotPasswordDialog;

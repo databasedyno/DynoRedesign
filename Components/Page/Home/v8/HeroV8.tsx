@@ -60,7 +60,7 @@ const SignupBlock: React.FC = () => {
     const v = email.trim();
     if (!v) return goStart(router, "hero");
     if (!EMAIL_RE.test(v)) return setError(true);
-    void router.push(`/auth/register?ref=hero&email=${encodeURIComponent(v.toLowerCase())}`);
+    void router.push(`/auth/register?ref=hero&autoSend=1&email=${encodeURIComponent(v.toLowerCase())}`);
   };
 
   return (

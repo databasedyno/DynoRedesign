@@ -406,6 +406,41 @@ export const updateLastCompany = async (req: express.Request, res: express.Respo
 };
 
 /**
+ * Set / update the signed-in user's purpose vertical.
+ * POST /api/user/purpose  { purpose_vertical }
+ *
+ * Powers the dismissible "What brings you to Dynopay?" card on the dashboard
+ * (moved off the sign-up flow in the 2026 onboarding reset). Whitelisted so an
+ * invalid value can never trip the tbl_user CHECK constraint.
+ */
+export const setPurpose = async (req: express.Request, res: express.Response) => {
+  try {
+    const userId = (res.locals.user as any)?.user_id;
+    if (!userId) return errorResponseHelper(res, 401, "Unauthorized");
+
+    const validVerticals = ["merchants", "fundraisers", "creators", "developers"] as const;
+    const raw = req.body?.purpose_vertical;
+    const purposeVertical =
+      typeof raw === "string" && (validVerticals as readonly string[]).includes(raw) ? raw : null;
+    if (!purposeVertical) {
+      return errorResponseHelper(res, 400, "Please choose a valid option.");
+    }
+
+    await userModel.update(
+      { purpose_vertical: purposeVertical },
+      { where: { user_id: userId } },
+    );
+    await deleteRedisItem(`profile:${userId}`);
+
+    userLogger.info(`[setPurpose] user ${userId} → ${purposeVertical}`);
+    successResponseHelper(res, 200, "Purpose updated", { purpose_vertical: purposeVertical });
+  } catch (e) {
+    handleControllerError(res, e, userLogger);
+  }
+};
+
+
+/**
  * Check Phone - Check if a phone number is registered
  * GET /api/user/checkPhone?phone=1234567890
  */
