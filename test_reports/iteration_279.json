@@ -1,0 +1,27 @@
+{
+  "summary": "Independently re-verified the CI hydration-guard fix in .github/workflows/deploy-droplet.yml (step 'Hydration guard — live site must hydrate cleanly'). YAML parses cleanly, job timeout-minutes=60, step timeout-minutes=12, concurrency group deploy-droplet / cancel-in-progress=false unchanged. Active commands in the step contain NO --with-deps and NO apt-get (both strings appear only in explanatory comments). All 4 scenarios + exit-code tests + production checks pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "workflow_validity": "PASS — yaml.safe_load ok; 9 steps; job timeout-minutes=60; HG step timeout-minutes=12; concurrency {group: deploy-droplet, cancel-in-progress: false}; no active --with-deps / apt-get in HG step (only in comments at lines 28, 298, 307).",
+    "scenario_A_normal_runner": "PASS — real time 31.9s. Log: 'Using the runner's preinstalled Chrome: /usr/bin/google-chrome (Chromium 154.0.8037.92 ...)' then 6 'ok' lines (390px+1920px × /, /fees, /safedeal), 'all 6 checks clean on https://dynopay.com', exit 0. No 'playwright install' executed.",
+    "scenario_B_broken_chrome_fallback": "PASS — real time 38.0s. Fake /tmp/fakechrome/google-chrome (exit 1) on PATH + PLAYWRIGHT_BROWSERS_PATH=/tmp/pwb_B (empty). Log: 'could not launch a browser' then 'Preinstalled Chrome could not be launched — falling back to Playwright Chromium', browser-only download (no apt), 6 ok, exit 0.",
+    "scenario_C_no_browser_and_download_fails": "PASS — real time 3.6s. Fake broken chrome + empty PLAYWRIGHT_BROWSERS_PATH + PLAYWRIGHT_DOWNLOAD_HOST=http://127.0.0.1:9. Final log line: '::warning title=Hydration guard skipped::Playwright Chromium download failed or timed out — the deploy itself succeeded; this is GitHub-runner infra, not the site.' Exit 0.",
+    "scenario_D_real_site_failure_still_fails": "PASS — GUARD_PAGES=/this-page-should-404-qa GUARD_WIDTHS=1920 GUARD_RETRIES=0. Output: 'FAIL 1920px /this-page-should-404-qa (reproduced 1/1)' + '- HTTP 404' + 'hydration_guard: 1 page/width combination(s) failed on https://dynopay.com'. Exit 1.",
+    "hydration_guard_exit_codes": "PASS — node --check ok; unset GUARD_BASE_URL -> stderr 'hydration_guard: set GUARD_BASE_URL or --base=<url>' + exit 2; PLAYWRIGHT_CHROME_EXECUTABLE_PATH=/bin/false + GUARD_BASE_URL=https://dynopay.com -> stderr 'hydration_guard: could not launch a browser (/bin/false): ...' + exit 3; normal run -> exit 0.",
+    "production_health": "PASS — https://dynopay.com/health -> {status: healthy, database: connected, redis: connected, tatum operational, binance ws connected}. /=200, /auth/login=200, /fees=200. Server HTML of /auth/register?ref=hero&autoSend=1&email=qa-ssr-check%40example.com contains both data-testid=\"register-otp-title\" and data-testid=\"register-sending-code\" (SSR, no browser opened — no OTP sent)."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Workflow fix is correct and minimal: comments at lines 28/298/307 still contain the words '--with-deps' / 'apt-get' for context — this is intentional and only in comments; naive grep for those strings in the file will match comments, so any CI guard must grep active (non-comment) commands only.",
+    "Scenario B fallback runs `timeout 240 npx playwright install chromium` without --with-deps — correct; relies on preinstalled system libs on ubuntu-24.04 runners, which hold chromium's deps already.",
+    "hydration_guard.mjs correctly separates exit 2 (bad config) vs exit 3 (no browser launched) vs exit 1 (real failure); step script handles rc==3 only on the fallback branch after reaching it from the Chrome branch (good: preinstalled-Chrome failure falls through to download fallback instead of skipping)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "n/a"},
+  "seed_data_creation": "None. Created only temp dirs/fake chrome under /tmp — all cleaned up. /usr/bin/google-chrome untouched.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "deploy-droplet.yml hydration guard is green across all 4 CI scenarios locally; the GHA step exits 0 on infra flakiness (warn+skip) and exits 1 only on genuine site hydration/HTTP failures. The next CI run on branch Improvement should pass through the Hydration guard step in <2 min using the runner's preinstalled Chrome."
+}

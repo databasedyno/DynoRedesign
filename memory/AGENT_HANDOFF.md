@@ -1,5 +1,11 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-07 (pod 94432dad, latest) — GitHub "Deploy to Droplet" red → hydration-guard step FIXED (needs Save to GitHub)
+- Run 37695575332 (bf09b9cac): build/push + SSH canary→swap + health all SUCCESS (OTP fix is LIVE); step 10 "Hydration guard" failed with exit 124 = `timeout 300 npx playwright install --with-deps chromium` (runner apt-get hang — same root cause as the ~2 h hang earlier today).
+- Fix: `.github/workflows/deploy-droplet.yml` → use the runner's PREINSTALLED Google Chrome (ubuntu-24.04 image ships Chrome 154) via `PLAYWRIGHT_CHROME_EXECUTABLE_PATH`; fallback `npx playwright install chromium` (no `--with-deps`, `timeout 240`); no browser → `::warning::` + exit 0; real site failure (guard exit 1) still fails. Step timeout 8→12 min; NEW job `timeout-minutes: 60`. `scripts/qa/hydration_guard.mjs` → launch failure = exit 3.
+- Verified locally (pod also has /usr/bin/google-chrome): A preinstalled 33 s 6/6 clean · B fallback 44 s · C skip+warning · D 404 → exit 1. testing_agent iteration_279 = 100%.
+- NOT yet on GitHub: user must Save to GitHub (workflow-file change → needs `workflow` scope on the GitHub connection; worked before for 971c7456c). That push also triggers a fresh deploy.
+
 ## 2026-10-07 (pod 94432dad, later) — LANDING "Start free" → OTP flash FIXED (preview; needs Save to GitHub → deploy)
 - Bug: hero email + Start free → `/auth/register?ref=hero&autoSend=1&email=…` showed "Create your account" (step 1) for ~1s before the OTP screen (step started at "email", switched only after `registerEmail` returned + a 150ms setTimeout).
 - Fix in `pages/auth/register.tsx`: deep-link email read on FIRST render via `readAutoSendEmail(router.query)` (query is SSR-populated because `_app` has getInitialProps) → initial step `verify`; background send with `sendingCode` state ("Sending a 6-digit code to …" + spinner, new key `auth.sendingCodeTo` ×6 locales); failure → back to email step w/ prefilled email + server error; `sendSeqRef` ignores late responses after "Change email"; resend locked during send. `HeroV8.tsx` prefetches `/auth/register` on input focus.
