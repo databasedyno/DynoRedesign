@@ -1,3 +1,18 @@
+# === 2026-10-07 (fork, pod a52f86ab) — LANDING MUTED-GREY CONTRAST FIX — DONE & VERIFIED ===
+# USER: "the grey like text on landing page are not that visible in both light or dark mode."
+# ROOT CAUSE: the muted/tertiary text token `ink3` failed WCAG AA in every palette it is used in on the v8 landing
+#   (stat-band sub-labels, mono eyebrows, captions inside the always-dark mock/stat/CTA panels, hero small labels):
+#     - Components/Page/Home/v7/kit.tsx LIGHT ink3 #999996 on #F9F9F8 ~= 2.7:1  (used by v8 via useConsole + /fees etc.)
+#     - Components/Page/Home/v7/kit.tsx DARK  ink3 #70706E on #131312 ~= 3.8:1
+#     - Components/Page/Home/v8/kit.tsx PANEL ink3 #6F6F6B on #0B0B0A ~= 4.0:1  (always-dark panels, visible in BOTH modes)
+#   ink/ink2 already passed, so left untouched (design hierarchy preserved).
+# FIX (3 one-line token edits): LIGHT ink3 -> #6E6E6C (~4.9:1), DARK ink3 -> #8A8A86 (~5.5:1), PANEL ink3 -> #8A8A86 (~5.8:1).
+#   Prod frontend rebuilt (.next-prod swap) + verified: DOM computed color of the stat-band sub-labels is now rgb(138,138,134).
+#   NOTE: the marketing landing renders light in the preview (theme toggle did not flip isDark here); the dark-canvas token is
+#   changed symmetrically so it applies wherever the site renders dark (e.g. OS prefers-color-scheme: dark). UNCOMMITTED -> Save to GitHub.
+# ============================================================================================
+
+
 # === 2026-10-07 (fork, pod a52f86ab) — VAULT SETUP (this pod) + LOGO PHASE 2 (a) ENTRANCE ANIMATION — DONE & VERIFIED ===
 # PREVIEW URL (this pod): https://a52f86ab-7055-43d7-9270-1cc969378ae3.preview.emergentagent.com
 # Pod set up from env.vault.enc via scripts/pod-bootstrap.sh (passphrase Katiekendra123@). Services healthy (db+redis connected,

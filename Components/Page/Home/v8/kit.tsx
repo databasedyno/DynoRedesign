@@ -48,7 +48,7 @@ export const PANEL = {
   lineStrong: "rgba(255,255,255,0.18)",
   ink: "#F6F6F3",
   ink2: "#ABABA5",
-  ink3: "#6F6F6B",
+  ink3: "#8A8A86",
   gold: "#FFD100",
   goldSoft: "rgba(255,209,0,0.12)",
   green: "#34D399",

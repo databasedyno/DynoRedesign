@@ -50,7 +50,7 @@ const DARK: ConsoleTokens = {
   lineStrong: "rgba(255,255,255,0.15)",
   ink: "#F2F2F0",
   ink2: "#A3A3A0",
-  ink3: "#70706E",
+  ink3: "#8A8A86",
   accent: "#FFD100",
   accentSoft: "rgba(255,209,0,0.10)",
   onAccent: "#1A1A19",
@@ -67,7 +67,7 @@ const LIGHT: ConsoleTokens = {
   lineStrong: "rgba(0,0,0,0.14)",
   ink: "#1A1A19",
   ink2: "#666664",
-  ink3: "#999996",
+  ink3: "#6E6E6C",
   accent: "#8A6D00", // gold is unreadable on white — use a deep gold for text/icons
   accentSoft: "rgba(255,209,0,0.16)",
   onAccent: "#1A1A19",
