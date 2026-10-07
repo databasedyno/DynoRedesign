@@ -37,7 +37,7 @@ const StatBandV8: React.FC = () => {
       to: COINS_COUNT,
       render: fmtInt,
       label: t("v8.stats.assets", { defaultValue: "Coins & tokens" }),
-      sub: t("v8.stats.assetsSub", { defaultValue: `Across ${CHAINS_COUNT} blockchains` }),
+      sub: t("v8.stats.assetsSub", { chains: CHAINS_COUNT, defaultValue: `Across {{chains}} blockchains` }),
     },
     {
       testId: "stat-uptime-pct",

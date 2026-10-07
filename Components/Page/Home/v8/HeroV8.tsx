@@ -141,7 +141,7 @@ const SignupBlock: React.FC = () => {
       <Box data-testid="hero-trust-ticks" sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 1.5, md: 2.5 }, mt: 3 }}>
         {[
           t("v8.hero.trust.0", { defaultValue: "No credit card" }),
-          t("v8.hero.trust.1", { defaultValue: `Fees from ${FEE_FROM}` }),
+          t("v8.hero.trust.1", { fee: FEE_FROM, defaultValue: "Fees from {{fee}}" }),
           t("v8.hero.trust.2", { defaultValue: "Live in minutes" }),
         ].map((label) => (
           <Box key={label} sx={{ display: "inline-flex", alignItems: "center", gap: 0.7 }}>
@@ -207,7 +207,9 @@ const HeroV8: React.FC = () => {
           </Typography>
           <Typography data-testid="hero-subheadline" sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: { xs: 16.5, md: 18.5 }, lineHeight: 1.6, mt: 2.5, maxWidth: 560 }}>
             {t("v8.hero.body", {
-              defaultValue: `The non-custodial gateway for businesses and creators. Get paid in Bitcoin, stablecoins and ${COINS_COUNT} coins across ${CHAINS_COUNT} blockchains — straight to a wallet only you control.`,
+              coins: COINS_COUNT,
+              chains: CHAINS_COUNT,
+              defaultValue: `The non-custodial gateway for businesses and creators. Get paid in Bitcoin, stablecoins and {{coins}} coins across {{chains}} blockchains — straight to a wallet only you control.`,
             })}
           </Typography>
           <SignupBlock />

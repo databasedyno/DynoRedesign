@@ -41,9 +41,16 @@ const overlayFadeIn = keyframes`
 `;
 
 const logoBreath = keyframes`
-  0%   { opacity: 0.35; transform: scale(0.96); }
-  50%  { opacity: 1;    transform: scale(1.03); }
-  100% { opacity: 0.35; transform: scale(0.96); }
+  0%   { opacity: 0.78; transform: scale(0.99); }
+  50%  { opacity: 1;    transform: scale(1.015); }
+  100% { opacity: 0.78; transform: scale(0.99); }
+`;
+
+// Signature entrance: the mark rises and settles in once, echoing the
+// "flow → settlement" idea of the new logo, then eases into the gentle breath.
+const logoEntrance = keyframes`
+  from { opacity: 0; transform: translateY(9px) scale(0.975); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
 `;
 
 const stripPath = (url: string): string => (url || "").split(/[?#]/)[0];
@@ -226,7 +233,7 @@ const RouteTransitionLoader: React.FC = () => {
           sx={{
             width: { xs: 130, sm: 150 },
             height: "auto",
-            animation: `${logoBreath} 1.4s ease-in-out infinite`,
+            animation: `${logoEntrance} 420ms cubic-bezier(0.22, 1, 0.36, 1) both, ${logoBreath} 1.8s ease-in-out 440ms infinite`,
             willChange: "opacity, transform",
             userSelect: "none",
             "@media (prefers-reduced-motion: reduce)": {

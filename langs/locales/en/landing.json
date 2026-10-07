@@ -732,7 +732,20 @@
         "refunds": "Refunds & trust",
         "learn": "Learn"
       }
-    }
+    },
+    "bdBlockchainFee": "Blockchain / network fee",
+    "bdNetToMerchant": "Net to merchant",
+    "bdPaymentAmount": "Payment amount",
+    "breakdownTitle": "Per-payment breakdown",
+    "cheapestHint": "Cheapest payout route",
+    "cheapestOn": "You're on the cheapest payout route",
+    "liveFees": "Live network fees",
+    "lowestFee": "Lowest fee",
+    "networkFeeWord": "network fee",
+    "paymentAmount": "Payment amount (USD)",
+    "settleCurrency": "Settlement currency",
+    "useCheapest": "Use it",
+    "volumeSliderLabel": "Monthly volume"
   },
   "checkout": {
     "expired": {
@@ -2058,14 +2071,113 @@
       "countries": "Countries served",
       "assets": "Crypto assets supported",
       "uptime": "Uptime over 90 days",
-      "note": "Live platform figures · updated continuously"
+      "note": "Live platform figures · updated continuously",
+      "assetsSub": "Across {{chains}} blockchains",
+      "countriesSub": "Buyers paying in 6 languages",
+      "paymentsSub": "On-chain, to merchant wallets",
+      "uptimeSub": "Public status page"
     },
     "product": {
       "lead": "Accept, convert, settle and check out — from a single non-custodial platform built for businesses and creators.",
       "settle": {
         "title": "Settlement",
         "desc": "Your money settles straight to a wallet you control — keep the crypto or auto-convert to USDT/USDC. Non-custodial, on-chain, instant."
-      }
+      },
+      "accept": {
+        "title": "Accept payments",
+        "desc": "Bitcoin, Ethereum, USDT, USDC and every major coin your customers already hold — on a checkout page that confirms in real time."
+      },
+      "checkout": {
+        "title": "Checkout & links",
+        "desc": "A hosted checkout, shareable payment links, buy buttons and invoices — live in seconds, no code required."
+      },
+      "convert": {
+        "title": "Auto-convert",
+        "desc": "Opt in to convert incoming crypto to USDT or USDC the instant it lands, at a locked rate — or keep the coin you're paid."
+      },
+      "cta": "Start free",
+      "eyebrow": "One platform",
+      "learn": "Learn more",
+      "title1": "Everything you need to ",
+      "title2": "get paid in crypto"
+    },
+    "device": {
+      "b1": "Real-time payment alerts and receipts",
+      "b2": "Manage settlement and auto-convert from your phone",
+      "b3": "Embeddable buy button and widget for any site",
+      "eyebrow": "Works on every device",
+      "lead": "No app to install. The full Dynopay dashboard runs in any browser — desktop, tablet or phone — with the same live data everywhere.",
+      "primary": "Open the dashboard",
+      "secondary": "Try the demo checkout",
+      "title": "Your dashboard, wherever you are"
+    },
+    "final": {
+      "badge": "Live in minutes · no credit card",
+      "lead": "Create your account in two minutes, share your first payment link, and your first payment is fee-free.",
+      "primary": "Start free",
+      "secondary": "See pricing",
+      "t1": "No setup fees",
+      "t2": "No lock-in",
+      "t3": "Cancel anytime",
+      "title1": "Start accepting crypto",
+      "title2": "today."
+    },
+    "hero": {
+      "body": "The non-custodial gateway for businesses and creators. Get paid in Bitcoin, stablecoins and {{coins}} coins across {{chains}} blockchains — straight to a wallet only you control.",
+      "emailError": "Please enter a valid email address.",
+      "emailPlaceholder": "Enter your work email",
+      "google": "Continue with Google",
+      "h1": "Accept crypto payments.",
+      "h2a": "Settle to ",
+      "h2b": "your wallet.",
+      "or": "or",
+      "primary": "Start free",
+      "trust": [
+        "No credit card",
+        "Fees from {{fee}}",
+        "Live in minutes"
+      ],
+      "flow": [
+        "Accept",
+        "Convert",
+        "Settle"
+      ]
+    },
+    "how": {
+      "cta": "Developers: read the integration docs",
+      "eyebrow": "How it works",
+      "lead": "Minutes from sign-up to your first crypto payment — whether you sell online, invoice clients or take donations.",
+      "s1": {
+        "title": "Create a link or connect the API",
+        "desc": "Make a payment link, hosted checkout or invoice in the dashboard — or create payments from your server with one call."
+      },
+      "s2": {
+        "title": "Your customer pays",
+        "desc": "They scan and send from any wallet, in the coin they already hold. You watch it confirm on-chain in real time."
+      },
+      "s3": {
+        "title": "It settles to your wallet",
+        "desc": "Funds land in a wallet only you control — as the coin you were paid, or as USDT/USDC if auto-convert is on."
+      },
+      "title": "Live in three steps"
+    },
+    "trust": {
+      "centreLink": "Visit the Trust Centre",
+      "eyebrow": "Trust & compliance",
+      "lead": "Compliant by default and transparent about every number — so you can integrate with confidence.",
+      "p1": "You hold the keys",
+      "p1d": "We never take custody. Payments settle to your own wallet, so there is nothing of yours for us to hold, freeze or lose.",
+      "p2": "Final payments",
+      "p2d": "On-chain payments cannot be reversed — no disputes, no chargebacks, no rolling reserve held against your revenue.",
+      "p3": "KYC / AML by design",
+      "p3d": "Merchant verification above threshold and wallet-address screening keep your business on the right side of regulators.",
+      "p4": "Hardened & transparent",
+      "p4d": "Encrypted key infrastructure, TLS everywhere, and a public status page with 90-day uptime history.",
+      "payments": "payments",
+      "sharesEyebrow": "Live · last 30 days",
+      "sharesNote": "Shares of confirmed, settled payments across the platform — the same data that powers our public status page.",
+      "sharesTitle": "Settled payments by chain",
+      "title": "Built to be trusted with money"
     }
   }
 }

@@ -135,9 +135,9 @@
       "secondary": "Lees de documentatie"
     },
     "security": {
-      "eyebrow": "Beveiliging en naleving",
-      "headline": "Gebouwd om met geld te worden vertrouwd",
-      "body": "Geld beweegt via routes die je kunt verifiëren — nooit geparkeerd op een saldo dat je niet ziet.",
+      "eyebrow": "Beveiliging & compliance",
+      "headline": "Gebouwd om geld aan toe te vertrouwen",
+      "body": "Geld beweegt via verifieerbare routes — nooit geparkeerd op een saldo dat je niet ziet.",
       "noncustodial": {
         "title": "Non-custodiaal van opzet",
         "body": "Afgewikkelde bedragen gaan rechtstreeks naar de wallet die jij beheert. Dynopay houdt je saldo er nooit tussenin vast."
@@ -732,7 +732,20 @@
         "refunds": "Terugbetalingen & vertrouwen",
         "learn": "Leren"
       }
-    }
+    },
+    "bdBlockchainFee": "Blockchain-/netwerkkosten",
+    "bdNetToMerchant": "Netto naar verkoper",
+    "bdPaymentAmount": "Betalingsbedrag",
+    "breakdownTitle": "Uitsplitsing per betaling",
+    "cheapestHint": "Goedkoopste uitbetalingsroute",
+    "cheapestOn": "Je gebruikt de goedkoopste uitbetalingsroute",
+    "liveFees": "Live netwerkkosten",
+    "lowestFee": "Laagste kosten",
+    "networkFeeWord": "netwerkkosten",
+    "paymentAmount": "Betalingsbedrag (USD)",
+    "settleCurrency": "Afwikkelingsvaluta",
+    "useCheapest": "Gebruiken",
+    "volumeSliderLabel": "Maandelijks volume"
   },
   "checkout": {
     "expired": {
@@ -2058,14 +2071,113 @@
       "countries": "Bediende landen",
       "assets": "Ondersteunde crypto-assets",
       "uptime": "Uptime over 90 dagen",
-      "note": "Live platformcijfers · continu bijgewerkt"
+      "note": "Live platformcijfers · continu bijgewerkt",
+      "assetsSub": "Over {{chains}} blockchains",
+      "countriesSub": "Kopers betalen in 6 talen",
+      "paymentsSub": "On-chain, naar wallets van verkopers",
+      "uptimeSub": "Openbare statuspagina"
     },
     "product": {
       "lead": "Accepteren, converteren, afwikkelen en afrekenen — vanaf één niet-custodiaal platform voor bedrijven en creators.",
       "settle": {
         "title": "Afwikkeling",
         "desc": "Je geld wordt direct afgewikkeld naar een wallet die jij beheert — houd de crypto of converteer automatisch naar USDT/USDC. Niet-custodiaal, on-chain, direct."
-      }
+      },
+      "accept": {
+        "title": "Betalingen accepteren",
+        "desc": "Bitcoin, Ethereum, USDT, USDC en elke grote coin die je klanten al hebben — op een checkoutpagina die in realtime bevestigt."
+      },
+      "checkout": {
+        "title": "Checkout & links",
+        "desc": "Een gehoste checkout, deelbare betaallinks, koopknoppen en facturen — in seconden live, zonder code."
+      },
+      "convert": {
+        "title": "Automatisch omzetten",
+        "desc": "Kies ervoor om inkomende crypto direct bij binnenkomst om te zetten naar USDT of USDC tegen een vaste koers — of houd de ontvangen coin."
+      },
+      "cta": "Gratis beginnen",
+      "eyebrow": "Eén platform",
+      "learn": "Meer informatie",
+      "title1": "Alles wat je nodig hebt om ",
+      "title2": "in crypto betaald te worden"
+    },
+    "device": {
+      "b1": "Realtime betaalmeldingen en bonnen",
+      "b2": "Beheer afwikkeling en automatisch omzetten vanaf je telefoon",
+      "b3": "Insluitbare koopknop en widget voor elke site",
+      "eyebrow": "Werkt op elk apparaat",
+      "lead": "Geen app te installeren. Het volledige Dynopay-dashboard draait in elke browser — desktop, tablet of telefoon — overal met dezelfde live gegevens.",
+      "primary": "Dashboard openen",
+      "secondary": "Probeer de demo-checkout",
+      "title": "Je dashboard, waar je ook bent"
+    },
+    "final": {
+      "badge": "In enkele minuten live · geen creditcard",
+      "lead": "Maak je account in twee minuten aan, deel je eerste betaallink en je eerste betaling is gratis.",
+      "primary": "Gratis beginnen",
+      "secondary": "Bekijk prijzen",
+      "t1": "Geen installatiekosten",
+      "t2": "Geen verplichtingen",
+      "t3": "Altijd opzegbaar",
+      "title1": "Begin met crypto accepteren",
+      "title2": "vandaag nog."
+    },
+    "hero": {
+      "body": "De non-custodial gateway voor bedrijven en creators. Word betaald in Bitcoin, stablecoins en {{coins}} coins op {{chains}} blockchains — rechtstreeks naar een wallet die alleen jij beheert.",
+      "emailError": "Voer een geldig e-mailadres in.",
+      "emailPlaceholder": "Voer je zakelijke e-mail in",
+      "google": "Doorgaan met Google",
+      "h1": "Accepteer cryptobetalingen.",
+      "h2a": "Direct naar ",
+      "h2b": "je eigen wallet.",
+      "or": "of",
+      "primary": "Gratis beginnen",
+      "trust": [
+        "Geen creditcard",
+        "Kosten vanaf {{fee}}",
+        "In enkele minuten live"
+      ],
+      "flow": [
+        "Accepteren",
+        "Omzetten",
+        "Afwikkelen"
+      ]
+    },
+    "how": {
+      "cta": "Ontwikkelaars: lees de integratiedocumentatie",
+      "eyebrow": "Hoe het werkt",
+      "lead": "Binnen enkele minuten van aanmelden tot je eerste cryptobetaling — of je nu online verkoopt, klanten factureert of donaties ontvangt.",
+      "s1": {
+        "title": "Maak een link of koppel de API",
+        "desc": "Maak een betaallink, gehoste checkout of factuur in het dashboard — of maak betalingen vanaf je server met één aanroep."
+      },
+      "s2": {
+        "title": "Je klant betaalt",
+        "desc": "Ze scannen en versturen vanuit elke wallet, in de coin die ze al hebben. Jij ziet de bevestiging on-chain in realtime."
+      },
+      "s3": {
+        "title": "Het wordt afgewikkeld naar je wallet",
+        "desc": "Geld komt binnen op een wallet die alleen jij beheert — in de coin waarin je bent betaald, of als USDT/USDC als automatisch omzetten aan staat."
+      },
+      "title": "Live in drie stappen"
+    },
+    "trust": {
+      "centreLink": "Bezoek het Trust Center",
+      "eyebrow": "Vertrouwen & compliance",
+      "lead": "Standaard compliant en transparant over elk cijfer — zodat je met vertrouwen integreert.",
+      "p1": "Jij houdt de sleutels",
+      "p1d": "Wij nemen nooit custody. Betalingen worden afgewikkeld naar je eigen wallet, dus er is niets van jou dat wij kunnen vasthouden, bevriezen of verliezen.",
+      "p2": "Definitieve betalingen",
+      "p2d": "On-chain-betalingen kunnen niet worden teruggedraaid — geen disputen, geen chargebacks, geen reserve die op je omzet wordt ingehouden.",
+      "p3": "KYC / AML by design",
+      "p3d": "Verkopersverificatie boven een drempel en het screenen van walletadressen houden je bedrijf aan de goede kant van toezichthouders.",
+      "p4": "Gehard & transparant",
+      "p4d": "Versleutelde sleutelinfrastructuur, overal TLS en een openbare statuspagina met 90 dagen uptime-historie.",
+      "payments": "betalingen",
+      "sharesEyebrow": "Live · afgelopen 30 dagen",
+      "sharesNote": "Aandelen van bevestigde, afgewikkelde betalingen op het hele platform — dezelfde gegevens die onze openbare statuspagina voeden.",
+      "sharesTitle": "Afgewikkelde betalingen per chain",
+      "title": "Gebouwd om geld aan toe te vertrouwen"
     }
   }
 }

@@ -135,9 +135,9 @@
       "secondary": "Doku lesen"
     },
     "security": {
-      "eyebrow": "Sicherheit und Compliance",
-      "headline": "Gebaut, um mit Geld betraut zu werden",
-      "body": "Gelder bewegen sich auf Wegen, die Sie überprüfen können – niemals geparkt auf einem Guthaben, das Sie nicht sehen.",
+      "eyebrow": "Sicherheit & Compliance",
+      "headline": "Gebaut, damit man uns Geld anvertraut",
+      "body": "Gelder bewegen sich über nachprüfbare Wege – nie geparkt auf einem Guthaben, das du nicht siehst.",
       "noncustodial": {
         "title": "Nicht-verwahrend von Grund auf",
         "body": "Abgewickelte Gelder gehen direkt in die von Ihnen kontrollierte Wallet. Dynopay hält Ihr Guthaben zwischendurch nie."
@@ -732,7 +732,20 @@
         "refunds": "Rückerstattungen & Vertrauen",
         "learn": "Lernen"
       }
-    }
+    },
+    "bdBlockchainFee": "Blockchain-/Netzwerkgebühr",
+    "bdNetToMerchant": "Netto an Händler",
+    "bdPaymentAmount": "Zahlungsbetrag",
+    "breakdownTitle": "Aufschlüsselung pro Zahlung",
+    "cheapestHint": "Günstigste Auszahlungsroute",
+    "cheapestOn": "Du nutzt die günstigste Auszahlungsroute",
+    "liveFees": "Aktuelle Netzwerkgebühren",
+    "lowestFee": "Niedrigste Gebühr",
+    "networkFeeWord": "Netzwerkgebühr",
+    "paymentAmount": "Zahlungsbetrag (USD)",
+    "settleCurrency": "Abwicklungswährung",
+    "useCheapest": "Verwenden",
+    "volumeSliderLabel": "Monatliches Volumen"
   },
   "checkout": {
     "expired": {
@@ -2058,14 +2071,113 @@
       "countries": "Bediente Länder",
       "assets": "Unterstützte Krypto-Assets",
       "uptime": "Verfügbarkeit über 90 Tage",
-      "note": "Live-Plattformdaten · laufend aktualisiert"
+      "note": "Live-Plattformdaten · laufend aktualisiert",
+      "assetsSub": "Über {{chains}} Blockchains",
+      "countriesSub": "Käufer zahlen in 6 Sprachen",
+      "paymentsSub": "On-chain, auf Händler-Wallets",
+      "uptimeSub": "Öffentliche Statusseite"
     },
     "product": {
       "lead": "Akzeptieren, konvertieren, abwickeln und auschecken – auf einer einzigen nicht-verwahrenden Plattform für Unternehmen und Creator.",
       "settle": {
         "title": "Abwicklung",
         "desc": "Ihr Geld wird direkt in eine Wallet abgewickelt, die Sie kontrollieren – behalten Sie die Kryptowährung oder konvertieren Sie automatisch in USDT/USDC. Nicht-verwahrend, on-chain, sofort."
-      }
+      },
+      "accept": {
+        "title": "Zahlungen annehmen",
+        "desc": "Bitcoin, Ethereum, USDT, USDC und jede gängige Coin, die deine Kunden bereits halten – auf einer Checkout-Seite, die in Echtzeit bestätigt."
+      },
+      "checkout": {
+        "title": "Checkout & Links",
+        "desc": "Ein gehostetes Checkout, teilbare Zahlungslinks, Kauf-Buttons und Rechnungen – in Sekunden live, ganz ohne Code."
+      },
+      "convert": {
+        "title": "Auto-Konvertierung",
+        "desc": "Optional: eingehende Krypto im Moment des Eingangs zu einem fixierten Kurs in USDT oder USDC umwandeln – oder die erhaltene Coin behalten."
+      },
+      "cta": "Kostenlos starten",
+      "eyebrow": "Eine Plattform",
+      "learn": "Mehr erfahren",
+      "title1": "Alles, was du brauchst, um ",
+      "title2": "in Krypto bezahlt zu werden"
+    },
+    "device": {
+      "b1": "Zahlungsbenachrichtigungen und Belege in Echtzeit",
+      "b2": "Abwicklung und Auto-Konvertierung vom Smartphone aus verwalten",
+      "b3": "Einbettbarer Kauf-Button und Widget für jede Website",
+      "eyebrow": "Funktioniert auf jedem Gerät",
+      "lead": "Keine App nötig. Das komplette Dynopay-Dashboard läuft in jedem Browser – Desktop, Tablet oder Smartphone – überall mit denselben Live-Daten.",
+      "primary": "Dashboard öffnen",
+      "secondary": "Demo-Checkout testen",
+      "title": "Dein Dashboard, wo immer du bist"
+    },
+    "final": {
+      "badge": "In Minuten live · keine Kreditkarte",
+      "lead": "Erstelle dein Konto in zwei Minuten, teile deinen ersten Zahlungslink – und deine erste Zahlung ist gebührenfrei.",
+      "primary": "Kostenlos starten",
+      "secondary": "Preise ansehen",
+      "t1": "Keine Einrichtungsgebühren",
+      "t2": "Keine Vertragsbindung",
+      "t3": "Jederzeit kündbar",
+      "title1": "Nimm Krypto-Zahlungen an",
+      "title2": "ab heute."
+    },
+    "hero": {
+      "body": "Das nicht-verwahrende Gateway für Unternehmen und Creator. Lass dich in Bitcoin, Stablecoins und {{coins}} Coins über {{chains}} Blockchains bezahlen – direkt auf ein Wallet, das nur du kontrollierst.",
+      "emailError": "Bitte gib eine gültige E-Mail-Adresse ein.",
+      "emailPlaceholder": "Geschäftliche E-Mail eingeben",
+      "google": "Mit Google fortfahren",
+      "h1": "Krypto-Zahlungen annehmen.",
+      "h2a": "Direkt auf ",
+      "h2b": "dein Wallet.",
+      "or": "oder",
+      "primary": "Kostenlos starten",
+      "trust": [
+        "Keine Kreditkarte",
+        "Gebühren ab {{fee}}",
+        "In Minuten live"
+      ],
+      "flow": [
+        "Annehmen",
+        "Konvertieren",
+        "Abwickeln"
+      ]
+    },
+    "how": {
+      "cta": "Entwickler: zur Integrationsdokumentation",
+      "eyebrow": "So funktioniert's",
+      "lead": "Von der Anmeldung bis zur ersten Krypto-Zahlung in wenigen Minuten – ob du online verkaufst, Kunden Rechnungen stellst oder Spenden sammelst.",
+      "s1": {
+        "title": "Link erstellen oder API anbinden",
+        "desc": "Erstelle im Dashboard einen Zahlungslink, ein gehostetes Checkout oder eine Rechnung – oder erzeuge Zahlungen mit einem Aufruf von deinem Server."
+      },
+      "s2": {
+        "title": "Dein Kunde zahlt",
+        "desc": "Er scannt und sendet aus einem beliebigen Wallet, in der Coin, die er bereits hält. Du siehst die Bestätigung on-chain in Echtzeit."
+      },
+      "s3": {
+        "title": "Es wird auf dein Wallet abgewickelt",
+        "desc": "Gelder landen in einem Wallet, das nur du kontrollierst – als die Coin, in der du bezahlt wurdest, oder als USDT/USDC, wenn die Auto-Konvertierung aktiv ist."
+      },
+      "title": "In drei Schritten live"
+    },
+    "trust": {
+      "centreLink": "Zum Trust Center",
+      "eyebrow": "Vertrauen & Compliance",
+      "lead": "Standardmäßig regelkonform und transparent bei jeder Zahl – damit du mit Zuversicht integrierst.",
+      "p1": "Du hältst die Schlüssel",
+      "p1d": "Wir übernehmen nie die Verwahrung. Zahlungen werden auf dein eigenes Wallet abgewickelt – es gibt also nichts von dir, das wir halten, einfrieren oder verlieren könnten.",
+      "p2": "Endgültige Zahlungen",
+      "p2d": "On-chain-Zahlungen lassen sich nicht rückgängig machen – keine Streitfälle, keine Rückbuchungen, keine Rücklage auf deinen Umsatz.",
+      "p3": "KYC / AML von Grund auf",
+      "p3d": "Händler-Verifizierung ab einem Schwellenwert und das Screening von Wallet-Adressen halten dein Unternehmen auf der richtigen Seite der Aufsichtsbehörden.",
+      "p4": "Gehärtet & transparent",
+      "p4d": "Verschlüsselte Schlüsselinfrastruktur, TLS überall und eine öffentliche Statusseite mit 90-Tage-Verfügbarkeitsverlauf.",
+      "payments": "Zahlungen",
+      "sharesEyebrow": "Live · letzte 30 Tage",
+      "sharesNote": "Anteile bestätigter, abgewickelter Zahlungen über die gesamte Plattform – dieselben Daten, die unsere öffentliche Statusseite speisen.",
+      "sharesTitle": "Abgewickelte Zahlungen nach Chain",
+      "title": "Gebaut, damit man uns Geld anvertraut"
     }
   }
 }

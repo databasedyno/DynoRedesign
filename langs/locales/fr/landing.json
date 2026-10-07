@@ -136,8 +136,8 @@
     },
     "security": {
       "eyebrow": "Sécurité et conformité",
-      "headline": "Conçu pour qu'on vous confie de l'argent",
-      "body": "Les fonds circulent sur des rails que vous pouvez vérifier, jamais immobilisés sur un solde invisible.",
+      "headline": "Conçu pour mériter votre confiance financière",
+      "body": "Les fonds circulent sur des rails vérifiables — jamais immobilisés sur un solde que vous ne voyez pas.",
       "noncustodial": {
         "title": "Sans conservation, par conception",
         "body": "Les fonds réglés vont directement vers le portefeuille que vous contrôlez. Dynopay ne détient jamais votre solde entre-temps."
@@ -154,7 +154,7 @@
         "title": "Disponibilité vérifiable",
         "body": "Une page de statut publique et une surveillance permanente vous permettent de confirmer que les paiements et les règlements sont opérationnels."
       },
-      "trustLink": "Visitez le Centre de confiance"
+      "trustLink": "Accéder au Centre de confiance"
     }
   },
   "howItWorks": "Comment ça marche",
@@ -732,7 +732,20 @@
         "refunds": "Remboursements & confiance",
         "learn": "Apprendre"
       }
-    }
+    },
+    "bdBlockchainFee": "Frais de blockchain / réseau",
+    "bdNetToMerchant": "Net pour le marchand",
+    "bdPaymentAmount": "Montant du paiement",
+    "breakdownTitle": "Détail par paiement",
+    "cheapestHint": "Itinéraire de règlement le moins cher",
+    "cheapestOn": "Vous utilisez l'itinéraire de règlement le moins cher",
+    "liveFees": "Frais de réseau en direct",
+    "lowestFee": "Frais les plus bas",
+    "networkFeeWord": "frais de réseau",
+    "paymentAmount": "Montant du paiement (USD)",
+    "settleCurrency": "Devise de règlement",
+    "useCheapest": "Utiliser",
+    "volumeSliderLabel": "Volume mensuel"
   },
   "checkout": {
     "expired": {
@@ -2058,14 +2071,113 @@
       "countries": "Pays desservis",
       "assets": "Cryptoactifs pris en charge",
       "uptime": "Disponibilité sur 90 jours",
-      "note": "Chiffres réels de la plateforme · mis à jour en continu"
+      "note": "Chiffres réels de la plateforme · mis à jour en continu",
+      "assetsSub": "Sur {{chains}} blockchains",
+      "countriesSub": "Des acheteurs qui paient en 6 langues",
+      "paymentsSub": "On-chain, vers les portefeuilles des marchands",
+      "uptimeSub": "Page de statut publique"
     },
     "product": {
       "lead": "Acceptez, convertissez, réglez et encaissez — depuis une seule plateforme non dépositaire conçue pour les entreprises et les créateurs.",
       "settle": {
         "title": "Règlement",
         "desc": "Votre argent est réglé directement vers un portefeuille que vous contrôlez — gardez la crypto ou convertissez automatiquement en USDT/USDC. Non dépositaire, on-chain, instantané."
-      }
+      },
+      "accept": {
+        "title": "Acceptez les paiements",
+        "desc": "Bitcoin, Ethereum, USDT, USDC et toutes les grandes cryptos que vos clients possèdent déjà — sur une page de paiement qui confirme en temps réel."
+      },
+      "checkout": {
+        "title": "Checkout et liens",
+        "desc": "Un checkout hébergé, des liens de paiement partageables, des boutons d'achat et des factures — opérationnels en quelques secondes, sans code."
+      },
+      "convert": {
+        "title": "Conversion automatique",
+        "desc": "Activez la conversion des cryptos entrantes en USDT ou USDC dès leur arrivée, à un taux verrouillé — ou conservez la crypto reçue."
+      },
+      "cta": "Commencer gratuitement",
+      "eyebrow": "Une seule plateforme",
+      "learn": "En savoir plus",
+      "title1": "Tout ce qu'il faut pour ",
+      "title2": "être payé en crypto"
+    },
+    "device": {
+      "b1": "Alertes et reçus de paiement en temps réel",
+      "b2": "Gérez le règlement et la conversion automatique depuis votre téléphone",
+      "b3": "Bouton d'achat et widget intégrables sur n'importe quel site",
+      "eyebrow": "Fonctionne sur tous les appareils",
+      "lead": "Aucune application à installer. Le tableau de bord complet de Dynopay s'exécute dans n'importe quel navigateur — ordinateur, tablette ou téléphone — avec les mêmes données en direct partout.",
+      "primary": "Ouvrir le tableau de bord",
+      "secondary": "Essayer le paiement de démonstration",
+      "title": "Votre tableau de bord, où que vous soyez"
+    },
+    "final": {
+      "badge": "Opérationnel en quelques minutes · sans carte bancaire",
+      "lead": "Créez votre compte en deux minutes, partagez votre premier lien de paiement, et votre premier paiement est sans frais.",
+      "primary": "Commencer gratuitement",
+      "secondary": "Voir les tarifs",
+      "t1": "Aucuns frais d'installation",
+      "t2": "Sans engagement",
+      "t3": "Annulez à tout moment",
+      "title1": "Commencez à accepter la crypto",
+      "title2": "dès aujourd'hui."
+    },
+    "hero": {
+      "body": "La passerelle non-dépositaire pour les entreprises et les créateurs. Soyez payé en Bitcoin, stablecoins et {{coins}} cryptos sur {{chains}} blockchains — directement sur un portefeuille que vous seul contrôlez.",
+      "emailError": "Veuillez saisir une adresse e-mail valide.",
+      "emailPlaceholder": "Saisissez votre e-mail professionnel",
+      "google": "Continuer avec Google",
+      "h1": "Acceptez les paiements crypto.",
+      "h2a": "Réglés sur ",
+      "h2b": "votre portefeuille.",
+      "or": "ou",
+      "primary": "Commencer gratuitement",
+      "trust": [
+        "Sans carte bancaire",
+        "Frais à partir de {{fee}}",
+        "Opérationnel en minutes"
+      ],
+      "flow": [
+        "Accepter",
+        "Convertir",
+        "Régler"
+      ]
+    },
+    "how": {
+      "cta": "Développeurs : consultez la documentation d'intégration",
+      "eyebrow": "Comment ça marche",
+      "lead": "Quelques minutes entre l'inscription et votre premier paiement crypto — que vous vendiez en ligne, facturiez des clients ou receviez des dons.",
+      "s1": {
+        "title": "Créez un lien ou connectez l'API",
+        "desc": "Créez un lien de paiement, un checkout hébergé ou une facture dans le tableau de bord — ou générez des paiements depuis votre serveur en un seul appel."
+      },
+      "s2": {
+        "title": "Votre client paie",
+        "desc": "Il scanne et envoie depuis n'importe quel portefeuille, dans la crypto qu'il possède déjà. Vous voyez la confirmation on-chain en temps réel."
+      },
+      "s3": {
+        "title": "Le règlement arrive sur votre portefeuille",
+        "desc": "Les fonds arrivent sur un portefeuille que vous seul contrôlez — dans la crypto reçue, ou en USDT/USDC si la conversion automatique est activée."
+      },
+      "title": "Opérationnel en trois étapes"
+    },
+    "trust": {
+      "centreLink": "Accéder au Centre de confiance",
+      "eyebrow": "Confiance et conformité",
+      "lead": "Conforme par défaut et transparent sur chaque chiffre — pour intégrer en toute confiance.",
+      "p1": "Vous détenez les clés",
+      "p1d": "Nous ne prenons jamais la garde de vos fonds. Les paiements sont réglés sur votre propre portefeuille — il n'y a donc rien à vous que nous puissions détenir, geler ou perdre.",
+      "p2": "Paiements définitifs",
+      "p2d": "Les paiements on-chain sont irréversibles — aucun litige, aucune rétrofacturation, aucune réserve prélevée sur vos revenus.",
+      "p3": "KYC / AML dès la conception",
+      "p3d": "La vérification des marchands au-delà d'un seuil et le filtrage des adresses de portefeuille maintiennent votre entreprise du bon côté des régulateurs.",
+      "p4": "Renforcé et transparent",
+      "p4d": "Infrastructure de clés chiffrée, TLS partout, et une page de statut publique avec 90 jours d'historique de disponibilité.",
+      "payments": "paiements",
+      "sharesEyebrow": "En direct · 30 derniers jours",
+      "sharesNote": "Répartition des paiements confirmés et réglés sur l'ensemble de la plateforme — les mêmes données qui alimentent notre page de statut publique.",
+      "sharesTitle": "Paiements réglés par blockchain",
+      "title": "Conçu pour mériter votre confiance financière"
     }
   }
 }

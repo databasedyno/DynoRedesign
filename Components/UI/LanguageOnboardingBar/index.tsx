@@ -16,15 +16,15 @@ import spainFlag from "@/assets/Images/Icons/flags/spain-flag.png";
 import germanyFlag from "@/assets/Images/Icons/flags/germany-flag.png";
 import netherlandsFlag from "@/assets/Images/Icons/flags/netherlands-flag.png";
 
-type Lang = { code: string; label: string; flag: StaticImageData };
+type Lang = { code: string; label: string; short: string; flag: StaticImageData };
 
 const LANGS: readonly Lang[] = [
-  { code: "en", label: "English", flag: unitedStatesFlag },
-  { code: "pt", label: "Português", flag: portugalFlag },
-  { code: "fr", label: "Français", flag: franceFlag },
-  { code: "es", label: "Español", flag: spainFlag },
-  { code: "de", label: "Deutsch", flag: germanyFlag },
-  { code: "nl", label: "Nederlands", flag: netherlandsFlag },
+  { code: "en", label: "English", short: "EN", flag: unitedStatesFlag },
+  { code: "pt", label: "Português", short: "PT", flag: portugalFlag },
+  { code: "fr", label: "Français", short: "FR", flag: franceFlag },
+  { code: "es", label: "Español", short: "ES", flag: spainFlag },
+  { code: "de", label: "Deutsch", short: "DE", flag: germanyFlag },
+  { code: "nl", label: "Nederlands", short: "NL", flag: netherlandsFlag },
 ];
 
 const DISMISS_KEY = "lang_onboard";
@@ -61,7 +61,10 @@ export const LanguageOnboardingBar = () => {
         const isReceipt = router.pathname.startsWith("/receipt/");
         // SafeDeal is English-only with its own shell — no Dynopay language nudge there.
         const isSafeDeal = router.pathname.startsWith("/safedeal");
-        eligible = isMobile && !hasToken && !chose && !dismissed && !isReceipt && !isSafeDeal;
+        // Auth pages already expose a language menu in the card header — the bottom
+        // bar is redundant there (and was the only thing bleeding off the edge).
+        const isAuth = router.pathname.startsWith("/auth");
+        eligible = isMobile && !hasToken && !chose && !dismissed && !isReceipt && !isSafeDeal && !isAuth;
       } catch {
         /* localStorage unavailable — never block the page */
       }
@@ -131,8 +134,8 @@ export const LanguageOnboardingBar = () => {
         zIndex: 1500,
         display: "flex",
         alignItems: "center",
-        gap: { xs: 1, sm: 1.5 },
-        px: { xs: 1.5, sm: 3 },
+        gap: { xs: 0.5, sm: 1.5 },
+        px: { xs: 1, sm: 3 },
         py: { xs: 1.25, sm: 1.5 },
         // Clear the iOS home indicator / Android gesture bar
         pb: { xs: "calc(10px + env(safe-area-inset-bottom, 0px))", sm: "calc(12px + env(safe-area-inset-bottom, 0px))" },
@@ -149,7 +152,7 @@ export const LanguageOnboardingBar = () => {
         transition: "transform 260ms cubic-bezier(0.16,1,0.3,1)",
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+      <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center", gap: 1, flexShrink: 0 }}>
         <LanguageRoundedIcon sx={{ fontSize: 20, color: accent }} />
         <Box
           component="span"
@@ -176,7 +179,7 @@ export const LanguageOnboardingBar = () => {
         sx={{
           display: "flex",
           alignItems: "center",
-          gap: 1,
+          gap: { xs: 0.5, sm: 1 },
           flex: 1,
           minWidth: 0,
           overflowX: "auto",
@@ -194,21 +197,22 @@ export const LanguageOnboardingBar = () => {
             type="button"
             data-testid={`lang-onboard-${l.code}`}
             data-lang={l.code}
+            aria-label={l.label}
             onClick={() => pick(l.code)}
             sx={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 1,
+              gap: { xs: 0.5, sm: 1 },
               flexShrink: 0,
               cursor: "pointer",
               border: `1px solid ${theme.palette.divider}`,
               borderRadius: "999px",
               bgcolor: "transparent",
               color: theme.palette.text.primary,
-              px: 1.5,
+              px: { xs: 0.75, sm: 1.5 },
               py: 0.75,
-              minHeight: 40,
-              fontSize: 13,
+              minHeight: { xs: 38, sm: 40 },
+              fontSize: { xs: 12, sm: 13 },
               fontWeight: 600,
               fontFamily: "var(--font-sans)",
               lineHeight: 1,
@@ -220,8 +224,11 @@ export const LanguageOnboardingBar = () => {
               },
             }}
           >
-            <Image src={l.flag} alt="" width={18} height={18} draggable={false} unoptimized />
-            {l.label}
+            <Image src={l.flag} alt="" width={16} height={16} draggable={false} unoptimized />
+            {/* Compact 2-letter code on phones so all 6 fit one row (no edge bleed);
+                full native label from the sm breakpoint up. */}
+            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>{l.short}</Box>
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>{l.label}</Box>
           </Box>
         ))}
       </Box>

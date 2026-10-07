@@ -7,24 +7,30 @@ import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
-import { FONT_BODY, FONT_HERO, FONT_TECH, useAurora } from "@/Components/Page/Home/v3/theme.v3";
-import { Section, SectionHead, PrimaryBtn, SecondaryBtn, cardSx } from "@/Components/Page/Home/v5/shared";
-import { Stagger, StaggerItem } from "@/Components/Page/Home/motion/Stagger";
-import PublicPageHero from "@/Components/Page/Home/v5/PublicPageHero";
-import CtaBand from "@/Components/Page/Home/v5/CtaBand";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import {
+  FONT_BODY,
+  FONT_DISPLAY,
+  FONT_MONO,
+  PrimaryBtn,
+  Reveal,
+  SectionV8,
+  SectionHeadV8,
+  useConsole,
+} from "@/Components/Page/Home/v8/kit";
+import PageHeroV8 from "@/Components/Page/Home/v8/PageHeroV8";
+import CtaBandV8 from "@/Components/Page/Home/v8/CtaBandV8";
 import AboutLegitimacyBlock from "@/Components/Page/About/LegitimacyBlock";
 
-// Opens the global in-app support chat widget (mounted in _app.tsx) via a
-// window CustomEvent — no import needed. Replaces the old mailto: contact CTAs.
+/* /about — rebuilt on the v8 marketing system (2026-10) to match the homepage,
+   fees page and new brand. Same real copy/i18n keys + legitimacy block. */
+
 const openSupportChat = () => {
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
-  }
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
 };
 
 const STATS = [
-  { value: "1.5%", labelKey: "about.stats.baseFee" },
+  { value: "0.5%", labelKey: "about.stats.baseFee" },
   { value: "9", labelKey: "about.stats.chains" },
   { value: "100%", labelKey: "about.stats.nonCustodial" },
   { value: "2024", labelKey: "about.stats.since" },
@@ -40,8 +46,7 @@ const VALUES = [
 const AboutPage: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("landing");
-  const s = useAurora();
-  const accent = s.dark ? "#FFD100" : "#8B5E00";
+  const s = useConsole();
 
   return (
     <>
@@ -50,76 +55,69 @@ const AboutPage: React.FC = () => {
         <meta name="description" content={t("about.metaDescription")} />
       </Head>
 
-      <Box component="main">
-        <PublicPageHero
+      <Box component="main" data-testid="about-page">
+        <PageHeroV8
+          testId="about-hero"
           eyebrow={t("about.eyebrow")}
           title={t("about.heroTitle")}
           body={t("about.heroBody")}
           actions={
             <>
-              <PrimaryBtn data-testid="about-start-free-btn" onClick={() => router.push("/auth/register")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
+              <PrimaryBtn data-testid="about-start-free-btn" onClick={() => router.push("/auth/register")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ px: 3.5, py: 1.5, fontSize: 16 }}>
                 {t("startFree")}
               </PrimaryBtn>
-              <SecondaryBtn data-testid="about-contact-btn" onClick={openSupportChat}>
+              <Box component="button" onClick={openSupportChat} data-testid="about-contact-btn" sx={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 1, px: 3.5, py: 1.5, borderRadius: "999px", border: `1px solid ${s.line}`, background: "transparent", color: s.ink, fontFamily: FONT_BODY, fontWeight: 600, fontSize: 16, transition: "border-color 160ms ease", "&:hover": { borderColor: s.ink3 } }}>
                 {t("about.talkToUs")}
-              </SecondaryBtn>
+              </Box>
             </>
           }
         />
 
         {/* Stats band */}
-        <Section alt testId="about-stats" sx={{ py: { xs: 6, md: 8 } }}>
-          <Stagger step={0.06} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" }, gap: { xs: 3, md: 2 } }}>
+        <SectionV8 testId="about-stats" sx={{ background: s.dark ? "#0F0F0E" : "#F2F3F1" }} innerSx={{ py: 0 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" }, gap: { xs: 3, md: 2 } }}>
             {STATS.map((st, i) => (
-              <StaggerItem key={st.labelKey} i={i} y={14}>
-                <Box sx={{ textAlign: { xs: "left", md: "center" } }}>
-                  <Typography className="tabular-nums" sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: { xs: 30, md: 38 }, letterSpacing: "-0.03em", color: accent, lineHeight: 1 }}>
-                    {st.value}
-                  </Typography>
-                  <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11.5, letterSpacing: "0.08em", textTransform: "uppercase", color: s.ink3, mt: 1 }}>{t(st.labelKey)}</Typography>
-                </Box>
-              </StaggerItem>
+              <Reveal key={st.labelKey} delay={i * 0.06} sx={{ textAlign: { xs: "left", md: "center" } }}>
+                <Typography className="tabular-nums" sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: { xs: 32, md: 42 }, letterSpacing: "-0.03em", color: s.accent, lineHeight: 1 }}>
+                  {st.value}
+                </Typography>
+                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, letterSpacing: "0.1em", textTransform: "uppercase", color: s.ink3, mt: 1.25 }}>{t(st.labelKey)}</Typography>
+              </Reveal>
             ))}
-          </Stagger>
-        </Section>
+          </Box>
+        </SectionV8>
 
         {/* What we build / values */}
-        <Section testId="about-values">
-          <SectionHead center maxWidth={720} eyebrow={t("about.eyebrow")} headline={t("about.buildTitle")} body={t("about.buildBody")} />
-          <Stagger step={0.06} sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 2, md: 2.5 } }}>
+        <SectionV8 testId="about-values">
+          <SectionHeadV8 center eyebrow={t("about.eyebrow")} title={t("about.buildTitle")} lead={t("about.buildBody")} />
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 2, md: 2.5 } }}>
             {VALUES.map(({ Icon, key }, i) => (
-              <StaggerItem key={key} i={i} y={16}>
-                <Box sx={{ ...cardSx(s), height: "100%", display: "flex", gap: 2, alignItems: "flex-start", p: { xs: 3, md: 3.5 } }}>
-                  <Box sx={{ flexShrink: 0, width: 44, height: 44, borderRadius: "12px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.09)", color: accent }}>
-                    <Icon sx={{ fontSize: 22 }} />
+              <Reveal key={key} delay={i * 0.06}>
+                <Box sx={{ height: "100%", display: "flex", gap: 2, alignItems: "flex-start", p: { xs: 3, md: 3.5 }, borderRadius: "18px", border: `1px solid ${s.line}`, background: s.canvas, transition: "border-color 160ms ease", "&:hover": { borderColor: s.ink3 } }}>
+                  <Box sx={{ flexShrink: 0, width: 46, height: 46, borderRadius: "13px", display: "grid", placeItems: "center", background: s.dark ? "rgba(255,209,0,0.14)" : "rgba(138,109,0,0.1)", color: s.accent }}>
+                    <Icon sx={{ fontSize: 23 }} />
                   </Box>
                   <Box>
-                    <Typography sx={{ fontFamily: FONT_HERO, fontWeight: 700, fontSize: 18, color: s.ink, mb: 0.75, letterSpacing: "-0.015em" }}>{t(`about.values.${key}.title`)}</Typography>
+                    <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: s.ink, mb: 0.75, letterSpacing: "-0.015em" }}>{t(`about.values.${key}.title`)}</Typography>
                     <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.6, color: s.ink2 }}>{t(`about.values.${key}.body`)}</Typography>
                   </Box>
                 </Box>
-              </StaggerItem>
+              </Reveal>
             ))}
-          </Stagger>
-        </Section>
+          </Box>
+        </SectionV8>
 
-        {/* Who runs Dynopay — legal entity, contact, custody model, policies (Wave 7) */}
+        {/* Who runs Dynopay — legal entity, contact, custody model, policies */}
         <AboutLegitimacyBlock />
 
-        <CtaBand
+        <CtaBandV8
           testId="about-cta"
           title={t("about.ctaTitle")}
           body={t("about.ctaBody")}
-          actions={
-            <>
-              <PrimaryBtn data-testid="about-cta-start" onClick={() => router.push("/auth/register")} endIcon={<ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />}>
-                {t("v3.hero.primaryCta")}
-              </PrimaryBtn>
-              <SecondaryBtn onDark data-testid="about-cta-chat" onClick={openSupportChat}>
-                {t("about.talkToUs")}
-              </SecondaryBtn>
-            </>
-          }
+          primaryLabel={t("v3.hero.primaryCta")}
+          primaryRef="about-cta"
+          secondaryLabel={t("about.talkToUs")}
+          secondaryHref="/help-support"
         />
       </Box>
     </>

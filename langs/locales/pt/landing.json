@@ -136,8 +136,8 @@
     },
     "security": {
       "eyebrow": "Segurança e conformidade",
-      "headline": "Feito para merecer a confiança do seu dinheiro",
-      "body": "Os fundos circulam por trilhos que você pode verificar — nunca parados num saldo que você não vê.",
+      "headline": "Feito para ser confiável com o seu dinheiro",
+      "body": "Os fundos circulam por trilhos que você pode verificar — nunca parados em um saldo que você não vê.",
       "noncustodial": {
         "title": "Sem custódia, por princípio",
         "body": "Os fundos liquidados vão direto para a carteira que você controla. A Dynopay nunca retém o seu saldo no meio do caminho."
@@ -154,7 +154,7 @@
         "title": "Disponibilidade verificável",
         "body": "Uma página de status pública e monitoramento ininterrupto permitem confirmar que os pagamentos e a liquidação estão saudáveis."
       },
-      "trustLink": "Visite a Central de Confiança"
+      "trustLink": "Acesse a Central de Confiança"
     }
   },
   "howItWorks": "Como funciona",
@@ -732,7 +732,20 @@
         "refunds": "Reembolsos e confiança",
         "learn": "Aprender"
       }
-    }
+    },
+    "bdBlockchainFee": "Taxa de blockchain / rede",
+    "bdNetToMerchant": "Líquido para o comerciante",
+    "bdPaymentAmount": "Valor do pagamento",
+    "breakdownTitle": "Detalhamento por pagamento",
+    "cheapestHint": "Rota de liquidação mais barata",
+    "cheapestOn": "Você está na rota de liquidação mais barata",
+    "liveFees": "Taxas de rede ao vivo",
+    "lowestFee": "Taxa mais baixa",
+    "networkFeeWord": "taxa de rede",
+    "paymentAmount": "Valor do pagamento (USD)",
+    "settleCurrency": "Moeda de liquidação",
+    "useCheapest": "Usar",
+    "volumeSliderLabel": "Volume mensal"
   },
   "checkout": {
     "expired": {
@@ -2058,14 +2071,113 @@
       "countries": "Países atendidos",
       "assets": "Criptoativos suportados",
       "uptime": "Disponibilidade em 90 dias",
-      "note": "Dados reais da plataforma · atualizados continuamente"
+      "note": "Dados reais da plataforma · atualizados continuamente",
+      "assetsSub": "Em {{chains}} blockchains",
+      "countriesSub": "Compradores pagando em 6 idiomas",
+      "paymentsSub": "On-chain, para carteiras de comerciantes",
+      "uptimeSub": "Página de status pública"
     },
     "product": {
       "lead": "Aceite, converta, liquide e finalize — tudo numa única plataforma não custodial feita para empresas e criadores.",
       "settle": {
         "title": "Liquidação",
         "desc": "O seu dinheiro é liquidado diretamente numa carteira que você controla — mantenha a cripto ou converta automaticamente para USDT/USDC. Não custodial, on-chain, instantâneo."
-      }
+      },
+      "accept": {
+        "title": "Aceite pagamentos",
+        "desc": "Bitcoin, Ethereum, USDT, USDC e todas as principais moedas que seus clientes já têm — em uma página de checkout que confirma em tempo real."
+      },
+      "checkout": {
+        "title": "Checkout e links",
+        "desc": "Um checkout hospedado, links de pagamento compartilháveis, botões de compra e faturas — no ar em segundos, sem código."
+      },
+      "convert": {
+        "title": "Conversão automática",
+        "desc": "Opte por converter a cripto recebida em USDT ou USDC no instante em que chega, a uma taxa travada — ou mantenha a moeda recebida."
+      },
+      "cta": "Comece grátis",
+      "eyebrow": "Uma plataforma",
+      "learn": "Saiba mais",
+      "title1": "Tudo o que você precisa para ",
+      "title2": "receber em cripto"
+    },
+    "device": {
+      "b1": "Alertas e recibos de pagamento em tempo real",
+      "b2": "Gerencie a liquidação e a conversão automática pelo celular",
+      "b3": "Botão de compra e widget incorporáveis em qualquer site",
+      "eyebrow": "Funciona em todos os dispositivos",
+      "lead": "Sem app para instalar. O painel completo da Dynopay funciona em qualquer navegador — computador, tablet ou celular — com os mesmos dados ao vivo em todo lugar.",
+      "primary": "Abrir o painel",
+      "secondary": "Experimente o checkout de demonstração",
+      "title": "Seu painel, onde você estiver"
+    },
+    "final": {
+      "badge": "No ar em minutos · sem cartão de crédito",
+      "lead": "Crie sua conta em dois minutos, compartilhe seu primeiro link de pagamento e seu primeiro pagamento é sem taxas.",
+      "primary": "Comece grátis",
+      "secondary": "Ver preços",
+      "t1": "Sem taxas de configuração",
+      "t2": "Sem fidelidade",
+      "t3": "Cancele quando quiser",
+      "title1": "Comece a aceitar cripto",
+      "title2": "hoje mesmo."
+    },
+    "hero": {
+      "body": "O gateway sem custódia para empresas e criadores. Receba em Bitcoin, stablecoins e {{coins}} criptomoedas em {{chains}} blockchains — direto para uma carteira que só você controla.",
+      "emailError": "Insira um endereço de e-mail válido.",
+      "emailPlaceholder": "Digite seu e-mail de trabalho",
+      "google": "Continuar com o Google",
+      "h1": "Aceite pagamentos em cripto.",
+      "h2a": "Liquide na ",
+      "h2b": "sua carteira.",
+      "or": "ou",
+      "primary": "Comece grátis",
+      "trust": [
+        "Sem cartão de crédito",
+        "Taxas a partir de {{fee}}",
+        "No ar em minutos"
+      ],
+      "flow": [
+        "Aceitar",
+        "Converter",
+        "Liquidar"
+      ]
+    },
+    "how": {
+      "cta": "Desenvolvedores: leia a documentação de integração",
+      "eyebrow": "Como funciona",
+      "lead": "Minutos do cadastro ao seu primeiro pagamento em cripto — seja você vendendo online, faturando clientes ou recebendo doações.",
+      "s1": {
+        "title": "Crie um link ou conecte a API",
+        "desc": "Crie um link de pagamento, checkout hospedado ou fatura no painel — ou gere pagamentos a partir do seu servidor com uma única chamada."
+      },
+      "s2": {
+        "title": "Seu cliente paga",
+        "desc": "Ele escaneia e envia de qualquer carteira, na moeda que já possui. Você acompanha a confirmação on-chain em tempo real."
+      },
+      "s3": {
+        "title": "A liquidação cai na sua carteira",
+        "desc": "Os fundos chegam a uma carteira que só você controla — na moeda em que você recebeu, ou como USDT/USDC se a conversão automática estiver ativada."
+      },
+      "title": "No ar em três passos"
+    },
+    "trust": {
+      "centreLink": "Acesse a Central de Confiança",
+      "eyebrow": "Confiança e conformidade",
+      "lead": "Em conformidade por padrão e transparente em cada número — para você integrar com confiança.",
+      "p1": "As chaves são suas",
+      "p1d": "Nunca ficamos com a custódia. Os pagamentos são liquidados na sua própria carteira, então não há nada seu para retermos, congelarmos ou perdermos.",
+      "p2": "Pagamentos definitivos",
+      "p2d": "Pagamentos on-chain não podem ser revertidos — sem disputas, sem estornos, sem reserva retida sobre a sua receita.",
+      "p3": "KYC / AML por princípio",
+      "p3d": "A verificação de comerciantes acima do limite e a triagem de endereços de carteira mantêm seu negócio do lado certo dos reguladores.",
+      "p4": "Reforçado e transparente",
+      "p4d": "Infraestrutura de chaves criptografada, TLS em tudo e uma página de status pública com histórico de disponibilidade de 90 dias.",
+      "payments": "pagamentos",
+      "sharesEyebrow": "Ao vivo · últimos 30 dias",
+      "sharesNote": "Participação de pagamentos confirmados e liquidados em toda a plataforma — os mesmos dados que alimentam nossa página de status pública.",
+      "sharesTitle": "Pagamentos liquidados por blockchain",
+      "title": "Feito para ser confiável com o seu dinheiro"
     }
   }
 }
