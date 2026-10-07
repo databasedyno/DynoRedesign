@@ -87,6 +87,8 @@ const SignupBlock: React.FC = () => {
           inputProps={{ "data-testid": "hero-email-input", "aria-label": "Email", autoComplete: "email", inputMode: "email" }}
           type="email"
           value={email}
+          // Warm the register chunk while they type → "Start free" lands on the code screen instantly.
+          onFocus={() => { router.prefetch("/auth/register").catch(() => undefined); }}
           onChange={(e) => {
             setEmail(e.target.value);
             if (error) setError(false);

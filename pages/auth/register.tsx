@@ -38,6 +38,14 @@ type Step = "email" | "verify" | "setup" | "success";
 // Password rule (OWASP — matches the backend validatePasswordStrength):
 // upper + lower + digit + special, 8–20 chars.
 const PASSWORD_RE = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()\-=_+{}\[\]:;<>,.?/~]).{8,20}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/** Landing-hero deep-link (`?autoSend=1&email=…`) → the email to send a code to, else "". */
+const readAutoSendEmail = (q: Record<string, string | string[] | undefined>): string => {
+  const qEmail = typeof q.email === "string" ? q.email.trim().toLowerCase() : "";
+  const autoSend = q.autoSend === "1" || q.autoSend === "true";
+  return autoSend && q.provider !== "google" && EMAIL_RE.test(qEmail) ? qEmail : "";
+};
 
 const LoadingSpinner = ({ size = 20 }: { size?: number }) => (
   <Spinner size={size} thickness={2} trackColor="rgba(255,255,255,0.3)" color="#fff" speed="0.8s" />
@@ -50,10 +58,20 @@ const Register = () => {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  // Hero deep-link: open straight on the code screen and send in the background,
+  // so the "Create your account" form never flashes between the landing page and
+  // the OTP screen. router.query is already populated on the first render (SSR and
+  // client) because _app defines getInitialProps, so server + client agree.
+  const [heroAutoEmail] = useState<string>(() => readAutoSendEmail(router.query));
+
   // ── Flow state ─────────────────────────────────────────────────
-  const [step, setStep] = useState<Step>("email");
+  const [step, setStep] = useState<Step>(heroAutoEmail ? "verify" : "email");
   const [method, setMethod] = useState<RegisterMethod>("email");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(heroAutoEmail);
+  // True while a background (deep-link) code send is in flight on the verify screen.
+  const [sendingCode, setSendingCode] = useState(!!heroAutoEmail);
+  // Bumped on every send + on "Change email" so a late response can't yank the user back.
+  const sendSeqRef = useRef(0);
   const [phone, setPhone] = useState("");
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -69,7 +87,8 @@ const Register = () => {
   const [setupError, setSetupError] = useState("");
   const pwFieldRef = useRef<HTMLDivElement | null>(null);
 
-  const [countdown, setCountdown] = useState(0);
+  // Deep-link starts mid-send → keep "Resend" locked so it can't double-send.
+  const [countdown, setCountdown] = useState(heroAutoEmail ? 60 : 0);
   const [showReferralInput, setShowReferralInput] = useState(false);
   const [referralCode, setReferralCode] = useState("");
   const [phoneTypeChecking, setPhoneTypeChecking] = useState(false);
@@ -252,7 +271,12 @@ const Register = () => {
   }, []);
 
   // ── Step 1: send the verification code ──────────────────────────
-  const handleContinue = useCallback(async (emailOverride?: string) => {
+  // `background`: the verify screen is already showing (hero deep-link) — on
+  // success just settle in place; on failure fall back to the email form.
+  const handleContinue = useCallback(async (emailOverride?: string, opts?: { background?: boolean }) => {
+    const background = opts?.background === true;
+    const seq = ++sendSeqRef.current;
+    const failBack = () => { setStep("email"); setSendingCode(false); };
     setEmailError("");
     setPhoneError("");
     setLoading(true);
@@ -262,6 +286,7 @@ const Register = () => {
       if (method === "email") {
         const value = (emailOverride ?? email).toLowerCase().trim();
         if (!value || !value.includes("@")) {
+          failBack();
           setEmailError("Please enter a valid email address");
           setLoading(false);
           return;
@@ -289,16 +314,21 @@ const Register = () => {
         exists = res?.data?.data?.account_exists === true;
       }
 
+      if (seq !== sendSeqRef.current) return; // user changed contact mid-send
       setAccountExists(exists);
       setStep("verify");
-      setOtpResetKey((k) => k + 1);
+      setSendingCode(false);
+      // Background send: boxes are already on screen + focused — don't clear/refocus them.
+      if (!background) setOtpResetKey((k) => k + 1);
       setCountdown(60);
     } catch (err: any) {
+      if (seq !== sendSeqRef.current) return;
       const msg = err?.response?.data?.message || "Something went wrong. Please try again.";
+      failBack();
       if (method === "email") setEmailError(msg);
       else setPhoneError(msg);
     } finally {
-      setLoading(false);
+      if (seq === sendSeqRef.current) setLoading(false);
     }
   }, [method, email, phone, referralCode, checkPhoneType, getSeoAttribution]);
 
@@ -307,7 +337,6 @@ const Register = () => {
     if (autoRanRef.current || !router.isReady) return;
     const q = router.query;
     const qEmail = typeof q.email === "string" ? q.email : "";
-    const autoSend = q.autoSend === "1" || q.autoSend === "true";
     const provider = typeof q.provider === "string" ? q.provider : "";
     if (qEmail) setEmail(qEmail.toLowerCase());
     if (provider === "google") {
@@ -315,9 +344,16 @@ const Register = () => {
       setTimeout(() => handleGoogleLogin(), 300);
       return;
     }
-    if (qEmail && autoSend && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(qEmail)) {
+    // Normally resolved on the first render (heroAutoEmail); re-read defensively
+    // in case the query only became ready after mount.
+    const autoEmail = heroAutoEmail || readAutoSendEmail(q);
+    if (autoEmail) {
       autoRanRef.current = true;
-      setTimeout(() => handleContinue(qEmail), 150);
+      setEmail(autoEmail);
+      setStep("verify");
+      setSendingCode(true);
+      setCountdown(60);
+      void handleContinue(autoEmail, { background: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query]);
@@ -691,11 +727,21 @@ const Register = () => {
                       <Typography sx={{ fontWeight: 700, fontSize: "22px", color: "text.primary", fontFamily: "var(--font-sans)" }} data-testid="register-otp-title">
                         {accountExists ? t("alreadyHaveAccountTitle", { defaultValue: "You already have an account" }) : method === "email" ? t("verifyYourEmail") : t("verifyYourPhone")}
                       </Typography>
-                      <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, lineHeight: 1.5 }}>
-                        {t("enterSixDigitCodeSentTo")}{" "}
-                        <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
-                          {method === "email" ? email.replace(/(.{2}).*(@.*)/, "$1***$2") : phone.replace(/(\d{3})\d+(\d{2})/, "$1****$2")}
-                        </Typography>
+                      <Typography sx={{ fontSize: "14px", color: "text.secondary", fontFamily: "var(--font-sans)", mt: 0.5, lineHeight: 1.5 }} data-testid="register-otp-subtitle" data-sending={sendingCode ? "true" : "false"}>
+                        {sendingCode
+                          ? t("sendingCodeTo", { defaultValue: "Sending a 6-digit code to" })
+                          : t("enterSixDigitCodeSentTo")}{" "}
+                        {/* nowrap keeps the spinner glued to the address on narrow phones */}
+                        <Box component="span" sx={{ whiteSpace: "nowrap" }}>
+                          <Typography component="span" sx={{ fontWeight: 600, color: "text.primary", fontSize: "14px" }}>
+                            {method === "email" ? email.replace(/(.{2}).*(@.*)/, "$1***$2") : phone.replace(/(\d{3})\d+(\d{2})/, "$1****$2")}
+                          </Typography>
+                          {sendingCode && (
+                            <Box component="span" role="status" aria-label={t("sendingCode", { defaultValue: "Sending code…" })} data-testid="register-sending-code" sx={{ display: "inline-flex", verticalAlign: "middle", ml: 0.75 }}>
+                              <Spinner size={13} thickness={2} trackColor={theme.palette.mode === "dark" ? "rgba(255,255,255,0.18)" : "rgba(18,18,20,0.12)"} color={BRAND_ACCENT} speed="0.8s" />
+                            </Box>
+                          )}
+                        </Box>
                       </Typography>
                       {accountExists && (
                         <Box
@@ -722,7 +768,7 @@ const Register = () => {
                       onResendCode={handleResendOtp}
                       onClearError={() => setOtpError("")}
                       countdown={countdown}
-                      loading={loading}
+                      loading={loading && !sendingCode}
                       error={otpError}
                       primaryButtonLabel={accountExists ? t("verifyAndLogin") : t("verify", { defaultValue: "Verify" })}
                       showInfoChip={false}
@@ -735,7 +781,7 @@ const Register = () => {
                       <Typography
                         component="button"
                         data-testid="register-change-contact"
-                        onClick={() => { setStep("email"); setOtpError(""); setAccountExists(false); setSignupToken(""); setOtpResetKey((k) => k + 1); }}
+                        onClick={() => { sendSeqRef.current += 1; setSendingCode(false); setLoading(false); setStep("email"); setOtpError(""); setAccountExists(false); setSignupToken(""); setOtpResetKey((k) => k + 1); }}
                         sx={{ fontSize: "13px", color: "text.secondary", fontFamily: "var(--font-sans)", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", background: "transparent", border: "none", padding: 0, "&:hover": { textDecoration: "underline" } }}
                       >
                         <ArrowBack sx={{ fontSize: "16px" }} />

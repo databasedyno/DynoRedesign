@@ -1,4 +1,26 @@
 # ============================================================================
+# >>> 2026-10-07 (pod 94432dad) — LANDING "Start free" → OTP: NO INTERMEDIATE AUTH FLASH
+#     FRONTEND test requested. Serving PRODUCTION build (.next-prod, rebuilt).
+# ============================================================================
+#  USER BUG: "when i enter email from landing page and click start free, it takes me
+#  briefly to another auth page and then to OTP. This is bad UX."
+#  ROOT CAUSE: HeroV8 pushes /auth/register?ref=hero&autoSend=1&email=… ; register.tsx always
+#  started on step "email" ("Create your account") and only switched to "verify" AFTER the
+#  registerEmail API returned (+150ms setTimeout) → ~1s flash of the email form.
+#  FIX (pages/auth/register.tsx, Components/Page/Home/v8/HeroV8.tsx, langs/locales/*/auth.json):
+#   - deep-link email resolved on FIRST render (router.query is SSR-populated because _app has
+#     getInitialProps) → initial step = "verify", OTP screen renders immediately (even in SSR HTML)
+#   - code sent in background immediately; subtitle "Sending a 6-digit code to xx***@…" + spinner
+#     (testid register-sending-code, register-otp-subtitle[data-sending]) → settles to
+#     "Enter the 6-digit code we sent to …"; resend locked (countdown 60) during send
+#   - send failure → falls back to email step, email prefilled, server error under the field
+#   - "Change email" mid-send cancels (late response ignored via sequence ref)
+#   - hero email input prefetches /auth/register on focus; new i18n key auth.sendingCodeTo ×6
+#  ENV: SAFE MODE, LIVE prod DB → ALWAYS mock POST **/api/user/registerEmail (page.route) —
+#  never send a real OTP. No login needed.
+# ============================================================================
+
+# ============================================================================
 # >>> 2026 (vault setup pod bc82ec41) — CREATE-FLOWS VERIFY + ONBOARDING i18n
 #     FRONTEND test requested. Serving PRODUCTION build (.next-prod, rebuilt+swapped).
 # ============================================================================
