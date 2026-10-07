@@ -1,4 +1,21 @@
 # ============================================================================
+# >>> 2026-10-07 (pod 94432dad) — GITHUB "Deploy to Droplet" RUN FAILED → HYDRATION-GUARD STEP FIX
+#     CI/WORKFLOW test requested (local simulation — no pushes, no workflow triggers).
+# ============================================================================
+#  USER: "deploy and build on github failed." Run 37695575332 (sha bf09b9cac): steps 1-9 SUCCESS
+#  (build+push, SSH canary→swap, health) → step 10 "Hydration guard" FAILED after 5m07s with
+#  "##[error]Process completed with exit code 124" = `timeout 300 npx playwright install
+#  --with-deps chromium` (apt-get hang on the runner). Earlier run 37676976823 hung ~2h on the same.
+#  Deploy itself was live (dynopay.com /health healthy, OTP fix SSR'd on /auth/register deep-link).
+#  FIX: .github/workflows/deploy-droplet.yml → hydration step uses the runner's PREINSTALLED Google
+#  Chrome (ubuntu-24.04 image 20260927.320 ships Chrome 154) via PLAYWRIGHT_CHROME_EXECUTABLE_PATH;
+#  fallback = `npx playwright install chromium` (NO --with-deps/apt) bounded by timeout 240; if no
+#  browser can be set up → ::warning:: + exit 0 (skip); a real site failure (guard exit 1) still
+#  fails. step timeout-minutes 8→12; NEW job-level timeout-minutes: 60.
+#  scripts/qa/hydration_guard.mjs → browser launch wrapped: exit 3 = "could not launch a browser".
+# ============================================================================
+
+# ============================================================================
 # >>> 2026-10-07 (pod 94432dad) — LANDING "Start free" → OTP: NO INTERMEDIATE AUTH FLASH
 #     FRONTEND test requested. Serving PRODUCTION build (.next-prod, rebuilt).
 # ============================================================================

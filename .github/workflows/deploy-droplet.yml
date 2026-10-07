@@ -24,7 +24,9 @@ name: Deploy to Droplet (Option C)
 # LIVE site at phone + desktop widths and fails the run on any React hydration error
 # (#418/#423 = server HTML ≠ client render → whole-page client re-render → blank
 # landing page on slow phones, 2026-09). Production-only class of bug, so it is
-# checked against production.
+# checked against production. It uses the runner's preinstalled Google Chrome (no
+# apt-get); if no browser can be set up on the runner it WARNS and skips (exit 0)
+# instead of failing a deploy that already succeeded (2026-10-07).
 #
 # SAFE DEPLOY (2026-09-27, after the sharp/libvips crash-loop outage):
 #   1. CANARY  — the new image is booted as a throw-away container beside the live
@@ -53,6 +55,10 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # Hard cap (GitHub's default is 6 h). Cold build ≈ 8 min + SSH swap ≤ 20 min
+    # (command_timeout) + QA ≤ 12 min. A hung run used to hold the deploy-droplet
+    # concurrency slot for hours and every newer push queued behind it (2026-10-07).
+    timeout-minutes: 60
     permissions:
       contents: read
       packages: write
@@ -277,12 +283,29 @@ jobs:
           node-version: "20"
 
       - name: Hydration guard — live site must hydrate cleanly
-        timeout-minutes: 8
+        timeout-minutes: 12
         run: |
-          mkdir -p /tmp/hg && cp scripts/qa/hydration_guard.mjs /tmp/hg/
-          cd /tmp/hg && npm init -y >/dev/null && npm i --no-audit --no-fund playwright@1.61.1 >/dev/null
-          # Bound the browser-deps install: `--with-deps` runs apt-get, which can
-          # stall for many minutes on a GitHub-runner dpkg/apt lock (unattended-upgrades).
-          # A hard `timeout` turns a silent multi-hour hang into a fast, clear failure.
-          timeout 300 npx playwright install --with-deps chromium >/dev/null
-          GUARD_BASE_URL=https://dynopay.com node hydration_guard.mjs
+          set +e
+          # Runs AFTER the swap — the deploy has already succeeded by this point.
+          # Browser SETUP problems on the runner are infra flakiness → warn + skip.
+          # A real hydration/blank-page failure on dynopay.com (guard exit 1) still fails the run.
+          skip() { echo "::warning title=Hydration guard skipped::$1 — the deploy itself succeeded; this is GitHub-runner infra, not the site."; exit 0; }
+          mkdir -p /tmp/hg && cp scripts/qa/hydration_guard.mjs /tmp/hg/ && cd /tmp/hg || exit 1
+          npm init -y >/dev/null
+          timeout 180 npm i --no-audit --no-fund playwright@1.61.1 >/dev/null || skip "npm could not install playwright"
+          run_guard() { GUARD_BASE_URL=https://dynopay.com node hydration_guard.mjs; }
+          # 1) Use the Google Chrome preinstalled on GitHub's ubuntu-24.04 image (system
+          #    libs included) → no `playwright install --with-deps`, whose apt-get step
+          #    hung on runner apt/dpkg locks (≈2 h hang, then timeout exit 124 on 2026-10-07).
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || true)"
+          if [ -n "$CHROME" ]; then
+            echo "Using the runner's preinstalled Chrome: $CHROME ($("$CHROME" --version 2>/dev/null))"
+            PLAYWRIGHT_CHROME_EXECUTABLE_PATH="$CHROME" run_guard; rc=$?
+            [ "$rc" -ne 3 ] && exit "$rc"   # 0 = clean, 1 = real site failure, 2 = config
+            echo "Preinstalled Chrome could not be launched — falling back to Playwright Chromium"
+          fi
+          # 2) Fallback: browser binary only (no --with-deps → no apt-get), bounded.
+          timeout 240 npx playwright install chromium >/dev/null || skip "Playwright Chromium download failed or timed out"
+          run_guard; rc=$?
+          [ "$rc" -eq 3 ] && skip "no browser could be launched on this runner"
+          exit "$rc"

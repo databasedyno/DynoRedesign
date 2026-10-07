@@ -9,6 +9,9 @@
 // Env/flags: GUARD_PAGES (default "/,/fees,/safedeal" — NOT /pay/demo: middleware.ts 404s the
 // dev-only demo pages in production, so it would always fail there), GUARD_WIDTHS ("390,1920"),
 // GUARD_RETRIES (1 — a failure must reproduce to count), PLAYWRIGHT_CHROME_EXECUTABLE_PATH.
+//
+// Exit codes: 0 = all clean · 1 = a page failed (real site problem) · 2 = bad config ·
+// 3 = no browser could be launched (runner infra, NOT a site problem — CI treats it as a skip).
 import { chromium } from "playwright";
 
 const args = Object.fromEntries(
@@ -32,7 +35,13 @@ const HYDRATION_RE =
 
 const launchOpts = {};
 if (process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH) launchOpts.executablePath = process.env.PLAYWRIGHT_CHROME_EXECUTABLE_PATH;
-const browser = await chromium.launch(launchOpts);
+let browser;
+try {
+  browser = await chromium.launch(launchOpts);
+} catch (e) {
+  console.error(`hydration_guard: could not launch a browser (${launchOpts.executablePath || "bundled Playwright Chromium"}): ${String(e?.message || e).split("\n")[0]}`);
+  process.exit(3);
+}
 
 async function probe(path, width) {
   const ctx = await browser.newContext({
