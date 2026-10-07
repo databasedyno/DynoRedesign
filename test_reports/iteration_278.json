@@ -1,0 +1,89 @@
+{
+  "summary": "Independently re-verified the hero deep-link → OTP flow fix (no 'Create your account' flash). All 9 requested scenarios pass. Tests were run against the live preview with POST **/api/user/registerEmail intercepted via Playwright page.route() — no real OTPs reached the production backend. Verify-otp and complete endpoints were also intercepted.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "T1_desktop_1920_account_exists_false": {
+      "otp_title": "Verify your email",
+      "sending_subtitle": "Sending a 6-digit code to qa***@example.com (data-sending=true)",
+      "after_subtitle": "Enter the 6-digit code we sent to qa***@example.com (data-sending=false)",
+      "spinner_gone_after_response": true,
+      "first_otp_focused": true,
+      "email_form_flashed_at_any_poll_frame": false,
+      "registerEmail_request_count": 1,
+      "status": "PASS"
+    },
+    "T2_mobile_390": {
+      "horizontal_overflow": false,
+      "otp_boxes_visible": true,
+      "spinner_on_same_line_as_masked_email": true,
+      "spinner_contained_in_subtitle": true,
+      "email_form_flashed": false,
+      "request_count": 1,
+      "notes": "Subtitle wraps to 2 lines on 390px; spinner is correctly placed inline with the masked email on line 2 (verified via DOM containment + vertical overlap).",
+      "status": "PASS"
+    },
+    "T3_account_exists_true": {
+      "otp_title": "You already have an account",
+      "account_exists_banner_visible": true,
+      "step_indicator": "Step 2 of 2",
+      "email_form_flashed": false,
+      "status": "PASS"
+    },
+    "T4_failure_fallback_429": {
+      "fallback_to_email_form": true,
+      "email_prefilled": "ratelimit@example.com",
+      "server_error_shown": "Too many requests. Please wait a minute and try again.",
+      "retry_with_200_lands_on_otp": true,
+      "status": "PASS"
+    },
+    "T5_change_email_during_slow_send": {
+      "lands_on_email_form_after_change": true,
+      "stays_on_form_after_5s_late_response": true,
+      "no_otp_yank_back": true,
+      "status": "PASS"
+    },
+    "T6_resend_locked_during_send": {
+      "countdown_control_present": true,
+      "countdown_text_contains_'Code in'": true,
+      "extra_registerEmail_request_on_click": false,
+      "request_count_after_click": 1,
+      "status": "PASS"
+    },
+    "T7_regression_manual_flow": {
+      "direct_/auth/register_shows_create_form": true,
+      "step_indicator_step1of3": true,
+      "manual_continue_leads_to_otp": true,
+      "deep_link_email_without_autoSend_stays_on_form_no_request_sent": true,
+      "status": "PASS"
+    },
+    "T8_hero_invalid_email_validation": {
+      "hero_email_error_visible": true,
+      "error_text": "Please enter a valid email address.",
+      "no_navigation": true,
+      "no_registerEmail_request": true,
+      "status": "PASS"
+    },
+    "T9_i18n_french": {
+      "subtitle_text": "Envoi d’un code à 6 chiffres à qa***@example.com",
+      "contains_envoi": true,
+      "status": "PASS"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix is functioning as designed: hero deep-link navigates straight to /auth/register with ref=hero&autoSend=1 and the verify (OTP) step is rendered immediately — the email form is never mounted during the autoSend path (verified via 40ms DOM polling from click to OTP title). The sendSeqRef stale-response guard correctly prevents a late slow response from yanking the user back to OTP after 'Change email'."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped per request)", "frontend": "100% (9/9)"},
+  "seed_data_creation": "None. All POST /api/user/registerEmail requests were intercepted and mocked at the Playwright layer — no live DB writes.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "The fix is correct. page.route('**/api/user/registerEmail') MUST be installed before any navigation in each scenario to protect the live production DB. The mobile spinner-same-line assertion requires checking DOM containment (sub.contains(spinner)) + vertical overlap rather than exact top-line equality, because the subtitle wraps to two lines on 390px (the spinner sits on line 2 next to the masked email, which is the intended design).",
+  "rca of the issue": "N/A — this run verifies the already-shipped fix. The original UX bug (flash of 'Create your account' between landing hero and OTP) is no longer reproducible: the register page reads ref=hero&autoSend=1 from the URL and mounts directly on step='verify', firing exactly one registerEmail request with a sending-state subtitle+spinner, then swaps to the standard OTP subtitle on response (or falls back to the email form with prefilled value + inline error on failure)."
+}

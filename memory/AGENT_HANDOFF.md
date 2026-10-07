@@ -1,5 +1,11 @@
 # DynoPay — Agent Handoff (last session)
 
+## 2026-10-07 (pod 94432dad, later) — LANDING "Start free" → OTP flash FIXED (preview; needs Save to GitHub → deploy)
+- Bug: hero email + Start free → `/auth/register?ref=hero&autoSend=1&email=…` showed "Create your account" (step 1) for ~1s before the OTP screen (step started at "email", switched only after `registerEmail` returned + a 150ms setTimeout).
+- Fix in `pages/auth/register.tsx`: deep-link email read on FIRST render via `readAutoSendEmail(router.query)` (query is SSR-populated because `_app` has getInitialProps) → initial step `verify`; background send with `sendingCode` state ("Sending a 6-digit code to …" + spinner, new key `auth.sendingCodeTo` ×6 locales); failure → back to email step w/ prefilled email + server error; `sendSeqRef` ignores late responses after "Change email"; resend locked during send. `HeroV8.tsx` prefetches `/auth/register` on input focus.
+- Verified: testing_agent iteration_278 → 9/9 PASS (registerEmail mocked — never send real OTPs from preview). OTP screen now at ~280ms, email form never mounted.
+- Housekeeping: pod-bootstrap's `yarn install` rewrites `yarn.lock` (prunes ~450 stale entries) + `backend/yarn.lock`; restored both to HEAD so CI keeps building with the known-good lockfiles. Do the same on future pods (`git show HEAD:yarn.lock > yarn.lock`).
+
 ## 2026-10-07 (pod 94432dad) — SETUP via vault + STUCK DEPLOY UNBLOCKED — no code changes
 - Setup: `pod-bootstrap.sh --pass` → POD READY in 204s. preview_endpoint == supervisor APP_URL this pod (`https://94432dad-069c-448f-b984-da24d28fc738.preview.emergentagent.com`) → no `--url` re-sync needed. /health healthy, SAFE MODE on.
 - Stuck deploy RCA: run 37676976823 (sha 495d376b3) hung ~2h in step 10 "Hydration guard" (pre-timeout version of the workflow) AFTER deploy steps 5–8 had already succeeded. `concurrency: deploy-droplet` + `cancel-in-progress:false` → every newer push sat `pending` and the previous pending run got superseded ("cancelled"): c3c8a0d9a, 4913b21ab. Latest cc838cee6 (run 37687614574) was stuck `pending`.
