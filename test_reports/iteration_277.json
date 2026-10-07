@@ -1,0 +1,58 @@
+{
+  "summary": "Frontend-only E2E verification of Onboarding Reset Phase 1. REGISTER 3-screen flow renders and works end-to-end (email -> OTP via Redis -> name+password -> verified chip). Nav links switch-to-phone-signup, go-to-login-link, register-change-contact all work. Password rule enforcement works (register-setup-error 'Please meet all the password requirements.'). LOGIN inline Forgot-Password and inline 2FA both render INLINE inside the login card on desktop 1920 AND mobile 390 (no floating dialog / backdrop). TWO blocking issues: (1) After successful signup user is sent to /get-started?step=secure (not /dashboard) via FirstRunRedirect, so the dashboard-purpose-card is NEVER rendered for a brand-new signup -> the Purpose Card acceptance criterion cannot be met end-to-end from the signup flow. (2) MUI password-rules popover's invisible MUI backdrop intercepts pointer events, which blocks clicking register-complete-btn while the password field is focused.",
+
+  "backend_issues": {"critical": [], "minor": []},
+
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "RegisterSetupStep (register.tsx) + password-rules Popover",
+        "issue": "The MUI Popover showing password requirements renders a MuiBackdrop (invisible but pointer-events-enabled) that intercepts clicks on register-complete-btn while the password input retains focus. Playwright click times out indefinitely; real users clicking 'Create account' after typing a password have to first click elsewhere / press Escape before the button becomes clickable. Enter-key submission still works as a workaround. Fix: pass disablePortal + disableScrollLock + hideBackdrop (or sx={{ pointerEvents: 'none' }} on the Modal root) to the password-requirements Popover so it doesn't block clicks on sibling elements.",
+        "selector": "[data-testid=\"register-complete-btn\"] (blocked by div.MuiBackdrop-root.MuiBackdrop-invisible inside .MuiPopover-root.MuiModal-root)",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "New signup -> Dashboard Purpose Card",
+        "issue": "After completing the 3-step signup the client is redirected to /get-started?step=secure (hard client-side redirect via FirstRunRedirect inside pages/dashboard.tsx). The /dashboard route itself also redirects to /get-started until onboarding is complete, so <PurposeCard /> is never mounted (confirmed: no element with data-testid=dashboard-purpose-card in the DOM; dynopay.purpose.dismissed.v1 key never set). The review spec 'the newly signed-up user lands on /dashboard, dashboard-purpose-card must be visible' cannot pass with the current gating. Options: (a) show PurposeCard inside the /get-started wizard header, (b) stop redirecting fresh users away from /dashboard, or (c) relax FirstRunRedirect so the card renders before the redirect fires.",
+        "affected_selectors": ["[data-testid=\"dashboard-purpose-card\"]", "[data-testid=\"purpose-card-pill-merchants\"]", "[data-testid=\"purpose-card-dismiss\"]"]
+      },
+      {
+        "flow": "Register success redirect",
+        "issue": "Spec says 'show success screen then redirect to /dashboard' but actual flow redirects to /get-started?step=secure (confirmed via two separate signups). verified-confirmation-chip DOES briefly appear and the 'Account created successfully!' toast fires. If /get-started is intended, update the spec; if /dashboard is intended, remove the forced onboarding redirect for brand-new users.",
+        "affected_selectors": ["[data-testid=\"verified-confirmation-chip\"]"]
+      }
+    ],
+    "design_issues": []
+  },
+
+  "test_report_links": ["/app/test_reports/iteration_277.json"],
+
+  "action_items": [
+    "Fix password-rules Popover so it doesn't block the Create account button (hideBackdrop / disablePortal / pointer-events none on Modal root).",
+    "Decide product behavior: either render <PurposeCard /> as part of the /get-started onboarding, or stop FirstRunRedirect from stealing fresh signups from /dashboard, otherwise the dashboard-purpose-card is unreachable for new users.",
+    "Clarify intended post-signup landing route — spec says /dashboard but code sends new users to /get-started?step=secure."
+  ],
+
+  "critical_code_review_comments": [
+    "pages/dashboard.tsx: PurposeCard is rendered AFTER FirstRunRedirect; FirstRunRedirect fires imperative router.replace('/get-started') before React paints PurposeCard, so the card never appears for its intended audience (new signups). Reorder or add a 'has not yet seen purpose' bypass.",
+    "Components/Page/Setup/*: the password-requirements Popover should not use a backdrop (hideBackdrop) or should disable pointer events on the Modal root — current implementation causes a hard-to-diagnose dead-click on register-complete-btn.",
+    "pages/auth/register.tsx completion path: consider skipping router push to /get-started when sessionStorage/localStorage indicates purpose not yet captured, so PurposeCard gets a chance to render."
+  ],
+
+  "updated_files": [],
+
+  "success_rate": {"backend": "n/a (skipped per request)", "frontend": "80% (10/12 criteria PASS; 2 FAIL — dashboard purpose card unreachable, password popover intercepts click)"},
+
+  "test_credentials": "Owner: onarrival21@gmail.com / Katiekendra123@ (user_id 1, TOTP via node /app/backend/scripts/print_totp.cjs 1). Throwaway signups created on live prod DB: qa_onboard_fe_1791363217@example.com, qa_onboard_fe_1791363296@example.com, qa_onboard_fe_1791363461@example.com, qa_onboard_fe_1791363521@example.com, qa_onboard_fe_1791363630@example.com — ALL with password QaOnboard123@. Please bulk-purge WHERE email LIKE 'qa_onboard_fe_%@example.com'.",
+
+  "seed_data_creation": "5 throwaway merchant signups listed above (qa_onboard_fe_<ts>@example.com) created on the LIVE prod DB — awaiting bulk purge by main agent.",
+
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Register 3-step UI itself works. The real blockers to passing the review's acceptance criteria are: (1) new-user redirect lands on /get-started not /dashboard, (2) PurposeCard is gated behind completed onboarding so it is never seen by fresh users, (3) password-rules Popover backdrop blocks register-complete-btn clicks (Playwright-visible; also affects real users mid-type). Login inline Forgot-Password and inline 2FA are confirmed INLINE on both desktop 1920 and mobile 390 (no visible role=dialog, forgot-password shows 'Reset your password' with Email/Phone toggle inside the login card, 2FA shows 'Two-step verification' + 6 OTP cells + Cancel/Use backup/Lost authenticator links inside the login card). To re-test the purpose card after fix, you can either (a) finish /get-started onboarding then verify /dashboard, or (b) have main agent gate FirstRunRedirect behind purpose_vertical being set.",
+
+  "rca of the issue": "RCA for Purpose Card not shown: pages/dashboard.tsx mounts <FirstRunRedirect /> ahead of <PurposeCard />. FirstRunRedirect imperatively router.replace('/get-started?step=secure') for any merchant who hasn't completed the 5-step setup. React's render cycle unmounts the dashboard tree before PurposeCard's useEffect (which flips hidden->false) runs, so dashboard-purpose-card never appears in the DOM. Repro: sign up a new qa_onboard_fe_* user, let it redirect, then visit /dashboard directly — URL momentarily shows /dashboard then flips to /get-started?step=secure and PurposeCard is never found via querySelector. Mitigation: either delay FirstRunRedirect for N ms, or render PurposeCard above the redirect, or short-circuit the redirect while purpose_vertical is null. RCA for Popover intercept: the Password-rules Popover is implemented via MUI Popover/Modal which, by default, renders a <div class='MuiBackdrop-root MuiBackdrop-invisible MuiModal-backdrop'> that captures pointer events across the viewport while open. The adjacent Create-account button is behind that backdrop in the event bubble. Mitigation: add hideBackdrop or pass slotProps={{ backdrop: { sx: { pointerEvents: 'none' } } }} to the Popover (or use a plain absolutely-positioned div instead of a Modal-based Popover)."
+}

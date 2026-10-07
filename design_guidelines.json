@@ -1,250 +1,214 @@
 {
-  "project_name": "DynoPay Homepage Polish & Quality Upgrade",
-  "app_type": "marketing_site",
-  "archetype": "THE PERFORMANCE PRO / SWISS HIGH-CONTRAST",
-  "persona": "E1 Creative Designer - High-End Fintech & Crypto Gateway",
-  "brand_identity": {
-    "name": "DynoPay",
-    "positioning": "Non-custodial crypto payment gateway for merchants & creators",
-    "core_value_prop": "Accept 40+ crypto assets across 8 chains, optional auto-convert to stablecoins, instant settlement straight to your own wallet with 0% chargeback risk and low 1.5% fees.",
-    "primary_gold": "#FFD100",
-    "primary_gold_hover": "#E6BC00",
-    "primary_gold_deep": "#8A6D00",
-    "dark_panel_bg": "#0B0B0A",
-    "dark_surface": "#1A1A19",
-    "light_canvas": "#F9F9F8",
-    "light_surface": "#FFFFFF",
-    "light_border": "#E5E5E3",
-    "dark_border": "rgba(255, 255, 255, 0.09)",
-    "text_dark_primary": "#1A1A19",
-    "text_dark_secondary": "#666664",
-    "text_dark_tertiary": "#999996",
-    "text_light_primary": "#F6F6F3",
-    "text_light_secondary": "#ABABA5"
+  "project_name": "Dynopay Auth Brand/Trust Panel Redesign",
+  "app_type": "auth_pages",
+  "context": "Restrained trust-split redesign (Bybit/Stripe style) for Dynopay auth pages (/auth/login and /auth/register). Replaces the previous animated marketing reel (carousel, wallet count-up, coin marquee) with a calm, pure typographic + trust signals panel.",
+  "design_archetype": "Restrained Trust Split (Swiss & High-Contrast / Tactical Minimalism)",
+  "color_system": {
+    "brand_gold_dark": "#FFD100",
+    "brand_gold_light_text": "#8B5E00",
+    "secondary_aqua": "#2BD4C4",
+    "dark_canvas_gradient": "linear-gradient(160deg, #121216 0%, #0A0A0D 100%)",
+    "light_canvas_gradient": "linear-gradient(160deg, #FFFFFF 0%, #EEF1F5 100%)",
+    "hairline_dark": "rgba(255, 255, 255, 0.08)",
+    "hairline_light": "rgba(10, 10, 10, 0.08)",
+    "glass_bg_dark": "rgba(255, 255, 255, 0.04)",
+    "glass_bg_light": "rgba(255, 255, 255, 0.78)",
+    "subtext_dark": "rgba(255, 255, 255, 0.62)",
+    "subtext_light": "rgba(10, 10, 10, 0.60)",
+    "text_primary_dark": "#FFFFFF",
+    "text_primary_light": "#0A0A0D",
+    "positive_green_dark": "#3FD98A",
+    "positive_green_light": "#05936A"
   },
   "typography": {
-    "headline_font": "Manrope, sans-serif",
-    "body_font": "IBM Plex Sans, sans-serif",
-    "figure_code_font": "IBM Plex Mono, monospace",
-    "h1_hero": {
-      "desktop": "text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]",
-      "mobile": "text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15]"
+    "display_font": "var(--font-hero), Manrope, sans-serif",
+    "body_font": "var(--font-body), sans-serif",
+    "mono_font": "var(--font-tech), IBM Plex Mono, monospace",
+    "eyebrow_style": {
+      "fontFamily": "var(--font-tech), IBM Plex Mono, monospace",
+      "fontSize": "11px",
+      "letterSpacing": "0.14em",
+      "textTransform": "uppercase",
+      "fontWeight": 700
     },
-    "h2_section": {
-      "desktop": "text-3xl lg:text-4xl font-bold tracking-tight leading-tight",
-      "mobile": "text-2xl font-bold tracking-tight leading-tight"
+    "headline_style": {
+      "fontFamily": "var(--font-hero), Manrope, sans-serif",
+      "fontSize": "28px",
+      "fontWeight": 800,
+      "lineHeight": 1.15,
+      "letterSpacing": "-0.03em"
     },
-    "h3_card": {
-      "desktop": "text-xl lg:text-2xl font-semibold tracking-normal",
-      "mobile": "text-lg font-semibold tracking-normal"
-    },
-    "body_lead": "text-base lg:text-lg text-[#666664] dark:text-[#ABABA5] leading-relaxed",
-    "body_normal": "text-sm lg:text-base text-[#1A1A19] dark:text-[#F6F6F3] leading-normal",
-    "overline_label": "text-xs font-semibold uppercase tracking-[0.2em] text-[#8A6D00] dark:text-[#FFD100]",
-    "mono_figure": "font-mono font-medium tracking-wide text-sm lg:text-base"
-  },
-  "audit_findings_and_anti_slop_fixes": {
-    "header_clutter": {
-      "issue": "Live crypto price ticker under nav clutters header.",
-      "fix": "Completely remove price ticker band. Maintain clean 64px sticky nav with backdrop blur (backdrop-blur-xl bg-[#F9F9F8]/80 dark:bg-[#0B0B0A]/80 border-b border-[#E5E5E3] dark:border-white/10)."
-    },
-    "hero_section": {
-      "issue": "4-line headline, overly long paragraph, muddy gold background blob, floating overlapping cards.",
-      "fix": "Replace with Bybit-tier crisp hero: (1) Headline max 2 lines: 'Accept Crypto Everywhere. Settle Directly to Your Wallet.' (2) Action flow ribbon: 'Accept · Convert · Settle · Withdraw' with subtle dividers. (3) Prominent Sign-up Box containing quick email input + 'Start Free' CTA + 'Continue with Google' button routing to /auth/register?ref=hero&provider=google + 3 trust checkmarks. (4) Right visual: Sleek integrated hosted-checkout mockup card with live QR code, asset selection, payment amount in USD/BTC, and real-time transaction stepper without chaotic overlapping floating badges."
-    },
-    "product_showcase": {
-      "issue": "Left interactive tab list left right dark visual panel 70% empty.",
-      "fix": "Convert to Bybit-style 'One platform, endless possibilities' 4-card interactive bento grid (Accept Payments, Auto-Convert Engine, Direct Settlement, Hosted Links & Invoices). Each card features rich dark surface styling (#1A1A19), gold glowing subtle borders on hover, dynamic visual illustrations (interactive QR engine, live exchange rate simulator preview, multi-chain settlement routing graph, and live payment link generator preview) filling 100% of internal container space."
-    },
-    "how_it_works": {
-      "issue": "Generic 3-icon centered row.",
-      "fix": "Rebuild as interactive 3-step connected workflow pipeline (1. Connect API / Create Link -> 2. Customer Pays in 40+ Assets -> 3. Instant Settlement to Merchant Wallet). Include progressive active state highlighting, step numbers in gold mono pill, and mini live interaction per step."
-    },
-    "app_showcase": {
-      "issue": "Fake App Store / Google Play badges for non-existent mobile app.",
-      "fix": "Replace entirely with 'Works on Every Device' section showcasing responsive Web Dashboard on desktop alongside Mobile-Web browser mockup. Highlight responsive web features (PWA, web links, merchant terminal) with NO store badges."
-    },
-    "trust_and_metrics": {
-      "issue": "Invented ratings/times.",
-      "fix": "Use real live metrics endpoint GET /api/status/landing-metrics (payments_settled_this_month ~1,021, countries_served 121, uptime_90d_pct 99.94%, 40+ supported assets across 8 chains, 1.5% starting fee, zero chargeback guarantee)."
+    "subheadline_style": {
+      "fontFamily": "var(--font-body), sans-serif",
+      "fontSize": "14px",
+      "lineHeight": 1.5,
+      "fontWeight": 400
     }
   },
-  "section_blueprint": [
-    {
-      "section_id": "header",
-      "name": "Navigation Bar",
-      "data_testid": "nav-header",
-      "bg_style": "sticky top-0 z-50 backdrop-blur-xl bg-[#F9F9F8]/85 dark:bg-[#0B0B0A]/85 border-b border-[#E5E5E3] dark:border-white/10",
-      "layout": "Flex justify-between items-center max-w-7xl mx-auto px-4 lg:px-8 h-16",
+  "layout_and_spacing": {
+    "panel_container": {
+      "maxWidth": 600,
+      "borderRadius": "28px",
+      "padding": "36px 36px 32px",
+      "display": "{ xs: 'none', lg: 'flex' }",
+      "flexDirection": "column",
+      "gap": "28px"
+    },
+    "responsive_rule": "The panel is strictly hidden on mobile/tablet (xs/sm/md) and rendered only at lg+ breakpoints. The form column handles mobile trust presentation separately via MobileTrustStrip."
+  },
+  "blueprint_section_by_section": {
+    "section_1_eyebrow": {
+      "name": "Non-Custodial Security Pill",
+      "type": "Static Badge",
+      "style": {
+        "px": "13px",
+        "py": "7px",
+        "borderRadius": "999px",
+        "border": "1px solid hairline",
+        "display": "inline-flex",
+        "alignItems": "center",
+        "gap": "8px"
+      },
       "elements": [
-        {"name": "Logo & Brand Wordmark", "data_testid": "nav-logo"},
-        {"name": "Products Mega Dropdown", "data_testid": "nav-link-products"},
-        {"name": "Developers Mega Dropdown", "data_testid": "nav-link-developers"},
-        {"name": "Resources Dropdown", "data_testid": "nav-link-resources"},
-        {"name": "Pricing Link", "data_testid": "nav-link-pricing"},
-        {"name": "Command K Search Trigger", "data_testid": "nav-search-btn"},
-        {"name": "Language Selector", "data_testid": "nav-language-select"},
-        {"name": "Theme Toggle Switch", "data_testid": "nav-theme-toggle"},
-        {"name": "Log In Button", "data_testid": "nav-login-btn"},
-        {"name": "Start Free CTA", "data_testid": "nav-start-free-btn"}
-      ]
+        "Static gold indicator dot (7px diameter, NO pulsing animation)",
+        "Text: 'NON-CUSTODIAL PAYMENTS ENGINE' (uppercase mono, tracking 0.14em)"
+      ],
+      "i18n_key": "t('brandTrustBadge', 'Non-custodial · Direct settlement')"
     },
-    {
-      "section_id": "hero",
-      "name": "Hero Section",
-      "data_testid": "hero-section",
-      "bg_style": "relative py-12 lg:py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A] border-b border-[#E5E5E3] dark:border-white/10",
-      "layout": "grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl mx-auto px-4 lg:px-8",
-      "left_column": "lg:col-span-7 flex flex-col gap-6",
-      "right_column": "lg:col-span-5 flex justify-center",
-      "elements": [
-        {"name": "Flow Line Ribbon", "data_testid": "hero-flow-ribbon", "text": "Accept · Convert · Settle · Withdraw"},
-        {"name": "Main Headline H1", "data_testid": "hero-headline", "text": "Accept Crypto Everywhere. Settle Directly to Your Wallet."},
-        {"name": "Subheadline Lead", "data_testid": "hero-subheadline", "text": "Non-custodial gateway for merchants & creators. 40+ assets over 8 chains, optional auto-convert to stablecoins, zero chargebacks."},
-        {
-          "name": "Sign-Up Block",
-          "data_testid": "hero-signup-container",
-          "children": [
-            {"name": "Email Input", "data_testid": "hero-email-input", "placeholder": "Enter your work email"},
-            {"name": "Start Free Button", "data_testid": "hero-submit-btn"},
-            {"name": "Google Auth Button", "data_testid": "hero-google-auth-btn", "href": "/auth/register?ref=hero&provider=google"},
-            {"name": "Trust Checkmarks", "data_testid": "hero-trust-ticks", "items": ["Non-custodial", "No chargebacks", "1.5% fee"]}
-          ]
-        },
-        {
-          "name": "Live Hosted Checkout Mockup",
-          "data_testid": "hero-checkout-mockup",
-          "features": ["QR code renderer", "Network selector", "Asset switcher (BTC/USDT/ETH)", "Real-time payment status stepper", "Amount indicator ($149.00 USD / 0.0016 BTC)"]
-        }
-      ]
+    "section_2_hero_typography": {
+      "name": "Headline & Value Statement",
+      "type": "Pure Typographic Block",
+      "headline": "Institutional-grade crypto payments with zero custodial risk.",
+      "subheadline": "Accept payments across 9 blockchains directly into your sovereign wallet. No balance locks, no intermediaries, transparent 0.5% settlement fees.",
+      "i18n_keys": {
+        "headline_line1": "t('brandHeadlineLine1', 'Institutional-grade crypto payments')",
+        "headline_line2": "t('brandHeadlineLine2', 'with zero custodial risk')",
+        "subheadline": "t('brandSubheadline', 'Accept payments across 9 blockchains directly into your sovereign wallet. Instant settlement, transparent fees.')"
+      }
     },
-    {
-      "section_id": "stat_band",
-      "name": "Live Metrics Bar",
-      "data_testid": "stat-band-section",
-      "bg_style": "py-10 bg-[#FFFFFF] dark:bg-[#131312] border-b border-[#E5E5E3] dark:border-white/10",
-      "layout": "grid grid-cols-2 md:grid-cols-4 gap-6 max-w-7xl mx-auto px-4 lg:px-8 text-center",
-      "metrics": [
-        {"data_testid": "stat-payments-settled", "label": "Payments Settled (30d)", "fallback": "1,021+"},
-        {"data_testid": "stat-countries-served", "label": "Countries Supported", "fallback": "121"},
-        {"data_testid": "stat-uptime-pct", "label": "System Uptime (90d)", "fallback": "99.94%"},
-        {"data_testid": "stat-chains-assets", "label": "Assets & Chains", "fallback": "40+ Assets across 8 Chains"}
-      ]
-    },
-    {
-      "section_id": "product_showcase",
-      "name": "One Platform Interactive Product Bento",
-      "data_testid": "product-showcase-section",
-      "bg_style": "py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A]",
-      "layout": "max-w-7xl mx-auto px-4 lg:px-8 space-y-12",
+    "section_3_trust_signals_grid": {
+      "name": "Concrete Trust Signals Matrix",
+      "type": "2x2 or Structured Card Grid",
+      "style": {
+        "display": "grid",
+        "gridTemplateColumns": "repeat(2, 1fr)",
+        "gap": "14px"
+      },
       "cards": [
         {
-          "id": "card-accept-payments",
-          "data_testid": "product-card-accept",
-          "title": "Accept 40+ Assets Across 8 Chains",
-          "description": "BTC, ETH, USDT, USDC, LTC, TRX and more. Automated route detection and zero payment friction.",
-          "visual_type": "interactive_asset_cascade"
+          "test_id": "auth-trust-card-custody",
+          "title": "Direct Non-Custodial",
+          "value": "100% Direct",
+          "description": "Funds land directly into your merchant wallet on-chain.",
+          "icon": "LockShieldIcon",
+          "i18n_key": "t('brandTrustCustody', 'Direct Non-Custodial')"
         },
         {
-          "id": "card-auto-convert",
-          "data_testid": "product-card-convert",
-          "title": "Auto-Convert Engine",
-          "description": "Protect your revenue against volatility. Instantly swap incoming crypto into USDT or USDC upon receipt.",
-          "visual_type": "live_slippage_rate_simulator"
+          "test_id": "auth-trust-card-chains",
+          "title": "Multi-Chain Rail",
+          "value": "9 Blockchains · 15 Assets",
+          "description": "BTC, ETH, Solana, USDT, USDC, TRX, XRP, BNB & Polygon.",
+          "icon": "ChainRailIcon",
+          "i18n_key": "t('brandTrustChains', '9 Chains · 15 Assets')"
         },
         {
-          "id": "card-instant-settlement",
-          "data_testid": "product-card-settle",
-          "title": "Direct Merchant Wallet Settlement",
-          "description": "Non-custodial architecture means funds settle straight into your cold or hot wallet. No middleman hold period.",
-          "visual_type": "wallet_routing_graph"
+          "test_id": "auth-trust-card-settlement",
+          "title": "Instant On-Chain",
+          "value": "Sub-Minute",
+          "description": "Zero holding periods. Fees starting at 0.5%.",
+          "icon": "BoltIcon",
+          "i18n_key": "t('brandTrustSettlement', 'Instant On-Chain')"
         },
         {
-          "id": "card-checkout-links",
-          "data_testid": "product-card-checkout",
-          "title": "Hosted Checkouts & Payment Links",
-          "description": "Generate no-code buy buttons, subscriptions, and branded invoice links in under 30 seconds.",
-          "visual_type": "payment_link_generator_preview"
+          "test_id": "auth-trust-card-compliance",
+          "title": "Security & Compliance",
+          "value": "Encrypted & Hardened",
+          "description": "KYC/AML thresholds, key isolation & public uptime status.",
+          "icon": "CheckCircleIcon",
+          "i18n_key": "t('brandTrustCompliance', 'Security & Compliance')"
         }
       ]
     },
-    {
-      "section_id": "how_it_works",
-      "name": "3-Step Merchant Workflow",
-      "data_testid": "how-it-works-section",
-      "bg_style": "py-20 bg-white dark:bg-[#131312] border-y border-[#E5E5E3] dark:border-white/10",
-      "layout": "max-w-7xl mx-auto px-4 lg:px-8",
-      "steps": [
-        {"step": "01", "data_testid": "step-1-card", "title": "Create Link or Connect API", "desc": "Generate hosted checkout links in dashboard or integrate our SDK in 5 lines of code."},
-        {"step": "02", "data_testid": "step-2-card", "title": "Customer Pays in Preferred Crypto", "desc": "Buyer selects from 40+ tokens across Bitcoin, Ethereum, Tron, Polygon, Arbitrum, and more."},
-        {"step": "03", "data_testid": "step-3-card", "title": "Direct Settlement to Your Wallet", "desc": "Funds (or auto-converted stablecoins) land directly in your merchant wallet with zero chargeback risk."}
-      ]
+    "section_4_merchant_quote": {
+      "name": "Secondary Merchant Testimonial (Optional / Static)",
+      "type": "Calm Quote Card",
+      "quote": "“Dynopay allowed us to automate crypto checkout without ever handing our keys or funds to a 3rd party.”",
+      "author": "The Dev Store",
+      "role": "Verified Merchant · 9 Chains Active",
+      "style": {
+        "border": "1px solid hairline",
+        "borderRadius": "16px",
+        "p": "18px 20px",
+        "background": "glass surface",
+        "display": "flex",
+        "flexDirection": "column",
+        "gap": "8px"
+      }
     },
-    {
-      "section_id": "deep_dive_dev_api",
-      "name": "Developer-First API & SDK Deep Dive",
-      "data_testid": "dev-api-deepdive-section",
-      "bg_style": "py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A]",
-      "layout": "grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto px-4 lg:px-8 items-center",
-      "left_text": "lg:col-span-5 flex flex-col gap-4",
-      "right_code_box": "lg:col-span-7 bg-[#0B0B0A] border border-white/10 rounded-xl p-6 shadow-2xl font-mono text-sm text-[#F6F6F3]"
-    },
-    {
-      "section_id": "device_showcase",
-      "name": "Works on Every Device",
-      "data_testid": "device-showcase-section",
-      "bg_style": "py-20 bg-white dark:bg-[#131312] border-y border-[#E5E5E3] dark:border-white/10",
-      "layout": "max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center",
-      "content": "Showcase responsive web dashboard on desktop screen mockup alongside mobile web browser view. Explicitly highlight 'No app download required - 100% accessible via web browser on any desktop, tablet, or mobile phone'."
-    },
-    {
-      "section_id": "trust_compliance",
-      "name": "Trust, Security & Assets Grid",
-      "data_testid": "trust-compliance-section",
-      "bg_style": "py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A]",
+    "section_5_compliance_footer": {
+      "name": "Transparency & Status Bar",
+      "type": "Single Row Summary",
       "elements": [
-        {"data_testid": "trust-pill-noncustodial", "title": "100% Non-Custodial", "desc": "You hold your private keys"},
-        {"data_testid": "trust-pill-chargebacks", "title": "Zero Chargebacks", "desc": "Irreversible blockchain transactions"},
-        {"data_testid": "trust-pill-encryption", "title": "Bank-Grade Encryption", "desc": "TLS 1.3 & AES-256 protected"},
-        {"data_testid": "trust-assets-wall", "title": "Supported Assets Grid", "desc": "Interactive filterable grid of supported cryptocurrencies and chains"}
-      ]
-    },
-    {
-      "section_id": "footer",
-      "name": "Platform Footer",
-      "data_testid": "footer-section",
-      "bg_style": "py-16 bg-[#0B0B0A] text-[#F6F6F3] border-t border-white/10",
-      "layout": "max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-2 md:grid-cols-5 gap-8",
-      "elements": [
-        {"data_testid": "footer-brand-column", "wordmark": "DynoPay", "status_pill": "All Systems Operational"},
-        {"data_testid": "footer-col-products", "title": "Products", "links": ["Checkout", "Payment Links", "Invoices", "Subscriptions", "Auto-Convert"]},
-        {"data_testid": "footer-col-developers", "title": "Developers", "links": ["API Docs", "SDKs", "Webhooks", "API Keys", "Status"]},
-        {"data_testid": "footer-col-resources", "title": "Resources", "links": ["Supported Coins", "Fee Calculator", "Compliance", "Blog", "Guides"]},
-        {"data_testid": "footer-col-company", "title": "Company", "links": ["About", "Careers", "Brand Kit", "Contact", "Terms & Privacy"]}
-      ]
+        "Public System Status: 99.99% Uptime",
+        "KYC/AML Compliant",
+        "Transparent 0.5% Base Fee"
+      ],
+      "style": {
+        "display": "flex",
+        "alignItems": "center",
+        "justifySpaceBetween": true,
+        "borderTop": "1px solid hairline",
+        "pt": "16px"
+      }
     }
-  ],
-  "image_urls": {
-    "hero_checkout_qr": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
-    "dashboard_desktop_preview": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
-    "mobile_web_preview": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
-    "merchant_business": "https://images.unsplash.com/photo-1556742049-0a670f4a4591?auto=format&fit=crop&w=800&q=80"
   },
-  "motion_and_interactions": {
-    "engine": "framer-motion",
-    "hover_button": "hover:scale-[1.02] active:scale-[0.98] transition-all duration-200",
-    "hover_card": "hover:-translate-y-1 hover:border-[#FFD100]/50 transition-all duration-300 shadow-lg hover:shadow-[#FFD100]/10",
-    "stagger_children": "staggerChildren: 0.1, delayChildren: 0.05",
-    "reduced_motion": "Detect prefers-reduced-motion media query and disable transforms / opacity fades."
+  "allowed_motion": {
+    "entrance": "authRise 560ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both (Single entrance reveal on component mount)",
+    "prohibited": [
+      "NO looping animations",
+      "NO auto-playing carousels",
+      "NO counting up numbers or animated balances",
+      "NO animated coin marquees",
+      "NO pulsing glow dots or infinite keyframe loops"
+    ],
+    "reduced_motion": "Respect prefers-reduced-motion: reduce by setting animation: 'none'"
+  },
+  "light_and_dark_treatments": {
+    "dark_mode": {
+      "background": "linear-gradient(160deg, #121216 0%, #0A0A0D 100%)",
+      "border": "1px solid rgba(255, 255, 255, 0.08)",
+      "text_primary": "#FFFFFF",
+      "text_subtle": "rgba(255, 255, 255, 0.62)",
+      "accent": "#FFD100",
+      "card_bg": "rgba(255, 255, 255, 0.03)",
+      "card_border": "1px solid rgba(255, 255, 255, 0.08)"
+    },
+    "light_mode": {
+      "background": "linear-gradient(160deg, #FFFFFF 0%, #EEF1F5 100%)",
+      "border": "1px solid rgba(139, 94, 0, 0.12)",
+      "text_primary": "#0A0A0D",
+      "text_subtle": "rgba(10, 10, 10, 0.60)",
+      "accent": "#8B5E00",
+      "card_bg": "rgba(255, 255, 255, 0.85)",
+      "card_border": "1px solid rgba(10, 10, 10, 0.08)"
+    }
+  },
+  "testing_attributes": {
+    "root_panel": "data-testid=\"auth-brand-panel\"",
+    "eyebrow_badge": "data-testid=\"auth-trust-eyebrow\"",
+    "headline": "data-testid=\"auth-trust-headline\"",
+    "subheadline": "data-testid=\"auth-trust-subheadline\"",
+    "trust_grid": "data-testid=\"auth-trust-grid\"",
+    "testimonial_card": "data-testid=\"auth-trust-testimonial\"",
+    "footer_status": "data-testid=\"auth-trust-footer\""
   },
   "instructions_to_main_agent": [
-    "1. Remove the price ticker band beneath the main nav bar to eliminate header clutter.",
-    "2. Standardize all primary call-to-action buttons with DynoPay Gold (#FFD100) background, bold dark text (#1A1A19), full rounded pill geometry (rounded-full), and subtle hover state (#E6BC00).",
-    "3. On the hero section, maintain a crisp 2-line title, action flow ribbon, and sign-up form with both 'Start Free' and 'Continue with Google' button pointing to /auth/register?ref=hero&provider=google.",
-    "4. Ensure right side hero hosted checkout mockup is self-contained with live QR code, asset selection, amount display, and status stepper.",
-    "5. Populate the live metrics bar with data fetched from GET /api/status/landing-metrics or fallback constants.",
-    "6. Build the 'One Platform' section as 4 interactive dark-panel cards with gold hover borders and visual diagrams filling card height.",
-    "7. Replace fake mobile app download badges with 'Works on Every Device' featuring desktop dashboard and mobile web mockups.",
-    "8. Include exact data-testid attributes on all buttons, inputs, links, metric items, and sections as defined in blueprint."
+    "Open Components/UI/AuthLayout/AuthBrandPanel.tsx.",
+    "Remove all state/effects/intervals related to carousel scenes, balance count-up, flow dots, and animated coin marquee.",
+    "Replace the panel content with a purely static, calm typographic layout and 2x2 trust signals grid as outlined in the blueprint.",
+    "Ensure all copy uses i18n t() keys from the 'auth' namespace with explicit defaultValues.",
+    "Maintain root data-testid=\"auth-brand-panel\" and assign data-testids to grid cards.",
+    "Apply exact color rules for light and dark modes according to the existing brand palette.",
+    "Keep single entrance animation (authRise) and respect prefers-reduced-motion."
   ]
 }

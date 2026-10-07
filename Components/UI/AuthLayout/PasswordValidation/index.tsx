@@ -214,6 +214,8 @@ const PasswordValidation: React.FC<PasswordValidationProps> = ({
       onClose={onClose}
       disableEnforceFocus
       disableAutoFocus
+      hideBackdrop
+      disableScrollLock
       anchorOrigin={{
         vertical: "center",
         horizontal: "left",
@@ -223,7 +225,12 @@ const PasswordValidation: React.FC<PasswordValidationProps> = ({
         horizontal: "right",
       }}
       sx={{
+        // Informational popover — must NOT capture pointer events, otherwise its
+        // invisible Modal backdrop swallows clicks on the sibling "Create account"
+        // button while the password field is focused.
+        pointerEvents: "none",
         "& .MuiPaper-root": {
+          pointerEvents: "auto",
           background: "transparent",
           p: isMobile ? "0px" : "18px",
           boxShadow: "none",

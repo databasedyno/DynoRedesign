@@ -1,3 +1,10 @@
+<!-- 2026-10-07 (fork, pod 7220be15) — CURRENT POD URL (supersedes every secure-passphrase-* URL below).
+     LIVE preview URL for THIS pod = https://7220be15-93bb-4068-92f6-0a20be84ac87.preview.emergentagent.com  (= SERVER_URL in /app/backend/.env; NEXT_PUBLIC_BASE_URL empty => same-origin /api).
+     No credential changes this session. Merchant/owner: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1; TOTP 2FA: `node /app/backend/scripts/print_totp.cjs 1`; API login POST /api/user/login -> data.challenge_token -> POST /api/user/2fa/validate {challenge_token,token} -> data.accessToken). Admin: moxxcompany@gmail.com / Katiekendra123@ (TOTP: `cd /app/backend && node scripts/admin_2fa.cjs totp 1`). Browser User-Agent REQUIRED (curl/python UAs 403'd).
+     Signup OTP (outbound email OFF) lives in Redis under key `otp:<lowercased-email>:json` — read via `cd /app/backend && node -r dotenv/config /app/memory/tmp/qa/read_otp.js "otp:<email>:json"`.
+     Onboarding throwaways must use qa_onboard_*@example.com; purge cleanly via services/accountPurgeService.ts purgeAccount({user_id,email}) (DELETE /api/user/account needs step-up which fresh accounts can't satisfy). Frontend is a PROD Next build (no hot reload) — rebuild+swap after FE edits (see PRD top). -->
+
+
 <!-- 2026-10-06 (fork, pod 33379795) — CURRENT POD URL (supersedes the secure-passphrase-13 lines below, which are STALE).
      LIVE preview URL for THIS pod = https://secure-passphrase-15.preview.emergentagent.com
      Admin: moxxcompany@gmail.com / Katiekendra123@ (TOTP). Mint token: POST /api/admin/login/password -> data.challengeToken ; code=`cd /app/backend && node scripts/admin_2fa.cjs totp 1` ; POST /api/admin/login/totp {challengeToken,code} -> data.accessToken. Browser User-Agent REQUIRED (curl/python UAs 403'd). FE token = localStorage['admin_token'] (cached /app/memory/tmp/admin_token.txt, 12h). Merchant: onarrival21@gmail.com / Katiekendra123@ (user 1).
