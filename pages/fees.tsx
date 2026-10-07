@@ -7,6 +7,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import BoltIcon from "@mui/icons-material/Bolt";
+import { Icon } from "@iconify/react";
 import Head from "next/head";
 import {
   FONT_BODY,
@@ -53,14 +54,21 @@ const formatUSD = (n: number) =>
 const fmtMoney = (n: number) => formatWithSymbol(n, "$", 2);
 
 const SETTLE_CURRENCIES = [
-  { code: "USDT-TRC20", label: "USDT · Tron (TRC-20)", netFee: 1.0, apiKey: "USDT_TRC20" },
-  { code: "USDC-SOL", label: "USDC · Solana", netFee: 0.01, apiKey: "SOL" },
-  { code: "USDC-POLYGON", label: "USDC · Polygon", netFee: 0.03, apiKey: "POLYGON" },
-  { code: "USDC-ERC20", label: "USDC · Ethereum (ERC-20)", netFee: 3.5, apiKey: "USDC_ERC20" },
-  { code: "USDT-ERC20", label: "USDT · Ethereum (ERC-20)", netFee: 3.5, apiKey: "USDT_ERC20" },
-  { code: "ETH", label: "ETH · Ethereum", netFee: 3.5, apiKey: "ETH" },
-  { code: "BTC", label: "BTC · Bitcoin", netFee: 2.5, apiKey: "BTC" },
+  { code: "USDT-TRC20", label: "USDT · Tron (TRC-20)", asset: "usdt", netFee: 1.0, apiKey: "USDT_TRC20" },
+  { code: "USDC-SOL", label: "USDC · Solana", asset: "usdc", netFee: 0.01, apiKey: "SOL" },
+  { code: "USDC-POLYGON", label: "USDC · Polygon", asset: "usdc", netFee: 0.03, apiKey: "POLYGON" },
+  { code: "USDC-ERC20", label: "USDC · Ethereum (ERC-20)", asset: "usdc", netFee: 3.5, apiKey: "USDC_ERC20" },
+  { code: "USDT-ERC20", label: "USDT · Ethereum (ERC-20)", asset: "usdt", netFee: 3.5, apiKey: "USDT_ERC20" },
+  { code: "ETH", label: "ETH · Ethereum", asset: "eth", netFee: 3.5, apiKey: "ETH" },
+  { code: "BTC", label: "BTC · Bitcoin", asset: "btc", netFee: 2.5, apiKey: "BTC" },
 ];
+
+// Brand coin glyph (matches the v8 homepage CheckoutCard icon set).
+const CoinGlyph = ({ asset, size = 20 }: { asset: string; size?: number }) => (
+  <Box component="span" sx={{ display: "inline-flex", flexShrink: 0, lineHeight: 0 }}>
+    <Icon icon={`cryptocurrency-color:${asset}`} width={size} height={size} />
+  </Box>
+);
 
 const fmtFee = (n: number) => (n > 0 && n < 0.01 ? "< $0.01" : fmtMoney(n));
 
@@ -359,12 +367,26 @@ const FeesPage = () => {
                         label={t("v3.settleCurrency", { defaultValue: "Settlement currency" })}
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        SelectProps={{ SelectDisplayProps: { "data-testid": "fee-calc-currency-select" } as React.HTMLAttributes<HTMLDivElement> }}
+                        SelectProps={{
+                          SelectDisplayProps: { "data-testid": "fee-calc-currency-select" } as React.HTMLAttributes<HTMLDivElement>,
+                          renderValue: (val) => {
+                            const c = SETTLE_CURRENCIES.find((x) => x.code === (val as string)) || selCur;
+                            return (
+                              <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+                                <CoinGlyph asset={c.asset} />
+                                <span>{c.label}</span>
+                              </Box>
+                            );
+                          },
+                        }}
                         sx={darkField}
                       >
                         {SETTLE_CURRENCIES.map((c) => (
                           <MenuItem key={c.code} value={c.code} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-                            <span>{c.label}</span>
+                            <Box component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                              <CoinGlyph asset={c.asset} />
+                              <span>{c.label}</span>
+                            </Box>
                             {c.code === cheapest.code && (
                               <Box component="span" sx={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", color: "#8A6D00", background: "rgba(255,209,0,0.18)", px: 0.75, py: 0.25, borderRadius: 999 }}>
                                 {t("v3.lowestFee", { defaultValue: "Lowest fee" })}
@@ -407,13 +429,18 @@ const FeesPage = () => {
                     </Box>
                     <Box sx={{ border: `1px solid ${PANEL.line}`, borderRadius: "16px", overflow: "hidden" }}>
                       {[
-                        { label: t("v3.bdPaymentAmount", { defaultValue: "Payment amount" }), value: fmtMoney(payAmount), sub: null as string | null },
-                        { label: t("v3.bdBlockchainFee", { defaultValue: "Blockchain / network fee" }), value: fmtFee(blockchainFee), sub: liveFee != null ? `${selCur.label} · live rate` : selCur.label },
+                        { label: t("v3.bdPaymentAmount", { defaultValue: "Payment amount" }), value: fmtMoney(payAmount), sub: null as string | null, glyph: null as string | null },
+                        { label: t("v3.bdBlockchainFee", { defaultValue: "Blockchain / network fee" }), value: fmtFee(blockchainFee), sub: liveFee != null ? `${selCur.label} · live rate` : selCur.label, glyph: selCur.asset },
                       ].map((row, i) => (
                         <Box key={i} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2.5, py: 1.75, borderBottom: `1px solid ${PANEL.line}` }}>
                           <Box>
                             <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, color: PANEL.ink2 }}>{row.label}</Typography>
-                            {row.sub && <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, color: PANEL.ink3, mt: 0.25 }}>{row.sub}</Typography>}
+                            {row.sub && (
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.25 }}>
+                                {row.glyph && <CoinGlyph asset={row.glyph} size={14} />}
+                                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, color: PANEL.ink3 }}>{row.sub}</Typography>
+                              </Box>
+                            )}
                           </Box>
                           <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PANEL.ink }} data-testid={`fee-row-value-${i}`}>{row.value}</Typography>
                         </Box>
