@@ -33,6 +33,15 @@
 #   (The "Deploy to Droplet" job itself SUCCEEDED; only the preflight gate was red.) FIX: escaped to "Don&apos;t" (renders
 #   identically — no prod rebuild needed). Re-ran all 3 CI frontend sub-steps locally: clean full tsc=0, unused-imports=0,
 #   full-scope eslint=0. docker-build + backend-tsc were already green. Push via "Save to GitHub" to re-trigger a now-passing run.
+#
+# CI DEPLOY "STUCK" (same session, after user pushed commit 495d376b): preflight PASSED on 495d376b (press.tsx fix worked) and the
+#   "Deploy to Droplet" job DEPLOYED SUCCESSFULLY (canary->swap->traffic ok; https://dynopay.com healthy, /,/fees,/safedeal 200).
+#   The run only LOOKED stuck because the post-deploy step #10 "Hydration guard" hung ~13m+ (normal = 148s) — almost certainly the
+#   `npx playwright install --with-deps chromium` apt step stalling on a runner dpkg lock; the job has NO timeout-minutes so GitHub
+#   would keep it "in progress" up to 6h. The hang does NOT affect production (deploy steps run BEFORE the guard and already passed).
+#   FIX: .github/workflows/deploy-droplet.yml — added `timeout-minutes: 8` on the guard step + wrapped the browser-deps install in
+#   `timeout 300`, so a hung guard now fails fast instead of hanging for hours. User should CANCEL the stuck run (Actions UI) and
+#   "Save to GitHub" to apply the workflow hardening.
 # ============================================================================================
 
 

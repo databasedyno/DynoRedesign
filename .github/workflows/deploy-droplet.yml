@@ -277,8 +277,12 @@ jobs:
           node-version: "20"
 
       - name: Hydration guard — live site must hydrate cleanly
+        timeout-minutes: 8
         run: |
           mkdir -p /tmp/hg && cp scripts/qa/hydration_guard.mjs /tmp/hg/
           cd /tmp/hg && npm init -y >/dev/null && npm i --no-audit --no-fund playwright@1.61.1 >/dev/null
-          npx playwright install --with-deps chromium >/dev/null
+          # Bound the browser-deps install: `--with-deps` runs apt-get, which can
+          # stall for many minutes on a GitHub-runner dpkg/apt lock (unattended-upgrades).
+          # A hard `timeout` turns a silent multi-hour hang into a fast, clear failure.
+          timeout 300 npx playwright install --with-deps chromium >/dev/null
           GUARD_BASE_URL=https://dynopay.com node hydration_guard.mjs
