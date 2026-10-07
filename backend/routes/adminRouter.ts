@@ -326,5 +326,7 @@ adminRouter.post("/support/sessions/:session_id/handback", adminAuthMiddleware, 
 adminRouter.post("/support/sessions/:session_id/close", adminAuthMiddleware, supportInboxController.close);
 adminRouter.post("/support/sessions/:session_id/reopen", adminAuthMiddleware, supportInboxController.reopen);
 adminRouter.post("/support/sessions/:session_id/email", adminAuthMiddleware, supportInboxController.emailReply);
+// AI "make it professional" — refine an admin draft reply before sending (chat or email).
+adminRouter.post("/support/refine", adminAuthMiddleware, supportInboxController.refine);
 
 export default adminRouter;

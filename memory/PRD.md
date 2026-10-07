@@ -1,3 +1,26 @@
+# === 2026-10-07 (fork, pod a52f86ab) — ADMIN SUPPORT INBOX: AI "MAKE IT PROFESSIONAL" REFINE — CODE COMPLETE ===
+# USER: "when admin reply to merchant inbox from admin, we want AI to refine the message before sending so it can
+#        appear professional always." → applied ALL recommendations (both chat + email composer; rewrite-in-place with
+#        review/Undo; reuse existing OpenAI; single professional refine).
+# BACKEND (reuses the SAME OpenAI integration that powers AI support — OPENAI_API_KEY + SUPPORT_CHAT_MODEL/gpt-5.4; no new key):
+#   - backend/controller/supportInboxController.ts: new stateless `refine` handler (lazy getRefineOpenAI(), gpt-5.4 via
+#     chat.completions.create max_completion_tokens 1400 reasoning_effort low). Prompt rewrites the agent draft professionally,
+#     PRESERVES every fact (amounts/links/IDs/steps), invents nothing, keeps same language; chat vs email tone variant.
+#     Returns { refined, original, channel }. No DB writes, nothing sent — pure text transform. 503 if key missing, 429/401 mapped.
+#   - backend/routes/adminRouter.ts: POST /api/admin/support/refine (adminAuthMiddleware).
+# FRONTEND (admin /admin/support):
+#   - Components/Page/Admin/SupportInbox/index.tsx: onRefine() -> adminBaseApi.post('/admin/support/refine',{message,channel}).
+#   - Components/Page/Admin/SupportInbox/ConversationPanel.tsx: "Refine" button in the CHAT composer (testid support-refine) +
+#     "Refine with AI" in the EMAIL dialog (support-email-refine). Rewrites the draft in place, shows a "Polished by AI — review
+#     before sending" notice + Undo (support-refine-undo / support-email-refine-undo). Admin edits then Sends as normal.
+# GATES: backend tsc --noEmit = 0, frontend tsc --noEmit = 0, eslint clean (both FE files). Backend restarted healthy (SAFE MODE).
+#   Frontend prod rebuilt (.next-prod swap) this session.
+# NOT RUN: backend/frontend testing agents (admin console is TOTP-gated; user chose to wrap up). The refine endpoint is stateless
+#   & SAFE (no prod mutation) but makes a REAL OpenAI call. Recommend an admin-auth test of POST /api/admin/support/refine before/after deploy.
+# UNCOMMITTED -> "Save to GitHub". Files: supportInboxController.ts, adminRouter.ts, SupportInbox/index.tsx, SupportInbox/ConversationPanel.tsx (+PRD).
+# ============================================================================================
+
+
 # === 2026-10-07 (fork, pod a52f86ab) — LANDING MUTED-GREY CONTRAST FIX — DONE & VERIFIED ===
 # USER: "the grey like text on landing page are not that visible in both light or dark mode."
 # ROOT CAUSE: the muted/tertiary text token `ink3` failed WCAG AA in every palette it is used in on the v8 landing

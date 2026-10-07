@@ -8,6 +8,8 @@ import { apiLogger } from "../utils/loggers";
 import successResponseHelper from "../helper/successResponseHelper";
 import errorResponseHelper from "../helper/errorResponseHelper";
 import { subscribeSupportEscalations } from "../services/supportEventBus";
+import OpenAI from "openai";
+import { raw as envRaw } from "../utils/config";
 
 /**
  * Admin Support Inbox (2026-09-08).
@@ -439,6 +441,80 @@ const stream = (req: express.Request, res: express.Response) => {
   });
 };
 
+/* ── AI "make it professional" refine (2026-10) ─────────────────────────────
+ * Reuses the SAME OpenAI integration that powers the AI support chat
+ * (OPENAI_API_KEY, model SUPPORT_CHAT_MODEL / gpt-5.4). An admin's draft reply
+ * is rewritten into a clear, professional support tone WITHOUT inventing facts,
+ * then returned for the admin to review/edit before sending (chat OR email).
+ * Stateless: no DB writes, nothing sent — purely a text transform.
+ */
+const REFINE_MODEL = envRaw("SUPPORT_CHAT_MODEL") || "gpt-5.4";
+const MAX_REFINE_CHARS = 4000;
+
+let refineOpenAI: OpenAI | null = null;
+const getRefineOpenAI = (): OpenAI | null => {
+  if (!envRaw("OPENAI_API_KEY")) return null;
+  if (!refineOpenAI) {
+    refineOpenAI = new OpenAI({ apiKey: envRaw("OPENAI_API_KEY"), timeout: 30000, maxRetries: 1 });
+  }
+  return refineOpenAI;
+};
+
+const refineSystemPrompt = (channel: "chat" | "email"): string => `You are an expert editor who rewrites a Dynopay SUPPORT AGENT's draft reply so it always reads clearly, warmly and professionally. Dynopay is a non-custodial cryptocurrency payment gateway for merchants; the reader is a merchant or their customer.
+
+Rewrite the agent's draft:
+- Professional, friendly and respectful tone; plain, concise, easy-to-read language; fix all grammar, spelling and punctuation.
+- PRESERVE the meaning and EVERY concrete fact exactly as written — amounts, dates, times, links/URLs, email addresses, wallet/transaction/order/ticket IDs, step-by-step instructions and names. Do NOT add, remove or alter any fact.
+- Do NOT invent information, promises, policies, apologies for things not mentioned, or details that are not in the draft. If the draft is vague, keep it vague — never fabricate specifics.
+- Keep the SAME language as the draft.
+- Do not wrap the output in quotes and do not add any preamble, notes or a subject line.
+${channel === "email"
+    ? `- This is an EMAIL: you may use short paragraphs and a brief courteous sign-off such as "Best regards,\nDynopay Support" — but ONLY if the draft does not already include a closing.`
+    : `- This is a LIVE CHAT message: keep it brief and conversational, suitable for a chat bubble. Do NOT add an email-style greeting or signature.`}
+
+Output ONLY the rewritten message text.`;
+
+/** POST /api/admin/support/refine { message, channel? } → { refined } */
+const refine = async (req: express.Request, res: express.Response) => {
+  try {
+    const message = typeof req.body?.message === "string" ? req.body.message.trim() : "";
+    if (!message) return errorResponseHelper(res, 400, "Message is required.");
+    if (message.length > MAX_REFINE_CHARS) return errorResponseHelper(res, 400, `Message too long (max ${MAX_REFINE_CHARS}).`);
+    const channel: "chat" | "email" = req.body?.channel === "email" ? "email" : "chat";
+
+    const openai = getRefineOpenAI();
+    if (!openai) {
+      apiLogger.error("[supportInbox] refine: OPENAI_API_KEY is not configured");
+      return errorResponseHelper(res, 503, "AI refine is unavailable right now.");
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: REFINE_MODEL,
+      messages: [
+        { role: "system", content: refineSystemPrompt(channel) },
+        { role: "user", content: message },
+      ],
+      max_completion_tokens: 1400,
+      reasoning_effort: "low",
+    });
+
+    const refined = completion.choices?.[0]?.message?.content?.trim();
+    if (!refined) {
+      apiLogger.error(`[supportInbox] refine: empty completion (finish=${completion.choices?.[0]?.finish_reason})`);
+      return errorResponseHelper(res, 502, "Could not refine the message. Please try again.");
+    }
+
+    apiLogger.info(`[supportInbox] refine ok channel=${channel} in=${message.length} out=${refined.length} tokens=${completion.usage?.total_tokens ?? "?"}`);
+    return successResponseHelper(res, 200, "", { refined, original: message, channel });
+  } catch (e) {
+    const err = e as { status?: number; message?: string };
+    apiLogger.error(`[supportInbox] refine failed: ${err?.message}`);
+    if (err?.status === 401) return errorResponseHelper(res, 503, "AI refine is unavailable right now.");
+    if (err?.status === 429) return errorResponseHelper(res, 503, "AI is busy right now. Please try again in a moment.");
+    return errorResponseHelper(res, 500, "Could not refine the message.");
+  }
+};
+
 export default {
   listSessions,
   summary,
@@ -450,4 +526,5 @@ export default {
   reopen: setStatus("open"),
   emailReply,
   stream,
+  refine,
 };

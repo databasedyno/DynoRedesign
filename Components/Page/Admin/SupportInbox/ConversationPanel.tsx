@@ -26,6 +26,7 @@ import {
   CheckRounded,
   CloseRounded,
   BookmarkAddRounded,
+  AutoAwesomeRounded,
 } from "@mui/icons-material";
 import { CANNED_REPLIES } from "./cannedReplies";
 import { brandFg } from "@/constants/theme";
@@ -67,6 +68,7 @@ interface Props {
   onClose: () => Promise<void>;
   onReopen: () => Promise<void>;
   onEmail: (subject: string, message: string, to?: string) => Promise<boolean>;
+  onRefine: (message: string, channel: "chat" | "email") => Promise<string | null>;
 }
 
 const ConversationPanel: React.FC<Props> = ({
@@ -79,14 +81,19 @@ const ConversationPanel: React.FC<Props> = ({
   onClose,
   onReopen,
   onEmail,
+  onRefine,
 }) => {
   const theme = useTheme();
   const [draft, setDraft] = useState("");
+  const [refining, setRefining] = useState(false);
+  const [draftBeforeRefine, setDraftBeforeRefine] = useState<string | null>(null);
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailSubject, setEmailSubject] = useState("Re: your Dynopay support request");
   const [emailBody, setEmailBody] = useState("");
   const [emailTo, setEmailTo] = useState("");
   const [emailSending, setEmailSending] = useState(false);
+  const [refiningEmail, setRefiningEmail] = useState(false);
+  const [emailBodyBeforeRefine, setEmailBodyBeforeRefine] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [savingTemplate, setSavingTemplate] = useState(false);
@@ -122,6 +129,7 @@ const ConversationPanel: React.FC<Props> = ({
 
   useEffect(() => {
     setDraft("");
+    setDraftBeforeRefine(null);
   }, [detail?.session?.session_id]);
 
   useEffect(() => {
@@ -155,6 +163,43 @@ const ConversationPanel: React.FC<Props> = ({
     if (!text || sending) return;
     await onReply(text);
     setDraft("");
+    setDraftBeforeRefine(null);
+  };
+
+  const handleRefine = async () => {
+    const text = draft.trim();
+    if (!text || refining || sending) return;
+    setRefining(true);
+    const refined = await onRefine(text, "chat");
+    setRefining(false);
+    if (refined && refined !== text) {
+      setDraftBeforeRefine(text);
+      setDraft(refined);
+    }
+  };
+
+  const undoRefine = () => {
+    if (draftBeforeRefine === null) return;
+    setDraft(draftBeforeRefine);
+    setDraftBeforeRefine(null);
+  };
+
+  const handleRefineEmail = async () => {
+    const text = emailBody.trim();
+    if (!text || refiningEmail || emailSending) return;
+    setRefiningEmail(true);
+    const refined = await onRefine(text, "email");
+    setRefiningEmail(false);
+    if (refined && refined !== text) {
+      setEmailBodyBeforeRefine(emailBody);
+      setEmailBody(refined);
+    }
+  };
+
+  const undoRefineEmail = () => {
+    if (emailBodyBeforeRefine === null) return;
+    setEmailBody(emailBodyBeforeRefine);
+    setEmailBodyBeforeRefine(null);
   };
 
   const handleSendEmail = async () => {
@@ -165,6 +210,7 @@ const ConversationPanel: React.FC<Props> = ({
     if (ok) {
       setEmailOpen(false);
       setEmailBody("");
+      setEmailBodyBeforeRefine(null);
     }
   };
 
@@ -172,6 +218,7 @@ const ConversationPanel: React.FC<Props> = ({
     setEmailTo(contactEmail);
     setSavingTemplate(false);
     setTemplateName("");
+    setEmailBodyBeforeRefine(null);
     setEmailOpen(true);
   };
 
@@ -355,6 +402,19 @@ const ConversationPanel: React.FC<Props> = ({
         ))}
       </Box>
 
+      {/* AI refine notice (chat) */}
+      {draftBeforeRefine !== null && (
+        <Box sx={{ px: 1.5, pt: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
+          <AutoAwesomeRounded sx={{ fontSize: 15, color: "primary.main" }} />
+          <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+            Polished by AI — review before sending.
+          </Typography>
+          <Button size="small" variant="text" onClick={undoRefine} data-testid="support-refine-undo" sx={{ fontSize: 11, minWidth: 0, ml: 0.25 }}>
+            Undo
+          </Button>
+        </Box>
+      )}
+
       {/* Composer */}
       <Box sx={{ p: 1.5, display: "flex", gap: 1, alignItems: "flex-end" }}>
         <TextField
@@ -373,6 +433,20 @@ const ConversationPanel: React.FC<Props> = ({
           }}
           data-testid="support-reply-input"
         />
+        <Tooltip title="Rewrite your draft so it reads clear and professional (AI)">
+          <span>
+            <Button
+              variant="outlined"
+              onClick={handleRefine}
+              disabled={!draft.trim() || refining || sending}
+              startIcon={refining ? <CircularProgress size={15} color="inherit" /> : <AutoAwesomeRounded />}
+              data-testid="support-refine"
+              sx={{ height: 40, whiteSpace: "nowrap" }}
+            >
+              {refining ? "Refining…" : "Refine"}
+            </Button>
+          </span>
+        </Tooltip>
         <Button
           variant="contained"
           onClick={handleSend}
@@ -473,6 +547,33 @@ const ConversationPanel: React.FC<Props> = ({
             )}
           </Box>
 
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 0.5, mt: 0.5 }}>
+            {emailBodyBeforeRefine !== null && (
+              <Typography sx={{ fontSize: 11, color: "text.secondary", mr: "auto" }}>
+                Polished by AI — review before sending.
+              </Typography>
+            )}
+            {emailBodyBeforeRefine !== null && (
+              <Button size="small" variant="text" onClick={undoRefineEmail} data-testid="support-email-refine-undo" sx={{ fontSize: 11, minWidth: 0 }}>
+                Undo
+              </Button>
+            )}
+            <Tooltip title="Rewrite the message so it reads clear and professional (AI)">
+              <span>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={handleRefineEmail}
+                  disabled={!emailBody.trim() || refiningEmail || emailSending}
+                  startIcon={refiningEmail ? <CircularProgress size={14} color="inherit" /> : <AutoAwesomeRounded sx={{ fontSize: 16 }} />}
+                  data-testid="support-email-refine"
+                  sx={{ fontSize: 11 }}
+                >
+                  {refiningEmail ? "Refining…" : "Refine with AI"}
+                </Button>
+              </span>
+            </Tooltip>
+          </Box>
           <TextField
             label="Message"
             multiline

@@ -164,6 +164,27 @@ const SupportInbox: React.FC = () => {
     [selectedId, fetchDetail, toast]
   );
 
+  const onRefine = useCallback(
+    async (message: string, channel: "chat" | "email"): Promise<string | null> => {
+      const text = message.trim();
+      if (!text) return null;
+      try {
+        const res = await adminBaseApi.post(`/admin/support/refine`, { message: text, channel });
+        const refined = res.data?.data?.refined as string | undefined;
+        if (!refined) {
+          toast("Could not refine the message.", "error");
+          return null;
+        }
+        return refined;
+      } catch (e: unknown) {
+        const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
+        toast(msg || "Could not refine the message.", "error");
+        return null;
+      }
+    },
+    [toast]
+  );
+
   return (
     <Paper
       variant="outlined"
@@ -205,6 +226,7 @@ const SupportInbox: React.FC = () => {
           await action("reopen", "Conversation reopened.");
         }}
         onEmail={onEmail}
+        onRefine={onRefine}
       />
     </Paper>
   );
