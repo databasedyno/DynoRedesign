@@ -39,4 +39,16 @@ describe("diffCompanyFields", () => {
   it("contact name columns map to Contact Name", () => {
     expect(diffCompanyFields({ ...before, contact_first_name: "John" }, { contact_first_name: "Jane", contact_last_name: "Doe" })).toEqual(["Contact Name"]);
   });
+
+  it("removing an existing logo (photo === null) lists Brand Logo", () => {
+    expect(diffCompanyFields(before, { company_name: "Nameword" }, null)).toEqual(["Brand Logo"]);
+  });
+
+  it("removing when there was no logo is not a change", () => {
+    expect(diffCompanyFields({ ...before, photo: null }, { company_name: "Nameword" }, null)).toEqual([]);
+  });
+
+  it("no logo change (photo undefined) never lists Brand Logo", () => {
+    expect(diffCompanyFields(before, { company_name: "Nameword" }, undefined)).toEqual([]);
+  });
 });

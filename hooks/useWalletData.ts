@@ -1,6 +1,6 @@
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import BitcoinIcon from "@/assets/cryptocurrency/Bitcoin-icon.svg";
 import BitcoinCashIcon from "@/assets/cryptocurrency/BitcoinCash-icon.svg";
@@ -173,24 +173,16 @@ export const useWalletData = () => {
   }, [walletData]);
 
   // Track whether wallets have been fetched at least once
-  const hasFetched = useRef(false);
+  // `fetched` = the wallet request for the selected brand has really returned
+  // (SWR data !== undefined). Before that the store holds a placeholder empty
+  // list with loading=false (the SWR key is null until the brand is known), and
+  // treating that as "0 payout addresses" flashed the header's "payout address
+  // setup" chip on every page refresh.
+  const walletFetched = Boolean(walletState?.fetched);
 
   useEffect(() => {
-    if (walletLoading) {
-      setWalletWarning(false);
-      return;
-    }
-    // Mark as fetched when loading transitions to false
-    if (!walletLoading && (Array.isArray(walletState?.walletList))) {
-      hasFetched.current = true;
-    }
-    // Only show warning after first successful fetch
-    if (hasFetched.current) {
-      setWalletWarning(walletData.length === 0);
-    } else {
-      setWalletWarning(false);
-    }
-  }, [walletLoading, walletData, walletState?.walletList]);
+    setWalletWarning(walletFetched && !walletLoading && walletData.length === 0);
+  }, [walletFetched, walletLoading, walletData]);
 
   const activeWalletsData = useMemo(() => {
     return ALLCRYPTOCURRENCIES.filter((crypto) => {

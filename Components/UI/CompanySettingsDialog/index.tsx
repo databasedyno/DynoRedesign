@@ -132,6 +132,8 @@ export default function CompanySettingsDialog({
   const [formKey, setFormKey] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | undefined>();
   const [mediaFile, setMediaFile] = useState<File | undefined>();
+  // Saved logo staged for removal — applied on Save Changes (sends remove_photo).
+  const [removeLogo, setRemoveLogo] = useState(false);
   const [expanded, setExpanded] = useState<string | false>("company");
   // Account-type choice (individual <-> business). Seeded from the company row;
   // a business account cannot be switched back to individual (no downgrade).
@@ -334,10 +336,22 @@ export default function CompanySettingsDialog({
     }
   }, [open, company?.company_id]);
 
+  // Show the brand's saved logo. Switching to another brand drops any staged
+  // logo change (it belonged to the previous brand); a background refresh of the
+  // SAME brand keeps the user's staged choice on screen.
+  const logoCompanyIdRef = useRef<number | string | undefined>(undefined);
   useEffect(() => {
     if (!open) return;
-    if (company?.photo) setImagePreview(company.photo);
-    else setImagePreview(undefined);
+    const switchedBrand = logoCompanyIdRef.current !== company?.company_id;
+    logoCompanyIdRef.current = company?.company_id;
+    if (switchedBrand) {
+      setMediaFile(undefined);
+      setRemoveLogo(false);
+    } else if (mediaFile || removeLogo) {
+      return;
+    }
+    setImagePreview(company?.photo || undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, company]);
 
   // Remount form when auto-convert data arrives from API
@@ -349,7 +363,20 @@ export default function CompanySettingsDialog({
 
   const handleClose = () => {
     setMediaFile(undefined);
-    setImagePreview(undefined);
+    setRemoveLogo(false);
+    // Inline settings stay on screen after Cancel → show the saved logo again.
+    setImagePreview(inline ? company?.photo || undefined : undefined);
+    setFormKey((prev) => prev + 1);
+    onClose();
+  };
+
+  // After a successful save the inline settings stay on screen: show the logo
+  // that is now actually stored (the refetch can return an identical object, so
+  // the company effect above would not re-run to repaint it).
+  const finishSave = (savedPhoto: string | null | undefined) => {
+    setMediaFile(undefined);
+    setRemoveLogo(false);
+    setImagePreview(inline ? savedPhoto || undefined : undefined);
     setFormKey((prev) => prev + 1);
     onClose();
   };
@@ -364,6 +391,20 @@ export default function CompanySettingsDialog({
   const stageLogo = (file: File, previewUrl?: string) => {
     setImagePreview(previewUrl || URL.createObjectURL(file));
     setMediaFile(file);
+    setRemoveLogo(false);
+  };
+
+  // Remove the logo (deferred like uploads). With a saved logo this stages a
+  // removal; with only an unsaved pick it just discards that pick.
+  const handleRemoveLogo = () => {
+    setMediaFile(undefined);
+    setImagePreview(undefined);
+    setRemoveLogo(!!company?.photo);
+  };
+
+  const handleUndoRemoveLogo = () => {
+    setRemoveLogo(false);
+    setImagePreview(company?.photo || undefined);
   };
 
   const handleFileChange = async (file?: File) => {
@@ -449,11 +490,20 @@ export default function CompanySettingsDialog({
     );
 
     const formData = new FormData();
-    formData.append("data", JSON.stringify(scopedValues));
+    // Staged logo removal rides along in the JSON (a newly chosen file wins).
+    const payload = removeLogo && !mediaFile ? { ...scopedValues, remove_photo: true } : scopedValues;
+    formData.append("data", JSON.stringify(payload));
     if (mediaFile) formData.append("image", mediaFile);
 
+    let savedPhoto: string | null | undefined;
     try {
-      await companyState.updateCompany({ id: company.company_id, formData, successMessage: savedToastMessage });
+      const saved = await companyState.updateCompany({ id: company.company_id, formData, successMessage: savedToastMessage });
+      savedPhoto = (saved as { photo?: string | null } | undefined)?.photo ?? null;
+      // The logo change is persisted — clear the staged state now so a later
+      // failure below (webhook / auto-convert) can't re-send it on the next Save.
+      setMediaFile(undefined);
+      setRemoveLogo(false);
+      setImagePreview(savedPhoto || undefined);
     } catch {
       // error toast handled inside the store — stop here so we don't flip type
       return;
@@ -545,7 +595,7 @@ export default function CompanySettingsDialog({
     }
     }
 
-    handleClose();
+    finishSave(savedPhoto);
   };
 
   const body = (
@@ -579,6 +629,7 @@ export default function CompanySettingsDialog({
             }) => {
               const isDirty =
                 !!mediaFile ||
+                removeLogo ||
                 accountTypeChoice !== originalAccountType ||
                 JSON.stringify(values) !== JSON.stringify(initialValues);
               return (
@@ -607,6 +658,9 @@ export default function CompanySettingsDialog({
                     imagePreview={imagePreview}
                     onFileChange={handleFileChange}
                     logoPending={!!mediaFile}
+                    onRemoveLogo={handleRemoveLogo}
+                    logoRemovalPending={removeLogo}
+                    onUndoRemoveLogo={handleUndoRemoveLogo}
                     isMobile={isMobile}
                     expanded={expanded === "company"}
                     onAccordionChange={handleAccordionChange("company")}

@@ -445,6 +445,12 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 400, "No data provided for update");
     }
 
+    // Brand logo: changed ONLY by an uploaded file or an explicit remove flag —
+    // never by a raw URL in the client JSON (that was spread straight into the row).
+    const removePhoto = data.remove_photo === true || data.remove_photo === "true";
+    delete data.remove_photo;
+    delete data.photo;
+
     // Reject brand names containing HTML/markup (raw or xss-escaped).
     if (data.company_name !== undefined && data.company_name !== null) {
       const nameCheck = validateBrandName(data.company_name);
@@ -546,12 +552,14 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
       }
     }
     
-    let photo;
+    let photo: string | undefined;
     if (file) {
       // Durable storage: DO Spaces CDN URL when configured (survives redeploys,
       // renders in every environment); local static URL fallback otherwise.
       photo = await finalizeUploadedImage(file, envRaw("SERVER_URL") || "");
     }
+    // A newly uploaded file wins over a remove request sent in the same save.
+    const photoUpdate: { photo?: string | null } = photo ? { photo } : removePhoto ? { photo: null } : {};
     
     // Validate underpayment_threshold_usd: numeric, $0–$100, 2 dp (payment links only)
     if (data.underpayment_threshold_usd !== undefined && data.underpayment_threshold_usd !== null && data.underpayment_threshold_usd !== "") {
@@ -617,7 +625,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
       {
         ...data,
         user_id: userData.user_id,
-        ...(photo && { photo }),
+        ...photoUpdate,
       },
       {
         where: {
@@ -630,7 +638,7 @@ const updateCompany = async (req: express.Request, res: express.Response) => {
 
     const finalArray = resData[1][0].dataValues;
     invalidateMerchantMinCache(company_id); // Phase 1b: drop cached min after update
-    const updatedFields = diffCompanyFields(before, data, photo);
+    const updatedFields = diffCompanyFields(before, data, photoUpdate.photo);
     // First-time completion (onboarding "About you"): the auto-provisioned
     // account has no country until this write. That's a welcome moment, not a
     // "your details were changed" alert — schedule the delayed brand welcome.

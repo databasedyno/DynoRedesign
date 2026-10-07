@@ -37,6 +37,12 @@ const PurposeCard: React.FC = () => {
   const purposeVertical = useSelector(
     (s: rootReducer) => (s as any).userReducer?.profile?.purpose_vertical,
   ) as string | undefined;
+  // The profile is `null` until USER_PROFILE_FETCH returns. Deciding before then
+  // read "no purpose chosen" and flashed this card on every refresh for users
+  // who had already picked one.
+  const profileLoaded = useSelector(
+    (s: rootReducer) => Boolean((s as any).userReducer?.profile),
+  );
 
   const [hidden, setHidden] = useState(true);
   const [saving, setSaving] = useState<Vertical | null>(null);
@@ -46,9 +52,9 @@ const PurposeCard: React.FC = () => {
     try {
       if (localStorage.getItem(PURPOSE_DISMISS_KEY) === "1") { setHidden(true); return; }
     } catch { /* ignore */ }
-    if (purposeVertical) { setHidden(true); return; }
+    if (!profileLoaded || purposeVertical) { setHidden(true); return; }
     setHidden(false);
-  }, [purposeVertical]);
+  }, [purposeVertical, profileLoaded]);
 
   const dismiss = () => {
     try { localStorage.setItem(PURPOSE_DISMISS_KEY, "1"); } catch { /* ignore */ }

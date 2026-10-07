@@ -1,3 +1,18 @@
+# === 2026-10-07 (fork) — SESSION WRAP-UP (user paused & asked to wrap up) ===
+# DONE & TESTED earlier this session: vault setup; GitHub deploy fix (scripts/qa/hydration_guard.mjs uses runner's preinstalled
+#   Chrome + timeout in .github/workflows/deploy-droplet.yml) [iteration_279]; "Start free" -> straight to OTP (pages/auth/register.tsx,
+#   HeroV8.tsx) [iteration_278]; hosta.sh logo uploaded to company 165 (backup memory/backups/hosta_photo_before_2026-10-07.txt);
+#   brand-image DELETE (companyController.ts, company/profileDiff.ts, CompanyDetailsSection.tsx, CompanySettingsDialog/index.tsx,
+#   6 locale companyDialog.json, unit tests backend/__tests__/profileDiff.test.ts).
+# CODE COMPLETE, NOT TESTED: dashboard refresh flash ("payout address setup" chip / PurposeCard / empty recent-payments state).
+#   Files: hooks/useWalletData.ts (warning gated on WalletDataContext.fetched), Components/Page/Dashboard/PurposeCard.tsx (wait for
+#   profile), Redux/Reducers/dashboardReducer.ts (+recentTxLoaded), Redux/Sagas/DashboardSaga.ts (always dispatch recent-tx; error
+#   payload recentTxFailed), hooks/useDashboardData.ts (+recentTxLoading), Components/Page/Dashboard/v2026/index.tsx.
+#   tsc --noEmit = 0. PROD FRONTEND BUILD (.next-prod, 23:08) PREDATES these edits (23:13) — preview does NOT include them yet.
+# NEXT: rebuild .next-prod -> run frontend testing_agent on hard refresh of /dashboard as onarrival21@gmail.com -> Save to GitHub.
+# ============================================================================================
+
+
 # === 2026-10-07 (fork, pod a52f86ab) — ADMIN SUPPORT INBOX: AI "MAKE IT PROFESSIONAL" REFINE — CODE COMPLETE ===
 # USER: "when admin reply to merchant inbox from admin, we want AI to refine the message before sending so it can
 #        appear professional always." → applied ALL recommendations (both chat + email composer; rewrite-in-place with

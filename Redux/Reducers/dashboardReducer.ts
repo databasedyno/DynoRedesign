@@ -72,6 +72,11 @@ export interface DashboardState {
   // which OnboardingFlow reads for the "first payment received" milestone.)
   statsLoaded: boolean;
   chartLoaded: boolean;
+  // True once the recent-transactions request has answered (or really failed).
+  // Stats and recent-tx land as SEPARATE actions; without this the widget saw
+  // `loading=false` + the initial `[]` and flashed the "create your first
+  // payment link" empty state on every refresh, even for busy brands.
+  recentTxLoaded: boolean;
 }
 
 const dashboardInitialState: DashboardState = {
@@ -99,6 +104,7 @@ const dashboardInitialState: DashboardState = {
   fetched: false,
   statsLoaded: false,
   chartLoaded: false,
+  recentTxLoaded: false,
 };
 
 const dashboardReducer = (
@@ -157,7 +163,8 @@ const dashboardReducer = (
     case DASHBOARD_RECENT_TX_FETCH:
       return {
         ...state,
-        recentTransactions: payload.recentTransactions || state.recentTransactions,
+        recentTxLoaded: true,
+        recentTransactions: payload?.recentTransactions || state.recentTransactions,
       };
 
     case DASHBOARD_ERROR:
@@ -165,6 +172,10 @@ const dashboardReducer = (
         ...state,
         loading: false,
         chartLoading: false,
+        // Only an error that ENDED the recent-tx request (the combined fetch threw
+        // and cancelled it) counts as an answer. Deduped bursts, chart errors and
+        // empty stats responses leave the real recent-tx request in flight.
+        recentTxLoaded: payload?.recentTxFailed ? true : state.recentTxLoaded,
       };
 
     default:

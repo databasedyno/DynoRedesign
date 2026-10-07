@@ -6,8 +6,10 @@ import PersonRounded from "@mui/icons-material/Person";
 import StorefrontRounded from "@mui/icons-material/Storefront";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {
   Box,
+  Button,
   Grid,
   InputBase,
   ListItemButton,
@@ -172,6 +174,12 @@ export type CompanyDetailsSectionProps = {
   uploadingLogo?: boolean;
   /** True when a logo has been chosen but not yet saved (deferred to Save Changes). */
   logoPending?: boolean;
+  /** Stage removal of the current logo (applied on Save Changes). Omit to hide the action. */
+  onRemoveLogo?: () => void;
+  /** True when the saved logo is staged for removal (deferred to Save Changes). */
+  logoRemovalPending?: boolean;
+  /** Undo a staged removal (restores the saved logo preview). */
+  onUndoRemoveLogo?: () => void;
   isMobile?: boolean;
   expanded: boolean;
   onAccordionChange: (event: React.SyntheticEvent, isExpanded: boolean) => void;
@@ -197,6 +205,9 @@ export default function CompanyDetailsSection({
   onFileChange,
   uploadingLogo,
   logoPending = false,
+  onRemoveLogo,
+  logoRemovalPending = false,
+  onUndoRemoveLogo,
   isMobile = false,
   expanded,
   onAccordionChange,
@@ -1373,16 +1384,44 @@ export default function CompanyDetailsSection({
               )}
             </Box>
             </ImageDropTarget>
-            <Typography
-              data-testid="logo-autosave-hint"
-              sx={{ mt: 0.75, fontSize: isMobile ? 9 : 12, color: logoPending ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary, fontWeight: logoPending ? 600 : 400 }}
-            >
-              {uploadingLogo
-                ? t("fields.brandLogo.saving", { defaultValue: "Saving…" })
-                : logoPending
-                  ? t("fields.brandLogo.pendingSaveHint", { defaultValue: "New logo selected — click Save Changes to apply." })
-                  : t("fields.brandLogo.saveHint", { defaultValue: "Choose a file, then click Save Changes to update your logo." })}
-            </Typography>
+            <Box sx={{ mt: 0.75, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+              <Typography
+                data-testid="logo-autosave-hint"
+                sx={{ fontSize: isMobile ? 9 : 12, color: logoPending || logoRemovalPending ? brandFg(theme.palette.mode === "dark") : theme.palette.text.secondary, fontWeight: logoPending || logoRemovalPending ? 600 : 400 }}
+              >
+                {uploadingLogo
+                  ? t("fields.brandLogo.saving", { defaultValue: "Saving…" })
+                  : logoRemovalPending
+                    ? t("fields.brandLogo.pendingRemoveHint", { defaultValue: "Logo will be removed — click Save Changes to apply." })
+                    : logoPending
+                      ? t("fields.brandLogo.pendingSaveHint", { defaultValue: "New logo selected — click Save Changes to apply." })
+                      : t("fields.brandLogo.saveHint", { defaultValue: "Choose a file, then click Save Changes to update your logo." })}
+              </Typography>
+              {logoRemovalPending && onUndoRemoveLogo ? (
+                <Button
+                  data-testid="brand-logo-undo-remove"
+                  size="small"
+                  variant="text"
+                  onClick={onUndoRemoveLogo}
+                  disabled={uploadingLogo}
+                  sx={{ flexShrink: 0, textTransform: "none", fontSize: isMobile ? 11 : 13, fontWeight: 600, color: brandFg(theme.palette.mode === "dark"), minWidth: 0, px: 1 }}
+                >
+                  {t("fields.brandLogo.undoRemove", { defaultValue: "Undo" })}
+                </Button>
+              ) : imagePreview && onRemoveLogo ? (
+                <Button
+                  data-testid="brand-logo-remove"
+                  size="small"
+                  variant="text"
+                  onClick={onRemoveLogo}
+                  disabled={uploadingLogo}
+                  startIcon={<DeleteOutlineIcon sx={{ fontSize: 16 }} />}
+                  sx={{ flexShrink: 0, textTransform: "none", fontSize: isMobile ? 11 : 13, fontWeight: 600, color: theme.palette.error.main, minWidth: 0, px: 1 }}
+                >
+                  {t("fields.brandLogo.remove", { defaultValue: "Remove logo" })}
+                </Button>
+              ) : null}
+            </Box>
           </Grid>
         </Grid>
       </Box>

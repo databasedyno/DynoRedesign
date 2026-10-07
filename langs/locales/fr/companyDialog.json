@@ -35,7 +35,10 @@
       "saving": "Enregistrement…",
       "autoSaveHint": "Enregistré automatiquement lorsque vous choisissez un fichier",
       "pendingSaveHint": "Nouveau logo sélectionné — cliquez sur Enregistrer les modifications pour appliquer.",
-      "saveHint": "Choisissez un fichier, puis cliquez sur Enregistrer les modifications pour mettre à jour votre logo."
+      "saveHint": "Choisissez un fichier, puis cliquez sur Enregistrer les modifications pour mettre à jour votre logo.",
+      "remove": "Supprimer le logo",
+      "undoRemove": "Annuler",
+      "pendingRemoveHint": "Le logo sera supprimé — cliquez sur Enregistrer les modifications pour appliquer."
     },
     "country": {
       "label": "Pays*",

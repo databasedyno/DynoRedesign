@@ -102,14 +102,11 @@ function* fetchRecentTransactions(payload: any): Generator<any, void, any> {
   if (payload?.company_id) recentTxParams.company_id = payload.company_id;
   const response: any = yield call(axiosBaseApi.get, "/dashboard/recent-transactions", { params: recentTxParams });
   const apiData = response?.data?.data;
-  if (apiData) {
-    yield put({
-      type: DASHBOARD_RECENT_TX_FETCH,
-      payload: {
-        recentTransactions: apiData.transactions || [],
-      },
-    });
-  }
+  // Always answer (even with no data) so the widget leaves its loading state.
+  yield put({
+    type: DASHBOARD_RECENT_TX_FETCH,
+    payload: apiData ? { recentTransactions: apiData.transactions || [] } : {},
+  });
 }
 
 /* ── Chart series fetch (shared by DashboardSaga + DashboardChartSaga) ── */
@@ -191,7 +188,7 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
           // (DASHBOARD_ERROR only resets loading/chartLoading — it does NOT
           // touch stats/chartData or the *Loaded markers), then skip the
           // redundant network call. The data fetched <4s ago is still current.
-          yield put({ type: DASHBOARD_ERROR });
+          yield put({ type: DASHBOARD_ERROR, payload: { deduped: true } });
           break;
         }
         _lastDashboardAllKey = key;
@@ -229,6 +226,11 @@ export function* DashboardSaga(action: DashboardSagaAction): Generator<any, void
     }
   } catch (error) {
     console.error("DashboardSaga error:", error);
-    yield put({ type: DASHBOARD_ERROR });
+    // all([...]) cancels the recent-tx call when a sibling throws — tell the
+    // reducer that request is over so the widget can't stay on its skeleton.
+    yield put({
+      type: DASHBOARD_ERROR,
+      payload: { recentTxFailed: crudType === DASHBOARD_FETCH_ALL || crudType === DASHBOARD_RECENT_TX_FETCH },
+    });
   }
 }

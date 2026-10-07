@@ -116,6 +116,8 @@ export const useDashboardData = () => {
     feeTiers: dashboardState.feeTiers,
     recentTransactions: dashboardState.recentTransactions,
     loading: dashboardState.loading || !companiesFetched,
+    // Recent-tx arrives separately from stats — true until it has answered once.
+    recentTxLoading: !dashboardState.recentTxLoaded || !companiesFetched,
     chartLoading: dashboardState.chartLoading,
     fetchChartData,
     refreshDashboard,

@@ -35,7 +35,10 @@
       "saving": "Guardando…",
       "autoSaveHint": "Guardado automáticamente al elegir un archivo",
       "pendingSaveHint": "Nuevo logo seleccionado — haz clic en Guardar cambios para aplicar.",
-      "saveHint": "Elige un archivo y luego haz clic en Guardar cambios para actualizar tu logo."
+      "saveHint": "Elige un archivo y luego haz clic en Guardar cambios para actualizar tu logo.",
+      "remove": "Eliminar logotipo",
+      "undoRemove": "Deshacer",
+      "pendingRemoveHint": "El logotipo se eliminará: haz clic en Guardar cambios para aplicarlo."
     },
     "country": {
       "label": "País*",

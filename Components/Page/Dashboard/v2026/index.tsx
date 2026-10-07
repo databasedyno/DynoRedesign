@@ -50,7 +50,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
   const [range, setRange] = useState<RangeId>("30d");
   const [custom, setCustom] = useState<CustomRange>(null);
   const rangeTouched = useRef(false);
-  const { stats, chartData, chartAssets, recentTransactions, loading, chartLoading, fetchChartData } = useDashboardData();
+  const { stats, chartData, chartAssets, recentTransactions, loading, recentTxLoading, chartLoading, fetchChartData } = useDashboardData();
   const overviewQuery = useDashboardOverview({ range, custom });
   const overview = overviewQuery.data;
   const overviewLoading = overviewQuery.isLoading && !overview;
@@ -221,7 +221,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
             sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 7fr) minmax(0, 5fr)" }, gap: stackGap, alignItems: "stretch" }}
           >
             <Box sx={{ minWidth: 0 }} data-testid="recent-payments-list">
-              <RecentTransactionsWidget transactions={recentTransactions as any[]} loading={loading} max={isPhone ? 5 : 8} />
+              <RecentTransactionsWidget transactions={recentTransactions as any[]} loading={loading || recentTxLoading} max={isPhone ? 5 : 8} />
             </Box>
             <Box sx={{ minWidth: 0 }}>
               <TopSourcesCard

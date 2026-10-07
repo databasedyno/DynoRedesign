@@ -16,11 +16,12 @@ const same = (a: unknown, b: unknown) => {
   return x !== "" && y !== "" && Number.isFinite(nx) && Number.isFinite(ny) && nx === ny;
 };
 
-/** Human labels for the columns whose stored value really changed (plus the logo). */
+/** Human labels for the columns whose stored value really changed (plus the logo).
+ *  `photo`: new logo URL when one was uploaded · `null` when the logo was removed. */
 export const diffCompanyFields = (
   before: Record<string, unknown> | null,
   data: Record<string, unknown>,
-  photo?: string
+  photo?: string | null
 ): string[] => {
   const changedKeys = new Set(
     Object.keys(data).filter((k) => k !== "user_id" && !same(data[k], before?.[k]))
@@ -34,5 +35,6 @@ export const diffCompanyFields = (
   }
   if (changedKeys.size > 0) labels.push("Payment Settings");
   if (photo && photo !== norm(before?.photo)) labels.push("Brand Logo");
+  else if (photo === null && norm(before?.photo)) labels.push("Brand Logo");
   return labels;
 };

@@ -35,7 +35,10 @@
       "saving": "Saving…",
       "autoSaveHint": "Saved automatically when you choose a file",
       "pendingSaveHint": "New logo selected — click Save Changes to apply.",
-      "saveHint": "Choose a file, then click Save Changes to update your logo."
+      "saveHint": "Choose a file, then click Save Changes to update your logo.",
+      "remove": "Remove logo",
+      "undoRemove": "Undo",
+      "pendingRemoveHint": "Logo will be removed — click Save Changes to apply."
     },
     "country": {
       "label": "Country*",

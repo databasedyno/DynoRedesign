@@ -35,7 +35,10 @@
       "saving": "Opslaan…",
       "autoSaveHint": "Automatisch opgeslagen wanneer je een bestand kiest",
       "pendingSaveHint": "Nieuw logo geselecteerd — klik op Wijzigingen opslaan om toe te passen.",
-      "saveHint": "Kies een bestand en klik vervolgens op Wijzigingen opslaan om uw logo bij te werken."
+      "saveHint": "Kies een bestand en klik vervolgens op Wijzigingen opslaan om uw logo bij te werken.",
+      "remove": "Logo verwijderen",
+      "undoRemove": "Ongedaan maken",
+      "pendingRemoveHint": "Het logo wordt verwijderd — klik op Wijzigingen opslaan om dit toe te passen."
     },
     "country": {
       "label": "Land*",
