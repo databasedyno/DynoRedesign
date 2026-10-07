@@ -7,6 +7,8 @@ export interface LandingMetrics {
   payments_settled_this_month: number;
   countries_served: number;
   languages: number;
+  /** Settled payments, last 30 days (count). */
+  payments_30d?: number;
   /** Settled payments by chain, last 30 days (counts, descending) — rendered as shares only. */
   settled_by_chain_30d?: { chain: string; count: number }[];
 }

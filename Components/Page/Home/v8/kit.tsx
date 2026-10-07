@@ -23,14 +23,20 @@ export {
   GOLD,
   GOLD_HOVER,
   ON_GOLD,
-  PrimaryBtn,
-  SecondaryBtn,
   ArrowLink,
   goStart,
   useConsole,
 } from "../v7/kit";
 
-import { FONT_DISPLAY, FONT_BODY, FONT_MONO, useConsole } from "../v7/kit";
+import { FONT_DISPLAY, FONT_BODY, FONT_MONO, useConsole, PrimaryBtn as BasePrimaryBtn, SecondaryBtn as BaseSecondaryBtn } from "../v7/kit";
+
+/* v8 buttons: same flat gold / hairline recipes as v7, pill geometry (matches the header CTA). */
+export const PrimaryBtn: typeof BasePrimaryBtn = ({ sx, ...rest }) => (
+  <BasePrimaryBtn {...rest} sx={{ borderRadius: "999px", px: 3, ...sx }} />
+);
+export const SecondaryBtn: typeof BaseSecondaryBtn = ({ sx, ...rest }) => (
+  <BaseSecondaryBtn {...rest} sx={{ borderRadius: "999px", px: 3, ...sx }} />
+);
 
 /* ── Fixed dark-panel palette (used for data/mockup panels in BOTH themes) ─── */
 export const PANEL = {

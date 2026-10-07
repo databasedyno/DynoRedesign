@@ -1,435 +1,135 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
-import { AnimatePresence, motion } from "framer-motion";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import {
-  EyebrowV8,
-  FONT_BODY,
-  FONT_DISPLAY,
-  FONT_MONO,
-  PANEL,
-  PrimaryBtn,
-  SectionHeadV8,
-  SectionV8,
-  goStart,
-  useConsole,
-} from "./kit";
-import { useMotionOK } from "../motion/tokens";
+import { ArrowLink, FONT_BODY, FONT_DISPLAY, PANEL, PrimaryBtn, Reveal, SectionHeadV8, SectionV8, goStart, useConsole } from "./kit";
+import { AcceptVisual, CheckoutVisual, ConvertVisual, SettleVisual } from "./ProductVisuals";
 
 /* ============================================================================
- * ProductShowcaseV8 — interactive, auto-advancing tabbed showcase of DynoPay's
- * four pillars (SafeDeal escrow is a separate product, intentionally excluded).
- * Click a pillar → its dark visual panel switches with motion. Auto-advances
- * until the first manual interaction. Reduced-motion → instant switch.
+ * ProductShowcaseV8 — "One platform" bento: four product cards, each with copy
+ * on top and a dense dark visual that fills the rest of the card. Hover lifts
+ * the card, warms the border to gold and nudges the visual. SafeDeal escrow
+ * is a separate product and is intentionally excluded.
  * ========================================================================== */
 
-type PillarKey = "accept" | "convert" | "settle" | "checkout";
-
-interface Pillar {
-  key: PillarKey;
+interface Card {
+  key: "accept" | "convert" | "settle" | "checkout";
   icon: string;
   title: string;
   desc: string;
-  bullets: string[];
+  href: string;
+  Visual: React.FC;
 }
-
-/* ── Dark mini-mockups (one per pillar) ───────────────────────────────────── */
-const Tile: React.FC<{ children: React.ReactNode; sx?: object }> = ({ children, sx }) => (
-  <Box sx={{ background: PANEL.surface, border: `1px solid ${PANEL.line}`, borderRadius: "12px", p: 1.5, ...sx }}>{children}</Box>
-);
-
-const AcceptVisual: React.FC = () => {
-  const coins = [
-    "cryptocurrency-color:btc",
-    "cryptocurrency-color:eth",
-    "cryptocurrency-color:usdt",
-    "cryptocurrency-color:usdc",
-    "cryptocurrency-color:sol",
-    "cryptocurrency-color:xrp",
-    "cryptocurrency-color:bnb",
-    "cryptocurrency-color:ltc",
-    "cryptocurrency-color:doge",
-    "cryptocurrency-color:trx",
-    "cryptocurrency-color:bch",
-    "cryptocurrency-color:matic",
-  ];
-  return (
-    <Box>
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase" }}>
-        Choose how to pay
-      </Typography>
-      <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 1, mt: 1.5 }}>
-        {coins.map((c, i) => (
-          <Tile key={c} sx={{ display: "grid", placeItems: "center", py: 1.5, borderColor: i === 0 ? "rgba(255,209,0,0.5)" : PANEL.line }}>
-            <Icon icon={c} width={26} height={26} />
-          </Tile>
-        ))}
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 2 }}>
-        <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, color: PANEL.ink2 }}>Bitcoin · Ethereum · Lightning · 8 chains</Typography>
-        <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 15, fontWeight: 800, color: PANEL.gold }}>40+</Typography>
-      </Box>
-    </Box>
-  );
-};
-
-const ConvertVisual: React.FC = () => (
-  <Box>
-    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase" }}>
-        Auto-convert
-      </Typography>
-      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8 }}>
-        <Box sx={{ width: 30, height: 17, borderRadius: 999, background: PANEL.gold, position: "relative" }}>
-          <Box sx={{ position: "absolute", top: 2, right: 2, width: 13, height: 13, borderRadius: "50%", background: "#0B0B0A" }} />
-        </Box>
-        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, fontWeight: 700, color: PANEL.gold }}>ON</Typography>
-      </Box>
-    </Box>
-    <Tile sx={{ mt: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Icon icon="cryptocurrency-color:btc" width={28} height={28} />
-        <Box>
-          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 700, color: PANEL.ink }}>0.00092 BTC</Typography>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10, color: PANEL.ink3 }}>received</Typography>
-        </Box>
-      </Box>
-      <Icon icon="mdi:arrow-right-thin" width={22} height={22} color={PANEL.ink3} />
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Box sx={{ textAlign: "right" }}>
-          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 700, color: PANEL.green }}>79.00 USDC</Typography>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10, color: PANEL.ink3 }}>settled</Typography>
-        </Box>
-        <Icon icon="cryptocurrency-color:usdc" width={28} height={28} />
-      </Box>
-    </Tile>
-    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12, color: PANEL.ink2, mt: 1.5 }}>
-      Volatility settled away the moment a payment lands — at a locked rate.
-    </Typography>
-  </Box>
-);
-
-const SettleVisual: React.FC = () => (
-  <Box>
-    <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase" }}>
-      Settled to your wallet
-    </Typography>
-    {/* Payment received → auto-converted */}
-    <Tile sx={{ mt: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Icon icon="cryptocurrency-color:btc" width={26} height={26} />
-        <Box>
-          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.ink }}>0.0042 BTC</Typography>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3 }}>payment received</Typography>
-        </Box>
-      </Box>
-      <Icon icon="mdi:arrow-right-thin" width={22} height={22} color={PANEL.ink3} />
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Box sx={{ textAlign: "right" }}>
-          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.green }}>261.37 USDC</Typography>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3 }}>auto-converted</Typography>
-        </Box>
-        <Icon icon="cryptocurrency-color:usdc" width={26} height={26} />
-      </Box>
-    </Tile>
-    {/* Lands in the wallet only you control */}
-    <Tile sx={{ mt: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, minWidth: 0 }}>
-        <Box sx={{ width: 28, height: 28, borderRadius: "50%", background: PANEL.surfaceStrong, display: "grid", placeItems: "center", flexShrink: 0 }}>
-          <Icon icon="mdi:wallet-outline" width={16} height={16} color={PANEL.gold} />
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, fontWeight: 700, color: PANEL.ink }}>Your wallet</Typography>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9.5, color: PANEL.ink3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>0x1a2b…9f3c</Typography>
-        </Box>
-      </Box>
-      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.3, borderRadius: 999, background: PANEL.greenSoft, flexShrink: 0 }}>
-        <Icon icon="mdi:check" width={11} height={11} color={PANEL.green} />
-        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: 700, color: PANEL.green }}>Settled</Typography>
-      </Box>
-    </Tile>
-    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12, color: PANEL.ink2, mt: 1.5 }}>
-      On-chain and non-custodial — funds land in a wallet only you control.
-    </Typography>
-  </Box>
-);
-
-const CheckoutVisual: React.FC = () => (
-  <Box>
-    <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase" }}>
-      One payment link · drop-in anywhere
-    </Typography>
-    <Tile sx={{ mt: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
-      <Icon icon="mdi:link-variant" width={16} height={16} color={PANEL.gold} />
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, color: PANEL.ink2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-        dynopay.com/pay/metricly
-      </Typography>
-      <Icon icon="mdi:content-copy" width={14} height={14} color={PANEL.ink3} />
-    </Tile>
-    <Box
-      sx={{
-        mt: 1.5,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 1,
-        py: 1.4,
-        borderRadius: "12px",
-        background: PANEL.gold,
-      }}
-    >
-      <Icon icon="mdi:bitcoin" width={18} height={18} color="#0B0B0A" />
-      <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 800, color: "#0B0B0A" }}>Pay with crypto</Typography>
-    </Box>
-    <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
-      {["Hosted page", "Buy button", "Invoices", "API"].map((c) => (
-        <Box key={c} sx={{ flex: 1, textAlign: "center", py: 0.8, borderRadius: "8px", border: `1px solid ${PANEL.line}` }}>
-          <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, color: PANEL.ink2 }}>{c}</Typography>
-        </Box>
-      ))}
-    </Box>
-  </Box>
-);
-
-const VISUALS: Record<PillarKey, React.FC> = {
-  accept: AcceptVisual,
-  convert: ConvertVisual,
-  settle: SettleVisual,
-  checkout: CheckoutVisual,
-};
 
 const ProductShowcaseV8: React.FC = () => {
   const s = useConsole();
   const router = useRouter();
   const { t } = useTranslation("landing");
-  const ok = useMotionOK();
-  const [active, setActive] = useState(0);
-  const locked = useRef(false);
 
-  const pillars: Pillar[] = [
+  const cards: Card[] = [
     {
       key: "accept",
-      icon: "mdi:wallet-plus-outline",
+      icon: "mdi:qrcode-scan",
       title: t("v8.product.accept.title", { defaultValue: "Accept payments" }),
-      desc: t("v8.product.accept.desc", { defaultValue: "Take Bitcoin, Ethereum, USDT and 40+ assets across every major chain — on a page that converts." }),
-      bullets: ["40+ assets, 8 chains", "QR, wallet & Lightning", "Real-time confirmation"],
+      desc: t("v8.product.accept.desc", { defaultValue: "Bitcoin, Ethereum, USDT, USDC and every major coin your customers already hold — on a checkout page that confirms in real time." }),
+      href: "/products/checkout",
+      Visual: AcceptVisual,
     },
     {
       key: "convert",
       icon: "mdi:swap-horizontal-bold",
       title: t("v8.product.convert.title", { defaultValue: "Auto-convert" }),
-      desc: t("v8.product.convert.desc", { defaultValue: "Settle volatility away: convert incoming crypto to a stablecoin the instant it lands, at a locked rate." }),
-      bullets: ["Instant to USDT / USDC", "Locked settlement rate", "Keep the coin, or convert"],
+      desc: t("v8.product.convert.desc", { defaultValue: "Opt in to convert incoming crypto to USDT or USDC the instant it lands, at a locked rate — or keep the coin you're paid." }),
+      href: "/fees",
+      Visual: ConvertVisual,
     },
     {
       key: "settle",
       icon: "mdi:bank-transfer-in",
       title: t("v8.product.settle.title", { defaultValue: "Settlement" }),
       desc: t("v8.product.settle.desc", { defaultValue: "Your money settles straight to a wallet you control — keep the crypto or auto-convert to USDT/USDC. Non-custodial, on-chain, instant." }),
-      bullets: ["Straight to your own wallet", "Keep or auto-convert", "Non-custodial, no holds"],
+      href: "/products/payouts",
+      Visual: SettleVisual,
     },
     {
       key: "checkout",
-      icon: "mdi:credit-card-outline",
-      title: t("v8.product.checkout.title", { defaultValue: "Checkout" }),
-      desc: t("v8.product.checkout.desc", { defaultValue: "A drop-in hosted checkout, shareable links, buy buttons and invoices — no code required." }),
-      bullets: ["Hosted page & links", "Buy button & embeds", "Invoices & API"],
+      icon: "mdi:link-variant",
+      title: t("v8.product.checkout.title", { defaultValue: "Checkout & links" }),
+      desc: t("v8.product.checkout.desc", { defaultValue: "A hosted checkout, shareable payment links, buy buttons and invoices — live in seconds, no code required." }),
+      href: "/products/payment-links",
+      Visual: CheckoutVisual,
     },
   ];
 
-  // Auto-advance until the first manual interaction.
-  useEffect(() => {
-    if (!ok) return;
-    const id = setInterval(() => {
-      if (locked.current) return;
-      setActive((a) => (a + 1) % pillars.length);
-    }, 4500);
-    return () => clearInterval(id);
-  }, [ok, pillars.length]);
-
-  const select = (i: number) => {
-    locked.current = true;
-    setActive(i);
-  };
-
-  const ActiveVisual = VISUALS[pillars[active].key];
-
   return (
-    <SectionV8 id="products" testId="product-showcase">
-      <SectionHeadV8
-        eyebrow={t("v8.product.eyebrow", { defaultValue: "One platform" })}
-        title={
-          <>
-            {t("v8.product.title1", { defaultValue: "Everything you need to " })}
-            <Box component="span" sx={{ color: s.accent }}>{t("v8.product.title2", { defaultValue: "get paid in crypto" })}</Box>
-          </>
-        }
-        lead={t("v8.product.lead", { defaultValue: "Accept, convert, settle and check out — from a single non-custodial platform built for businesses and creators." })}
-        maxWidth={760}
-      />
+    <SectionV8 id="products" testId="product-showcase" maxWidth={1240}>
+      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: { md: "flex-end" }, justifyContent: "space-between", gap: 3, mb: { xs: 5, md: 7 } }}>
+        <SectionHeadV8
+          eyebrow={t("v8.product.eyebrow", { defaultValue: "One platform" })}
+          title={
+            <>
+              {t("v8.product.title1", { defaultValue: "Everything you need to " })}
+              <Box component="span" sx={{ color: s.accent }}>{t("v8.product.title2", { defaultValue: "get paid in crypto" })}</Box>
+            </>
+          }
+          lead={t("v8.product.lead", { defaultValue: "Accept, convert, settle and check out — from a single non-custodial platform built for businesses and creators." })}
+          maxWidth={720}
+          sx={{ mb: 0 }}
+        />
+        <PrimaryBtn data-testid="product-showcase-cta" onClick={() => goStart(router, "products")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ flexShrink: 0, alignSelf: { xs: "flex-start", md: "auto" } }}>
+          {t("v8.product.cta", { defaultValue: "Start free" })}
+        </PrimaryBtn>
+      </Box>
 
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "minmax(0, 0.9fr) minmax(0, 1.1fr)" },
-          gap: { xs: 3, md: 6 },
-          alignItems: "stretch",
-        }}
-      >
-        {/* Tab list */}
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
-          {pillars.map((p, i) => {
-            const isActive = i === active;
-            return (
-              <Box
-                key={p.key}
-                role="button"
-                tabIndex={0}
-                data-testid={`product-tab-${p.key}`}
-                aria-pressed={isActive}
-                onClick={() => select(i)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    select(i);
-                  }
-                }}
-                sx={{
-                  position: "relative",
-                  cursor: "pointer",
-                  borderRadius: "14px",
-                  p: { xs: 2, md: 2.5 },
-                  border: `1px solid ${isActive ? s.lineStrong : s.line}`,
-                  background: isActive ? s.surface : "transparent",
-                  boxShadow: isActive ? (s.dark ? "none" : "0 10px 30px -18px rgba(0,0,0,0.3)") : "none",
-                  transition: "border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease",
-                  "&:hover": { borderColor: s.lineStrong },
-                  outline: "none",
-                  "&:focus-visible": { borderColor: s.accent, boxShadow: `0 0 0 3px ${s.accentSoft}` },
-                }}
-              >
-                {isActive ? (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      left: 0,
-                      top: 12,
-                      bottom: 12,
-                      width: 3,
-                      borderRadius: 3,
-                      background: "#FFD100",
-                    }}
-                  />
-                ) : null}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                  <Box
-                    sx={{
-                      width: 38,
-                      height: 38,
-                      borderRadius: "10px",
-                      display: "grid",
-                      placeItems: "center",
-                      background: isActive ? s.accentSoft : s.dark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Icon icon={p.icon} width={20} height={20} color={isActive ? s.accent : s.ink2} />
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 2.5, md: 3 } }}>
+        {cards.map((c, i) => (
+          <Reveal key={c.key} delay={i * 0.08} sx={{ display: "flex" }}>
+            <Box
+              data-testid={`product-card-${c.key}`}
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: "24px",
+                border: `1px solid ${s.line}`,
+                background: s.surface,
+                overflow: "hidden",
+                transition: "transform 320ms cubic-bezier(0.16,1,0.3,1), border-color 240ms ease, box-shadow 320ms ease",
+                boxShadow: s.dark ? "none" : "0 1px 2px rgba(0,0,0,0.04)",
+                "&:hover": { transform: "translateY(-4px)", borderColor: "rgba(255,209,0,0.55)", boxShadow: s.dark ? "0 30px 60px -30px rgba(255,209,0,0.18)" : "0 30px 60px -28px rgba(0,0,0,0.28)" },
+                "&:hover .visual": { transform: "scale(1.015)" },
+                "@media (prefers-reduced-motion: reduce)": { "&:hover": { transform: "none" }, "&:hover .visual": { transform: "none" } },
+              }}
+            >
+              <Box sx={{ p: { xs: 3, md: 3.5 }, pb: { xs: 2.5, md: 3 } }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+                  <Box sx={{ width: 40, height: 40, borderRadius: "12px", display: "grid", placeItems: "center", background: s.accentSoft, flexShrink: 0 }}>
+                    <Icon icon={c.icon} width={20} height={20} color={s.accent} />
                   </Box>
-                  <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: { xs: 17, md: 19 }, fontWeight: 700, color: s.ink }}>
-                    {p.title}
+                  <Typography component="h3" sx={{ fontFamily: FONT_DISPLAY, fontSize: { xs: 21, md: 24 }, fontWeight: 700, letterSpacing: "-0.015em", color: s.ink }}>
+                    {c.title}
                   </Typography>
                 </Box>
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateRows: isActive ? "1fr" : "0fr",
-                    transition: "grid-template-rows 260ms ease",
-                  }}
-                >
-                  <Box sx={{ overflow: "hidden" }}>
-                    <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.55, color: s.ink2, mt: 1.5 }}>
-                      {p.desc}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1.5 }}>
-                      {p.bullets.map((b) => (
-                        <Box key={b} sx={{ display: "inline-flex", alignItems: "center", gap: 0.6 }}>
-                          <Icon icon="mdi:check-circle" width={14} height={14} color={s.accent} />
-                          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, color: s.ink2 }}>{b}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </Box>
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 14.5, md: 15.5 }, lineHeight: 1.6, color: s.ink2, maxWidth: 520 }}>{c.desc}</Typography>
+                <Box sx={{ mt: 2 }}>
+                  <ArrowLink href={c.href} testId={`product-card-${c.key}-link`}>
+                    {t("v8.product.learn", { defaultValue: "Learn more" })}
+                    <ArrowForwardIcon className="arr" sx={{ fontSize: 15 }} />
+                  </ArrowLink>
                 </Box>
               </Box>
-            );
-          })}
-          <Box sx={{ mt: 1 }}>
-            <PrimaryBtn onClick={() => goStart(router, "products")} endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />}>
-              {t("v8.product.cta", { defaultValue: "Start free" })}
-            </PrimaryBtn>
-          </Box>
-        </Box>
-
-        {/* Visual panel (dark) */}
-        <Box
-          sx={{
-            position: "relative",
-            minHeight: { xs: 320, md: 420 },
-            borderRadius: "22px",
-            p: { xs: 3, md: 4 },
-            background: "linear-gradient(170deg, #161614 0%, #0B0B0A 100%)",
-            border: `1px solid ${PANEL.lineStrong}`,
-            boxShadow: "0 40px 90px -30px rgba(0,0,0,0.5)",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "radial-gradient(60% 60% at 70% 15%, rgba(255,209,0,0.14), transparent 65%)", pointerEvents: "none" }} />
-          <Box sx={{ position: "relative", zIndex: 1 }}>
-            <Box sx={{ mb: 2.5 }}>
-              <EyebrowV8 dark>{pillars[active].title}</EyebrowV8>
-            </Box>
-            {ok ? (
-              <AnimatePresence mode="wait">
-                <Box
-                  key={pillars[active].key}
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.32 }}
-                >
-                  <ActiveVisual />
+              <Box sx={{ flex: 1, position: "relative", mx: { xs: 2, md: 2.5 }, mb: { xs: 2, md: 2.5 }, borderRadius: "18px", overflow: "hidden", background: "linear-gradient(170deg, #161614 0%, #0B0B0A 100%)", border: `1px solid ${PANEL.line}`, minHeight: 300 }}>
+                <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "radial-gradient(60% 50% at 80% 0%, rgba(255,209,0,0.13), transparent 65%)", pointerEvents: "none" }} />
+                <Box className="visual" sx={{ position: "relative", zIndex: 1, height: "100%", p: { xs: 2, md: 2.5 }, transition: "transform 420ms cubic-bezier(0.16,1,0.3,1)" }}>
+                  <c.Visual />
                 </Box>
-              </AnimatePresence>
-            ) : (
-              <ActiveVisual />
-            )}
-          </Box>
-
-          {/* progress dots */}
-          <Box sx={{ position: "absolute", bottom: 18, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 0.8, zIndex: 1 }}>
-            {pillars.map((p, i) => (
-              <Box
-                key={p.key}
-                onClick={() => select(i)}
-                sx={{
-                  width: i === active ? 22 : 7,
-                  height: 7,
-                  borderRadius: 999,
-                  cursor: "pointer",
-                  background: i === active ? PANEL.gold : PANEL.lineStrong,
-                  transition: "width 240ms ease, background-color 240ms ease",
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
+              </Box>
+            </Box>
+          </Reveal>
+        ))}
       </Box>
     </SectionV8>
   );

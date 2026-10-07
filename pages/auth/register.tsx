@@ -154,6 +154,13 @@ const Register = () => {
     }
   }, [router.query]);
 
+  // Homepage hero sign-up block hands the typed email over as ?email= so the
+  // visitor doesn't retype it.
+  useEffect(() => {
+    const q = router.query.email;
+    if (typeof q === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(q)) setEmail(q.trim().toLowerCase());
+  }, [router.query.email]);
+
   // ─── SEO-attribution capture ─────────────────────────────────────
   // When users arrive from /accept-crypto-payments-in/{country} or /for/{vertical}
   // the SEO pages append `?src=seo&page={slug}&kind={country|vertical}` to the

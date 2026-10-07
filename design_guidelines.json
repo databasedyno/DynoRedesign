@@ -1,452 +1,250 @@
 {
-  "v8_design_system_overview": {
-    "philosophy": "LIGHT-FIRST, airy, high-contrast marketing sections punctuated by NEAR-BLACK data/mockup panels with a signature gold glow. Manrope display headings, IBM Plex Sans body, IBM Plex Mono for technical tags, hairline borders, left-aligned typography, and fast, functional motion.",
-    "kit_path": "/app/Components/Page/Home/v8/kit.tsx",
-    "page_hero_path": "/app/Components/Page/Home/v8/PageHeroV8.tsx",
-    "cta_band_path": "/app/Components/Page/Home/v8/FinalCTAV8.tsx",
-    "theme_path": "/app/constants/theme.ts"
+  "project_name": "DynoPay Homepage Polish & Quality Upgrade",
+  "app_type": "marketing_site",
+  "archetype": "THE PERFORMANCE PRO / SWISS HIGH-CONTRAST",
+  "persona": "E1 Creative Designer - High-End Fintech & Crypto Gateway",
+  "brand_identity": {
+    "name": "DynoPay",
+    "positioning": "Non-custodial crypto payment gateway for merchants & creators",
+    "core_value_prop": "Accept 40+ crypto assets across 8 chains, optional auto-convert to stablecoins, instant settlement straight to your own wallet with 0% chargeback risk and low 1.5% fees.",
+    "primary_gold": "#FFD100",
+    "primary_gold_hover": "#E6BC00",
+    "primary_gold_deep": "#8A6D00",
+    "dark_panel_bg": "#0B0B0A",
+    "dark_surface": "#1A1A19",
+    "light_canvas": "#F9F9F8",
+    "light_surface": "#FFFFFF",
+    "light_border": "#E5E5E3",
+    "dark_border": "rgba(255, 255, 255, 0.09)",
+    "text_dark_primary": "#1A1A19",
+    "text_dark_secondary": "#666664",
+    "text_dark_tertiary": "#999996",
+    "text_light_primary": "#F6F6F3",
+    "text_light_secondary": "#ABABA5"
   },
   "typography": {
-    "font_family_display": "Manrope, var(--font-display), -apple-system, sans-serif",
-    "font_family_body": "IBM Plex Sans, var(--font-sans), -apple-system, sans-serif",
-    "font_family_mono": "IBM Plex Mono, var(--font-tech), monospace",
-    "scale": {
-      "h1_hero": {
-        "fontSize": "clamp(34px, 5vw, 60px)",
-        "fontWeight": 700,
-        "lineHeight": 1.04,
-        "letterSpacing": "-0.03em"
-      },
-      "h2_section": {
-        "fontSize": { "xs": "30px", "md": "44px" },
-        "fontWeight": 600,
-        "lineHeight": 1.08,
-        "letterSpacing": "-0.028em"
-      },
-      "h3_card_heading": {
-        "fontSize": { "xs": "20px", "md": "24px" },
-        "fontWeight": 600,
-        "lineHeight": 1.25,
-        "letterSpacing": "-0.015em"
-      },
-      "h4_subheading": {
-        "fontSize": { "xs": "16px", "md": "18px" },
-        "fontWeight": 600,
-        "lineHeight": 1.35
-      },
-      "body_primary": {
-        "fontSize": { "xs": "15px", "md": "17px" },
-        "fontWeight": 400,
-        "lineHeight": 1.65
-      },
-      "body_secondary": {
-        "fontSize": { "xs": "13.5px", "md": "14.5px" },
-        "fontWeight": 400,
-        "lineHeight": 1.60
-      },
-      "eyebrow_label": {
-        "fontSize": "11.5px",
-        "fontWeight": 600,
-        "letterSpacing": "0.16em",
-        "textTransform": "uppercase"
-      }
+    "headline_font": "Manrope, sans-serif",
+    "body_font": "IBM Plex Sans, sans-serif",
+    "figure_code_font": "IBM Plex Mono, monospace",
+    "h1_hero": {
+      "desktop": "text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1]",
+      "mobile": "text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15]"
+    },
+    "h2_section": {
+      "desktop": "text-3xl lg:text-4xl font-bold tracking-tight leading-tight",
+      "mobile": "text-2xl font-bold tracking-tight leading-tight"
+    },
+    "h3_card": {
+      "desktop": "text-xl lg:text-2xl font-semibold tracking-normal",
+      "mobile": "text-lg font-semibold tracking-normal"
+    },
+    "body_lead": "text-base lg:text-lg text-[#666664] dark:text-[#ABABA5] leading-relaxed",
+    "body_normal": "text-sm lg:text-base text-[#1A1A19] dark:text-[#F6F6F3] leading-normal",
+    "overline_label": "text-xs font-semibold uppercase tracking-[0.2em] text-[#8A6D00] dark:text-[#FFD100]",
+    "mono_figure": "font-mono font-medium tracking-wide text-sm lg:text-base"
+  },
+  "audit_findings_and_anti_slop_fixes": {
+    "header_clutter": {
+      "issue": "Live crypto price ticker under nav clutters header.",
+      "fix": "Completely remove price ticker band. Maintain clean 64px sticky nav with backdrop blur (backdrop-blur-xl bg-[#F9F9F8]/80 dark:bg-[#0B0B0A]/80 border-b border-[#E5E5E3] dark:border-white/10)."
+    },
+    "hero_section": {
+      "issue": "4-line headline, overly long paragraph, muddy gold background blob, floating overlapping cards.",
+      "fix": "Replace with Bybit-tier crisp hero: (1) Headline max 2 lines: 'Accept Crypto Everywhere. Settle Directly to Your Wallet.' (2) Action flow ribbon: 'Accept · Convert · Settle · Withdraw' with subtle dividers. (3) Prominent Sign-up Box containing quick email input + 'Start Free' CTA + 'Continue with Google' button routing to /auth/register?ref=hero&provider=google + 3 trust checkmarks. (4) Right visual: Sleek integrated hosted-checkout mockup card with live QR code, asset selection, payment amount in USD/BTC, and real-time transaction stepper without chaotic overlapping floating badges."
+    },
+    "product_showcase": {
+      "issue": "Left interactive tab list left right dark visual panel 70% empty.",
+      "fix": "Convert to Bybit-style 'One platform, endless possibilities' 4-card interactive bento grid (Accept Payments, Auto-Convert Engine, Direct Settlement, Hosted Links & Invoices). Each card features rich dark surface styling (#1A1A19), gold glowing subtle borders on hover, dynamic visual illustrations (interactive QR engine, live exchange rate simulator preview, multi-chain settlement routing graph, and live payment link generator preview) filling 100% of internal container space."
+    },
+    "how_it_works": {
+      "issue": "Generic 3-icon centered row.",
+      "fix": "Rebuild as interactive 3-step connected workflow pipeline (1. Connect API / Create Link -> 2. Customer Pays in 40+ Assets -> 3. Instant Settlement to Merchant Wallet). Include progressive active state highlighting, step numbers in gold mono pill, and mini live interaction per step."
+    },
+    "app_showcase": {
+      "issue": "Fake App Store / Google Play badges for non-existent mobile app.",
+      "fix": "Replace entirely with 'Works on Every Device' section showcasing responsive Web Dashboard on desktop alongside Mobile-Web browser mockup. Highlight responsive web features (PWA, web links, merchant terminal) with NO store badges."
+    },
+    "trust_and_metrics": {
+      "issue": "Invented ratings/times.",
+      "fix": "Use real live metrics endpoint GET /api/status/landing-metrics (payments_settled_this_month ~1,021, countries_served 121, uptime_90d_pct 99.94%, 40+ supported assets across 8 chains, 1.5% starting fee, zero chargeback guarantee)."
     }
   },
-  "colors": {
-    "brand": {
-      "primary_accent": "#FFD100",
-      "primary_accent_dark": "#F0C300",
-      "brand_on_accent": "#121214",
-      "gold_deep_light_text": "#8B5E00",
-      "gold_gradient": "linear-gradient(118deg, #FFE55C 0%, #FFD100 46%, #F5A800 100%)",
-      "aqua_micro_accent": "#2BD4C4"
-    },
-    "panel_dark": {
-      "bg": "#0B0B0A",
-      "bg_raised": "#121210",
-      "surface": "rgba(255,255,255,0.045)",
-      "surface_strong": "rgba(255,255,255,0.07)",
-      "line_hairline": "rgba(255,255,255,0.09)",
-      "line_strong": "rgba(255,255,255,0.18)",
-      "ink": "#F6F6F3",
-      "ink_secondary": "#ABABA5",
-      "ink_muted": "#6F6F6B",
-      "gold_glow": "radial-gradient(60% 70% at 72% 18%, rgba(255,209,0,0.20), transparent 62%), radial-gradient(50% 60% at 15% 90%, rgba(255,209,0,0.08), transparent 60%)",
-      "grid_bg": "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)"
-    },
-    "light_theme": {
-      "canvas": "#F9F9F8",
-      "surface": "#FFFFFF",
-      "raised": "#F2F2F0",
-      "border_hairline": "rgba(0,0,0,0.06)",
-      "border_strong": "#EAEAE7",
-      "text_primary": "#1A1A19",
-      "text_secondary": "#666664",
-      "text_muted": "#999996"
-    },
-    "dark_theme": {
-      "canvas": "#131312",
-      "surface": "#1A1A19",
-      "raised": "#222221",
-      "border_hairline": "rgba(255,255,255,0.06)",
-      "border_strong": "#2B2B29",
-      "text_primary": "#F2F2F0",
-      "text_secondary": "#A3A3A0",
-      "text_muted": "#70706E"
-    }
-  },
-  "status_color_system": {
-    "operational": {
-      "indicator_dot": "#22C55E",
-      "text_dark": "#4ADE80",
-      "text_light": "#15803D",
-      "background_soft": "rgba(34,197,94,0.10)",
-      "border": "rgba(34,197,94,0.22)",
-      "glow": "0 0 16px rgba(74,222,128,0.20)"
-    },
-    "degraded": {
-      "indicator_dot": "#F59E0B",
-      "text_dark": "#FBBF24",
-      "text_light": "#B45309",
-      "background_soft": "rgba(245,158,11,0.10)",
-      "border": "rgba(245,158,11,0.22)"
-    },
-    "outage": {
-      "indicator_dot": "#EF4444",
-      "text_dark": "#F87171",
-      "text_light": "#B91C1C",
-      "background_soft": "rgba(239,68,68,0.10)",
-      "border": "rgba(239,68,68,0.22)"
-    },
-    "neutral": {
-      "indicator_dot": "#8A8A86",
-      "text_dark": "#A3A3A0",
-      "text_light": "#666664",
-      "background_soft": "rgba(255,255,255,0.06)"
-    }
-  },
-  "blog_category_signature_colors": {
-    "Integration Guide": "#5865F2",
-    "Business Strategy": "#10B981",
-    "Cost Analysis": "#F59E0B",
-    "Developer Guide": "#FFD100"
-  },
-  "pages_blueprint": {
-    "blog_index": {
-      "route": "/blog",
-      "sections": [
-        {
-          "id": "blog-hero",
-          "component": "PageHeroV8",
-          "eyebrow": "DYNAMIC INSIGHTS",
-          "title_structure": "Crypto Payments & <GradientText>Merchant Strategy</GradientText>",
-          "subtitle": "Actionable guides, cost breakdowns, and engineering walkthroughs for web3 checkout.",
-          "background": "light_first_with_gold_glow"
-        },
-        {
-          "id": "blog-category-filter",
-          "type": "light_canvas_section",
-          "layout": "Flex wrap container for chips with 10px gap",
-          "chip_active_style": {
-            "background": "#FFD100",
-            "color": "#121214",
-            "border": "1px solid #FFD100",
-            "fontFamily": "IBM Plex Mono",
-            "fontSize": "12px",
-            "fontWeight": 600,
-            "borderRadius": "999px"
-          },
-          "chip_idle_style": {
-            "background": "${categoryColor}15",
-            "color": "${categoryColor}",
-            "border": "1px solid ${categoryColor}30",
-            "fontFamily": "IBM Plex Mono",
-            "fontSize": "12px",
-            "fontWeight": 600,
-            "borderRadius": "999px"
-          }
-        },
-        {
-          "id": "blog-grid",
-          "type": "light_canvas_section",
-          "layout": "2-column grid (`gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }`) with step stagger animation",
-          "card_anatomy": {
-            "container": "v8 card surface, radius 16px, padding 24px/28px, hairline border 1px solid theme border, transition 0.2s ease",
-            "hover": "translateY(-4px), border-color #FFD100, shadow 0 12px 32px rgba(0,0,0,0.08)",
-            "cover_image": "Aspect ratio 1200/630, radius 12px, scale 1.03 on card hover, dark background #050720",
-            "meta_row": "Category chip (mono uppercase tag) + Read time (IBM Plex Sans 12px)",
-            "title": "Manrope 20px/22px bold, line-height 1.3, color theme text primary",
-            "excerpt": "IBM Plex Sans 14px, color text secondary, line-height 1.6",
-            "footer": "Author avatar + Name + Date on left, 'Read the guide →' with gold accent on right"
-          }
-        },
-        {
-          "id": "blog-closing-cta",
-          "component": "PublicFinalCta",
-          "type": "dark_panel_section"
-        }
+  "section_blueprint": [
+    {
+      "section_id": "header",
+      "name": "Navigation Bar",
+      "data_testid": "nav-header",
+      "bg_style": "sticky top-0 z-50 backdrop-blur-xl bg-[#F9F9F8]/85 dark:bg-[#0B0B0A]/85 border-b border-[#E5E5E3] dark:border-white/10",
+      "layout": "Flex justify-between items-center max-w-7xl mx-auto px-4 lg:px-8 h-16",
+      "elements": [
+        {"name": "Logo & Brand Wordmark", "data_testid": "nav-logo"},
+        {"name": "Products Mega Dropdown", "data_testid": "nav-link-products"},
+        {"name": "Developers Mega Dropdown", "data_testid": "nav-link-developers"},
+        {"name": "Resources Dropdown", "data_testid": "nav-link-resources"},
+        {"name": "Pricing Link", "data_testid": "nav-link-pricing"},
+        {"name": "Command K Search Trigger", "data_testid": "nav-search-btn"},
+        {"name": "Language Selector", "data_testid": "nav-language-select"},
+        {"name": "Theme Toggle Switch", "data_testid": "nav-theme-toggle"},
+        {"name": "Log In Button", "data_testid": "nav-login-btn"},
+        {"name": "Start Free CTA", "data_testid": "nav-start-free-btn"}
       ]
     },
-    "blog_article": {
-      "route": "/blog/[slug]",
-      "sections": [
+    {
+      "section_id": "hero",
+      "name": "Hero Section",
+      "data_testid": "hero-section",
+      "bg_style": "relative py-12 lg:py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A] border-b border-[#E5E5E3] dark:border-white/10",
+      "layout": "grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl mx-auto px-4 lg:px-8",
+      "left_column": "lg:col-span-7 flex flex-col gap-6",
+      "right_column": "lg:col-span-5 flex justify-center",
+      "elements": [
+        {"name": "Flow Line Ribbon", "data_testid": "hero-flow-ribbon", "text": "Accept · Convert · Settle · Withdraw"},
+        {"name": "Main Headline H1", "data_testid": "hero-headline", "text": "Accept Crypto Everywhere. Settle Directly to Your Wallet."},
+        {"name": "Subheadline Lead", "data_testid": "hero-subheadline", "text": "Non-custodial gateway for merchants & creators. 40+ assets over 8 chains, optional auto-convert to stablecoins, zero chargebacks."},
         {
-          "id": "article-hero",
-          "type": "light_hero",
-          "elements": [
-            "Breadcrumb: Home → Blog → Category",
-            "Title: H1 Manrope clamp(28px, 4vw, 44px) bold",
-            "Meta bar: Author avatar, Author name & role, Published date, Read time, Category badge"
+          "name": "Sign-Up Block",
+          "data_testid": "hero-signup-container",
+          "children": [
+            {"name": "Email Input", "data_testid": "hero-email-input", "placeholder": "Enter your work email"},
+            {"name": "Start Free Button", "data_testid": "hero-submit-btn"},
+            {"name": "Google Auth Button", "data_testid": "hero-google-auth-btn", "href": "/auth/register?ref=hero&provider=google"},
+            {"name": "Trust Checkmarks", "data_testid": "hero-trust-ticks", "items": ["Non-custodial", "No chargebacks", "1.5% fee"]}
           ]
         },
         {
-          "id": "article-layout",
-          "type": "light_canvas_section",
-          "layout": "Responsive editorial split layout: 780px main content column + 300px sticky table-of-contents / section nav sidebar on desktop; 1-column on mobile",
-          "sidebar_elements": [
-            "Table of contents jump links with active scroll spy highlight",
-            "Reading progress bar",
-            "Social share buttons (X/Twitter, LinkedIn, Copy Link)"
-          ],
-          "body_typography": {
-            "h2": "Manrope 28px/32px bold with hairline bottom border or left gold tick",
-            "h3": "Manrope 22px bold",
-            "p": "IBM Plex Sans 16px/18px, line-height 1.75, color theme text primary",
-            "list": "Custom gold tick or dot bullet list item with 12px gap",
-            "code": "MockPanelV8 frame, dark background #0B0B0A, border 1px solid rgba(255,255,255,0.12), IBM Plex Mono 13.5px",
-            "callout": "Soft yellow/emerald box with 3px solid #FFD100 left accent border, padding 20px, radius 12px"
-          }
-        },
-        {
-          "id": "article-footer",
-          "type": "light_canvas_section",
-          "elements": [
-            "Next / Previous Article cards in 2-column grid",
-            "Share article banner"
-          ]
-        },
-        {
-          "id": "article-closing-cta",
-          "component": "PublicFinalCta",
-          "type": "dark_panel_section"
+          "name": "Live Hosted Checkout Mockup",
+          "data_testid": "hero-checkout-mockup",
+          "features": ["QR code renderer", "Network selector", "Asset switcher (BTC/USDT/ETH)", "Real-time payment status stepper", "Amount indicator ($149.00 USD / 0.0016 BTC)"]
         }
       ]
     },
-    "help_support_index": {
-      "route": "/help-support",
-      "sections": [
+    {
+      "section_id": "stat_band",
+      "name": "Live Metrics Bar",
+      "data_testid": "stat-band-section",
+      "bg_style": "py-10 bg-[#FFFFFF] dark:bg-[#131312] border-b border-[#E5E5E3] dark:border-white/10",
+      "layout": "grid grid-cols-2 md:grid-cols-4 gap-6 max-w-7xl mx-auto px-4 lg:px-8 text-center",
+      "metrics": [
+        {"data_testid": "stat-payments-settled", "label": "Payments Settled (30d)", "fallback": "1,021+"},
+        {"data_testid": "stat-countries-served", "label": "Countries Supported", "fallback": "121"},
+        {"data_testid": "stat-uptime-pct", "label": "System Uptime (90d)", "fallback": "99.94%"},
+        {"data_testid": "stat-chains-assets", "label": "Assets & Chains", "fallback": "40+ Assets across 8 Chains"}
+      ]
+    },
+    {
+      "section_id": "product_showcase",
+      "name": "One Platform Interactive Product Bento",
+      "data_testid": "product-showcase-section",
+      "bg_style": "py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A]",
+      "layout": "max-w-7xl mx-auto px-4 lg:px-8 space-y-12",
+      "cards": [
         {
-          "id": "help-hero",
-          "component": "PageHeroV8",
-          "eyebrow": "KNOWLEDGE BASE",
-          "title_structure": "How Can We <GradientText>Help You?</GradientText>",
-          "subtitle": "Search our documentation, integration guides, and FAQs or chat with support."
+          "id": "card-accept-payments",
+          "data_testid": "product-card-accept",
+          "title": "Accept 40+ Assets Across 8 Chains",
+          "description": "BTC, ETH, USDT, USDC, LTC, TRX and more. Automated route detection and zero payment friction.",
+          "visual_type": "interactive_asset_cascade"
         },
         {
-          "id": "help-search-section",
-          "type": "light_canvas_section",
-          "layout": "Centered search input box (maxWidth 680px), height 48px, radius 14px",
-          "input_style": {
-            "border": "1px solid theme border",
-            "background": "theme surface",
-            "focusRing": "0 0 0 3px rgba(255,209,0,0.35)",
-            "focusBorder": "#FFD100",
-            "icon": "SearchIcon on left with 55% opacity"
-          }
+          "id": "card-auto-convert",
+          "data_testid": "product-card-convert",
+          "title": "Auto-Convert Engine",
+          "description": "Protect your revenue against volatility. Instantly swap incoming crypto into USDT or USDC upon receipt.",
+          "visual_type": "live_slippage_rate_simulator"
         },
         {
-          "id": "help-topics-grid",
-          "type": "light_canvas_section",
-          "layout": "3-column responsive grid (`gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }`) with gap 20px",
-          "card_anatomy": {
-            "container": "minHeight 180px, padding 24px, radius 16px, background theme surface, border 1px solid theme divider",
-            "hover": "translateY(-3px), border-color #FFD100, shadow 0 8px 24px rgba(0,0,0,0.08)",
-            "title": "Manrope 18px bold, line-height 1.3, color theme text primary",
-            "description": "IBM Plex Sans 14px, 2-line clamp, color theme text secondary",
-            "action": "36x36px square button with ArrowOutwardIcon, turns primary gold on card hover"
-          }
+          "id": "card-instant-settlement",
+          "data_testid": "product-card-settle",
+          "title": "Direct Merchant Wallet Settlement",
+          "description": "Non-custodial architecture means funds settle straight into your cold or hot wallet. No middleman hold period.",
+          "visual_type": "wallet_routing_graph"
         },
         {
-          "id": "help-contact-cta",
-          "type": "dark_panel_section",
-          "layout": "Centered dark glowing plinth (`MockPanelV8`) framing AI Support Chat trigger",
-          "elements": [
-            "SectionHeadV8 with dark={true}, title 'Still Need Assistance?'",
-            "Primary CTA: Signal Gold button with ChatBubbleOutlineRoundedIcon",
-            "Average response time badge: Mono label 'Average response time < 2 mins'"
-          ]
+          "id": "card-checkout-links",
+          "data_testid": "product-card-checkout",
+          "title": "Hosted Checkouts & Payment Links",
+          "description": "Generate no-code buy buttons, subscriptions, and branded invoice links in under 30 seconds.",
+          "visual_type": "payment_link_generator_preview"
         }
       ]
     },
-    "help_support_article": {
-      "route": "/help-support/[slug]",
-      "sections": [
-        {
-          "id": "help-article-container",
-          "type": "light_canvas_section",
-          "layout": "Centered 1-column container (maxWidth 800px)",
-          "elements": [
-            "Back button: ← Back to Help Center",
-            "Title: H1 Manrope 32px bold",
-            "Meta tags: Category tag + Read time",
-            "Card container for article body: padding 32px, radius 16px, border 1px solid theme border, background theme surface",
-            "Feedback box: 'Was this article helpful?' with Yes/No interactive buttons"
-          ]
-        }
+    {
+      "section_id": "how_it_works",
+      "name": "3-Step Merchant Workflow",
+      "data_testid": "how-it-works-section",
+      "bg_style": "py-20 bg-white dark:bg-[#131312] border-y border-[#E5E5E3] dark:border-white/10",
+      "layout": "max-w-7xl mx-auto px-4 lg:px-8",
+      "steps": [
+        {"step": "01", "data_testid": "step-1-card", "title": "Create Link or Connect API", "desc": "Generate hosted checkout links in dashboard or integrate our SDK in 5 lines of code."},
+        {"step": "02", "data_testid": "step-2-card", "title": "Customer Pays in Preferred Crypto", "desc": "Buyer selects from 40+ tokens across Bitcoin, Ethereum, Tron, Polygon, Arbitrum, and more."},
+        {"step": "03", "data_testid": "step-3-card", "title": "Direct Settlement to Your Wallet", "desc": "Funds (or auto-converted stablecoins) land directly in your merchant wallet with zero chargeback risk."}
       ]
     },
-    "system_status": {
-      "route": "/system-status",
-      "sections": [
-        {
-          "id": "status-hero",
-          "component": "PageHeroV8",
-          "eyebrow": "LIVE OPERATIONAL METRICS",
-          "title_structure": "DynoPay <GradientText>System Status</GradientText>",
-          "subtitle": "Real-time health, latency metrics, and 90-day availability across all payment infrastructure.",
-          "actions_slot": "Overall Status Pill (All Systems Operational / Partial Outage / Degraded) with glowing halo dot"
-        },
-        {
-          "id": "status-services-panel",
-          "type": "dark_panel_section",
-          "glow": true,
-          "layout": "Dark glowing panel container (`PANEL.bg` #0B0B0A, border `1px solid rgba(255,255,255,0.12)`, radius 16px)",
-          "header": "Service Monitor header with service icon + 'Core Services' title in Manrope 18px",
-          "row_anatomy": {
-            "height": { "xs": "auto", "md": "58px" },
-            "padding": "0 24px",
-            "borderTop": "1px solid rgba(255,255,255,0.08)",
-            "left_side": "Status dot (8px circle with halo) + Service Name (IBM Plex Sans 15px, color #F6F6F3)",
-            "right_side": "Uptime % (e.g. 99.98%) + Latency (e.g. 42ms in IBM Plex Mono #ABABA5) + Status label (e.g. Operational in #4ADE80)",
-            "hover": "background rgba(255,255,255,0.03)"
-          }
-        },
-        {
-          "id": "status-uptime-chart-section",
-          "type": "light_canvas_section",
-          "layout": "Card container (border 1px solid theme border, radius 16px, padding 28px)",
-          "header": "90-Day Uptime History + Overall Uptime %",
-          "chart_bars": "90 vertical daily status bars with status colors (Green = Operational, Amber = Degraded, Red = Outage, Gray = No Data)",
-          "footer": "Timeline labels ('90 days ago' <-> Legend <-> 'Today')"
-        },
-        {
-          "id": "status-recent-incidents-section",
-          "type": "light_canvas_section",
-          "layout": "Recent Incidents container (maxWidth 800px)",
-          "empty_state": "Soft panel card with message 'All systems operational. No incidents reported in the last 90 days.'",
-          "incident_card_anatomy": {
-            "border": "1px solid theme border",
-            "radius": "16px",
-            "padding": "24px",
-            "header": "Incident Title + Formatted Date (IBM Plex Mono)",
-            "body": "Description text in IBM Plex Sans 14px",
-            "affected_tags": "Service pills in IBM Plex Mono 11px",
-            "status_badge": "Resolved dot + label (#22C55E) or Investigating (#F59E0B)"
-          }
-        },
-        {
-          "id": "status-footer-note",
-          "type": "light_canvas_section",
-          "element": "Mono small text: 'Auto-refreshes every 60 seconds • Powered by DynoPay Health Engine'"
-        },
-        {
-          "id": "status-closing-cta",
-          "component": "PublicFinalCta",
-          "type": "dark_panel_section"
-        }
+    {
+      "section_id": "deep_dive_dev_api",
+      "name": "Developer-First API & SDK Deep Dive",
+      "data_testid": "dev-api-deepdive-section",
+      "bg_style": "py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A]",
+      "layout": "grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto px-4 lg:px-8 items-center",
+      "left_text": "lg:col-span-5 flex flex-col gap-4",
+      "right_code_box": "lg:col-span-7 bg-[#0B0B0A] border border-white/10 rounded-xl p-6 shadow-2xl font-mono text-sm text-[#F6F6F3]"
+    },
+    {
+      "section_id": "device_showcase",
+      "name": "Works on Every Device",
+      "data_testid": "device-showcase-section",
+      "bg_style": "py-20 bg-white dark:bg-[#131312] border-y border-[#E5E5E3] dark:border-white/10",
+      "layout": "max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center",
+      "content": "Showcase responsive web dashboard on desktop screen mockup alongside mobile web browser view. Explicitly highlight 'No app download required - 100% accessible via web browser on any desktop, tablet, or mobile phone'."
+    },
+    {
+      "section_id": "trust_compliance",
+      "name": "Trust, Security & Assets Grid",
+      "data_testid": "trust-compliance-section",
+      "bg_style": "py-20 bg-[#F9F9F8] dark:bg-[#0B0B0A]",
+      "elements": [
+        {"data_testid": "trust-pill-noncustodial", "title": "100% Non-Custodial", "desc": "You hold your private keys"},
+        {"data_testid": "trust-pill-chargebacks", "title": "Zero Chargebacks", "desc": "Irreversible blockchain transactions"},
+        {"data_testid": "trust-pill-encryption", "title": "Bank-Grade Encryption", "desc": "TLS 1.3 & AES-256 protected"},
+        {"data_testid": "trust-assets-wall", "title": "Supported Assets Grid", "desc": "Interactive filterable grid of supported cryptocurrencies and chains"}
+      ]
+    },
+    {
+      "section_id": "footer",
+      "name": "Platform Footer",
+      "data_testid": "footer-section",
+      "bg_style": "py-16 bg-[#0B0B0A] text-[#F6F6F3] border-t border-white/10",
+      "layout": "max-w-7xl mx-auto px-4 lg:px-8 grid grid-cols-2 md:grid-cols-5 gap-8",
+      "elements": [
+        {"data_testid": "footer-brand-column", "wordmark": "DynoPay", "status_pill": "All Systems Operational"},
+        {"data_testid": "footer-col-products", "title": "Products", "links": ["Checkout", "Payment Links", "Invoices", "Subscriptions", "Auto-Convert"]},
+        {"data_testid": "footer-col-developers", "title": "Developers", "links": ["API Docs", "SDKs", "Webhooks", "API Keys", "Status"]},
+        {"data_testid": "footer-col-resources", "title": "Resources", "links": ["Supported Coins", "Fee Calculator", "Compliance", "Blog", "Guides"]},
+        {"data_testid": "footer-col-company", "title": "Company", "links": ["About", "Careers", "Brand Kit", "Contact", "Terms & Privacy"]}
       ]
     }
+  ],
+  "image_urls": {
+    "hero_checkout_qr": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+    "dashboard_desktop_preview": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+    "mobile_web_preview": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
+    "merchant_business": "https://images.unsplash.com/photo-1556742049-0a670f4a4591?auto=format&fit=crop&w=800&q=80"
   },
-  "component_path": {
-    "v8_kit": "/app/Components/Page/Home/v8/kit.tsx",
-    "page_hero": "/app/Components/Page/Home/v8/PageHeroV8.tsx",
-    "final_cta": "/app/Components/Page/Home/v8/FinalCTAV8.tsx",
-    "cta_band": "/app/Components/Page/Home/v8/CtaBandV8.tsx",
-    "mock_panel": "/app/Components/Page/Home/v8/MockPanelV8.tsx",
-    "blog_data": "/app/utils/blogData.ts",
-    "help_data": "/app/hooks/useHelpAndSupportData.ts",
-    "theme_constants": "/app/constants/theme.ts"
-  },
-  "visual_enhancers_and_motion": {
-    "reveal_wrapper": "Use `<Reveal y={22} delay={0.1}>` for scroll-triggered entrance animations",
-    "stagger_wrapper": "Use `<Stagger step={0.06}>` and `<StaggerItem i={index}>` for list and grid entrances",
-    "framer_motion": "Wrap interactive elements using `component={motion.div}` with specific transitions (never `transition: all`)",
-    "hover_effects": "Card hover states use `transform: translateY(-3px)` and `borderColor: '#FFD100'` or `s.accent`",
-    "reduced_motion": "All motion primitives leverage `useMotionOK()` to respect system preferences"
-  },
-  "responsive_grid_and_layout": {
-    "mobile_390px": {
-      "container_padding": "px: 2, py: 5",
-      "hero_title_fontSize": "34px",
-      "grid_columns": "1fr",
-      "card_padding": "16px or 20px"
-    },
-    "desktop_1920px": {
-      "container_maxWidth": "1200px (or 1280px)",
-      "container_padding": "px: 6, py: 13",
-      "grid_columns": "2-column or 3-column",
-      "card_padding": "28px or 32px"
-    }
-  },
-  "empty_loading_skeleton_states": {
-    "blog_skeleton": "2-column grid of Skeleton cards with 1200x630 cover placeholder, title line, and meta placeholder",
-    "help_skeleton": "3-column grid of Skeleton topic cards (height 180px, radius 16px)",
-    "status_skeleton": "Skeleton overall status pill + 5 stacked service row Skeletons matching exact 58px row height + Uptime chart Skeleton bar block"
-  },
-  "light_dark_theme_behavior": {
-    "dark_panels": "Fixed dark palette (PANEL.bg #0B0B0A) with gold glow (PANEL_GLOW) and grid floor (GRID_BG) used for high-impact data sections in BOTH light and dark modes",
-    "light_canvas_sections": "Use `s.canvas` and `s.surface` from `useConsole()` hook, adapting background and text colors dynamically between light (#F9F9F8) and dark (#131312) modes",
-    "theme_toggle": "Header theme toggle seamlessly updates `s.canvas`, `s.surface`, `s.border`, `s.ink`, and `s.ink2` without breaking contrast"
-  },
-  "testing_attributes": {
-    "blog": [
-      "blog-hero",
-      "blog-category-filters",
-      "blog-category-filter-all",
-      "blog-category-filter-{slug}",
-      "blog-card-{slug}",
-      "blog-card-cover-{slug}",
-      "blog-card-category-{slug}",
-      "blog-article-page",
-      "blog-article-toc"
-    ],
-    "help": [
-      "help-hero",
-      "help-search-input",
-      "help-topics-grid",
-      "help-article-card-{index}",
-      "help-chat-cta",
-      "help-open-chat-button",
-      "help-feedback-yes",
-      "help-feedback-no"
-    ],
-    "status": [
-      "system-status-page",
-      "status-hero",
-      "status-overall-chip",
-      "status-services-list",
-      "status-service-row-{id}",
-      "status-uptime-chart",
-      "status-recent-incidents"
-    ]
+  "motion_and_interactions": {
+    "engine": "framer-motion",
+    "hover_button": "hover:scale-[1.02] active:scale-[0.98] transition-all duration-200",
+    "hover_card": "hover:-translate-y-1 hover:border-[#FFD100]/50 transition-all duration-300 shadow-lg hover:shadow-[#FFD100]/10",
+    "stagger_children": "staggerChildren: 0.1, delayChildren: 0.05",
+    "reduced_motion": "Detect prefers-reduced-motion media query and disable transforms / opacity fades."
   },
   "instructions_to_main_agent": [
-    "1. Replace all legacy v3/v5 components (PublicPageHero, PublicFinalCta, cardSx, AuroraInk, useAurora) on /blog, /blog/[slug], /help-support, /help-support/[slug], and /system-status with v8 kit primitives (PageHeroV8, SectionV8, SectionHeadV8, EyebrowV8, GradientText, MockPanelV8, Reveal, PublicFinalCta).",
-    "2. Ensure all text and headings use the v8 typography variables (FONT_DISPLAY, FONT_BODY, FONT_MONO) and adhere strictly to the established scale.",
-    "3. Maintain light-first section canvas for content reading, punctuated by dark PANEL blocks for high-impact data displays (Status Service Monitor, Support Chat Plinth, Closing CTAs).",
-    "4. For System Status: use status tones (#22C55E operational, #F59E0B degraded, #EF4444 outage) as subtle dots, borders, and crisp labels, paired harmoniously with gold brand highlights.",
-    "5. Ensure all interactive buttons, cards, inputs, and links include exact kebab-case `data-testid` attributes.",
-    "6. Test responsive layouts at mobile (390px) and desktop (1920px), verifying grid collapse, image scaling, and padding safety."
-  ],
-  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
-    "Avoid generic centered layouts, simplistic gradients, and uniform styling.",
-    "DO NOT use dark colors as global gradients. Dark colors look best when solid or with localized radial glows.",
-    "Create depth through layered design elements and hairline borders.",
-    "Use glass-morphism or crisp solid surfaces with subtle backdrop blur where appropriate.",
-    "Never apply universal transitions like `transition: all`. Specify individual properties (transform, opacity, border-color).",
-    "Do NOT center align the app container. Respect natural reading hierarchy.",
-    "Never use AI assistant emoji characters (🤖, 🧠, 💡, etc.) for UI icons. Use Phosphor, Lucide, or Material icons.",
-    "Ensure generous spacing (2-3x typical padding) to avoid cramped layouts.",
-    "All key interactive elements MUST include kebab-case role-based `data-testid` attributes."
+    "1. Remove the price ticker band beneath the main nav bar to eliminate header clutter.",
+    "2. Standardize all primary call-to-action buttons with DynoPay Gold (#FFD100) background, bold dark text (#1A1A19), full rounded pill geometry (rounded-full), and subtle hover state (#E6BC00).",
+    "3. On the hero section, maintain a crisp 2-line title, action flow ribbon, and sign-up form with both 'Start Free' and 'Continue with Google' button pointing to /auth/register?ref=hero&provider=google.",
+    "4. Ensure right side hero hosted checkout mockup is self-contained with live QR code, asset selection, amount display, and status stepper.",
+    "5. Populate the live metrics bar with data fetched from GET /api/status/landing-metrics or fallback constants.",
+    "6. Build the 'One Platform' section as 4 interactive dark-panel cards with gold hover borders and visual diagrams filling card height.",
+    "7. Replace fake mobile app download badges with 'Works on Every Device' featuring desktop dashboard and mobile web mockups.",
+    "8. Include exact data-testid attributes on all buttons, inputs, links, metric items, and sections as defined in blueprint."
   ]
 }

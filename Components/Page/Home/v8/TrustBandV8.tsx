@@ -2,186 +2,122 @@ import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@iconify/react";
-import { EyebrowV8, FONT_BODY, FONT_DISPLAY, FONT_MONO, Reveal, SectionV8, useConsole } from "./kit";
-import { useTickers } from "./useTickers";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { ArrowLink, FONT_BODY, FONT_DISPLAY, FONT_MONO, PANEL, Reveal, SectionHeadV8, SectionV8, useConsole } from "./kit";
+import { useLandingMetrics } from "../v5/useLandingMetrics";
 
 /* ============================================================================
- * TrustBandV8 — trust & social proof. A rating + headline metrics, a row of
- * security/compliance badges, and a LIVE supported-assets wall built from the
- * public price feed. Light section; honest, non-custodial-first signals.
+ * TrustBandV8 — trust built on facts: four pillars (2×2) beside the REAL
+ * "settled by chain, last 30 days" shares from the live metrics API. No
+ * invented ratings or timings; the asset list lives in the product bento.
  * ========================================================================== */
 
-const BADGES = [
-  { icon: "mdi:key-chain-variant", label: "Non-custodial — you hold the keys" },
-  { icon: "mdi:shield-check-outline", label: "KYC / AML compliant" },
-  { icon: "mdi:lock-outline", label: "256-bit encryption" },
-  { icon: "mdi:credit-card-off-outline", label: "Zero chargebacks" },
-  { icon: "mdi:earth", label: "GDPR ready" },
+const CHAIN_ICON: Record<string, string> = {
+  Bitcoin: "cryptocurrency-color:btc",
+  Ethereum: "cryptocurrency-color:eth",
+  Tron: "cryptocurrency-color:trx",
+  Litecoin: "cryptocurrency-color:ltc",
+  Solana: "cryptocurrency-color:sol",
+  Polygon: "cryptocurrency-color:matic",
+  XRP: "cryptocurrency-color:xrp",
+  Dogecoin: "cryptocurrency-color:doge",
+  "Bitcoin Cash": "cryptocurrency-color:bch",
+};
+
+const FALLBACK_SHARES = [
+  { chain: "Bitcoin", count: 39 },
+  { chain: "Tron", count: 32 },
+  { chain: "Ethereum", count: 32 },
+  { chain: "Litecoin", count: 5 },
 ];
 
 const TrustBandV8: React.FC = () => {
   const s = useConsole();
   const { t } = useTranslation("landing");
-  const { tickers } = useTickers();
+  const m = useLandingMetrics();
 
-  const metrics = [
-    { value: "4.9", suffix: "/5", label: t("v8.trust.rating", { defaultValue: "Merchant rating" }), stars: true },
-    { value: "40", suffix: "+", label: t("v8.trust.assets", { defaultValue: "Assets supported" }) },
-    { value: "8", suffix: "", label: t("v8.trust.chains", { defaultValue: "Chains live" }) },
-    { value: "<2", suffix: "min", label: t("v8.trust.settle", { defaultValue: "Median settle time" }) },
+  const pillars = [
+    { testId: "trust-pill-noncustodial", icon: "mdi:key-chain-variant", title: t("v8.trust.p1", { defaultValue: "You hold the keys" }), desc: t("v8.trust.p1d", { defaultValue: "We never take custody. Payments settle to your own wallet, so there is nothing of yours for us to hold, freeze or lose." }) },
+    { testId: "trust-pill-chargebacks", icon: "mdi:credit-card-off-outline", title: t("v8.trust.p2", { defaultValue: "Final payments" }), desc: t("v8.trust.p2d", { defaultValue: "On-chain payments cannot be reversed — no disputes, no chargebacks, no rolling reserve held against your revenue." }) },
+    { testId: "trust-pill-compliance", icon: "mdi:shield-check-outline", title: t("v8.trust.p3", { defaultValue: "KYC / AML by design" }), desc: t("v8.trust.p3d", { defaultValue: "Merchant verification above threshold and wallet-address screening keep your business on the right side of regulators." }) },
+    { testId: "trust-pill-encryption", icon: "mdi:lock-outline", title: t("v8.trust.p4", { defaultValue: "Hardened & transparent" }), desc: t("v8.trust.p4d", { defaultValue: "Encrypted key infrastructure, TLS everywhere, and a public status page with 90-day uptime history." }) },
   ];
 
-  const coins = tickers.slice(0, 12);
-  const track = [...coins, ...coins];
+  const shares = (m?.settled_by_chain_30d?.length ? m.settled_by_chain_30d : FALLBACK_SHARES).slice(0, 5);
+  const total = shares.reduce((a, b) => a + b.count, 0) || 1;
 
   return (
-    <SectionV8 testId="trust-band" sx={{ background: s.surface }}>
-      <SectionHead />
+    <SectionV8 testId="trust-band" maxWidth={1240}>
+      <SectionHeadV8
+        eyebrow={t("v8.trust.eyebrow", { defaultValue: "Trust & compliance" })}
+        title={t("v8.trust.title", { defaultValue: "Built to be trusted with money" })}
+        lead={t("v8.trust.lead", { defaultValue: "Compliant by default and transparent about every number — so you can integrate with confidence." })}
+        maxWidth={720}
+      />
 
-      {/* Metric cards */}
-      <Reveal>
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" },
-            gap: { xs: 2, md: 2.5 },
-            mb: { xs: 4, md: 6 },
-          }}
-        >
-          {metrics.map((m) => (
-            <Box
-              key={m.label}
-              sx={{
-                textAlign: "center",
-                p: { xs: 2.5, md: 3 },
-                borderRadius: "16px",
-                border: `1px solid ${s.line}`,
-                background: s.canvas,
-              }}
-            >
-              {m.stars ? (
-                <Box sx={{ display: "flex", justifyContent: "center", gap: 0.2, mb: 1 }}>
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <Icon key={i} icon="mdi:star" width={15} height={15} color="#FFB800" />
-                  ))}
-                </Box>
-              ) : null}
-              <Typography
-                component="div"
-                sx={{
-                  fontFamily: FONT_DISPLAY,
-                  fontWeight: 700,
-                  fontSize: { xs: 30, md: 40 },
-                  lineHeight: 1,
-                  letterSpacing: "-0.03em",
-                  color: s.ink,
-                  display: "inline-flex",
-                  alignItems: "baseline",
-                  gap: 0.2,
-                }}
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1.15fr) minmax(0, 0.85fr)" }, gap: { xs: 2.5, md: 3 } }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 2, md: 2.5 } }}>
+          {pillars.map((p, i) => (
+            <Reveal key={p.testId} delay={i * 0.06} sx={{ display: "flex" }}>
+              <Box
+                data-testid={p.testId}
+                sx={{ flex: 1, p: { xs: 3, md: 3.25 }, borderRadius: "20px", border: `1px solid ${s.line}`, background: s.surface, transition: "border-color 240ms ease, transform 320ms cubic-bezier(0.16,1,0.3,1)", "&:hover": { borderColor: "rgba(255,209,0,0.5)", transform: "translateY(-3px)" }, "@media (prefers-reduced-motion: reduce)": { "&:hover": { transform: "none" } } }}
               >
-                {m.value}
-                {m.suffix ? (
-                  <Box component="span" sx={{ color: s.accent, fontSize: { xs: 18, md: 22 } }}>
-                    {m.suffix}
-                  </Box>
-                ) : null}
-              </Typography>
-              <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: "0.05em", textTransform: "uppercase", color: s.ink3, mt: 1 }}>
-                {m.label}
-              </Typography>
-            </Box>
+                <Box sx={{ width: 42, height: 42, borderRadius: "12px", background: s.accentSoft, display: "grid", placeItems: "center", mb: 2.5 }}>
+                  <Icon icon={p.icon} width={21} height={21} color={s.accent} />
+                </Box>
+                <Typography component="h3" sx={{ fontFamily: FONT_DISPLAY, fontSize: 19, fontWeight: 700, letterSpacing: "-0.01em", color: s.ink }}>{p.title}</Typography>
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.6, color: s.ink2, mt: 1 }}>{p.desc}</Typography>
+              </Box>
+            </Reveal>
           ))}
+          <Box sx={{ gridColumn: "1 / -1", mt: 0.5 }}>
+            <ArrowLink href="/trust" testId="trust-centre-link">
+              {t("v8.trust.centreLink", { defaultValue: "Visit the Trust Centre" })}
+              <ArrowForwardIcon className="arr" sx={{ fontSize: 15 }} />
+            </ArrowLink>
+          </Box>
         </Box>
-      </Reveal>
 
-      {/* Compliance / security badges */}
-      <Reveal delay={0.05}>
-        <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.25, mb: { xs: 5, md: 7 } }}>
-          {BADGES.map((b, i) => (
-            <Box
-              key={b.label}
-              sx={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 0.9,
-                px: 1.75,
-                py: 0.9,
-                borderRadius: "999px",
-                border: `1px solid ${s.line}`,
-                background: s.canvas,
-              }}
-            >
-              <Icon icon={b.icon} width={16} height={16} color={s.accent} />
-              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, color: s.ink2 }}>
-                {t(`v8.trust.badge.${i}`, { defaultValue: b.label })}
-              </Typography>
+        <Reveal delay={0.1} sx={{ display: "flex" }}>
+          <Box data-testid="trust-chain-shares" sx={{ flex: 1, position: "relative", overflow: "hidden", p: { xs: 3, md: 4 }, borderRadius: "24px", background: "linear-gradient(170deg, #161614 0%, #0B0B0A 100%)", border: `1px solid ${PANEL.lineStrong}`, color: PANEL.ink, display: "flex", flexDirection: "column" }}>
+            <Box aria-hidden sx={{ position: "absolute", inset: 0, background: "radial-gradient(60% 50% at 85% 0%, rgba(255,209,0,0.14), transparent 65%)", pointerEvents: "none" }} />
+            <Box sx={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", flex: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 2, mb: 3 }}>
+                <Box>
+                  <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: PANEL.ink3 }}>{t("v8.trust.sharesEyebrow", { defaultValue: "Live · last 30 days" })}</Typography>
+                  <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 20, fontWeight: 700, color: PANEL.ink, mt: 0.5 }}>{t("v8.trust.sharesTitle", { defaultValue: "Settled payments by chain" })}</Typography>
+                </Box>
+                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.7, px: 1.1, py: 0.5, borderRadius: 999, border: `1px solid ${PANEL.line}`, background: PANEL.surface, flexShrink: 0 }}>
+                  <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: PANEL.green }} />
+                  <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, color: PANEL.ink2 }}>{m?.payments_30d ?? total} {t("v8.trust.payments", { defaultValue: "payments" })}</Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: "grid", gap: 2, flex: 1, alignContent: "center" }}>
+                {shares.map((row, i) => {
+                  const pct = Math.round((row.count / total) * 100);
+                  return (
+                    <Box key={row.chain} data-testid={`trust-chain-share-${i}`}>
+                      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
+                        <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1 }}>
+                          <Icon icon={CHAIN_ICON[row.chain] || "mdi:link-variant"} width={18} height={18} />
+                          <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14, fontWeight: 600, color: PANEL.ink }}>{row.chain}</Typography>
+                        </Box>
+                        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 13, fontWeight: 700, color: i === 0 ? PANEL.gold : PANEL.ink2 }}>{pct}%</Typography>
+                      </Box>
+                      <Box sx={{ height: 8, borderRadius: 8, background: PANEL.surfaceStrong, overflow: "hidden" }}>
+                        <Box sx={{ width: `${Math.max(pct, 2)}%`, height: "100%", borderRadius: 8, background: i === 0 ? "linear-gradient(90deg, #FFD100, #F5A800)" : "rgba(255,255,255,0.35)" }} />
+                      </Box>
+                    </Box>
+                  );
+                })}
+              </Box>
+              <Typography sx={{ fontFamily: FONT_BODY, fontSize: 12.5, color: PANEL.ink3, mt: 3 }}>{t("v8.trust.sharesNote", { defaultValue: "Shares of confirmed, settled payments across the platform — the same data that powers our public status page." })}</Typography>
             </Box>
-          ))}
-        </Box>
-      </Reveal>
-
-      {/* Live supported-assets wall */}
-      <Box sx={{ textAlign: "center" }}>
-        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, letterSpacing: "0.12em", textTransform: "uppercase", color: s.ink3, mb: 3 }}>
-          {t("v8.trust.wall", { defaultValue: "Live on every major chain" })}
-        </Typography>
-      </Box>
-      <style>{`@keyframes dyno-trust-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}`}</style>
-      <Box
-        sx={{
-          position: "relative",
-          overflow: "hidden",
-          maskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
-          WebkitMaskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
-        }}
-      >
-        <Box
-          sx={{
-            display: "inline-flex",
-            width: "max-content",
-            alignItems: "center",
-            animation: "dyno-trust-marquee 50s linear infinite",
-            "&:hover": { animationPlayState: "paused" },
-            "@media (prefers-reduced-motion: reduce)": { animation: "none" },
-          }}
-        >
-          {track.map((c, i) => (
-            <Box
-              key={`${c.symbol}-${i}`}
-              aria-hidden={i >= coins.length || undefined}
-              sx={{ display: "inline-flex", alignItems: "center", gap: 1, px: { xs: 2.5, md: 3.5 }, flexShrink: 0 }}
-            >
-              <Icon icon={c.icon} width={30} height={30} />
-              <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: 16, fontWeight: 700, color: s.ink2, whiteSpace: "nowrap" }}>
-                {c.name}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
+          </Box>
+        </Reveal>
       </Box>
     </SectionV8>
-  );
-};
-
-const SectionHead: React.FC = () => {
-  const { t } = useTranslation("landing");
-  const s = useConsole();
-  return (
-    <Box sx={{ textAlign: "center", maxWidth: 720, mx: "auto", mb: { xs: 5, md: 7 } }}>
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2.5 }}>
-        <EyebrowV8>{t("v8.trust.eyebrow", { defaultValue: "Trusted & compliant" })}</EyebrowV8>
-      </Box>
-      <Typography
-        component="h2"
-        sx={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: { xs: 30, md: 44 }, lineHeight: 1.08, letterSpacing: "-0.028em", color: s.ink }}
-      >
-        {t("v8.trust.title", { defaultValue: "Built for trust from day one" })}
-      </Typography>
-      <Typography sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: { xs: 16, md: 18 }, lineHeight: 1.65, mt: 2.5, maxWidth: 600, mx: "auto" }}>
-        {t("v8.trust.lead", { defaultValue: "Non-custodial by design, compliant by default, and transparent about every number — so you can integrate with confidence." })}
-      </Typography>
-    </Box>
   );
 };
 

@@ -1,147 +1,66 @@
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
-import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
-import { Icon } from "@iconify/react";
-import { motion } from "framer-motion";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { ArrowLink, FONT_BODY, FONT_DISPLAY, FONT_MONO, Reveal, SectionHeadV8, SectionV8, useConsole } from "./kit";
-import { useMotionOK } from "../motion/tokens";
 
 /* ============================================================================
- * HowItWorksV8 — a clean, animated 3-step explanation of getting paid in
- * crypto. A gold connector line draws across the steps on scroll (desktop).
+ * HowItWorksV8 — a compact three-step strip (the product bento above already
+ * shows the UI, so this stays text-first: numbered steps separated by
+ * hairlines, one pointer to the docs).
  * ========================================================================== */
 
 const HowItWorksV8: React.FC = () => {
   const s = useConsole();
-  const router = useRouter();
   const { t } = useTranslation("landing");
-  const ok = useMotionOK();
 
   const steps = [
-    {
-      icon: "mdi:link-variant-plus",
-      title: t("v8.how.s1.title", { defaultValue: "Create a link or connect" }),
-      desc: t("v8.how.s1.desc", { defaultValue: "Spin up a hosted checkout, payment link, or API key in minutes — no code required." }),
-    },
-    {
-      icon: "mdi:qrcode-scan",
-      title: t("v8.how.s2.title", { defaultValue: "Your customer pays" }),
-      desc: t("v8.how.s2.desc", { defaultValue: "They scan and send from any wallet. You watch it confirm on-chain in real time." }),
-    },
-    {
-      icon: "mdi:bank-transfer-in",
-      title: t("v8.how.s3.title", { defaultValue: "You get paid your way" }),
-      desc: t("v8.how.s3.desc", { defaultValue: "Keep the coin or auto-convert to a stablecoin, then withdraw to your wallet anytime." }),
-    },
+    { title: t("v8.how.s1.title", { defaultValue: "Create a link or connect the API" }), desc: t("v8.how.s1.desc", { defaultValue: "Make a payment link, hosted checkout or invoice in the dashboard — or create payments from your server with one call." }) },
+    { title: t("v8.how.s2.title", { defaultValue: "Your customer pays" }), desc: t("v8.how.s2.desc", { defaultValue: "They scan and send from any wallet, in the coin they already hold. You watch it confirm on-chain in real time." }) },
+    { title: t("v8.how.s3.title", { defaultValue: "It settles to your wallet" }), desc: t("v8.how.s3.desc", { defaultValue: "Funds land in a wallet only you control — as the coin you were paid, or as USDT/USDC if auto-convert is on." }) },
   ];
 
   return (
-    <SectionV8 id="how-it-works" testId="how-it-works">
-      <SectionHeadV8
-        center
-        eyebrow={t("v8.how.eyebrow", { defaultValue: "How it works" })}
-        title={t("v8.how.title", { defaultValue: "Get paid in crypto in three steps" })}
-        lead={t("v8.how.lead", { defaultValue: "From zero to your first crypto payment in minutes — the flow is the same whether you sell online, invoice clients, or take donations." })}
-        maxWidth={720}
-      />
-
-      <Box sx={{ position: "relative" }}>
-        {/* connector line (desktop) */}
-        <Box
-          aria-hidden
-          sx={{
-            display: { xs: "none", md: "block" },
-            position: "absolute",
-            top: 38,
-            left: "16%",
-            right: "16%",
-            height: 2,
-            background: s.line,
-            overflow: "hidden",
-          }}
-        >
-          <Box
-            component={ok ? motion.div : "div"}
-            sx={{ height: "100%", background: "linear-gradient(90deg, #FFD100, #F5A800)", transformOrigin: "left" }}
-            {...(ok
-              ? {
-                  initial: { scaleX: 0 },
-                  whileInView: { scaleX: 1 },
-                  viewport: { once: true },
-                  transition: { duration: 1.1, ease: [0.16, 1, 0.3, 1] },
-                }
-              : { style: { transform: "scaleX(1)" } })}
-          />
-        </Box>
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" },
-            gap: { xs: 4, md: 5 },
-          }}
-        >
+    <SectionV8 id="how-it-works" testId="how-it-works" maxWidth={1240} sx={{ background: s.surface, borderTop: `1px solid ${s.line}`, borderBottom: `1px solid ${s.line}`, py: { xs: 7, md: 10 } }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 0.8fr) minmax(0, 1.6fr)" }, gap: { xs: 4, lg: 8 }, alignItems: "start" }}>
+        <SectionHeadV8
+          eyebrow={t("v8.how.eyebrow", { defaultValue: "How it works" })}
+          title={t("v8.how.title", { defaultValue: "Live in three steps" })}
+          lead={t("v8.how.lead", { defaultValue: "Minutes from sign-up to your first crypto payment — whether you sell online, invoice clients or take donations." })}
+          maxWidth={420}
+          sx={{ mb: { xs: 0, lg: 0 } }}
+        />
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" } }}>
           {steps.map((step, i) => (
-            <Reveal key={step.title} delay={i * 0.12} sx={{ textAlign: { xs: "left", md: "center" } }}>
-              <Box sx={{ display: "flex", flexDirection: { xs: "row", md: "column" }, alignItems: "center", gap: { xs: 2.5, md: 0 } }}>
-                <Box
-                  sx={{
-                    position: "relative",
-                    width: 78,
-                    height: 78,
-                    borderRadius: "50%",
-                    display: "grid",
-                    placeItems: "center",
-                    background: s.canvas,
-                    border: `1px solid ${s.lineStrong}`,
-                    flexShrink: 0,
-                    mx: { md: "auto" },
-                    boxShadow: s.dark ? "none" : "0 12px 30px -16px rgba(0,0,0,0.25)",
-                  }}
-                >
-                  <Icon icon={step.icon} width={30} height={30} color={s.accent} />
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: -6,
-                      right: { xs: "auto", md: -6 },
-                      left: { xs: -6, md: "auto" },
-                      width: 26,
-                      height: 26,
-                      borderRadius: "50%",
-                      background: "#FFD100",
-                      color: "#0B0B0A",
-                      display: "grid",
-                      placeItems: "center",
-                      fontFamily: FONT_MONO,
-                      fontWeight: 800,
-                      fontSize: 13,
-                    }}
-                  >
-                    {i + 1}
-                  </Box>
-                </Box>
-                <Box sx={{ mt: { md: 3 } }}>
-                  <Typography sx={{ fontFamily: FONT_DISPLAY, fontSize: { xs: 19, md: 21 }, fontWeight: 700, color: s.ink }}>
-                    {step.title}
-                  </Typography>
-                  <Typography sx={{ fontFamily: FONT_BODY, fontSize: 15, lineHeight: 1.6, color: s.ink2, mt: 1, maxWidth: { md: 300 }, mx: { md: "auto" } }}>
-                    {step.desc}
-                  </Typography>
-                </Box>
+            <Reveal key={step.title} delay={i * 0.08}>
+              <Box
+                data-testid={`step-${i + 1}-card`}
+                sx={{
+                  position: "relative",
+                  py: { xs: 3, md: 1 },
+                  px: { xs: 0, md: i === 0 ? 0 : 3.5 },
+                  pr: { md: i === 2 ? 0 : 3.5 },
+                  borderTop: { xs: i === 0 ? "none" : `1px solid ${s.line}`, md: "none" },
+                  borderLeft: { md: i === 0 ? "none" : `1px solid ${s.line}` },
+                }}
+              >
+                <Typography component="span" sx={{ display: "inline-block", fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", color: s.accent, mb: 1.75 }}>
+                  0{i + 1}
+                </Typography>
+                <Typography component="h3" sx={{ fontFamily: FONT_DISPLAY, fontSize: { xs: 19, md: 20 }, fontWeight: 700, letterSpacing: "-0.012em", lineHeight: 1.25, color: s.ink }}>
+                  {step.title}
+                </Typography>
+                <Typography sx={{ fontFamily: FONT_BODY, fontSize: 14.5, lineHeight: 1.6, color: s.ink2, mt: 1.25 }}>{step.desc}</Typography>
               </Box>
             </Reveal>
           ))}
+          <Box sx={{ gridColumn: "1 / -1", mt: { xs: 1, md: 4 } }}>
+            <ArrowLink href="/documentation" testId="how-docs-link">
+              {t("v8.how.cta", { defaultValue: "Developers: read the integration docs" })}
+              <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
+            </ArrowLink>
+          </Box>
         </Box>
-      </Box>
-
-      <Box sx={{ display: "flex", justifyContent: "center", mt: { xs: 5, md: 7 } }}>
-        <ArrowLink href="/documentation" testId="how-docs-link">
-          {t("v8.how.cta", { defaultValue: "Read the integration docs" })}
-          <ArrowForwardIcon className="arr" sx={{ fontSize: 16 }} />
-        </ArrowLink>
       </Box>
     </SectionV8>
   );

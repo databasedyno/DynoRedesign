@@ -61,7 +61,7 @@ const FinalCTAV8: React.FC = () => {
         </Typography>
 
         <Typography sx={{ fontFamily: FONT_BODY, color: PANEL.ink2, fontSize: { xs: 16.5, md: 19 }, lineHeight: 1.6, mt: 3, maxWidth: 560, mx: "auto" }}>
-          {t("v8.final.lead", { defaultValue: "Join the businesses and creators getting paid their way — non-custodial, zero chargebacks, and your first payment on us." })}
+          {t("v8.final.lead", { defaultValue: "Create your account in two minutes, share your first payment link, and your first payment is fee-free." })}
         </Typography>
 
         <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 1.5, mt: 5 }}>
