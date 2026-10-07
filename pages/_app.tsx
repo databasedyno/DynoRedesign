@@ -367,7 +367,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
   }, [i18n.language]);
 
   const SITE_URL = "https://dynopay.com";
-  const DEFAULT_OG_IMAGE = `${SITE_URL}/og/dynopay-og.png?v=4`;
+  const DEFAULT_OG_IMAGE = `${SITE_URL}/og/dynopay-og.png?v=5`;
   // Per-page branded share cards (public/og/, built by scripts/generate-og-images.py). ?v bumps on re-render so crawlers re-fetch.
   const ROUTE_OG_IMAGE: Record<string, string> = {
     "/fees": `${SITE_URL}/og/fees.png?v=4`,
@@ -738,12 +738,12 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
           </>
         ) : (
           <>
-            <link key="fav-ico" rel="icon" href="/favicon.ico?v=6" sizes="any" />
-            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/favicon.svg?v=6" />
-            <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=7" />
-            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=7" />
-            <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=7" />
-            <link key="fav-manifest" rel="manifest" href="/site.webmanifest?v=6" />
+            <link key="fav-ico" rel="icon" href="/favicon.ico?v=8" sizes="any" />
+            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/favicon.svg?v=8" />
+            <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=8" />
+            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=8" />
+            <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=8" />
+            <link key="fav-manifest" rel="manifest" href="/site.webmanifest?v=8" />
           </>
         )}
 
