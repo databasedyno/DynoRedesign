@@ -57,7 +57,7 @@ const Success = () => {
         }}
       >
         <Box sx={{ mb: 2 }}>
-          <BrandLogo redirect={false} />
+          <BrandLogo redirect={false} animate />
         </Box>
 
         <CheckCircleOutlineIcon

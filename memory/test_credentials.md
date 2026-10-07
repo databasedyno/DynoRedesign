@@ -1,3 +1,12 @@
+<!-- 2026-10-07 (fork, pod a52f86ab) — CURRENT POD URL (supersedes every URL below).
+     LIVE preview URL for THIS pod = https://a52f86ab-7055-43d7-9270-1cc969378ae3.preview.emergentagent.com
+     Set up from env.vault.enc via scripts/pod-bootstrap.sh (passphrase Katiekendra123@). SAFE MODE, LIVE prod DB.
+     NO credential changes this session. Merchant/owner: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1).
+     Admin: moxxcompany@gmail.com / Katiekendra123@ (admin console TOTP). Browser User-Agent REQUIRED (curl/python UAs 403'd).
+     Work done: Logo entrance micro-animation — opt-in `animate` prop on assets/Icons/Logo.tsx; enabled in the dashboard Sidebar
+     and /payment/success (reduced-motion aware; all other <Logo> usages unchanged). -->
+
+
 <!-- 2026-10-07 (fork, pod 7220be15) — CURRENT POD URL (supersedes every secure-passphrase-* URL below).
      LIVE preview URL for THIS pod = https://7220be15-93bb-4068-92f6-0a20be84ac87.preview.emergentagent.com  (= SERVER_URL in /app/backend/.env; NEXT_PUBLIC_BASE_URL empty => same-origin /api).
      No credential changes this session. Merchant/owner: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1; TOTP 2FA: `node /app/backend/scripts/print_totp.cjs 1`; API login POST /api/user/login -> data.challenge_token -> POST /api/user/2fa/validate {challenge_token,token} -> data.accessToken). Admin: moxxcompany@gmail.com / Katiekendra123@ (TOTP: `cd /app/backend && node scripts/admin_2fa.cjs totp 1`). Browser User-Agent REQUIRED (curl/python UAs 403'd).

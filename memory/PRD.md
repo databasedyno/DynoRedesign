@@ -1,3 +1,42 @@
+# === 2026-10-07 (fork, pod a52f86ab) — VAULT SETUP (this pod) + LOGO PHASE 2 (a) ENTRANCE ANIMATION — DONE & VERIFIED ===
+# PREVIEW URL (this pod): https://a52f86ab-7055-43d7-9270-1cc969378ae3.preview.emergentagent.com
+# Pod set up from env.vault.enc via scripts/pod-bootstrap.sh (passphrase Katiekendra123@). Services healthy (db+redis connected,
+# tatum operational), SAFE MODE (background_jobs=false, WORKER_ROLE=secondary), LIVE prod DB. Frontend = Next PRODUCTION build
+# (.next-prod, no hot reload) — rebuilt+swapped this session.
+#
+# USER ASK: "complete setup, then implement remaining tasks in memory/PRD.md + plan/LOGO_PHASE_2_3_HANDOFF.md."
+# Per the handoff code review, (b) branded email/receipt, (c) brand-guide, (d) press-kit, "Powered by Dynopay" badge were ALREADY
+# DONE. The ONLY remaining dev task was (a) the logo entrance micro-animation.
+#
+# SHIPPED — (a) LOGO ENTRANCE MICRO-ANIMATION (opt-in, reduced-motion-aware, SSR-safe, zero new deps):
+#   - assets/Icons/Logo.tsx: added `animate?: boolean` (default false) + `animateDelayMs?: number`. When animate=true it injects a
+#     React.useId-scoped <style> inside the SVG: ring eases up (scale .82->1 + fade, 460ms) then arrow slides in from the left
+#     (translateX -5->0 + fade, 420ms, +150ms delay), cubic-bezier(.22,1,.36,1), `both` fill (no end-frame flash), ONE-SHOT (no loop).
+#     `@media (prefers-reduced-motion: reduce)` pins it to the final static frame. animate=false => NO class/NO <style> =>
+#     byte-identical to before for every existing <Logo>.
+#   - Components/Layout/BrandLogo/index.tsx: added pass-through `animate?: boolean` (default false) -> <Logo animate={animate}/>.
+#   - Wired animate ON only where the mark introduces the product: Components/Layout/Sidebar/index.tsx L37 (dashboard sidebar,
+#     onDark) + pages/payment/success.tsx L60 (celebratory). payment/verify.tsx + payment/failed.tsx left STATIC (per spec).
+#   GATES: tsc --noEmit = 0 errors; eslint clean on all 4 files; prod build compiled OK -> .next-prod swapped -> frontend 200.
+#   VERIFIED (screenshot_tool on /payment/success @1920): logo has scoped class dyno-logo-<uid>, injected <style> carries
+#     @keyframes dynoRing-/dynoArrow- + the prefers-reduced-motion guard, ring/arrow paths carry their classes, mark renders to the
+#     correct final state, no hydration errors. Landing header logo is a separate SVGR lockup (no <Logo> testid) => unaffected.
+#     Mobile /payment/success: no horizontal overflow (BrandLogo is display xs:none/lg:block by existing design).
+#   NOT separately screenshotted: the authed dashboard sidebar reveal (needs login/2FA) — it uses the identical BrandLogo animate
+#     path verified on /payment/success (equivalence). Optional: run auto_frontend_testing_agent on the dashboard if desired.
+# ALL CHANGES UNCOMMITTED -> "Save to GitHub" to deploy. Files touched: assets/Icons/Logo.tsx, Components/Layout/BrandLogo/index.tsx,
+#   Components/Layout/Sidebar/index.tsx, pages/payment/success.tsx (+ PRD/test_credentials notes).
+#
+# CI PREFLIGHT FIX (same session): the "frontend tsc --noEmit" GitHub check was RED on the pushed commit 6312fd55 — but the
+#   failure was the ESLint sub-step (`yarn lint:eslint`), NOT tsc, and was PRE-EXISTING (present at 6312fd55 + f5a037a2, both
+#   before my edits; last green = 09a7da49). Error: pages/press.tsx:211 `react/no-unescaped-entities` — literal "Don't" in JSX.
+#   (The "Deploy to Droplet" job itself SUCCEEDED; only the preflight gate was red.) FIX: escaped to "Don&apos;t" (renders
+#   identically — no prod rebuild needed). Re-ran all 3 CI frontend sub-steps locally: clean full tsc=0, unused-imports=0,
+#   full-scope eslint=0. docker-build + backend-tsc were already green. Push via "Save to GitHub" to re-trigger a now-passing run.
+# ============================================================================================
+
+
+
 # === 2026-10-07 (fork, pod bc82ec41) — VAULT SETUP + CREATE-FLOWS VERIFY + ONBOARDING i18n (DONE) ===
 # PREVIEW URL (this pod): https://bc82ec41-2972-4c8d-8680-37f02effdd98.preview.emergentagent.com
 # Pod set up from env.vault.enc via scripts/pod-bootstrap.sh (passphrase Katiekendra123@). Services healthy,

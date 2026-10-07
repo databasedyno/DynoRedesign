@@ -208,7 +208,7 @@ const PressPage: React.FC = () => {
               ))}
             </Box>
             <Box data-testid="press-donts" sx={{ borderRadius: "16px", border: `1px solid ${s.line}`, p: { xs: 3, md: 3.5 }, background: s.canvas }}>
-              <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: s.ink, mb: 2 }}>Don't</Typography>
+              <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: s.ink, mb: 2 }}>Don&apos;t</Typography>
               {DONTS.map((d) => (
                 <Box key={d} sx={{ display: "flex", gap: 1.25, alignItems: "flex-start", mb: 1.5 }}>
                   <CloseRoundedIcon sx={{ fontSize: 18, color: "#D1584F", mt: "1px", flexShrink: 0 }} />
