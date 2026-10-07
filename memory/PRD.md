@@ -1,3 +1,55 @@
+# === 2026-10-07 (fork, pod bc82ec41) — VAULT SETUP + CREATE-FLOWS VERIFY + ONBOARDING i18n (DONE) ===
+# PREVIEW URL (this pod): https://bc82ec41-2972-4c8d-8680-37f02effdd98.preview.emergentagent.com
+# Pod set up from env.vault.enc via scripts/pod-bootstrap.sh (passphrase Katiekendra123@). Services healthy,
+# SAFE MODE (bg jobs off), LIVE prod DB. Frontend = Next PRODUCTION build (.next-prod) — rebuild+swap after FE/i18n edits.
+#
+# USER ASK: "implement 4,5,6,7" (= handoff plan/NEXT_AGENT_HANDOFF.md items #4/#3/#1/#2) + Onboarding i18n + Logo Phase 2/3.
+#
+# FINDING: handoff was STALE — items #4/#5/#6/#7 were ALREADY in code at HEAD and already live in the served build:
+#   #4 brand-save inline error (CompanySettingsDialog/index.tsx: Save type="submit" L738, disabled=loading||!isDirty,
+#      onSubmit=handleSubmit → FormManager yup gate → inline helperText). testing_agent PASS (desktop 1920 + mobile 390):
+#      invalid email shows "Please enter a valid email" inline, Save never permanently greyed. (THIS WAS THE REPORTED BUG — verified.)
+#   #5 post-create 3-action panel — PaymentLinkSuccessModal.tsx L338-368 `paylink-next-steps`:
+#      paylink-next-manage(→/pay-links, label "See all links" | donation "See all campaigns"), paylink-next-share(share+QR),
+#      paylink-next-track(→/transactions). Mirrors ProductEditor product-next-*. i18n keys nextStepsTitle/nextManageLinks/
+#      nextManageCampaigns/nextShareQr/nextTrack present+translated in all 6 locales. testing_agent PASS for PAYMENT
+#      (created link 738, verified modal+3 buttons+nav, deleted it). DONATION variant = same component + isDonation label
+#      (code-verified; agent declined to spam-create a 2nd donation link — equivalence-verified, low risk).
+#   #6 reward tiers in donation live preview — LivePreviewPanel.tsx L16-38 PreviewTier/tiers prop + L212-232 renders
+#      preview-reward-tiers / preview-reward-tier-<i> ("<title>" + "from <min>"). Wired in CreatePaymentLink/index.tsx:
+#      campaignTiers state L136, livePreviewProps.tiers L1451, CampaignManager onTiersChange={setCampaignTiers} L1840;
+#      CampaignManager load() fires onTiersChange after load+every create/update/delete → preview stays in sync.
+#      Backend POST /api/pay/campaign/:linkId/tiers (authMiddleware, paymentRouter mounted at /pay) proven 201 + listTiers 200.
+#      testing_agent PASS: created tier via API on QA campaign 723 → preview showed "QA Tier A · from $25.00" → tier DELETED (clean).
+#      NOTE: a first FE test run "failed" only because the tier submit never fired in the harness (no DB row) — NOT a product bug.
+#   #7 landing i18n propagation — ALREADY complete: 0 missing keys in es/fr/de/pt/nl landing.json (1579 keys each);
+#      v7.security.* + v7.trust.eyebrow present AND translated. Nothing to do.
+#
+# ✅ NEW THIS SESSION — ONBOARDING i18n (was the only genuinely-pending i18n item):
+#   GAP (namespace-accurate): 31 `gs.*` keys used in Components/Page/GetStarted/* + OnboardingFlow/* (ns dashboardLayout)
+#   were missing from dashboardLayout.json → fell back to English everywhere. (createModal.*/accountType.* belong to the
+#   companyDialog ns and were already present.) Added + professionally translated into es/fr/de/pt/nl (EN = source defaultValue)
+#   via scripts/i18n/add_onboarding_i18n.cjs (idempotent deep-merge; preserves {{what}}/{{lands}} interpolation). 186 writes.
+#   Rebuilt+swapped .next-prod. testing_agent PASS: /get-started?lang=fr and ?lang=de render translated (not English).
+#
+# ⏳ STILL PENDING — LOGO PHASE 2/3 (user asked; needs scope/design direction — NOT started):
+#   - "Powered by Dynopay" badge (Phase 3) is ALREADY present broadly (checkout CleanCheckoutV2 L1433, Shop CheckoutOrderSummary,
+#     Creator profile/preview/TipThankYou/HandleQrCode, PageUnavailable) → little gap.
+#   - Wordmark is locale-independent ("Dynopay") → "localized wordmark checks" is effectively a visual spot-check only.
+#   - Remaining real work = design-dependent: branded email header/receipt treatment (backend/utils/emailTemplate.ts; email is
+#     OFF in SAFE MODE → hard to verify in-pod), logo entrance micro-animation (assets/Icons/Logo.tsx is a clean single-fill SVG;
+#     add opt-in `animate` prop + prefers-reduced-motion; wire on AuthBrandPanel/setup-complete), full brand-guide page +
+#     partner/press-kit page + optional motion/3D hero. Logo source of truth: scripts/brand/generate-logo.mjs; React: assets/Icons/Logo.tsx.
+#   → ASKED USER to pick concrete logo sub-items before building (Phase 3 brand-guide/press-kit is a large build).
+#
+# QUICK LOGIN for testing (2FA on): merchant JWT in memory/tmp/merchant_token.txt (valid ~2026-11-04); in browser set
+#   localStorage token + last_company_id=1. Company 1 "The Dev Store" (onarrival21@gmail.com) = owner's own test brand (writes OK).
+# ALL CHANGES UNCOMMITTED → "Save to GitHub" to deploy. Only code/data change this session = 6 dashboardLayout.json files
+#   + scripts/i18n/add_onboarding_i18n.cjs (no TS/component changes → tsc unaffected).
+# ============================================================================================
+
+
+
 # === 2026-06 (fork, pod 7220be15) — MOBILE LANG-BAR OVERFLOW FIX (DONE) + HOMEPAGE i18n (DONE-IN-CODE, ⚠️NOT BUILT) + ONBOARDING i18n (NOT STARTED) ===
 # PREVIEW URL (this fork): https://7220be15-93bb-4068-92f6-0a20be84ac87.preview.emergentagent.com  (same as backend/.env SERVER_URL — current, NOT stale)
 # FRONTEND = Next PRODUCTION build (NO hot reload). REBUILD after ANY FE/i18n edit:

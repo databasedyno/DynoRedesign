@@ -1,4 +1,44 @@
 # ============================================================================
+# >>> 2026 (vault setup pod bc82ec41) — CREATE-FLOWS VERIFY + ONBOARDING i18n
+#     FRONTEND test requested. Serving PRODUCTION build (.next-prod, rebuilt+swapped).
+# ============================================================================
+#  CONTEXT: Pod set up from env.vault.enc. Handoff "create-flows" items #4/#5/#6 were
+#  found ALREADY IN CODE at HEAD (handoff doc was stale); landing i18n (#7) already
+#  complete (0 missing keys). NEW this session: onboarding i18n — 31 `gs.*` keys added
+#  + translated into es/fr/de/pt/nl in langs/locales/*/dashboardLayout.json via
+#  scripts/i18n/add_onboarding_i18n.cjs; frontend REBUILT so they are bundled.
+#
+#  ENV: SAFE MODE, LIVE prod DB. Company 1 "The Dev Store" (onarrival21@gmail.com) is the
+#  OWNER'S OWN test brand → real saves on it are OK but keep minimal. Do NOT mutate other
+#  merchants. 2FA TOTP is on → QUICK LOGIN with the merchant JWT (skips OTP): on the preview
+#  origin run localStorage.setItem('token', <JWT from memory/tmp/merchant_token.txt>);
+#  localStorage.setItem('last_company_id','1'); then navigate. Use a real browser User-Agent.
+#
+#  WHAT TO TEST (frontend):
+#   (#4 BUG — brand-save inline error) /settings?section=company → Brand details.
+#       Blank the Brand name OR set an invalid email → click "Save changes" → the SPECIFIC
+#       field shows an inline error message (helperText), NOT just a toast; the Save button
+#       stays usable (not permanently greyed). Fix the field → Save persists. Regression:
+#       a normal country/address change still ENABLES Save and saves. Desktop 1920 + mobile 390.
+#   (#5 post-create 3-action panel) Create a payment link AND a fundraiser (donation) as
+#       company 1 → the success modal (testid paylink-success) shows a "What's next" block
+#       (paylink-next-steps) with 3 actions: paylink-next-manage (→/pay-links), paylink-next-share,
+#       paylink-next-track (→/transactions). Confirm for BOTH payment and donation. Desktop+mobile.
+#   (#6 reward tiers in donation preview) Edit an existing donation campaign for company 1
+#       (open its edit view with a saved linkId) → CampaignManager "Reward tiers" tab → add a tier
+#       (title + min amount) → it appears in the LIVE preview (preview-reward-tiers /
+#       preview-reward-tier-0); edit updates it; delete removes it from the preview.
+#   (onboarding i18n) Visit /get-started?lang=fr then ?lang=de (merchant logged in). The
+#       setup-complete strip + "Almost there — share your …" hero + payouts/handle copy must
+#       render TRANSLATED (French/German), not English. Spot-check a couple of gs.* strings.
+#
+#  NOTE: all four of #4/#5/#6 are ALREADY in the served build; onboarding i18n is in the
+#  freshly swapped build. No backend changes this session.
+# ============================================================================
+
+
+
+# ============================================================================
 # >>> 2026-10-06 — PHASE 3 (batch 2): DEVELOPERS HUB chrome re-skin (frontend-only)
 # ============================================================================
 #  /documentation (pages/documentation.tsx): replaced ONLY the chrome with v8 —
