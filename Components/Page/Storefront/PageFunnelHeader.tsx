@@ -155,7 +155,7 @@ const PageFunnelHeader: React.FC<Props> = ({ storefront, formState, mounted, onE
                   {publicUrl.replace(/^https?:\/\//, "")}
                 </Typography>
                 <Tooltip title={t("storefront.funnel.copyUrl", { defaultValue: "Copy link" })} arrow>
-                  <Box component="button" type="button" data-testid="your-page-copy" onClick={copy} aria-label={t("storefront.funnel.copyUrl", { defaultValue: "Copy link" }) as string} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", p: 0.5, borderRadius: "8px", color: copied ? tone.dot : theme.palette.text.secondary, "&:hover": { backgroundColor: theme.palette.action.hover } }}>
+                  <Box component="button" type="button" data-testid="your-page-copy" data-hit-area="" onClick={copy} aria-label={t("storefront.funnel.copyUrl", { defaultValue: "Copy link" }) as string} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", p: 0.5, borderRadius: "8px", color: copied ? tone.dot : theme.palette.text.secondary, "&:hover": { backgroundColor: theme.palette.action.hover } }}>
                     <Icon name={copied ? "check" : "copy"} size={14} />
                   </Box>
                 </Tooltip>

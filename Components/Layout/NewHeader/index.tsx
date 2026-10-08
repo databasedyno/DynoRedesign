@@ -2,198 +2,69 @@ import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { useSetupProgress } from "@/Components/Page/GetStarted/useSetupProgress";
 import SaveExitDialog from "@/Components/Page/GetStarted/SaveExitDialog";
-import Logo from "@/assets/Icons/home/dynopay-blackLogo.svg";
 import LogoDark from "@/assets/Icons/home/dynopay-whiteLogo.svg";
 import DynopayMark from "@/assets/Icons/Logo";
 import CompanySelector from "@/Components/UI/CompanySelector";
-import ThemeToggle from "@/Components/UI/ThemeToggle";
 import UserMenu from "@/Components/UI/UserMenu";
-import NewSidebar from "@/Components/Layout/NewSidebar";
 import CreateNewButton from "@/Components/Layout/NewHeader/CreateNewButton";
 import GlobalSearchButton from "@/Components/Common/CommandPalette";
 import NotificationsBell from "@/Components/Layout/NewHeader/NotificationsBell";
 import { useWalletData } from "@/hooks/useWalletData";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
+import useShellMode from "@/hooks/useShellMode";
+import { SHELL_MQ } from "@/styles/shellTokens";
 import { useTheme as useMuiTheme } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import MenuRounded from "@mui/icons-material/MenuRounded";
 import CloseRounded from "@mui/icons-material/CloseRounded";
-import { Box, Drawer, IconButton, Typography, useMediaQuery } from "@mui/material";
+import ChatBubbleOutlineRounded from "@mui/icons-material/ChatBubbleOutlineRounded";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  HeaderContainer,
-  LogoContainer,
-  MainContainer,
-  RequiredKYC,
-  RequiredKYCText,
-  RightSection,
-} from "./styled";
+import { HeaderContainer, LogoContainer, MainContainer, RequiredKYC, RequiredKYCText, RightSection } from "./styled";
 import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
-import useDisplayIdentity from "@/hooks/useDisplayIdentity";
-import UserAvatar from "@/Components/UI/UserAvatar";
 import { brandFg } from "@/constants/theme";
 
 const NewHeader = () => {
   const router = useRouter();
   const muiTheme = useMuiTheme();
-  const { name: drawerUserName, photo: drawerUserPhoto } = useDisplayIdentity();
-  const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const namespaces = ["dashboardLayout", "walletScreen"];
-  const { t } = useTranslation(namespaces);
-  const tDashboard = useCallback(
-    (key: string) => t(key, { ns: "dashboardLayout" }),
-    [t],
-  );
-  const tWallet = useCallback(
-    (key: string) => t(key, { ns: "walletScreen" }),
-    [t],
-  );
+  const { t } = useTranslation(["dashboardLayout", "walletScreen", "common"]);
   const { walletWarning } = useWalletData();
   const { collapsed: sidebarCollapsed } = useSidebarCollapsed();
-  // Every user is auto-provisioned an Account at signup, so "no company" is no
-  // longer the gap — an INCOMPLETE account is (no country ⇒ broken invoices/VAT).
-  // Blueprint §3 header slim-down: the profile-completeness prompt moved INTO the
-  // avatar menu (see UserMenu), so it no longer lives as a header pill here.
+  const { isTablet } = useShellMode();
+  // The brand cell is as wide as the EFFECTIVE sidebar (incl. the forced tablet rail).
+  const railed = sidebarCollapsed || isTablet;
   const { hasAccount } = useAccountProfile();
-  // Inside the guided first-run wizard (/get-started) we hide the header's
-  // "payout address setup" and "complete KYC" nudge chips: tapping them would
-  // yank the user out of the step-by-step flow onto /wallet or /kyc. Payouts
-  // are step 3 of the wizard itself, so the nudge is redundant there anyway.
+  // Guided first-run wizard: no nudge chips / escape hatches (search, bell, + New).
   const isOnboarding = router.pathname === "/get-started";
-  // UX 2026-10 (Finding B): also suppress the header nudge chips while a
-  // brand-new brand is still onboarding on the dashboard — they duplicate the
-  // Getting-started hero's own payout/KYC steps and add to the first-visit
-  // interruption stack. Nav chrome (hamburger/sidebar) still only hides on the
-  // wizard route itself.
   const setupProgress = useSetupProgress();
-  const { onboardingActive } = setupProgress;
-  const inSetup = isOnboarding || onboardingActive;
-  // Show wallet warning only once the account exists (wallet depends on it)
+  const inSetup = isOnboarding || setupProgress.onboardingActive;
   const showWalletWarning = walletWarning && hasAccount && !inSetup;
   const [kycRequired, setKycRequired] = useState(false);
-  const [kycLoading, setKycLoading] = useState(false);
-  // UX-2026-08-02: Coinbase-style mobile top-left hamburger. Opens a Drawer
-  // that reuses the desktop NewSidebar's full menu so mobile users can reach
-  // everything (Wallets, Create Pay Link, Products, Creator, API, Referrals,
-  // Notifications, Settings). The MobileNavigationBar bottom bar is now
-  // trimmed to just 3 primary items (Dashboard · Pay Links · Transactions).
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  // Close the drawer whenever the route changes (user just navigated).
-  useEffect(() => {
-    const onRoute = () => setDrawerOpen(false);
-    router.events.on("routeChangeComplete", onRoute);
-    return () => router.events.off("routeChangeComplete", onRoute);
-  }, [router.events]);
-
   const { kycRequired: onboardingKycRequired } = useOnboardingStatus();
   useEffect(() => {
     if (onboardingKycRequired) setKycRequired(true);
   }, [onboardingKycRequired]);
 
-  // One door for identity verification (plan 3.10): the nudge opens /kyc, whose
-  // single Continue launches or resumes Veriff.
-  const handleKycClick = () => {
-    router.push("/kyc");
-  };
-
-  // Sanctioned exit from the guided wizard. Progress is saved as each step
-  // completes, so leaving means SIGNING OUT (after a confirm) — the next login
-  // resumes the wizard on the first unfinished step. The in-wizard "Do this
-  // later" remains the soft escape to the dashboard hero.
   const [saveExitOpen, setSaveExitOpen] = useState(false);
   const handleSaveExit = useCallback(() => setSaveExitOpen(true), []);
+  const goHome = isOnboarding ? undefined : () => router.push("/dashboard");
+  const helpLabel = t("common:helpChat", { defaultValue: "Help & chat" });
+
   return (
     <HeaderContainer>
       {isOnboarding && <SaveExitDialog open={saveExitOpen} onClose={() => setSaveExitOpen(false)} progress={setupProgress} />}
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        {/* Mobile/tablet hamburger — top-left, opens full nav drawer (Coinbase pattern).
-            Hidden during the focused first-run wizard so it can't reopen the nav mid-setup. */}
-        {!isOnboarding && (
-        <IconButton
-          data-testid="mobile-hamburger-toggle"
-          aria-label={t("dashboardLayout:ariaOpenMenu")}
-          onClick={() => setDrawerOpen(true)}
-          disableRipple
-          disableFocusRipple
-          sx={{
-            display: "inline-flex",
-            "@media (min-width:768px)": { display: "none" },
-            width: { xs: 40, sm: 44 },
-            height: 44,
-            mr: { xs: 0, sm: 0.5 },
-            color: muiTheme.palette.text.primary,
-            backgroundColor: "transparent",
-            // STICKY-HOVER FIX (matches the public header): on touch, :hover /
-            // :active latch after a tap and leave a dark shade on the icon.
-            // Keep it flat on touch (transparent + no ripple); show a hover
-            // tint only on real hover-capable pointers (desktop mouse).
-            "&:hover, &:active, &.Mui-focusVisible, &:focus": {
-              backgroundColor: "transparent",
-            },
-            "& .MuiTouchRipple-root": { display: "none" },
-            "@media (hover: hover) and (pointer: fine)": {
-              "&:hover": {
-                backgroundColor:
-                  muiTheme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(10,10,15,0.04)",
-              },
-            },
-          }}
-        >
-          <MenuRounded sx={{ fontSize: 22 }} />
-        </IconButton>
-        )}
-
-        <LogoContainer data-rail={sidebarCollapsed ? "true" : "false"} data-testid="app-brand-cell">
-          <Image
-            onClick={isOnboarding ? undefined : () => router.push("/dashboard")}
-            src={LogoDark}
-            alt="Dynopay"
-            width={134}
-            height={45}
-            draggable={false}
-            className="logo"
-            style={{ cursor: isOnboarding ? "default" : "pointer" }}
-          />
-          <Box className="logo-mark" onClick={isOnboarding ? undefined : () => router.push("/dashboard")} data-testid="app-brand-mark">
+        <LogoContainer data-rail={railed ? "true" : "false"} data-testid="app-brand-cell">
+          <Image onClick={goHome} src={LogoDark} alt="Dynopay" width={134} height={45} draggable={false} className="logo" style={{ cursor: isOnboarding ? "default" : "pointer" }} />
+          <Box className="logo-mark" onClick={goHome} data-testid="app-brand-mark">
             <DynopayMark width={32} height={32} variant="onDark" />
           </Box>
         </LogoContainer>
 
-        <Box
-          onClick={isOnboarding ? undefined : () => router.push("/dashboard")}
-          sx={{
-            display: { xs: "none", sm: "flex", lg: "none" },
-            alignItems: "center",
-            cursor: isOnboarding ? "default" : "pointer",
-            pl: 0.5,
-          }}
-        >
-          {/* Mobile/tablet app-header brand: theme-aware monochrome Dynopay
-              wordmark (black in light, white in dark). Replaces the old tiny
-              88×96 indigo PNG that rendered at 22×24 and clashed with the
-              black + lime brand. */}
-          <Image
-            src={muiTheme.palette.mode === "dark" ? LogoDark : Logo}
-            alt="Dynopay"
-            width={114}
-            height={39}
-            draggable={false}
-            priority
-            style={{ width: "auto", height: "30px" }}
-          />
-        </Box>
-
-        {/* Sanctioned exit from the guided wizard — now that the stray escape
-            hatches (search, bell, settings, company switcher) are hidden, this
-            makes leaving obvious without trapping the user. Sits next to the
-            brand on every breakpoint. */}
         {isOnboarding && (
           <Box
             component="button"
@@ -205,7 +76,7 @@ const NewHeader = () => {
               display: "inline-flex",
               alignItems: "center",
               gap: 0.75,
-              ml: { xs: 1, sm: 1.5, lg: 2 },
+              ml: { xs: 1, sm: 2 },
               height: 36,
               px: 1.5,
               borderRadius: 999,
@@ -218,11 +89,7 @@ const NewHeader = () => {
               fontWeight: 600,
               whiteSpace: "nowrap",
               transition: "background-color 160ms ease, color 160ms ease, border-color 160ms ease",
-              "&:hover": {
-                color: muiTheme.palette.text.primary,
-                borderColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.24)" : "rgba(18,18,20,0.28)",
-                backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.04)",
-              },
+              "&:hover": { color: muiTheme.palette.text.primary, backgroundColor: muiTheme.palette.mode === "dark" ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.04)" },
               "&:focus-visible": { outline: `2px solid ${muiTheme.palette.text.secondary}`, outlineOffset: 2 },
             }}
           >
@@ -237,80 +104,53 @@ const NewHeader = () => {
         )}
       </Box>
 
-      <MainContainer>
-        {/* Focus-mode (guided wizard /get-started): hide the company switcher so
-            a brand can't be swapped mid-setup. A flex spacer keeps the right-hand
-            controls right-aligned. */}
+      <MainContainer data-testid="app-topbar-inner">
         {isOnboarding ? <Box sx={{ flex: 1 }} /> : <CompanySelector />}
 
         <RightSection>
-          {/* Audit §4.1 header: `+ New · 🔔 inbox · account switcher`.
-              One create control (law 3) and the inbox's new home (F8).
-              Move 4: global search (⌘K / magnifier) joins the chrome. */}
-          {/* Focus-mode: no global ⌘K search during the guided wizard — it would
-              jump the user to any page and abandon setup. Unmounting the button
-              also tears down its global ⌘K / Ctrl-K key listener. */}
           {!isOnboarding && <GlobalSearchButton />}
-          {/* Plan 1.14: on phones the ONE create control is the centred "+" in
-              the bottom tab bar; the header slims to brand · search · bell · account.
-              Hidden in the focused first-run wizard (a "+ New" jump to a create
-              flow would interrupt the guided setup). */}
+          {/* Phones: the one create control is the centred "+" in the tab bar. */}
           {!isOnboarding && (
-          <Box sx={{ display: "none", "@media (min-width:768px)": { display: "flex" } }}>
-            <CreateNewButton />
-          </Box>
+            <Box sx={{ display: "flex", [SHELL_MQ.phone]: { display: "none" } }}>
+              <CreateNewButton />
+            </Box>
           )}
-          {/* Focus-mode: hide the notifications bell during the guided wizard. */}
           {!isOnboarding && <NotificationsBell />}
-          {/* Theme toggle — visible in the header on tablet AND desktop so it's
-              easy to find. On phones it lives as a labelled row in the mobile
-              nav drawer (below) + the user menu (user-menu-theme-toggle). */}
-          <Box sx={{ display: { xs: "none", sm: "flex" } }}>
-            <ThemeToggle size="small" data-testid="theme-toggle-header" />
-          </Box>
+          {/* Help & chat lives in the top bar on tablet/desktop (no floating button over row actions). */}
+          {!isOnboarding && (
+            <Tooltip title={helpLabel}>
+              <IconButton
+                data-testid="header-help-chat"
+                aria-label={helpLabel}
+                onClick={() => window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"))}
+                sx={{ width: 44, height: 44, color: muiTheme.palette.text.secondary, [SHELL_MQ.phone]: { display: "none" } }}
+              >
+                <ChatBubbleOutlineRounded sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip>
+          )}
           <Box sx={{ display: { xs: "none", lg: "flex" }, gap: "20px" }}>
             {kycRequired && !inSetup && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>
-                <RequiredKYC
-                  onClick={handleKycClick}
-                  sx={{ cursor: kycLoading ? "wait" : "pointer" }}
-                  data-testid="kyc-required-banner"
-                >
-                  <InfoIcon
-                    sx={{ fontSize: 20, color: muiTheme.palette.error.main }}
-                  />
-                  <RequiredKYCText sx={{ display: { lg: "none", xl: "block" } }}>{tDashboard("requiredKYC2")}</RequiredKYCText>
-                  <RequiredKYCText sx={{ display: { lg: "block", xl: "none" } }}>{tDashboard("requiredKYC1")}</RequiredKYCText>
+                <RequiredKYC onClick={() => router.push("/kyc")} sx={{ cursor: "pointer" }} data-testid="kyc-required-banner">
+                  <InfoIcon sx={{ fontSize: 20, color: muiTheme.palette.error.main }} />
+                  <RequiredKYCText sx={{ display: { lg: "none", xl: "block" } }}>{t("dashboardLayout:requiredKYC2")}</RequiredKYCText>
+                  <RequiredKYCText sx={{ display: { lg: "block", xl: "none" } }}>{t("dashboardLayout:requiredKYC1")}</RequiredKYCText>
                   <HeaderDivider style={{ margin: "0 14px" }} />
-                  <ArrowOutwardIcon
-                    sx={{ color: muiTheme.palette.text.secondary, fontSize: 16 }}
-                  />
+                  <ArrowOutwardIcon sx={{ color: muiTheme.palette.text.secondary, fontSize: 16 }} />
                 </RequiredKYC>
               </Box>
             )}
-
             {showWalletWarning && (
               <Box sx={{ order: { lg: 1, xl: 2 } }}>
                 <Link href="/wallet">
                   <RequiredKYC>
-                    <InfoIcon
-                      sx={{ fontSize: 20, color: brandFg(muiTheme.palette.mode === "dark") }}
-                    />
-                    <RequiredKYCText
-                      sx={{
-                        display: { lg: "none", xl: "block" },
-                        color: brandFg(muiTheme.palette.mode === "dark"),
-                      }}
-                    >
-                      {tWallet("walletSetUpWarnnigTitle")}
+                    <InfoIcon sx={{ fontSize: 20, color: brandFg(muiTheme.palette.mode === "dark") }} />
+                    <RequiredKYCText sx={{ display: { lg: "none", xl: "block" }, color: brandFg(muiTheme.palette.mode === "dark") }}>
+                      {t("walletScreen:walletSetUpWarnnigTitle")}
                     </RequiredKYCText>
-                    <RequiredKYCText
-                      sx={{
-                        display: { lg: "block", xl: "none" },
-                        color: brandFg(muiTheme.palette.mode === "dark"),
-                      }}
-                    >
-                      {tWallet("walletWarnnigTitle")}
+                    <RequiredKYCText sx={{ display: { lg: "block", xl: "none" }, color: brandFg(muiTheme.palette.mode === "dark") }}>
+                      {t("walletScreen:walletWarnnigTitle")}
                     </RequiredKYCText>
                   </RequiredKYC>
                 </Link>
@@ -320,169 +160,6 @@ const NewHeader = () => {
           <UserMenu onboarding={isOnboarding} />
         </RightSection>
       </MainContainer>
-
-      {/* Mobile/tablet nav Drawer — Coinbase pattern (top-left hamburger). */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        data-testid="mobile-nav-drawer"
-        ModalProps={{ keepMounted: false }}
-        transitionDuration={reduceMotion ? 0 : undefined}
-        PaperProps={{
-          sx: {
-            width: { xs: "82vw", sm: 320 },
-            maxWidth: 340,
-            backgroundColor: muiTheme.palette.background.default,
-            borderRight: `1px solid ${
-              muiTheme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(10,10,15,0.08)"
-            }`,
-            overflowX: "hidden",
-          },
-        }}
-        sx={{ display: "block", "@media (min-width:768px)": { display: "none" } }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            px: 2,
-            py: 1.5,
-            borderBottom: `1px solid ${
-              muiTheme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(10,10,15,0.06)"
-            }`,
-          }}
-        >
-          <Image
-            src={muiTheme.palette.mode === "dark" ? LogoDark : Logo}
-            alt="Dynopay"
-            width={114}
-            height={39}
-            draggable={false}
-            style={{ width: "auto", height: "26px" }}
-          />
-          <IconButton
-            data-testid="mobile-nav-drawer-close"
-            aria-label={t("dashboardLayout:ariaCloseMenu")}
-            onClick={() => setDrawerOpen(false)}
-            sx={{
-              width: 36,
-              height: 36,
-              color: muiTheme.palette.text.primary,
-            }}
-          >
-            <CloseRounded sx={{ fontSize: 20 }} />
-          </IconButton>
-        </Box>
-        {/* Gradient-avatar profile header — gives the mobile drawer identity
-            (matches the top-bar avatar + the Emergent reference). */}
-        {drawerUserName && (
-          <Box
-            component={Link}
-            href="/settings?section=profile"
-            data-testid="mobile-drawer-account-row"
-            onClick={() => setDrawerOpen(false)}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.25,
-              px: 2,
-              py: 1.5,
-              textDecoration: "none",
-              cursor: "pointer",
-              transition: "background-color 160ms ease",
-              "&:hover, &:focus-visible": {
-                backgroundColor:
-                  muiTheme.palette.mode === "dark"
-                    ? "rgba(255,255,255,0.04)"
-                    : "rgba(10,10,15,0.04)",
-              },
-              borderBottom: `1px solid ${
-                muiTheme.palette.mode === "dark"
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(10,10,15,0.06)"
-              }`,
-            }}
-          >
-            <UserAvatar
-              name={drawerUserName}
-              photo={drawerUserPhoto}
-              size={40}
-              fontSize={15}
-              data-testid="mobile-drawer-avatar"
-            />
-            <Box sx={{ minWidth: 0 }}>
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  fontSize: 14,
-                  color: muiTheme.palette.text.primary,
-                  fontFamily: "var(--font-sans)",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {drawerUserName}
-              </Typography>
-              <Typography
-                sx={{
-                  fontSize: 12,
-                  color: muiTheme.palette.text.secondary,
-                  fontFamily: "var(--font-sans)",
-                }}
-              >
-                {t("dashboardLayout:viewAccount")}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        {/* Appearance toggle — first-class, visible row so the theme switcher
-            is easy to find on phones (not buried in a menu). */}
-        <Box
-          data-testid="mobile-drawer-theme-row"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            px: 2,
-            py: 1.25,
-            borderBottom: `1px solid ${
-              muiTheme.palette.mode === "dark"
-                ? "rgba(255,255,255,0.06)"
-                : "rgba(10,10,15,0.06)"
-            }`,
-          }}
-        >
-          <Typography
-            sx={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: muiTheme.palette.text.primary,
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            {t("dashboardLayout:appearance", { defaultValue: "Appearance" })}
-          </Typography>
-          <ThemeToggle size="small" data-testid="theme-toggle-drawer" />
-        </Box>
-        {/* Reuse the desktop sidebar so nothing is lost. It already knows how
-            to render active states + section groupings. */}
-        <Box
-          sx={{
-            height: drawerUserName ? "calc(100dvh - 138px)" : "calc(100dvh - 65px)",
-            overflowY: "auto",
-            "& > *": { width: "100% !important" },
-          }}
-        >
-          <NewSidebar inDrawer />
-        </Box>
-      </Drawer>
     </HeaderContainer>
   );
 };

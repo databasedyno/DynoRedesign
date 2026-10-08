@@ -14,16 +14,19 @@ export const PageHeader = styled(Box)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   gap: theme.spacing(2),
+  // Narrow screens: actions wrap under the title at a consistent 12px gap
+  // (was a fixed 64px offset that floated them arbitrarily).
   [theme.breakpoints.down("md")]: {
-    justifyContent: "start",
-    gap: theme.spacing(8),
+    flexWrap: "wrap",
+    alignItems: "flex-start",
+    gap: theme.spacing(1.5),
   },
 }));
 
+// Not pinned (§8.3): the large title scrolls away and a compact title bar
+// (CompactTitleBar) slides in, so phones keep ≥ 75% of the screen for content.
 export const MainPageHeader = styled(Box)(({ theme }) => ({
-  position: "sticky",
-  top: 0,
-  zIndex: 10,
+  position: "relative",
   backgroundColor: theme.palette.secondary.main,
   display: "flex",
   flexDirection: "column",
@@ -37,7 +40,7 @@ export const PageHeaderTitle = styled(Typography)(({ theme }) => ({
   letterSpacing: "-0.02em",
   lineHeight: 1.2,
   [theme.breakpoints.down("md")]: {
-    fontSize: "22px",
+    fontSize: "24px",
   },
 }));
 
@@ -48,7 +51,8 @@ export const PageHeaderDescription = styled(Typography)(({ theme }) => ({
   lineHeight: 1.5,
   fontFamily: "var(--font-sans)",
   paddingLeft: 0,
+  maxWidth: "72ch",
   [theme.breakpoints.down("md")]: {
-    fontSize: "13.5px",
+    fontSize: "14px",
   },
 }));

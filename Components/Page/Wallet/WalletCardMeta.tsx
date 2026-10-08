@@ -71,6 +71,7 @@ export const LastForwardRow: React.FC<ForwardProps> = ({ wallet, loading, symbol
       target="_blank"
       rel="noopener noreferrer"
       data-testid={`${testId}-explorer`}
+      data-hit-area=""
       aria-label={t("common:payouts.viewOnExplorer", { defaultValue: "View on explorer" }) as string}
       sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28, height: 28, m: "-8px", verticalAlign: "middle", borderRadius: "8px", color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light, "&:hover": { textDecoration: "underline" } }}
     >

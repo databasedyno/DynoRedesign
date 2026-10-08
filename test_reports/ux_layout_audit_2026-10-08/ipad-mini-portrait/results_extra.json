@@ -1,0 +1,954 @@
+{
+ "device": "ipad-mini-portrait",
+ "theme": "light",
+ "cls": "tablet",
+ "engine": "webkit",
+ "viewport": {
+  "width": 768,
+  "height": 1024
+ },
+ "ua": "Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Mobile/15E148 Safari/604.1",
+ "pages": {
+  "settings-security": {
+   "path": "/settings?section=security",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 887,
+   "contentViewportPct": 87,
+   "chromeTopPx": 137,
+   "mainW": 696,
+   "mainScrollH": 24428,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 88,
+     "y": 56,
+     "w": 664,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 88,
+     "y": 137,
+     "w": 664,
+     "h": 83
+    },
+    {
+     "d": "div \"Profile Security Account details Tax\"",
+     "x": 88,
+     "y": 235,
+     "w": 664,
+     "h": 24217
+    }
+   ],
+   "contentColW": 664,
+   "mainPadX": "16px/16px",
+   "sidebarW": 72,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 18,
+    "12": 1885,
+    "13": 33,
+    "14": 292,
+    "15": 10,
+    "17": 1,
+    "22": 1,
+    "26": 1,
+    "13.5": 5,
+    "12.5": 4,
+    "11.5": 1,
+    "14.5": 3
+   },
+   "distinctFontSizes": 13,
+   "tinyText": 1,
+   "smallText": 19,
+   "textNodes": 2255,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 309,
+   "interactiveTotal": 332,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[page-tip-dismiss-settings]{Got it} \"Got it\" 50x28",
+    "div[overflow-tab-profile] \"Profile\" 98x36",
+    "div[overflow-tab-security] \"Security\" 112x36",
+    "div[overflow-tab-company] \"Account details\" 159x36",
+    "div[overflow-tab-tax] \"Tax\" 79x36",
+    "div[overflow-tabs-more] \"5 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 9,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store New Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to ",
+   "gateway": false,
+   "loadMs": 6575,
+   "shotFold": "ipad-mini-portrait/settings-security__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/settings-security__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-company": {
+   "path": "/settings?section=company",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/settings?section=company",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 887,
+   "contentViewportPct": 87,
+   "chromeTopPx": 137,
+   "mainW": 696,
+   "mainScrollH": 1805,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 88,
+     "y": 56,
+     "w": 664,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 88,
+     "y": 137,
+     "w": 664,
+     "h": 83
+    },
+    {
+     "d": "div \"Profile Security Account details Tax\"",
+     "x": 88,
+     "y": 235,
+     "w": 664,
+     "h": 1593
+    }
+   ],
+   "contentColW": 664,
+   "mainPadX": "16px/16px",
+   "sidebarW": 72,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 1,
+    "13": 9,
+    "14": 7,
+    "15": 17,
+    "17": 1,
+    "20": 1,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 1,
+    "11.5": 1
+   },
+   "distinctFontSizes": 10,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 40,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 27,
+   "interactiveTotal": 50,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[page-tip-dismiss-settings]{Got it} \"Got it\" 50x28",
+    "div[overflow-tab-profile] \"Profile\" 98x36",
+    "div[overflow-tab-security] \"Security\" 111x36",
+    "div[overflow-tab-company] \"Account details\" 161x36",
+    "div[overflow-tab-tax] \"Tax\" 79x36",
+    "div[overflow-tabs-more] \"5 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34",
+    "div{Brand} \"The Dev Store\" 220x40",
+    "input 224x24",
+    "input 511x32"
+   ],
+   "small24": [
+    "input{Brand name*} 285x23",
+    "input{Website (optional)} 285x23",
+    "input{E-mail*} 285x23",
+    "input{Address, Line 1} 582x23",
+    "input{Address, Line 2 (optional)} 582x23",
+    "input{Zip Code} 582x23",
+    "input 340x23"
+   ],
+   "small24Count": 7,
+   "small44Count": 14,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store New Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to ",
+   "gateway": false,
+   "loadMs": 4710,
+   "shotFold": "ipad-mini-portrait/settings-company__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/settings-company__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-payments": {
+   "path": "/settings?section=payments",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/settings?section=payments",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 887,
+   "contentViewportPct": 87,
+   "chromeTopPx": 137,
+   "mainW": 696,
+   "mainScrollH": 1467,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 88,
+     "y": 56,
+     "w": 664,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 88,
+     "y": 137,
+     "w": 664,
+     "h": 83
+    },
+    {
+     "d": "div \"Profile Security Account details Pay\"",
+     "x": 88,
+     "y": 235,
+     "w": 664,
+     "h": 1255
+    }
+   ],
+   "contentColW": 664,
+   "mainPadX": "16px/16px",
+   "sidebarW": 72,
+   "docOverflowX": false,
+   "clippedRight": [
+    "div[overflow-tabs-more] \"5 more tabs…\" r=770"
+   ],
+   "hScrollers": [],
+   "clippedRightCount": 1,
+   "truncated": [],
+   "fontSizes": {
+    "13": 6,
+    "14": 15,
+    "15": 4,
+    "17": 1,
+    "20": 2,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 2,
+    "11.5": 1
+   },
+   "distinctFontSizes": 9,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 33,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 13,
+   "interactiveTotal": 36,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[page-tip-dismiss-settings]{Got it} \"Got it\" 50x28",
+    "div[overflow-tab-profile] \"Profile\" 98x36",
+    "div[overflow-tab-security] \"Security\" 111x36",
+    "div[overflow-tab-company] \"Account details\" 159x36",
+    "div[overflow-tab-payments] \"Payments\" 122x36",
+    "div[overflow-tabs-more] \"5 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34",
+    "div{Brand} \"The Dev Store\" 220x40",
+    "div \"$USD\" 200x40"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 11,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store New Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to ",
+   "gateway": false,
+   "loadMs": 4837,
+   "shotFold": "ipad-mini-portrait/settings-payments__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/settings-payments__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-team": {
+   "path": "/settings?section=team",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/settings?section=team",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 887,
+   "contentViewportPct": 87,
+   "chromeTopPx": 137,
+   "mainW": 696,
+   "mainScrollH": 4684,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 88,
+     "y": 56,
+     "w": 664,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 88,
+     "y": 137,
+     "w": 664,
+     "h": 83
+    },
+    {
+     "d": "div \"Profile Security Account details Tea\"",
+     "x": 88,
+     "y": 235,
+     "w": 664,
+     "h": 4472
+    }
+   ],
+   "contentColW": 664,
+   "mainPadX": "16px/16px",
+   "sidebarW": 72,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 50,
+    "13": 5,
+    "14": 108,
+    "16": 2,
+    "17": 1,
+    "18": 2,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 1,
+    "11.5": 1
+   },
+   "distinctFontSizes": 10,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 172,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 9,
+   "interactiveTotal": 32,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[page-tip-dismiss-settings]{Got it} \"Got it\" 50x28",
+    "div[overflow-tab-profile] \"Profile\" 98x36",
+    "div[overflow-tab-security] \"Security\" 111x36",
+    "div[overflow-tab-company] \"Account details\" 159x36",
+    "div[overflow-tab-team] \"Team\" 92x36",
+    "div[overflow-tabs-more] \"5 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 9,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New",
+    "Invite teammate"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store New Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to ",
+   "gateway": false,
+   "loadMs": 4736,
+   "shotFold": "ipad-mini-portrait/settings-team__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/settings-team__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-notifications": {
+   "path": "/settings?section=notifications",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/settings?section=notifications",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 887,
+   "contentViewportPct": 87,
+   "chromeTopPx": 137,
+   "mainW": 696,
+   "mainScrollH": 1663,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 88,
+     "y": 56,
+     "w": 664,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 88,
+     "y": 137,
+     "w": 664,
+     "h": 83
+    },
+    {
+     "d": "div \"Profile Security Account details Not\"",
+     "x": 88,
+     "y": 235,
+     "w": 664,
+     "h": 1452
+    }
+   ],
+   "contentColW": 664,
+   "mainPadX": "16px/16px",
+   "sidebarW": 72,
+   "docOverflowX": false,
+   "clippedRight": [
+    "div[overflow-tabs-more] \"5 more tabs…\" r=790",
+    "svg[KeyboardArrowDownRoundedIcon] r=776",
+    "path r=771"
+   ],
+   "hScrollers": [],
+   "clippedRightCount": 3,
+   "truncated": [],
+   "fontSizes": {
+    "13": 24,
+    "14": 7,
+    "15": 4,
+    "17": 1,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 3,
+    "11.5": 1
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 42,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 15,
+   "interactiveTotal": 38,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[page-tip-dismiss-settings]{Got it} \"Got it\" 50x28",
+    "div[overflow-tab-profile] \"Profile\" 98x36",
+    "div[overflow-tab-security] \"Security\" 111x36",
+    "div[overflow-tab-company] \"Account details\" 159x36",
+    "div[overflow-tab-notifications] \"Notifications\" 142x36",
+    "div[overflow-tabs-more] \"5 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34",
+    "button[notifications-inbox-tab] \"Inbox\" 65x36",
+    "button[notifications-settings-tab] \"Settings\" 84x36",
+    "input 572x32"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 12,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store New Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to ",
+   "gateway": false,
+   "loadMs": 5799,
+   "shotFold": "ipad-mini-portrait/settings-notifications__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/settings-notifications__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "wallet-security-page": {
+   "path": "/wallet/security",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 887,
+   "contentViewportPct": 87,
+   "chromeTopPx": 137,
+   "mainW": 696,
+   "mainScrollH": 24428,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 88,
+     "y": 56,
+     "w": 664,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 88,
+     "y": 137,
+     "w": 664,
+     "h": 83
+    },
+    {
+     "d": "div \"Profile Security Account details Tax\"",
+     "x": 88,
+     "y": 235,
+     "w": 664,
+     "h": 24217
+    }
+   ],
+   "contentColW": 664,
+   "mainPadX": "16px/16px",
+   "sidebarW": 72,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 18,
+    "12": 1885,
+    "13": 33,
+    "14": 292,
+    "15": 10,
+    "17": 1,
+    "22": 1,
+    "26": 1,
+    "13.5": 5,
+    "12.5": 4,
+    "11.5": 1,
+    "14.5": 3
+   },
+   "distinctFontSizes": 13,
+   "tinyText": 1,
+   "smallText": 19,
+   "textNodes": 2255,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 309,
+   "interactiveTotal": 332,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[page-tip-dismiss-settings]{Got it} \"Got it\" 50x28",
+    "div[overflow-tab-profile] \"Profile\" 98x36",
+    "div[overflow-tab-security] \"Security\" 112x36",
+    "div[overflow-tab-company] \"Account details\" 159x36",
+    "div[overflow-tab-tax] \"Tax\" 79x36",
+    "div[overflow-tabs-more] \"5 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 9,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store New Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to ",
+   "gateway": false,
+   "loadMs": 4757,
+   "shotFold": "ipad-mini-portrait/wallet-security-page__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/wallet-security-page__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "get-started": {
+   "path": "/get-started",
+   "iw": 768,
+   "ih": 1024,
+   "coarse": true,
+   "url": "/get-started?step=share",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 1024,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 696,
+     "y": 860,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 968,
+   "contentViewportPct": 95,
+   "chromeTopPx": 56,
+   "mainW": 768,
+   "mainScrollH": 1169,
+   "mainClientH": 968,
+   "mainStack": [
+    {
+     "d": "main \"GETTING STARTED · DEVELOPER Set up D\"",
+     "x": 16,
+     "y": 68,
+     "w": 736,
+     "h": 1125
+    }
+   ],
+   "contentColW": 736,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 4,
+    "12": 10,
+    "13": 4,
+    "14": 2,
+    "15": 4,
+    "22": 1,
+    "26": 1,
+    "13.5": 3
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 4,
+   "textNodes": 29,
+   "truncatedCount": 0,
+   "longLines": [
+    {
+     "t": "curl -X POST http://localhost:3000/a",
+     "cpl": 116,
+     "w": 694
+    },
+    {
+     "t": "Create a test-mode payment and walk ",
+     "cpl": 98,
+     "w": 634
+    },
+    {
+     "t": "Your integration handled a payment f",
+     "cpl": 96,
+     "w": 626
+    }
+   ],
+   "interactiveInMain": 15,
+   "interactiveTotal": 20,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[wizard-save-exit]{Save & exit setup} \"Save & exit 156x36",
+    "input[sandbox-create-amount-input] 92x40",
+    "input[sandbox-sim-payment-id-input] 504x40"
+   ],
+   "small24": [
+    "button[gs-stepper-secure]{Secure your account} 142x6",
+    "button[gs-stepper-about]{About you} 142x6",
+    "button[gs-stepper-payouts]{Where payouts go} 142x6",
+    "button[gs-stepper-link]{Your API key} 142x6",
+    "button[gs-stepper-share]{Make a test payment} 142x6",
+    "button[sandbox-recent-refresh]{Refresh} 23x23",
+    "button \"a15b9932…113c23\" 108x19"
+   ],
+   "small24Count": 7,
+   "small44Count": 4,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Set up Dynopay"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content Save & exit setup GETTING STARTED · DEVELOPER Set up Dynopay Five short steps. Leave anytime — you'll pick up right where you left off. Do ",
+   "gateway": false,
+   "loadMs": 4594,
+   "shotFold": "ipad-mini-portrait/get-started__fold.jpg",
+   "shotScrolled": "ipad-mini-portrait/get-started__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  }
+ },
+ "overlays": {
+  "paylink-drawer": {
+   "shot": "ipad-mini-portrait/overlay__paylink-drawer.jpg",
+   "m": {
+    "url": "/pay-links",
+    "w": 768,
+    "h": 1024,
+    "x": 0,
+    "sh": 1022
+   }
+  },
+  "tx-drawer": {
+   "shot": "ipad-mini-portrait/overlay__tx-drawer.jpg",
+   "m": {
+    "url": "/transactions",
+    "w": 768,
+    "h": 1024,
+    "x": 0,
+    "sh": 1022
+   }
+  }
+ },
+ "firstVisit": {
+  "page": "settings-security",
+  "dialogs": [],
+  "banners": [
+   {
+    "d": "a[skip-to-content] \"Skip to main content\"",
+    "h": 38
+   }
+  ],
+  "mainStack": [
+   {
+    "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+    "x": 88,
+    "y": 56,
+    "w": 664,
+    "h": 81
+   },
+   {
+    "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+    "x": 88,
+    "y": 137,
+    "w": 664,
+    "h": 83
+   },
+   {
+    "d": "div \"Profile Security Account details Tax\"",
+    "x": 88,
+    "y": 235,
+    "w": 664,
+    "h": 24217
+   }
+  ],
+  "fixed": [
+   {
+    "d": "button[support-chat-button]{Open support chat}",
+    "x": 696,
+    "y": 860,
+    "w": 56,
+    "h": 56
+   }
+  ],
+  "shot": "ipad-mini-portrait/settings-security__first-visit.jpg"
+ },
+ "blockedWrites": [
+  "POST /api/track/attribution",
+  "POST /api/track/onboarding"
+ ]
+}

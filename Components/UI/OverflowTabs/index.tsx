@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Box, Popover, TextField, Typography, useTheme } from "@mui/material";
+import { Box, Popover, TextField, Typography, useMediaQuery, useTheme } from "@mui/material";
+import useEdgeFade from "@/hooks/useEdgeFade";
 import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import { useTranslation } from "react-i18next";
 import { tabPillActive, tabPillHover } from "@/styles/tabPill";
@@ -64,6 +65,11 @@ const OverflowTabs = ({
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Touch / narrow screens: every tab stays on one swipeable strip instead of
+  // collapsing into "N more tabs…" (UX audit §8.9).
+  const scrollMode = useMediaQuery("(max-width:1023.95px), (pointer: coarse)", { noSsr: true });
+  const fade = useEdgeFade<HTMLDivElement>();
+
   const ids = useMemo(() => items.map((i) => i.id), [items]);
   const byId = useMemo(() => {
     const m = new Map<string, OverflowTabItem>();
@@ -72,6 +78,11 @@ const OverflowTabs = ({
   }, [items]);
 
   const computeLayout = useCallback(() => {
+    if (scrollMode) {
+      setVisibleIds((prev) => (prev.join("|") === ids.join("|") ? prev : ids));
+      setHiddenIds((prev) => (prev.length ? [] : prev));
+      return;
+    }
     const strip = stripRef.current;
     if (!strip) return;
     const available = strip.clientWidth;
@@ -125,7 +136,19 @@ const OverflowTabs = ({
 
     setVisibleIds((prev) => (prev.join("|") === visible.join("|") ? prev : visible));
     setHiddenIds((prev) => (prev.join("|") === hidden.join("|") ? prev : hidden));
-  }, [ids, value, minVisible]);
+  }, [ids, value, minVisible, scrollMode]);
+
+  useEffect(() => {
+    const strip = stripRef.current;
+    if (!scrollMode || !strip) return;
+    const el = strip.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!el) return;
+    const sb = strip.getBoundingClientRect();
+    const eb = el.getBoundingClientRect();
+    if (eb.left < sb.left + 8 || eb.right > sb.right - 8) {
+      strip.scrollTo({ left: strip.scrollLeft + eb.left - sb.left - (sb.width - eb.width) / 2, behavior: "smooth" });
+    }
+  }, [scrollMode, value, visibleIds]);
 
   const measure = useCallback(() => {
     const ghost = ghostRef.current;
@@ -249,11 +272,19 @@ const OverflowTabs = ({
   return (
     <Box sx={{ position: "relative", width: "100%", minWidth: 0 }}>
       <Box
-        ref={stripRef}
+        ref={(el: HTMLDivElement | null) => {
+          stripRef.current = el;
+          (fade.ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
+        }}
         data-testid={containerTestId}
+        data-mode={scrollMode ? "scroll" : "collapse"}
         role="tablist"
         aria-label={ariaLabel}
-        sx={{ display: "flex", gap: `${GAP}px`, alignItems: "center", width: "100%", minWidth: 0, overflow: "hidden" }}
+        sx={
+          scrollMode
+            ? { display: "flex", gap: `${GAP}px`, alignItems: "center", width: "100%", minWidth: 0, overflowX: "auto", overflowY: "hidden", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" }, overscrollBehaviorX: "contain", maskImage: fade.maskImage, WebkitMaskImage: fade.WebkitMaskImage, pb: "2px" }
+            : { display: "flex", gap: `${GAP}px`, alignItems: "center", width: "100%", minWidth: 0, overflow: "hidden" }
+        }
       >
         {visibleIds.map((id) => {
           const it = byId.get(id);

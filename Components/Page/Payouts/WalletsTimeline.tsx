@@ -107,6 +107,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
                       onClick={(e: React.MouseEvent) => e.stopPropagation()}
                       aria-label={t("payouts.viewOnExplorer", { defaultValue: "View on explorer" }) as string}
                       data-testid="payouts-wallet-explorer"
+                      data-hit-area=""
                       sx={{ display: "flex", color: muted, "&:hover": { color: ink } }}
                     >
                       <Icon name="external-link" size={14} />

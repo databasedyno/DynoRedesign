@@ -1,7 +1,8 @@
 import InputField from "@/Components/UI/AuthLayout/InputFields";
 import CustomDatePicker, { DatePickerRef } from "@/Components/UI/DatePicker";
 import useTableCardView from "@/hooks/useTableCardView";
-import { Icon, MONO } from "@/styles/uiKit";
+import { Icon } from "@/styles/uiKit";
+import { FiltersButton } from "@/Components/Common/FilterControls";
 import { DateRange } from "@/utils/types/dashboard";
 import { TransactionsTopBarProps } from "@/utils/types/transaction";
 import { Box, useTheme } from "@mui/material";
@@ -73,45 +74,13 @@ const TransactionsTopBar: React.FC<
       : tTransactions("customShort", { defaultValue: "Custom" });
 
   const filtersButton = (
-    <Box
-      component="button"
-      type="button"
-      data-testid="transactions-filters-btn"
-      data-active-count={activeFilterCount}
-      aria-label={tTransactions("filters", { defaultValue: "Filters" })}
-      onClick={onOpenFilters}
-      sx={{
-        flexShrink: 0,
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 0.75,
-        height: 40,
-        px: 1.5,
-        borderRadius: "10px",
-        border: `1px solid ${activeFilterCount ? theme.palette.text.primary : theme.palette.border.main}`,
-        backgroundColor: theme.palette.background.paper,
-        color: theme.palette.text.primary,
-        fontFamily: "var(--font-sans)",
-        fontSize: 13.5,
-        fontWeight: 600,
-        cursor: "pointer",
-        transition: "background-color 150ms ease, border-color 150ms ease",
-        "&:hover": { backgroundColor: theme.palette.action.hover },
-        "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: 2 },
-      }}
-    >
-      <Icon name="sliders-horizontal" size={16} />
-      {tTransactions("filters", { defaultValue: "Filters" })}
-      {activeFilterCount > 0 && (
-        <Box
-          component="span"
-          data-testid="transactions-filters-count"
-          sx={{ minWidth: 20, height: 20, px: 0.5, borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center", backgroundColor: theme.palette.text.primary, color: theme.palette.background.paper, fontFamily: MONO, fontSize: 11.5, fontWeight: 700, lineHeight: 1 }}
-        >
-          {activeFilterCount}
-        </Box>
-      )}
-    </Box>
+    <FiltersButton
+      testId="transactions-filters-btn"
+      countTestId="transactions-filters-count"
+      label={tTransactions("filters", { defaultValue: "Filters" })}
+      count={activeFilterCount}
+      onClick={() => onOpenFilters?.()}
+    />
   );
 
   const rangePresets = (

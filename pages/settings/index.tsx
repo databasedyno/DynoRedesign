@@ -17,6 +17,8 @@ import {
   ShieldRounded,
   ArrowOutwardRounded,
   TranslateRounded,
+  ChevronLeftRounded,
+  ChevronRightRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -29,7 +31,7 @@ import DisplayCurrencySelector from "@/Components/UI/DisplayCurrencySelector";
 import CustomButton from "@/Components/UI/Buttons";
 import useIsMobile from "@/hooks/useIsMobile";
 import useEdgeFade from "@/hooks/useEdgeFade";
-import OverflowTabs from "@/Components/UI/OverflowTabs";
+import SettingsPhoneIndex from "@/Components/Page/Settings/SettingsPhoneIndex";
 import useTokenData from "@/hooks/useTokenData";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { UserAction } from "@/Redux/Actions";
@@ -370,13 +372,6 @@ const SettingsPageInner = ({
   const dirtyKeys = (Object.keys(dirtyMap) as SettingsSectionKey[]).filter((k) => dirtyMap[k]);
   const anyDirty = dirtyKeys.length > 0;
 
-  useEffect(() => {
-    setPageName?.(t("settingsPage.title"));
-    setPageDescription?.(t("settingsPage.description"));
-    setPageAction?.(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [t]);
-
   const { isIndividual } = useAccountProfile();
 
   const sections = useMemo(
@@ -565,19 +560,6 @@ const SettingsPageInner = ({
   // mobile (self-disables on the md+ vertical layout where it doesn't overflow).
   const railFade = useEdgeFade<HTMLDivElement>();
 
-  // Phone chip row: keep the active chip in view (deep links land on off-screen sections).
-  useEffect(() => {
-    const rail = railFade.ref.current;
-    if (!rail || !isMobile) return;
-    const el = rail.querySelector<HTMLElement>(`[data-testid="settings-rail-${active}"]`);
-    if (!el) return;
-    const railBox = rail.getBoundingClientRect();
-    const elBox = el.getBoundingClientRect();
-    if (elBox.left < railBox.left + 8 || elBox.right > railBox.right - 8) {
-      rail.scrollTo({ left: rail.scrollLeft + elBox.left - railBox.left - (railBox.width - elBox.width) / 2, behavior: "smooth" });
-    }
-  }, [active, isMobile, railFade.ref]);
-
   // Sync from URL (back/forward navigation, external links)
   useEffect(() => {
     if (!router.isReady) return;
@@ -586,22 +568,43 @@ const SettingsPageInner = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query.section, router.query.tab, router.isReady]);
 
+  // Phone (§8.9): an iOS-style index list; a section opens full-screen with a
+  // back chevron. Deep links (?section=) land straight on the section.
+  const hasSectionParam = !!router.query.section || !!LEGACY_TAB_MAP[String(router.query.tab || "").toLowerCase()];
+  const showIndex = isMobile && !hasSectionParam;
+  const pushedFromIndexRef = useRef(false);
+
+  useEffect(() => {
+    const inPhoneSection = isMobile && !showIndex;
+    // The phone section view draws its own back bar + title, so the layout header steps aside.
+    setPageName?.(inPhoneSection ? "" : t("settingsPage.title"));
+    setPageDescription?.(inPhoneSection ? "" : t("settingsPage.description"));
+    setPageAction?.(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [t, isMobile, showIndex]);
+
   const selectSection = (key: SectionKey) => {
     setActive(key);
-    router.replace(
-      { pathname: router.pathname, query: { section: key } },
-      undefined,
-      { shallow: true },
-    );
+    const url = { pathname: router.pathname, query: { section: key } };
+    if (showIndex) {
+      // Push so the back gesture returns to the index.
+      pushedFromIndexRef.current = true;
+      router.push(url, undefined, { shallow: true });
+    } else {
+      router.replace(url, undefined, { shallow: true });
+    }
+  };
+
+  const backToIndex = () => {
+    if (pushedFromIndexRef.current) {
+      pushedFromIndexRef.current = false;
+      router.back();
+    } else {
+      router.replace({ pathname: router.pathname }, undefined, { shallow: true });
+    }
   };
 
   const activeMeta = sections.find((s) => s.key === active) || sections[0];
-  // Phone: sections collapse into an OverflowTabs strip ("N more tabs…" + search)
-  // instead of a horizontally-scrolling chip row users could not discover.
-  const phoneTabItems = useMemo(
-    () => sections.map((s) => ({ id: s.key as string, label: s.label, icon: s.icon, dirty: !!dirtyMap[s.key] })),
-    [sections, dirtyMap],
-  );
   // Scope chip (2026-08-23): which tenant does the active section apply to?
   const scopeStore = useCompanyStore();
   const scopeCompany = (scopeStore?.companyList || []).find(
@@ -638,7 +641,7 @@ const SettingsPageInner = ({
       </Head>
       <Box
         sx={{
-          px: { xs: 2, md: 0 },
+          px: 0,
           py: { xs: 1, md: 0 },
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
@@ -646,55 +649,29 @@ const SettingsPageInner = ({
           alignItems: "flex-start",
         }}
       >
-        {/* Phone: OverflowTabs strip (replaces the horizontal chip scroller) */}
-        <Box sx={{ display: { xs: "block", md: "none" }, width: "100%" }}>
-          <OverflowTabs
-            items={phoneTabItems}
-            value={active}
-            onChange={(id) => selectSection(id as SectionKey)}
-            searchThreshold={5}
-            ariaLabel={t("settingsPage.sectionsAria", { defaultValue: "Settings sections" })}
+        {/* Phone: grouped index list (iOS Settings pattern) */}
+        {showIndex && (
+          <SettingsPhoneIndex
+            groups={[
+              ...railGroups.map((g) => ({
+                id: g.id,
+                label: g.label,
+                rows: g.keys
+                  .map((k) => sections.find((sec) => sec.key === k))
+                  .filter(Boolean)
+                  .map((sec) => ({ key: sec!.key, label: sec!.label, description: sec!.description, icon: sec!.icon, dirty: !!dirtyMap[sec!.key], onClick: () => selectSection(sec!.key) })),
+              })),
+              {
+                id: "more",
+                label: t("settingsPage.groupMore", { defaultValue: "More" }),
+                rows: [
+                  { key: "developers", label: t("settingsPage.developers", { defaultValue: "Developers" }), description: t("settingsPage.developersDesc", { defaultValue: "API keys, webhooks and events" }), icon: <CodeRounded sx={{ fontSize: 19 }} />, external: true, onClick: () => router.push("/developer-keys") },
+                  { key: "referrals", label: t("settingsPage.referrals", { defaultValue: "Referrals" }), description: t("settingsPage.referralsDesc", { defaultValue: "Invite merchants and earn rewards" }), icon: <GroupAddRounded sx={{ fontSize: 19 }} />, external: true, onClick: () => router.push("/referrals") },
+                ],
+              },
+            ]}
           />
-          {/* Pointers out of Settings — compact rows on phone */}
-          <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-            {[
-              { key: "developers", label: t("settingsPage.developers", { defaultValue: "Developers" }), href: "/developer-keys", icon: <CodeRounded sx={{ fontSize: 18 }} /> },
-              { key: "referrals", label: t("settingsPage.referrals", { defaultValue: "Referrals" }), href: "/referrals", icon: <GroupAddRounded sx={{ fontSize: 18 }} /> },
-            ].map((p) => (
-              <Box
-                key={p.key}
-                role="button"
-                tabIndex={0}
-                data-testid={`settings-rail-${p.key}`}
-                onClick={() => router.push(p.href)}
-                onKeyDown={(e: React.KeyboardEvent) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    router.push(p.href);
-                  }
-                }}
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.75,
-                  height: "34px",
-                  px: "12px",
-                  borderRadius: "10px",
-                  cursor: "pointer",
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  color: theme.palette.text.secondary,
-                  bgcolor: isDark ? "rgba(255,255,255,0.04)" : "#F1F2F5",
-                }}
-              >
-                {p.icon}
-                {p.label}
-                <ArrowOutwardRounded sx={{ fontSize: 13, opacity: 0.55 }} />
-              </Box>
-            ))}
-          </Box>
-        </Box>
+        )}
 
         {/* Settings navigation rail (desktop) */}
         <Box
@@ -719,7 +696,7 @@ const SettingsPageInner = ({
                 data-testid={`settings-group-${group.id}`}
                 sx={{
                   display: { xs: "none", md: "block" },
-                  fontSize: "10.5px",
+                  fontSize: "12px",
                   fontWeight: 700,
                   letterSpacing: "0.08em",
                   textTransform: "uppercase",
@@ -848,11 +825,41 @@ const SettingsPageInner = ({
         </Box>
 
         {/* Section content */}
-        <Box sx={{ flex: 1, minWidth: 0, width: "100%", maxWidth: "860px" }}>
+        <Box sx={{ flex: 1, minWidth: 0, width: "100%", maxWidth: "860px", display: showIndex ? "none" : "block" }}>
           <Box sx={{ mb: { xs: 2, md: 2.5 } }}>
+            {isMobile && (
+              <Box
+                component="button"
+                type="button"
+                data-testid="settings-back-btn"
+                onClick={backToIndex}
+                sx={{
+                  all: "unset",
+                  boxSizing: "border-box",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 0.25,
+                  minHeight: 44,
+                  ml: -1,
+                  pr: 1.5,
+                  pl: 0.5,
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                  "&:focus-visible": { outline: `2px solid ${theme.palette.text.primary}`, outlineOffset: 1 },
+                }}
+              >
+                <ChevronLeftRounded sx={{ fontSize: 26 }} />
+                {t("settingsPage.title")}
+              </Box>
+            )}
             <Typography
+              component={isMobile ? "h1" : "h2"}
               sx={{
-                fontSize: { xs: "17px", md: "19px" },
+                fontSize: { xs: "24px", md: "20px" },
                 fontWeight: 700,
                 color: theme.palette.text.primary,
                 fontFamily: "var(--font-sans)",
@@ -864,7 +871,7 @@ const SettingsPageInner = ({
             </Typography>
             <Typography
               sx={{
-                fontSize: { xs: "12.5px", md: "13.5px" },
+                fontSize: { xs: "13px", md: "14px" },
                 color: theme.palette.text.secondary,
                 fontFamily: "var(--font-sans)",
               }}
@@ -904,7 +911,7 @@ const SettingsPageInner = ({
               )}
               <Typography
                 sx={{
-                  fontSize: "11.5px",
+                  fontSize: "12px",
                   fontWeight: 600,
                   color: theme.palette.text.secondary,
                   fontFamily: "var(--font-sans)",
@@ -941,7 +948,7 @@ const SettingsPageInner = ({
                 }}
               >
                 <Box component="span" sx={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: isDark ? CB_TOKENS.semantic.warning.dark : CB_TOKENS.semantic.warning.light }} />
-                <Typography sx={{ fontSize: "11.5px", fontWeight: 600, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", color: isDark ? CB_TOKENS.semantic.warning.dark : CB_TOKENS.semantic.warning.light }}>
+                <Typography sx={{ fontSize: "12px", fontWeight: 600, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", color: isDark ? CB_TOKENS.semantic.warning.dark : CB_TOKENS.semantic.warning.light }}>
                   {t("settingsPage.unsavedChanges", { defaultValue: "Unsaved changes" })}
                 </Typography>
               </Box>
@@ -1014,7 +1021,7 @@ const SettingsPageInner = ({
               has no bottom-nav. Same pattern as the Session 71 TransactionsTable fix. */}
           <Box
             data-testid="settings-mobile-spacer"
-            sx={{ height: { xs: 180, md: 0 }, flexShrink: 0 }}
+            sx={{ height: { xs: 24, md: 0 }, flexShrink: 0 }}
           />
         </Box>
       </Box>

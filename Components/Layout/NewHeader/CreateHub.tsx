@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/router";
 import { useTranslation } from "react-i18next";
 import { Box, Dialog, IconButton, Typography, useTheme } from "@mui/material";
@@ -7,6 +7,10 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import BoltRoundedIcon from "@mui/icons-material/BoltRounded";
 import { Icon } from "@iconify/react";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
+import { brandFg, linkFg } from "@/constants/theme";
+import useShellMode from "@/hooks/useShellMode";
+import useBackToClose from "@/hooks/useBackToClose";
+import BottomSheet from "@/Components/UI/BottomSheet";
 
 /**
  * CreateHub — the single Create entry point (replaces the old two-item "+ New"
@@ -63,14 +67,26 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const { selectedCompanyId } = useCompanyStore();
+  // Phones: a bottom sheet (thumb reach, swipe to dismiss); larger screens: a dialog.
+  const { isPhone } = useShellMode();
+  const sheetReleaseRef = useRef<(() => void) | null>(null);
+  const dialogRelease = useBackToClose(open && !isPhone, onClose, "create-hub");
+  const leaveTo = useCallback(
+    (path: string) => {
+      if (isPhone) sheetReleaseRef.current?.();
+      else dialogRelease();
+      onClose();
+      router.replace(path);
+    },
+    [isPhone, dialogRelease, onClose, router],
+  );
 
   const go = useCallback(
     (key: CreateKey, path: string) => {
       bumpUsage(selectedCompanyId ?? null, key);
-      onClose();
-      router.push(path);
+      leaveTo(path);
     },
-    [onClose, router, selectedCompanyId],
+    [leaveTo, selectedCompanyId],
   );
 
   const quickPaylink = useCallback(() => {
@@ -97,7 +113,7 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
         icon: "mdi:link-variant",
         title: t("navNewPaymentLink", { defaultValue: "Payment link" }),
         desc: t("hubPaylinkDesc", { defaultValue: "Request a fixed amount for a product, invoice or service." }),
-        accent: theme.palette.primary.main,
+        accent: brandFg(isDark),
         onClick: quickPaylink,
         testId: "create-hub-paylink",
         full: {
@@ -140,48 +156,13 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
       .sort((a, b) => b.used - a.used || a.i - b.i);
     const topUsedKey = ranked.length && ranked[0].used > 0 ? ranked[0].it.key : null;
     return ranked.map((x) => ({ ...x.it, mostUsed: x.it.key === topUsedKey }));
-  }, [t, theme.palette.primary.main, quickPaylink, go, selectedCompanyId]);
+  }, [t, isDark, quickPaylink, go, selectedCompanyId]);
 
   const border = isDark ? "rgba(255,255,255,0.10)" : "#E9ECF2";
   const rowHover = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)";
 
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="sm"
-      data-testid="create-hub"
-      PaperProps={{
-        sx: {
-          borderRadius: "16px",
-          backgroundColor: theme.palette.background.paper,
-          backgroundImage: "none",
-          border: `1px solid ${border}`,
-        },
-      }}
-    >
-      {/* Header */}
-      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", px: { xs: 2.5, sm: 3 }, pt: 2.5, pb: 1 }}>
-        <Box>
-          <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 800, fontSize: 19, color: theme.palette.text.primary }}>
-            {t("hubTitle", { defaultValue: "Create" })}
-          </Typography>
-          <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.secondary, mt: 0.25 }}>
-            {t("hubSubtitle", { defaultValue: "What would you like to set up?" })}
-          </Typography>
-        </Box>
-        <IconButton
-          onClick={onClose}
-          size="small"
-          aria-label={t("navClose", { defaultValue: "Close" })}
-          data-testid="create-hub-close"
-          sx={{ minWidth: 40, minHeight: 40, color: theme.palette.text.secondary }}
-        >
-          <CloseRoundedIcon sx={{ fontSize: 20 }} />
-        </IconButton>
-      </Box>
-
+  const content = (
+    <>
       {/* Options */}
       <Box sx={{ px: { xs: 2, sm: 2.5 }, pb: 1.5, display: "grid", gap: 1 }}>
         {items.map((it) => (
@@ -328,10 +309,7 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
             component="button"
             type="button"
             data-testid="create-hub-settlement-cta"
-            onClick={() => {
-              onClose();
-              router.push("/payouts");
-            }}
+            onClick={() => leaveTo("/payouts")}
             sx={{
               background: "none",
               border: "none",
@@ -340,7 +318,7 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
               fontFamily: "var(--font-sans)",
               fontSize: 12.5,
               fontWeight: 700,
-              color: theme.palette.primary.main,
+              color: linkFg(isDark),
               textDecoration: "underline",
             }}
           >
@@ -348,6 +326,62 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
           </Box>
         </Typography>
       </Box>
+    </>
+  );
+
+  if (isPhone) {
+    return (
+      <BottomSheet
+        open={open}
+        onClose={onClose}
+        title={t("hubTitle", { defaultValue: "Create" })}
+        closeLabel={t("navClose", { defaultValue: "Close" })}
+        data-testid="create-hub"
+        onReleaseRef={sheetReleaseRef}
+      >
+        <Box sx={{ pt: 0.5 }}>{content}</Box>
+      </BottomSheet>
+    );
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      data-testid="create-hub"
+      PaperProps={{
+        sx: {
+          borderRadius: "16px",
+          backgroundColor: theme.palette.background.paper,
+          backgroundImage: "none",
+          border: `1px solid ${border}`,
+        },
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", px: { xs: 2.5, sm: 3 }, pt: 2.5, pb: 1 }}>
+        <Box>
+          <Typography sx={{ fontFamily: "var(--font-sans)", fontWeight: 800, fontSize: 19, color: theme.palette.text.primary }}>
+            {t("hubTitle", { defaultValue: "Create" })}
+          </Typography>
+          <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: theme.palette.text.secondary, mt: 0.25 }}>
+            {t("hubSubtitle", { defaultValue: "What would you like to set up?" })}
+          </Typography>
+        </Box>
+        <IconButton
+          onClick={onClose}
+          size="small"
+          aria-label={t("navClose", { defaultValue: "Close" })}
+          data-testid="create-hub-close"
+          sx={{ minWidth: 40, minHeight: 40, color: theme.palette.text.secondary }}
+        >
+          <CloseRoundedIcon sx={{ fontSize: 20 }} />
+        </IconButton>
+      </Box>
+
+      {content}
     </Dialog>
   );
 };

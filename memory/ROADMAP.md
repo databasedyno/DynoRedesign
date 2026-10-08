@@ -1,3 +1,6 @@
+## P0 (2026-10-08) — Finish the responsive-shell / UX-audit blueprint (paused mid-way)
+- Full task list + testids + test plan: memory/HANDOFF_UX_SHELL_2026-10-08.md §2 (A re-audit last batch, B tap targets, C remaining blueprint items, D frontend testing agent).
+
 # ══════════════════════════════════════════════════════════════════════════════
 # CURRENT OPEN BACKLOG — updated 2026-10-02 (fork, pod 31539451, post pt7 chain-readiness)
 # Status of in-flight work: NONE in progress. Last shipped = admin Chain Readiness page/API

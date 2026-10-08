@@ -45,6 +45,8 @@ import UnfoldMoreRoundedIcon from "@mui/icons-material/UnfoldMoreRounded";
 import CustomButton from "@/Components/UI/Buttons";
 import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 import useTableCardView from "@/hooks/useTableCardView";
+import AmountText from "./AmountText";
+import { SelectModeButton, useCardSelectMode } from "@/Components/Common/SelectMode";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
 import {
   ExtendedTransaction,
@@ -223,6 +225,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       return next;
     });
   const clearTxSelection = () => setSelectedTxIds(new Set());
+  const cardSelect = useCardSelectMode(selectedTxIds.size, clearTxSelection);
   const exportSelectedTx = () => {
     const rows = sortedTransactions.filter((tx) => selectedTxIds.has(String(tx.id)));
     downloadCsv(
@@ -335,6 +338,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   };
 
   const MONETARY_KEYS = new Set(["amount", "usdValue", "vat"]);
+  // Money cells: start-aligned flex + an auto-margin child, so an overflowing
+  // amount is clipped on the RIGHT (never its leading digits), and may wrap.
+  const MONEY_CELL_SX = { fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-start", whiteSpace: "normal", textOverflow: "clip", lineHeight: 1.25 } as const;
   // Hide the VAT / Tax column when nothing on screen carries tax (it was "—" on every row).
   const showVat = transactions.some((tx) => tx.reverseCharge || Number(tx.taxAmount) > 0);
   const noVatGridSx = showVat
@@ -473,9 +479,15 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
   // Mobile card layout for transactions
   const renderMobileCards = () => (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, px: 2 }}>
+    <>
+    {!isDataEmpty && (
+      <Box sx={{ display: "flex", justifyContent: "flex-end", px: 2, pb: 1 }}>
+        <SelectModeButton active={cardSelect.showChecks} onEnter={cardSelect.enter} onExit={cardSelect.exit} testId="tx-select-mode" />
+      </Box>
+    )}
+    <Box sx={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 1, px: 2, "@media (min-width:600px)": { gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: 1.5 } }}>
       {isDataEmpty ? (
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
+        <Box sx={{ gridColumn: "1 / -1", display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
           <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
             {t("transactionsNotAvailable", { ns: "common" })}
           </Typography>
@@ -491,10 +503,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 <Box
                   data-testid={`tx-group-m-${bucketOf(transaction.createdAtTs)}`}
                   sx={{
+                    gridColumn: "1 / -1",
                     pt: idx === 0 ? 0 : 1,
                     pb: 0.25,
                     fontFamily: "var(--font-sans)",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     fontWeight: 700,
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
@@ -506,8 +519,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               )}
               <Box
                 key={transaction.id}
-                onClick={() => handleRowClick(transaction)}
-                {...rowKeyProps(() => handleRowClick(transaction))}
+                {...rowKeyProps(() => (cardSelect.showChecks ? toggleTxSelect(String(transaction.id)) : handleRowClick(transaction)))}
+                {...cardSelect.cardProps(() => toggleTxSelect(String(transaction.id)), () => handleRowClick(transaction))}
+                aria-pressed={cardSelect.showChecks ? selectedTxIds.has(String(transaction.id)) : undefined}
                 data-testid="tx-card"
                 sx={{
                   // Flat card — dashboard parity: 16px radius, hairline border,
@@ -524,6 +538,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
               >
                 {/* Row 1: coin tile · amount (mono) + ticker · status dot + time */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  {cardSelect.showChecks && (
                   <Box component="span" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex" }}>
                   <Checkbox
                     size="small"
@@ -531,10 +546,12 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     onClick={(e) => e.stopPropagation()}
                     onChange={() => toggleTxSelect(String(transaction.id))}
                     data-testid={`tx-select-${transaction.id}`}
+                    data-no-hit-area=""
                     inputProps={{ "aria-label": "Select transaction" }}
                     sx={{ p: 0.25, ml: -0.5 }}
                   />
                   </Box>
+                  )}
                   <Box
                     sx={{
                       width: 40,
@@ -565,10 +582,9 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         letterSpacing: "-0.01em",
                         color: theme.palette.text.primary,
                         lineHeight: 1.2,
-                        overflowWrap: "anywhere",
                       }}
                     >
-                      {formatAmount(transaction.amount)}
+                      <AmountText value={formatAmount(transaction.amount)} align="start" />
                     </Typography>
                     <Typography
                       data-testid="tx-fiat-value"
@@ -625,7 +641,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       {transaction.customerName || transaction.customerEmail}
                     </Typography>
                   ) : (transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
-                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                    <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
                       {transaction.reverseCharge
                         ? tTransactions("reverseCharge", { defaultValue: "Reverse-charge" })
                         : `${tTransactions("vatShort", { defaultValue: "incl. VAT" })} ${formatWithSeparators(Number(transaction.taxAmount), undefined, 2)}${transaction.taxRate != null ? ` (${Number(transaction.taxRate)}%)` : ""}`}
@@ -639,6 +655,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         </>
       )}
     </Box>
+    </>
   );
 
   // Desktop / tablet table layout — ONE scroll container (both axes) so the
@@ -923,19 +940,19 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     )}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-end" }}>
+                  <TransactionsTableCell sx={MONEY_CELL_SX}>
                     {transaction.status === "underpaid" ? (
-                      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
-                        <Box component="span">{formatAmount(transaction.amount)}</Box>
+                      <Box sx={{ ml: "auto", display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: 0 }}>
+                        <AmountText value={formatAmount(transaction.amount)} />
                         {renderUnderpaidSplit(transaction)}
                       </Box>
                     ) : (
-                      formatAmount(transaction.amount)
+                      <AmountText value={formatAmount(transaction.amount)} testId="tx-amount" />
                     )}
                   </TransactionsTableCell>
 
-                  <TransactionsTableCell data-testid="tx-fiat-value" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", justifyContent: "flex-end" }}>
-                    {displayValue(transaction)}
+                  <TransactionsTableCell data-testid="tx-fiat-value" sx={MONEY_CELL_SX}>
+                    <AmountText value={displayValue(transaction)} />
                   </TransactionsTableCell>
 
                   <TransactionsTableCell data-testid="tx-customer" sx={{ minWidth: 0 }}>
@@ -1172,7 +1189,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           the layout's own container padding does NOT lift it (see session 71) —
           an in-component spacer is required. 180px = FAB top (164px) + breathing.
           This also clears the last card (which now sits above the footer). */}
-      {isMobile && <Box sx={{ height: "180px", flexShrink: 0 }} />}
+      {isMobile && <Box sx={{ height: "88px", flexShrink: 0, "@media (min-width:600px)": { height: "16px" } }} />}
 
       <TransactionDetailsModal
         open={modalOpen}

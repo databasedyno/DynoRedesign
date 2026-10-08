@@ -1,3 +1,16 @@
+# === 2026-10-08 (fork) pt5 — RESPONSIVE SHELL / UX-AUDIT BLUEPRINT — IN PROGRESS (paused by user; NOT yet testing-agent verified) ===
+# USER CHOICES: implement the whole blueprint (P0+P1+P2) from memory/reports/UX_LAYOUT_AUDIT_2026-10-08.md; phone = bottom tab bar + slide-up "More" list,
+#   hamburger removed; phone Settings = iOS-style grouped index → full-screen section with back arrow; fix small issues found elsewhere;
+#   verify by re-running the audit, then the frontend testing agent.
+# DONE (tsc clean, prod build live): shellTokens + useShellMode (phone <600 / tablet 600–1023 + touch ≤1279 / desktop), labelled 88px rail on touch tablets,
+#   sidebar real links + utility footer + height-aware density, phone tab bar + MoreSheet, BottomSheet + useBackToClose (back gesture closes overlays incl.
+#   detail drawers), header/brand cell/user menu rebuild, CreateHub sheet, AmountText (money never truncated), card select-mode, one filter style
+#   (FilterControls; Payment links phone Filters sheet), OverflowTabs swipe strip on touch, Settings phone index, Security sessions cap + paged dialog.
+# AUDIT RE-RUN: test_reports/ux_layout_audit_rerun (phone content 64–72% → 83–87%, More sheet 0 clipped). Probe: scripts/qa/shell_probe.mjs (PASS).
+# NEXT AGENT: follow memory/HANDOFF_UX_SHELL_2026-10-08.md §2 (A re-audit last batch → B tap targets → C remaining blueprint items → D frontend testing agent).
+# ============================================================================================
+
+
 # === 2026-10-08 (fork) pt4 — SAFEDEAL REFERRALS & REWARDS + INTEGRATION TESTS GREEN + AUTH TRUST-PANEL i18n — DONE & TESTED (iteration_281 BE/FE 100%) ===
 # USER CHOICES: referrer $5 NON-CASHABLE fee credit after the friend's first COMPLETED+RELEASED deal >= $50; friend $5 off first deal fee
 #   (= $5 welcome credit at sign-up via link); levels Member 5% -> Silver 4.5% (3 deals|$1k) -> Gold 4% (10|$5k) -> Platinum 3.5% (25|$20k), $10 min fee stays;

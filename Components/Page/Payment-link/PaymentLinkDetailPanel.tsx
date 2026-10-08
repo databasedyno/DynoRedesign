@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import useBackToClose from "@/hooks/useBackToClose";
 import { Box, IconButton, Skeleton, useTheme } from "@mui/material";
 import { QRCodeCanvas } from "qrcode.react";
 import { useRouter } from "next/router";
@@ -57,6 +58,7 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const isMobile = useIsMobile("sm");
+  useBackToClose(open, onClose, "paylink-detail");
   const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useTranslation("paymentLinks");

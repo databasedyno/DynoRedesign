@@ -1,0 +1,912 @@
+{
+ "device": "desktop-1440",
+ "theme": "light",
+ "cls": "desktop",
+ "engine": "chromium",
+ "viewport": {
+  "width": 1440,
+  "height": 900
+ },
+ "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+ "pages": {
+  "settings-security": {
+   "path": "/settings?section=security",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 23522,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 480,
+     "y": 176,
+     "w": 720,
+     "h": 88
+    },
+    {
+     "d": "div \"ACCOUNT Profile Security Notificatio\"",
+     "x": 272,
+     "y": 284,
+     "w": 1136,
+     "h": 23270
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 7,
+    "12": 1878,
+    "13": 18,
+    "14": 317,
+    "15": 3,
+    "16": 1,
+    "20": 9,
+    "26": 1,
+    "28": 1,
+    "12.5": 1,
+    "13.5": 4,
+    "14.5": 3
+   },
+   "distinctFontSizes": 12,
+   "tinyText": 0,
+   "smallText": 7,
+   "textNodes": 2243,
+   "truncatedCount": 0,
+   "longLines": [
+    {
+     "t": "Browsers that passed two-step verifi",
+     "cpl": 96,
+     "w": 624
+    }
+   ],
+   "interactiveInMain": 311,
+   "interactiveTotal": 341,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [
+    "button[trusted-device-forget-515] \"Forget\" 69x23",
+    "button[trusted-device-forget-25] \"Forget\" 69x23",
+    "button[trusted-device-forget-52] \"Forget\" 69x23",
+    "button[trusted-device-forget-507] \"Forget\" 69x23",
+    "button[trusted-device-forget-505] \"Forget\" 69x23",
+    "button[trusted-device-forget-494] \"Forget\" 69x23",
+    "button[trusted-device-forget-481] \"Forget\" 69x23",
+    "button[trusted-device-forget-480] \"Forget\" 69x23",
+    "button[trusted-device-forget-458] \"Forget\" 69x23",
+    "button[trusted-device-forget-457] \"Forget\" 69x23",
+    "button[trusted-device-forget-456] \"Forget\" 69x23",
+    "button[trusted-device-forget-455] \"Forget\" 69x23"
+   ],
+   "small24Count": 279,
+   "small44Count": 56,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout addresses GR",
+   "gateway": false,
+   "loadMs": 13903,
+   "shotFold": "desktop-1440/settings-security__fold.jpg",
+   "shotScrolled": "desktop-1440/settings-security__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-company": {
+   "path": "/settings?section=company",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/settings?section=company",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 1460,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "div \"ACCOUNT Profile Security Notificatio\"",
+     "x": 272,
+     "y": 176,
+     "w": 1136,
+     "h": 1316
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 5,
+    "13": 5,
+    "14": 13,
+    "15": 18,
+    "16": 1,
+    "20": 2,
+    "28": 1
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 45,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 31,
+   "interactiveTotal": 61,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [
+    "input{Brand name*} 369x22",
+    "input{Website (optional)} 369x22",
+    "input{E-mail*} 369x22",
+    "input{Address, Line 1} 750x22",
+    "input{Address, Line 2 (optional)} 750x22",
+    "input{Zip Code} 750x22",
+    "input 525x22"
+   ],
+   "small24Count": 7,
+   "small44Count": 47,
+   "inputsUnder16": [
+    "input{Brand name*} 13px",
+    "input{Website (optional)} 13px",
+    "input{E-mail*} 13px",
+    "input 13px",
+    "input 15px",
+    "input 15px"
+   ],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New JD Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout address",
+   "gateway": false,
+   "loadMs": 4399,
+   "shotFold": "desktop-1440/settings-company__fold.jpg",
+   "shotScrolled": "desktop-1440/settings-company__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-payments": {
+   "path": "/settings?section=payments",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/settings?section=payments",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 1130,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "div \"ACCOUNT Profile Security Notificatio\"",
+     "x": 272,
+     "y": 176,
+     "w": 1136,
+     "h": 985
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 4,
+    "13": 1,
+    "14": 20,
+    "15": 6,
+    "16": 1,
+    "20": 3,
+    "28": 1,
+    "12.5": 1
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 37,
+   "truncatedCount": 0,
+   "longLines": [
+    {
+     "t": "Optional — when enabled, incoming BT",
+     "cpl": 100,
+     "w": 750
+    }
+   ],
+   "interactiveInMain": 16,
+   "interactiveTotal": 46,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 38,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout addresses GR",
+   "gateway": false,
+   "loadMs": 3793,
+   "shotFold": "desktop-1440/settings-payments__fold.jpg",
+   "shotScrolled": "desktop-1440/settings-payments__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-team": {
+   "path": "/settings?section=team",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/settings?section=team",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 836,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "div \"ACCOUNT Profile Security Notificatio\"",
+     "x": 272,
+     "y": 176,
+     "w": 1136,
+     "h": 598
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 4,
+    "14": 14,
+    "15": 1,
+    "16": 2,
+    "18": 2,
+    "20": 1,
+    "28": 1
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 25,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 13,
+   "interactiveTotal": 43,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 37,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New",
+    "Invite teammate"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New JD Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout address",
+   "gateway": false,
+   "loadMs": 5590,
+   "shotFold": "desktop-1440/settings-team__fold.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-notifications": {
+   "path": "/settings?section=notifications",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/settings?section=notifications",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 1252,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "div \"ACCOUNT Profile Security Notificatio\"",
+     "x": 272,
+     "y": 176,
+     "w": 1136,
+     "h": 1108
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 4,
+    "13": 2,
+    "14": 14,
+    "15": 19,
+    "16": 1,
+    "20": 4,
+    "28": 1,
+    "12.5": 2
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 47,
+   "truncatedCount": 0,
+   "longLines": [
+    {
+     "t": "Choose which kinds of brand emails a",
+     "cpl": 126,
+     "w": 790
+    },
+    {
+     "t": "Where your business emails (payments",
+     "cpl": 109,
+     "w": 814
+    }
+   ],
+   "interactiveInMain": 19,
+   "interactiveTotal": 49,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 42,
+   "inputsUnder16": [
+    "input 14px"
+   ],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout addresses GR",
+   "gateway": false,
+   "loadMs": 9000,
+   "shotFold": "desktop-1440/settings-notifications__fold.jpg",
+   "shotScrolled": "desktop-1440/settings-notifications__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "wallet-security-page": {
+   "path": "/wallet/security",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 23414,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "div \"ACCOUNT Profile Security Notificatio\"",
+     "x": 272,
+     "y": 176,
+     "w": 1136,
+     "h": 23270
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 7,
+    "12": 1878,
+    "13": 16,
+    "14": 316,
+    "15": 3,
+    "16": 1,
+    "20": 9,
+    "26": 1,
+    "28": 1,
+    "12.5": 1,
+    "13.5": 4,
+    "14.5": 3
+   },
+   "distinctFontSizes": 12,
+   "tinyText": 0,
+   "smallText": 7,
+   "textNodes": 2240,
+   "truncatedCount": 0,
+   "longLines": [
+    {
+     "t": "Browsers that passed two-step verifi",
+     "cpl": 96,
+     "w": 624
+    }
+   ],
+   "interactiveInMain": 310,
+   "interactiveTotal": 340,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [
+    "button[trusted-device-forget-515] \"Forget\" 69x23",
+    "button[trusted-device-forget-25] \"Forget\" 69x23",
+    "button[trusted-device-forget-52] \"Forget\" 69x23",
+    "button[trusted-device-forget-507] \"Forget\" 69x23",
+    "button[trusted-device-forget-505] \"Forget\" 69x23",
+    "button[trusted-device-forget-494] \"Forget\" 69x23",
+    "button[trusted-device-forget-481] \"Forget\" 69x23",
+    "button[trusted-device-forget-480] \"Forget\" 69x23",
+    "button[trusted-device-forget-458] \"Forget\" 69x23",
+    "button[trusted-device-forget-457] \"Forget\" 69x23",
+    "button[trusted-device-forget-456] \"Forget\" 69x23",
+    "button[trusted-device-forget-455] \"Forget\" 69x23"
+   ],
+   "small24Count": 279,
+   "small44Count": 55,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [
+    "Settings"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout addresses GR",
+   "gateway": false,
+   "loadMs": 5411,
+   "shotFold": "desktop-1440/wallet-security-page__fold.jpg",
+   "shotScrolled": "desktop-1440/wallet-security-page__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "get-started": {
+   "path": "/get-started",
+   "iw": 1440,
+   "ih": 900,
+   "coarse": false,
+   "url": "/dashboard",
+   "hasShell": true,
+   "topbarH": 64,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 64,
+   "pageHeaderH": 112,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 900,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 836,
+   "contentViewportPct": 93,
+   "chromeTopPx": 64,
+   "mainW": 1200,
+   "mainScrollH": 1525,
+   "mainClientH": 836,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Good afternoon, John Thursday, Octob\"",
+     "x": 272,
+     "y": 64,
+     "w": 1136,
+     "h": 112
+    },
+    {
+     "d": "main \"Quiet · last paid 1 h ago Today 7D 3\"",
+     "x": 272,
+     "y": 176,
+     "w": 1136,
+     "h": 1380
+    }
+   ],
+   "contentColW": 1136,
+   "mainPadX": "32px/32px",
+   "sidebarW": 240,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 15,
+    "12": 51,
+    "13": 13,
+    "15": 10,
+    "16": 3,
+    "20": 3,
+    "28": 1,
+    "32": 3,
+    "12.5": 14,
+    "13.5": 12,
+    "11.5": 6
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 0,
+   "smallText": 21,
+   "textNodes": 131,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 32,
+   "interactiveTotal": 62,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "div[company-selector-trigger] \"The Dev Store\" 265x40",
+    "a[sidebar-item-dashboard] \"Dashboard\" 215x42",
+    "a[sidebar-item-brands] \"Brands\" 215x42",
+    "button[sidebar-section-toggle-sell] \"SELL\" 215x27",
+    "a[sidebar-item-payment-links] \"Payment Links\" 215x42",
+    "a[sidebar-item-creator] \"Your page\" 215x42",
+    "button[sidebar-section-toggle-money] \"MONEY\" 215x27",
+    "a[sidebar-item-balances] \"Balances & Settlement\" 215x42",
+    "a[sidebar-item-transactions] \"Transactions\" 215x42",
+    "a[sidebar-item-invoices] \"Receipts & Tax\" 215x42",
+    "a[sidebar-item-wallets] \"Payout addresses\" 215x42"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 38,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "New"
+   ],
+   "h1": [
+    "Good afternoon, John"
+   ],
+   "navActive": [
+    "Dashboard"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store New Dashboard Brands SELL Payment Links Your page MONEY Balances & Settlement Transactions Receipts & Tax Payout addresses GR",
+   "gateway": false,
+   "loadMs": 15483,
+   "shotFold": "desktop-1440/get-started__fold.jpg",
+   "shotScrolled": "desktop-1440/get-started__scrolled.jpg",
+   "errors": [],
+   "apiErr": []
+  }
+ },
+ "overlays": {
+  "paylink-drawer": {
+   "shot": "desktop-1440/overlay__paylink-drawer.jpg",
+   "m": {
+    "url": "/pay-links",
+    "w": 481,
+    "h": 900,
+    "x": 959,
+    "sh": 898
+   }
+  },
+  "tx-drawer": {
+   "shot": "desktop-1440/overlay__tx-drawer.jpg",
+   "m": {
+    "url": "/transactions",
+    "w": 481,
+    "h": 900,
+    "x": 959,
+    "sh": 898
+   }
+  }
+ },
+ "firstVisit": {
+  "page": "settings-security",
+  "dialogs": [],
+  "banners": [
+   {
+    "d": "a[skip-to-content] \"Skip to main content\"",
+    "h": 38
+   }
+  ],
+  "mainStack": [
+   {
+    "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+    "x": 272,
+    "y": 64,
+    "w": 1136,
+    "h": 112
+   },
+   {
+    "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+    "x": 480,
+    "y": 176,
+    "w": 720,
+    "h": 88
+   },
+   {
+    "d": "div \"ACCOUNT Profile Security Notificatio\"",
+    "x": 272,
+    "y": 284,
+    "w": 1136,
+    "h": 23270
+   }
+  ],
+  "fixed": [],
+  "shot": "desktop-1440/settings-security__first-visit.jpg"
+ },
+ "blockedWrites": [
+  "POST /api/track/attribution",
+  "POST /api/track/page-tips/dismiss",
+  "POST /api/track/onboarding"
+ ]
+}

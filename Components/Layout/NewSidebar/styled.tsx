@@ -1,4 +1,5 @@
 import { styled } from "@mui/material";
+import Link from "next/link";
 import { brandFg } from "@/constants/theme";
 
 export const SidebarWrapper = styled("aside")(({ theme }) => ({
@@ -19,6 +20,7 @@ export const Menu = styled("div")(({ theme }) => ({
   // 10px between groups: with Sell / Money / Grow / Settings all open the full
   // 12-row nav fits a 768px-tall laptop without scrolling.
   gap: "12px",
+  "@media (max-height:940px)": { gap: "6px" },
   background: "transparent",
   // Fill the free space and become the ONLY scroll region when the nav list is
   // taller than the sidebar. `minHeight: 0` is required for a flex child to
@@ -33,7 +35,7 @@ export const Menu = styled("div")(({ theme }) => ({
 
 /** Small uppercase group caption — modern SaaS sidebar pattern. */
 export const SectionLabel = styled("div")(({ theme }) => ({
-  fontSize: "10.5px",
+  fontSize: "12px",
   fontFamily: "var(--font-sans)",
   fontWeight: 700,
   letterSpacing: "1.4px",
@@ -53,10 +55,10 @@ export const SectionToggle = styled("button")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   width: "100%",
-  fontSize: "10.5px",
+  fontSize: "12px",
   fontFamily: "var(--font-sans)",
   fontWeight: 700,
-  letterSpacing: "1.4px",
+  letterSpacing: "0.08em",
   textTransform: "uppercase",
   color: theme.palette.text.secondary,
   padding: "4px 10px 4px 14px",
@@ -75,55 +77,95 @@ export const SectionToggle = styled("button")(({ theme }) => ({
   },
 }));
 
+const menuItemStyles = ({ active, theme }: { active?: boolean; theme: any }) => {
+  const isDark = theme.palette.mode === "dark";
+  // Active row: yellow text/icon + 3px yellow left-bar + faint yellow tint on the brown rail.
+  const activeTint = "rgba(255,209,0,0.12)";
+  return {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    minHeight: "40px",
+    maxHeight: "44px",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    textDecoration: "none",
+    background: active ? activeTint : "transparent",
+    fontSize: "14px",
+    fontWeight: active ? 600 : 500,
+    color: active ? theme.palette.primary.main : theme.palette.text.secondary,
+    boxShadow: "none",
+    transition: "background 0.16s ease, color 0.16s ease, transform 0.16s ease",
+    position: "relative" as const,
+    "&::before": {
+      content: '""',
+      position: "absolute" as const,
+      left: 0,
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: "3px",
+      height: active ? "20px" : "0px",
+      borderRadius: "0 3px 3px 0",
+      background: theme.palette.primary.main,
+      transition: "height 0.16s ease",
+    },
+    "&:hover": {
+      background: active ? activeTint : isDark ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.07)",
+      color: active ? theme.palette.primary.main : theme.palette.text.primary,
+    },
+    "&:focus-visible": {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: "-2px",
+    },
+    "&:active": {
+      transform: "scale(0.99)",
+    },
+    // Height-aware density (§8.1): short laptops (incl. 1440×900) / landscape tablets keep every row visible.
+    "@media (max-height:940px)": {
+      minHeight: "34px",
+      padding: "6px 12px",
+    },
+  };
+};
+
 export const MenuItem = styled("div", {
   shouldForwardProp: (prop) => prop !== "active",
-})<{ active?: boolean }>(
-  ({ active, theme }) => {
-    const isDark = theme.palette.mode === "dark";
-    // Active row: yellow text/icon + 3px yellow left-bar + faint yellow tint on the brown rail.
-    const activeTint = "rgba(255,209,0,0.12)";
-    return {
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      minHeight: "40px",
-      maxHeight: "44px",
-      padding: "8px 12px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      background: active ? activeTint : "transparent",
-      fontSize: "14px",
-      fontWeight: active ? 600 : 500,
-      color: active ? theme.palette.primary.main : theme.palette.text.secondary,
-      boxShadow: "none",
-      transition: "background 0.16s ease, color 0.16s ease, transform 0.16s ease",
-      position: "relative",
-      "&::before": {
-        content: '""',
-        position: "absolute",
-        left: 0,
-        top: "50%",
-        transform: "translateY(-50%)",
-        width: "3px",
-        height: active ? "20px" : "0px",
-        borderRadius: "0 3px 3px 0",
-        background: theme.palette.primary.main,
-        transition: "height 0.16s ease",
-      },
-      "&:hover": {
-        background: active
-          ? activeTint
-          : isDark
-            ? "rgba(255,255,255,0.07)"
-            : "rgba(255,255,255,0.07)",
-        color: active ? theme.palette.primary.main : theme.palette.text.primary,
-      },
-      "&:active": {
-        transform: "scale(0.99)",
-      },
-    };
-  },
-);
+})<{ active?: boolean }>(menuItemStyles as any);
+
+/** Real anchor for nav rows (⌘/middle-click, long-press "open in new tab", URL preview). */
+export const MenuLink = styled(Link, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active?: boolean }>(menuItemStyles as any);
+
+/** Labelled rail (touch tablets): icon over a caption, one per nav group. */
+export const RailGroupButton = styled("button", {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active?: boolean }>(({ active, theme }) => ({
+  all: "unset",
+  boxSizing: "border-box",
+  width: "100%",
+  minHeight: "60px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "4px",
+  padding: "8px 2px",
+  borderRadius: "12px",
+  cursor: "pointer",
+  fontFamily: "var(--font-sans)",
+  fontSize: "12px",
+  fontWeight: active ? 700 : 500,
+  lineHeight: 1.15,
+  textAlign: "center",
+  color: active ? theme.palette.primary.main : theme.palette.text.secondary,
+  background: active ? "rgba(255,209,0,0.12)" : "transparent",
+  transition: "background-color 0.16s ease, color 0.16s ease",
+  WebkitTapHighlightColor: "transparent",
+  "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: "-2px" },
+  "@media (max-height:700px)": { minHeight: "52px", padding: "6px 2px" },
+}));
 
 /** @deprecated kept for backward-compat — the pill itself now signals the active route. */
 export const ActiveIndicator = styled("div", {

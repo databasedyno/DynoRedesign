@@ -10,10 +10,7 @@ export const HeaderContainer = styled("div")(({ theme }) => ({
   background: "transparent",
   display: "flex",
   alignItems: "stretch",
-  gap: "16px",
-  [theme.breakpoints.down("sm")]: {
-    gap: "4px",
-  },
+  gap: 0,
 }));
 
 /**
@@ -35,7 +32,8 @@ export const LogoContainer = styled("div")(({ theme }) => ({
   marginBottom: -1,
   transition: "width 220ms cubic-bezier(0.16, 1, 0.3, 1)",
 
-  [theme.breakpoints.down("lg")]: {
+  // Phones have no sidebar, so no brand cell (the brand switcher leads the bar).
+  "@media (max-width:599.95px)": {
     display: "none",
   },
 
@@ -66,13 +64,17 @@ export const MainContainer = styled("div")(({ theme }) => ({
   alignItems: "center",
   justifyContent: "space-between",
   gap: "12px",
-  padding: "0 24px 0 16px",
+  // Mirror the content column (max-width + 32px gutters, centred) so the brand
+  // switcher and the right-hand controls line up with the page edges at every
+  // width, incl. ultra-wide (§8.1).
+  paddingLeft: "max(32px, calc((100vw - var(--dp-sidebar-w, 240px) - var(--dp-content-max, 1440px)) / 2))",
+  paddingRight: "max(32px, calc((100vw - var(--dp-sidebar-w, 240px) - var(--dp-content-max, 1440px)) / 2))",
 
-  [theme.breakpoints.down("lg")]: {
-    padding: "0 8px 0 4px",
+  "@media (max-width:1023.95px)": {
+    padding: "0 12px 0 16px",
   },
-  [theme.breakpoints.down("sm")]: {
-    padding: "0 4px 0 0",
+  "@media (max-width:599.95px)": {
+    padding: "0 4px 0 8px",
     gap: "4px",
   },
 }));

@@ -2,7 +2,7 @@ import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import EditIcon from "@/assets/Icons/edit-icon.svg";
 import BrandAvatar from "@/Components/UI/BrandAvatar";
-import { Box, Divider, Popover, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Popover, Skeleton, Typography, useTheme } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CompanyItem,
@@ -214,7 +214,8 @@ export default function CompanySelector() {
         position: "relative",
         width: isMobile ? "auto" : "clamp(265px, 18vw, 300px)",
         minWidth: 0,
-        flex: isMobile ? "1 1 auto" : "0 0 auto",
+        // Shrink-to-content below md so the chevron sits right next to the name.
+        flex: isMobile ? "0 1 auto" : "0 0 auto",
         overflow: "hidden",
       }}
     >
@@ -234,6 +235,12 @@ export default function CompanySelector() {
         data-testid="company-selector-trigger"
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, flex: "1 1 auto" }}>
+          {!shown && !companyState.fetched ? (
+            <Box data-testid="company-selector-skeleton" aria-busy="true" sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Skeleton variant="rounded" width={isMobile ? 22 : 26} height={isMobile ? 22 : 26} sx={{ borderRadius: "6px" }} />
+              <Skeleton variant="text" width={isMobile ? 84 : 120} height={18} />
+            </Box>
+          ) : (<>
           <BrandAvatar
             data-testid="company-selector-avatar"
             name={shown?.company_name}
@@ -264,9 +271,11 @@ export default function CompanySelector() {
                 : ""}
           </TriggerText>
           <KycVerifiedBadge companyId={selected?.company_id ?? active} size={16} />
+          </>)}
         </Box>
 
-        <Box sx={{ display: { xs: "none", sm: "flex" }, alignItems: "center", gap: { xs: "0px", sm: "8px" } }}>
+        {/* Chevron on every breakpoint — it is the switcher's only affordance on phones. */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: "0px", sm: "8px" }, flexShrink: 0 }}>
           <HeaderDivider sx={{ display: { xs: "none", sm: "block" } }} />
           {!anchorEl ? (
             <ExpandMoreIcon

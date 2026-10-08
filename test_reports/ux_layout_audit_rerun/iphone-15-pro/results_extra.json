@@ -1,0 +1,826 @@
+{
+ "device": "iphone-15-pro",
+ "theme": "light",
+ "cls": "phone",
+ "engine": "webkit",
+ "viewport": {
+  "width": 393,
+  "height": 659
+ },
+ "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Mobile/15E148 Safari/604.1",
+ "pages": {
+  "settings-security": {
+   "path": "/settings?section=security",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 41454,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 68,
+     "w": 361,
+     "h": 139
+    },
+    {
+     "d": "div \"Settings Security Two-step verificat\"",
+     "x": 16,
+     "y": 223,
+     "w": 361,
+     "h": 41199
+    }
+   ],
+   "contentColW": 361,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 17,
+    "12": 1865,
+    "13": 314,
+    "14": 10,
+    "15": 9,
+    "24": 1,
+    "26": 1,
+    "12.5": 1,
+    "13.5": 4,
+    "14.5": 3
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 1,
+   "smallText": 17,
+   "textNodes": 2226,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 300,
+   "interactiveTotal": 311,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 3,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Security"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Account vs. brand settings Some settings apply to your whole account (profile, notifications); others apply only to the sel",
+   "gateway": false,
+   "loadMs": 15197,
+   "shotFold": "iphone-15-pro/settings-security__fold.jpg",
+   "shotScrolled": "iphone-15-pro/settings-security__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 563,
+    "bottomNavTop": 665,
+    "gap": 101
+   },
+   "shotBottom": "iphone-15-pro/settings-security__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-company": {
+   "path": "/settings?section=company",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/settings?section=company",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 1723,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div \"Settings Account details Brand profi\"",
+     "x": 16,
+     "y": 68,
+     "w": 361,
+     "h": 1623
+    }
+   ],
+   "contentColW": 361,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "9": 1,
+    "10": 1,
+    "11": 1,
+    "12": 1,
+    "13": 13,
+    "14": 8,
+    "15": 3,
+    "24": 1
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 2,
+   "smallText": 1,
+   "textNodes": 29,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 20,
+   "interactiveTotal": 31,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div{Brand} \"The Dev Store\" 220x40",
+    "div \"Brand details\" 295x36",
+    "input 234x24",
+    "input 228x32"
+   ],
+   "small24": [
+    "input{Brand name*} 295x23",
+    "input{Website (optional)} 295x23",
+    "input{E-mail*} 295x23",
+    "input{Address, Line 1} 295x23",
+    "input{Address, Line 2 (optional)} 295x23",
+    "input{Zip Code} 295x23",
+    "input 169x23"
+   ],
+   "small24Count": 7,
+   "small44Count": 9,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Account details"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Settings Account details Brand profile, logo, and details Applies to The Dev Store The Dev Store Add brand Brand detai",
+   "gateway": false,
+   "loadMs": 12703,
+   "shotFold": "iphone-15-pro/settings-company__fold.jpg",
+   "shotScrolled": "iphone-15-pro/settings-company__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 563,
+    "bottomNavTop": 665,
+    "gap": 102
+   },
+   "shotBottom": "iphone-15-pro/settings-company__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-payments": {
+   "path": "/settings?section=payments",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/settings?section=payments",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 1183,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div \"Settings Payments Auto-convert, paym\"",
+     "x": 16,
+     "y": 68,
+     "w": 361,
+     "h": 1083
+    }
+   ],
+   "contentColW": 361,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 1,
+    "13": 12,
+    "14": 4,
+    "15": 3,
+    "24": 1,
+    "12.5": 1
+   },
+   "distinctFontSizes": 6,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 22,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 6,
+   "interactiveTotal": 17,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div{Brand} \"The Dev Store\" 220x40",
+    "div \"$USD\" 200x40",
+    "div \"Crypto conversion\" 295x36"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 6,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Payments"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Settings Payments Auto-convert, payment tolerance, and checkout behavior Applies to The Dev Store The Dev Store Brand c",
+   "gateway": false,
+   "loadMs": 8611,
+   "shotFold": "iphone-15-pro/settings-payments__fold.jpg",
+   "shotScrolled": "iphone-15-pro/settings-payments__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 563,
+    "bottomNavTop": 665,
+    "gap": 101
+   },
+   "shotBottom": "iphone-15-pro/settings-payments__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-team": {
+   "path": "/settings?section=team",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/settings?section=team",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 4446,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div \"Settings Team Invite teammates and c\"",
+     "x": 16,
+     "y": 68,
+     "w": 361,
+     "h": 4346
+    }
+   ],
+   "contentColW": 361,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 51,
+    "13": 1,
+    "14": 103,
+    "15": 1,
+    "16": 2,
+    "18": 2,
+    "24": 1
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 161,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 2,
+   "interactiveTotal": 13,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 3,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "Invite teammate"
+   ],
+   "h1": [
+    "Team"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Settings Team Invite teammates and control what each can access. Applies to The Dev Store Team Invite teammates to help",
+   "gateway": false,
+   "loadMs": 8303,
+   "shotFold": "iphone-15-pro/settings-team__fold.jpg",
+   "shotScrolled": "iphone-15-pro/settings-team__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 563,
+    "bottomNavTop": 665,
+    "gap": 101
+   },
+   "shotBottom": "iphone-15-pro/settings-team__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-notifications": {
+   "path": "/settings?section=notifications",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/settings?section=notifications",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 1629,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div \"Settings Notifications Email, push, \"",
+     "x": 16,
+     "y": 68,
+     "w": 361,
+     "h": 1529
+    }
+   ],
+   "contentColW": 361,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 1,
+    "13": 21,
+    "14": 2,
+    "15": 4,
+    "24": 1,
+    "12.5": 2
+   },
+   "distinctFontSizes": 6,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 31,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 8,
+   "interactiveTotal": 19,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[notifications-inbox-tab] \"Inbox\" 65x36",
+    "button[notifications-settings-tab] \"Settings\" 84x36",
+    "input 269x32"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 6,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Notifications"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Settings Notifications Email, push, and alert preferences Applies to your whole account Inbox Settings Brand email rout",
+   "gateway": false,
+   "loadMs": 10302,
+   "shotFold": "iphone-15-pro/settings-notifications__fold.jpg",
+   "shotScrolled": "iphone-15-pro/settings-notifications__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 563,
+    "bottomNavTop": 665,
+    "gap": 102
+   },
+   "shotBottom": "iphone-15-pro/settings-notifications__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "wallet-security-page": {
+   "path": "/wallet/security",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 41299,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div \"Settings Security Two-step verificat\"",
+     "x": 16,
+     "y": 68,
+     "w": 361,
+     "h": 41199
+    }
+   ],
+   "contentColW": 361,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 17,
+    "12": 1865,
+    "13": 312,
+    "14": 10,
+    "15": 9,
+    "24": 1,
+    "26": 1,
+    "12.5": 1,
+    "13.5": 4,
+    "14.5": 3
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 1,
+   "smallText": 17,
+   "textNodes": 2224,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 299,
+   "interactiveTotal": 310,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 3,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Security"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Settings Security Two-step verification, password, payout address protection and signed-in devices. Applies to your whole",
+   "gateway": false,
+   "loadMs": 10813,
+   "shotFold": "iphone-15-pro/wallet-security-page__fold.jpg",
+   "shotScrolled": "iphone-15-pro/wallet-security-page__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 563,
+    "bottomNavTop": 665,
+    "gap": 102
+   },
+   "shotBottom": "iphone-15-pro/wallet-security-page__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "get-started": {
+   "path": "/get-started",
+   "iw": 393,
+   "ih": 659,
+   "coarse": true,
+   "url": "/dashboard",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 60,
+   "pageHeaderPos": "relative",
+   "bottomNavTop": 603,
+   "bottomNavH": 56,
+   "fixed": [
+    {
+     "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+     "x": 0,
+     "y": 603,
+     "w": 393,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 547,
+   "contentViewportPct": 83,
+   "chromeTopPx": 56,
+   "mainW": 393,
+   "mainScrollH": 1656,
+   "mainClientH": 603,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Good afternoon, John\"",
+     "x": 0,
+     "y": 56,
+     "w": 393,
+     "h": 60
+    },
+    {
+     "d": "main \"Quiet · last paid 1 h ago 7D SETTLED\"",
+     "x": 0,
+     "y": 116,
+     "w": 393,
+     "h": 1508
+    }
+   ],
+   "contentColW": 393,
+   "mainPadX": "0px/0px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div[money-row] \"SETTLED · 7 DAYS $1,082.12 38.5% 16 \"",
+     "sw": 901,
+     "cw": 393
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [
+    "\"Growth tier · 1% · $34,834 lifetime ne\" 212/577"
+   ],
+   "fontSizes": {
+    "11": 12,
+    "12": 32,
+    "13": 9,
+    "14": 5,
+    "15": 1,
+    "16": 2,
+    "18": 3,
+    "24": 1,
+    "26": 3,
+    "12.5": 14,
+    "13.5": 4,
+    "11.5": 2
+   },
+   "distinctFontSizes": 12,
+   "tinyText": 0,
+   "smallText": 14,
+   "textNodes": 88,
+   "truncatedCount": 1,
+   "longLines": [],
+   "interactiveInMain": 21,
+   "interactiveTotal": 32,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[plan-growth-toggle-btn] \"Growth tier · 1% · $34,8 361x37"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 4,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Good afternoon, John"
+   ],
+   "navActive": [
+    "Home"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Skip to main content The Dev Store Good afternoon, John Good afternoon, John Quiet · last paid 1 h ago 7D SETTLED · 7 DAYS $1,082.12 38.5% 16 payments · vs pre",
+   "gateway": false,
+   "loadMs": 13289,
+   "shotFold": "iphone-15-pro/get-started__fold.jpg",
+   "shotScrolled": "iphone-15-pro/get-started__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 561,
+    "bottomNavTop": 665,
+    "gap": 104
+   },
+   "shotBottom": "iphone-15-pro/get-started__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  }
+ },
+ "overlays": {
+  "paylink-drawer": {
+   "shot": "iphone-15-pro/overlay__paylink-drawer.jpg",
+   "m": {
+    "url": "/pay-links",
+    "w": 393,
+    "h": 659,
+    "x": 0,
+    "sh": 657
+   }
+  },
+  "tx-drawer": {
+   "missing": "[data-testid^=\"tx-row-\"]"
+  }
+ },
+ "firstVisit": {
+  "page": "settings-security",
+  "dialogs": [],
+  "banners": [
+   {
+    "d": "a[skip-to-content] \"Skip to main content\"",
+    "h": 38
+   }
+  ],
+  "mainStack": [
+   {
+    "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+    "x": 16,
+    "y": 68,
+    "w": 361,
+    "h": 139
+   },
+   {
+    "d": "div \"Settings Security Two-step verificat\"",
+    "x": 16,
+    "y": 223,
+    "w": 361,
+    "h": 41199
+   }
+  ],
+  "fixed": [
+   {
+    "d": "nav[mobile-navigation-bar]{Main navigation} \"Home Sell Money More\"",
+    "x": 0,
+    "y": 603,
+    "w": 393,
+    "h": 56
+   }
+  ],
+  "shot": "iphone-15-pro/settings-security__first-visit.jpg"
+ },
+ "blockedWrites": [
+  "POST /api/track/attribution",
+  "POST /api/track/page-tips/dismiss",
+  "POST /api/track/onboarding"
+ ]
+}

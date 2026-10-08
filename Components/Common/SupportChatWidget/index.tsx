@@ -6,7 +6,6 @@ import {
   InputBase,
   Tooltip,
   Typography,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
 import ChatRoundedIcon from "@mui/icons-material/ChatRounded";
@@ -112,8 +111,10 @@ const SupportChatWidget: React.FC<SupportChatWidgetProps> = ({ layout = "home" }
   // Phones in the merchant app: the floating launcher sat on top of list rows'
   // status / amount (E2E audit MD-04). There it lives in the bottom nav's
   // "More" sheet instead ("Chat with support" → dynopay:open-support-chat).
-  const isPhone = useMediaQuery(theme.breakpoints.down("sm"));
-  const dockedInNav = layout === "client" && isPhone;
+  // App shell (all sizes): the launcher is docked — phones open chat from
+  // "More", tablet/desktop from the top-bar Help & chat button — so no floating
+  // button ever covers row actions (UX audit S17).
+  const dockedInNav = layout === "client";
 
   const GREETING = t("supportChat.greeting", {
     defaultValue:

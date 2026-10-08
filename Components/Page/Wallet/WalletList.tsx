@@ -87,7 +87,8 @@ const WalletList: React.FC<Props> = ({
   const surface = dark ? CB_TOKENS.surface.dark : CB_TOKENS.surface.light;
   const muted = theme.palette.text.secondary;
   const ring = dark ? "#FFD100" : "#8B5E00";
-  const COLS = "minmax(190px, 1.1fr) minmax(280px, 1.7fr) minmax(130px, 0.7fr) minmax(220px, 1.3fr) 44px";
+  // Fits a 720px content column (iPad landscape / 1024 laptops) so the ⋯ actions never fall off-screen (UX audit S4c).
+  const COLS = "minmax(150px, 1.1fr) minmax(160px, 1.7fr) minmax(96px, 0.7fr) minmax(140px, 1.3fr) 44px";
 
   const eyebrow = {
     fontFamily: "var(--font-tech), monospace",

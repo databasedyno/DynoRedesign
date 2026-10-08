@@ -14,6 +14,9 @@ import {
   DatePickerWrapper,
 } from "../Transactions/styled";
 import { brandFg } from "@/constants/theme";
+import BottomSheet from "@/Components/UI/BottomSheet";
+import CustomButton from "@/Components/UI/Buttons";
+import { FilterGroupLabel, FilterOptionChip, FiltersButton } from "@/Components/Common/FilterControls";
 
 export type PaymentLinkStatusFilter = "all" | "active" | "earning" | "expiring" | "completed" | "expired" | "pending";
 /** "links" = hand-made pay links & campaigns · "orders" = storefront order checkouts (auto-created, view-only). */
@@ -55,6 +58,7 @@ const PaymentLinksTopBar = ({
 
   const datePickerRef = useRef<DatePickerRef>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({
     startDate: null,
     endDate: null,
@@ -150,6 +154,127 @@ const PaymentLinksTopBar = ({
       </Box>
     );
   };
+
+  const statusOptions: { value: PaymentLinkStatusFilter; label: string }[] = [
+    { value: "all", label: t("allStatuses") },
+    { value: "active", label: t("statusActive") },
+    { value: "earning", label: t("statusEarning", { defaultValue: "Earning (30d)" }) },
+    { value: "expiring", label: t("statusExpiringSoon", { defaultValue: "Expiring soon" }) },
+    { value: "completed", label: t("statusPaid") },
+    { value: "expired", label: t("statusExpired") },
+    { value: "pending", label: t("statusPending") },
+  ];
+  const hasRange = !!(dateRange.startDate || dateRange.endDate);
+  const clearRange = () => {
+    setDateRange({ startDate: null, endDate: null });
+    onDateFilter("", "");
+  };
+
+  const searchField = (
+    <InputBase
+      placeholder={t("searchInputPlaceholder")}
+      onChange={(e) => onSearch(e.target.value)}
+      inputProps={{ "aria-label": t("searchInputPlaceholder") as string, "data-testid": "paylinks-search" }}
+      startAdornment={
+        <Image src={SearchIcon} alt="" aria-hidden width={16} height={16} className="themed-icon" style={{ marginRight: 8, opacity: 0.6, flexShrink: 0 }} />
+      }
+      sx={{ ...inputSx, width: "100%" }}
+    />
+  );
+
+  // Phone (§8.4 one toolbar pattern): [search] [Filters] — Show / Status / Period live in a bottom sheet.
+  if (isMobile) {
+    const activeCount = (statusFilter !== "all" ? 1 : 0) + (hasRange ? 1 : 0) + (kind === "orders" ? 1 : 0);
+    return (
+      <Box data-testid="paylinks-toolbar-phone" sx={{ display: "flex", alignItems: "center", gap: "8px", px: "16px" }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>{searchField}</Box>
+        <FiltersButton testId="paylinks-filters-btn" label={t("filters", { defaultValue: "Filters" })} count={activeCount} onClick={() => setSheetOpen(true)} />
+        <BottomSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          title={t("filters", { defaultValue: "Filters" })}
+          data-testid="paylinks-filter-sheet"
+          footer={
+            <Box sx={{ display: "flex", gap: 1.25, px: 2, pt: 1.5, pb: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+              <Box sx={{ "& button": { minHeight: 46, px: 2 } }}>
+                <CustomButton
+                  label={t("clearFilters", { defaultValue: "Clear" })}
+                  variant="secondary"
+                  data-testid="paylinks-filter-clear"
+                  onClick={() => {
+                    clearRange();
+                    onStatusFilter("all");
+                    if (kind !== "links") onKindChange("links");
+                  }}
+                />
+              </Box>
+              <Box sx={{ flex: 1, "& button": { width: "100%", minHeight: 46 } }}>
+                <CustomButton label={t("filtersDone", { defaultValue: "Done" })} variant="primary" data-testid="paylinks-filter-done" onClick={() => setSheetOpen(false)} />
+              </Box>
+            </Box>
+          }
+        >
+          <Box sx={{ px: 2, py: 2, display: "grid", gap: 3 }}>
+            {orderCount > 0 && (
+              <Box data-testid="paylinks-filter-kind">
+                <FilterGroupLabel>{t("filterShow", { defaultValue: "Show" })}</FilterGroupLabel>
+                <Box role="listbox" sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  <FilterOptionChip selected={kind === "links"} onClick={() => onKindChange("links")} testId="paylinks-kind-links">
+                    {t("kindLinks", { defaultValue: "Links" })}
+                  </FilterOptionChip>
+                  <FilterOptionChip selected={kind === "orders"} onClick={() => onKindChange("orders")} testId="paylinks-kind-orders">
+                    {t("kindOrders", { defaultValue: "Orders ({{count}})", count: orderCount })}
+                  </FilterOptionChip>
+                </Box>
+              </Box>
+            )}
+            <Box data-testid="paylinks-filter-status">
+              <FilterGroupLabel>{t("statusFilterLabel", { defaultValue: "Status" })}</FilterGroupLabel>
+              <Box role="listbox" sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {statusOptions.map((o) => (
+                  <FilterOptionChip key={o.value} selected={statusFilter === o.value} onClick={() => onStatusFilter(o.value)} testId={`paylinks-status-${o.value}`}>
+                    {o.label}
+                  </FilterOptionChip>
+                ))}
+              </Box>
+            </Box>
+            <Box data-testid="paylinks-filter-period">
+              <FilterGroupLabel>{t("filterPeriod", { defaultValue: "Period" })}</FilterGroupLabel>
+              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                <Box
+                  component="button"
+                  type="button"
+                  data-testid="paylinks-date-trigger"
+                  onClick={handleCalendarButtonClick}
+                  sx={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 1, minHeight: 44, px: 1.5, borderRadius: "12px", border: `1px solid ${theme.palette.divider}`, background: "transparent", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: hasRange ? theme.palette.text.primary : theme.palette.text.secondary, textAlign: "left" }}
+                >
+                  <Image src={CalendarIcon} alt="" width={16} height={16} className="themed-icon" />
+                  <Box component="span" sx={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {hasRange ? formatDateRange() : t("anyDate", { defaultValue: "Any date" })}
+                  </Box>
+                  <KeyboardArrowDownIcon sx={{ fontSize: 18 }} />
+                </Box>
+                {hasRange && (
+                  <Box
+                    component="button"
+                    type="button"
+                    data-testid="paylinks-date-clear"
+                    onClick={clearRange}
+                    sx={{ minHeight: 44, px: 1.5, borderRadius: "12px", border: `1px solid ${theme.palette.divider}`, background: "transparent", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: theme.palette.text.primary }}
+                  >
+                    {t("clearFilters", { defaultValue: "Clear" })}
+                  </Box>
+                )}
+              </Box>
+              <Box sx={{ position: "absolute", width: 0, height: 0, overflow: "hidden", opacity: 0, pointerEvents: "none" }}>
+                <CustomDatePicker ref={datePickerRef} value={dateRange} onChange={handleDateRangeChange} hideTrigger={true} />
+              </Box>
+            </Box>
+          </Box>
+        </BottomSheet>
+      </Box>
+    );
+  }
 
   return (
     <Box

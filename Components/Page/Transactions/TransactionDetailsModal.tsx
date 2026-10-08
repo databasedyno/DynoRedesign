@@ -1,4 +1,5 @@
 import CustomButton from "@/Components/UI/Buttons";
+import useBackToClose from "@/hooks/useBackToClose";
 import { Box, Typography, useTheme } from "@mui/material";
 import { Icon, MONO } from "@/styles/uiKit";
 import Image from "next/image";
@@ -61,6 +62,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
 }) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
+  useBackToClose(open, onClose, "tx-detail");
   const { t } = useTranslation("transactions");
   const tTransactions = useCallback(
     (key: string, options?: any): string => {

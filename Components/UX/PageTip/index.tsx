@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import { Box, IconButton, Popover, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@/styles/uiKit";
 import { brandFg } from "@/constants/theme";
@@ -56,6 +56,21 @@ const markDismissed = (key: string) => {
   axiosBaseApi.post("track/page-tips/dismiss", { key }).catch(() => {});
 };
 
+// Tips auto-expand on the first AUTO_VISITS visits only, then retire behind
+// the ⓘ next to the page title (UX audit S8).
+const AUTO_VISITS = 2;
+const bumpVisits = (key: string): number => {
+  try {
+    const k = `${storageKey(key)}.visits`;
+    const n = Number(window.localStorage.getItem(k) || "0") + 1;
+    window.localStorage.setItem(k, String(n));
+    return n;
+  } catch {
+    return 1;
+  }
+};
+const DISMISS_EVENT = "dynopay:pagetip-dismissed";
+
 // One request per page load, shared by every tip (cleared after a dismissal).
 let accountDismissed: Promise<string[]> | null = null;
 let accountDismissedFor = "";
@@ -86,9 +101,17 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
   const bodyPath = `pageTips.${tipKey}.body`;
   const hasTip = i18n.exists(`common:${bodyPath}`);
 
+  const counted = useRef(false);
   useEffect(() => {
     if (!hasTip) return;
     if (isDismissed(tipKey)) return;
+    if (!counted.current) {
+      counted.current = true;
+      if (bumpVisits(tipKey) > AUTO_VISITS) {
+        markDismissed(tipKey);
+        return;
+      }
+    }
     let cancelled = false;
     fetchAccountDismissed().then((keys) => {
       if (cancelled) return;
@@ -102,8 +125,13 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
       }
       setVisible(true);
     });
+    const onDismissed = (e: Event) => {
+      if ((e as CustomEvent).detail === tipKey) setVisible(false);
+    };
+    window.addEventListener(DISMISS_EVENT, onDismissed);
     return () => {
       cancelled = true;
+      window.removeEventListener(DISMISS_EVENT, onDismissed);
     };
   }, [tipKey, hasTip]);
 
@@ -117,6 +145,7 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
 
   const handleDismiss = () => {
     markDismissed(tipKey);
+    window.dispatchEvent(new CustomEvent(DISMISS_EVENT, { detail: tipKey }));
     setVisible(false);
     setLeaving(true);
     window.setTimeout(() => setLeaving(false), 220);
@@ -129,6 +158,7 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
       data-testid={`page-tip-${tipKey}`}
       sx={{
         mb: { xs: 2, md: 2.5 },
+        maxWidth: "72ch",
         display: "flex",
         alignItems: "flex-start",
         gap: { xs: "10px", md: "12px" },
@@ -184,7 +214,7 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
           <Typography
             sx={{
               fontFamily: "var(--font-sans)",
-              fontSize: { xs: "13px", md: "13.5px" },
+              fontSize: { xs: "13px", md: "14px" },
               fontWeight: 600,
               lineHeight: 1.3,
               color: theme.palette.text.primary,
@@ -265,3 +295,55 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
 };
 
 export default PageTip;
+
+/**
+ * ⓘ next to the page title: the permanent home of the page's tip (and, on
+ * phones, its description) once the inline card has retired.
+ */
+export const PageInfoButton: React.FC<{ tipKey?: string; description?: React.ReactNode }> = ({ tipKey, description }) => {
+  const theme = useTheme();
+  const { t, i18n } = useTranslation("common");
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const hasTip = !!tipKey && i18n.exists(`common:pageTips.${tipKey}.body`);
+  if (!hasTip && !description) return null;
+  const title = hasTip ? t(`pageTips.${tipKey}.title`, { defaultValue: "" }) : "";
+  const label = t("pageTips.aboutPage", { defaultValue: "About this page" });
+  return (
+    <>
+      <IconButton
+        size="small"
+        aria-label={label}
+        aria-haspopup="dialog"
+        data-testid="page-info-button"
+        onClick={(e) => setAnchor(e.currentTarget)}
+        sx={{ width: 32, height: 32, color: theme.palette.text.secondary, flexShrink: 0 }}
+      >
+        <Icon name="info" size={18} />
+      </IconButton>
+      <Popover
+        open={!!anchor}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        slotProps={{ paper: { "data-testid": "page-info-popover", sx: { mt: 0.5, p: 2, maxWidth: "min(72ch, calc(100vw - 32px))", borderRadius: "12px", backgroundImage: "none", border: `1px solid ${theme.palette.divider}` } } as any }}
+      >
+        {description && (
+          <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14, lineHeight: 1.5, color: theme.palette.text.primary, mb: hasTip ? 1.25 : 0 }}>
+            {description}
+          </Typography>
+        )}
+        {hasTip && (
+          <>
+            {title && (
+              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: theme.palette.text.primary, mb: 0.25 }}>{title}</Typography>
+            )}
+            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 13, lineHeight: 1.5, color: theme.palette.text.secondary }}>
+              {t(`pageTips.${tipKey}.body`)}
+            </Typography>
+          </>
+        )}
+      </Popover>
+    </>
+  );
+};

@@ -124,6 +124,7 @@ const PayoutTiles: React.FC<Props> = ({ data, loading, rangeLabel, ac }) => {
           component="button"
           type="button"
           data-testid="payouts-autoconvert-settings-link"
+          data-hit-area=""
           onClick={() => document.getElementById("payouts-settlement")?.scrollIntoView({ behavior: "smooth", block: "start" })}
           sx={{ alignSelf: "flex-start", background: "none", border: 0, p: 0, cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 600, color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light }}
         >

@@ -68,7 +68,7 @@ const ReferralLinkHero: React.FC<Props> = ({ code, link, loading, showHowToggle,
           <Box component="span" data-testid="referral-code-value" sx={{ fontFamily: MONO, fontWeight: 700, color: theme.palette.text.primary, letterSpacing: "0.5px" }}>
             {loading ? "…" : code || "—"}
           </Box>
-          <Box component="button" type="button" data-testid="copy-referral-code-btn" aria-label={t("copyCode", { defaultValue: "Copy referral code" })} onClick={() => code && onCopy(code, "Referral code")} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", p: 0.5, borderRadius: "6px", "&:hover": { bgcolor: theme.palette.action.hover }, "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}` } }}>
+          <Box component="button" type="button" data-testid="copy-referral-code-btn" data-hit-area="" aria-label={t("copyCode", { defaultValue: "Copy referral code" })} onClick={() => code && onCopy(code, "Referral code")} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", p: 0.5, borderRadius: "6px", "&:hover": { bgcolor: theme.palette.action.hover }, "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}` } }}>
             <Icon name="copy" size={14} />
           </Box>
         </Box>

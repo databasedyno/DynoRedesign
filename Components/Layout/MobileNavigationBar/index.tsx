@@ -1,682 +1,146 @@
-import useOnboardingStatus from "@/hooks/useOnboardingStatus";
-import useAccountProfile from "@/hooks/useAccountProfile";
-import AddIcon from "@mui/icons-material/Add";
-import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
-import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
-import ErrorIcon from "@mui/icons-material/Error";
-import HelpOutlineRounded from "@mui/icons-material/HelpOutlineRounded";
-import Inventory2Rounded from "@mui/icons-material/Inventory2Rounded";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import LanguageIcon from "@mui/icons-material/Language";
-import MoreHorizRounded from "@mui/icons-material/MoreHorizRounded";
-import SettingsRounded from "@mui/icons-material/SettingsRounded";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, useTheme } from "@mui/material";
-import Image from "next/image";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
-
-import i18n from "i18next";
-
-import { LANGUAGES, languageFor } from "@/helpers/languages";
-import Link from "next/link";
-
-import LanguageSwitcherModal from "@/Components/UI/MobileLanguageSwitcher";
-import { HeaderDivider } from "@/Components/UI/LanguageSwitcher/styled";
-import SidebarIcon from "@/utils/customIcons/sidebar-icons";
-import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import {
-  AlertBanner,
-  AlertText,
-  ExpandedContent,
-  FirstRow,
-  IconButton,
-  MainNavRow,
-  NavigationBar,
-  NavigationBarContainer,
-  NavItem,
-  NavLabel,
-  SecondRow,
-} from "./styled";
-
+import { useTranslation } from "react-i18next";
+import MoreHorizRounded from "@mui/icons-material/MoreHorizRounded";
+import useAccountProfile from "@/hooks/useAccountProfile";
+import useOnboardingStatus from "@/hooks/useOnboardingStatus";
 import { useWalletData } from "@/hooks/useWalletData";
 import { useUnreadNotificationsCount } from "@/hooks/useUnreadNotificationsCount";
+import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import CreateNewButton from "@/Components/Layout/NewHeader/CreateNewButton";
-import { BRAND_ACCENT, brandFg } from "@/constants/theme";
+import NavIcon from "@/Components/Layout/NewSidebar/NavIcon";
+import { buildNavSections, isNavPathActive } from "@/Components/Layout/NewSidebar/navSections";
+import { TabBar, TabButton, TabDot } from "./styled";
+import MoreSheet from "./MoreSheet";
 
-const MobileNavigationBar = () => {
+const SELL_ROUTES = ["/pay-links", "/create-pay-link", "/storefront"];
+const MONEY_ROUTES = ["/payouts", "/transactions", "/invoices", "/wallet"];
+
+const isTypingTarget = (el: EventTarget | null) => {
+  const node = el as HTMLElement | null;
+  if (!node || !node.tagName) return false;
+  if (node.isContentEditable) return true;
+  if (node.tagName === "TEXTAREA" || node.tagName === "SELECT") return true;
+  if (node.tagName !== "INPUT") return false;
+  const type = (node as HTMLInputElement).type;
+  return !["checkbox", "radio", "button", "submit", "range", "file", "color"].includes(type);
+};
+
+/** Phone navigation (§8.1): Home · Sell · (+) · Money · More, plus the More bottom sheet. */
+const MobileNavigationBar: React.FC<{ hidden?: boolean }> = ({ hidden = false }) => {
   const router = useRouter();
   const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-  const { t } = useTranslation("dashboardLayout");
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [openLang, setOpenLang] = useState(false);
-  const navBarRef = useRef<HTMLDivElement>(null);
-  const [kycRequired, setKycRequired] = useState(false);
-  const [kycLoading, setKycLoading] = useState(false);
+  const { t } = useTranslation(["dashboardLayout", "common"]);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const { isIndividual, reveal, hasAccount, profileComplete, fetched } = useAccountProfile();
+  const brandCount = useCompanyStore().companyList?.length ?? 0;
+  const userState = useSelector((s: any) => s.userReducer);
+  const hasClaimedCreator = Boolean(userState?.profile?.handle && userState?.profile?.creator_page_enabled);
+  const unread = useUnreadNotificationsCount();
   const { walletWarning } = useWalletData();
-  const unreadNotifications = useUnreadNotificationsCount();
-  const {
-    hasAccount,
-    profileComplete,
-    isIndividual,
-    reveal,
-    fetched: accountFetched,
-  } = useAccountProfile();
-  const showSetupWarning = accountFetched && (!hasAccount || !profileComplete);
-  const setupHref = hasAccount ? "/settings?section=company" : "/create-pay-link";
-  const setupWarningText = !hasAccount
-    ? t("companySetupWarning")
-    : isIndividual
-      ? t("accountSetupWarningIndividual", {
-          defaultValue: "Add your country to finish setup",
-        })
-      : t("accountSetupWarningBusiness", {
-          defaultValue: "Finish your business profile",
-        });
-  const showWalletWarning = walletWarning && hasAccount;
+  const { kycRequired } = useOnboardingStatus();
+  const alertCount = (kycRequired ? 1 : 0) + (fetched && (!hasAccount || !profileComplete) ? 1 : 0) + (walletWarning && hasAccount ? 1 : 0);
 
-  // ── Creator-page discoverability (mobile/tablet nav parity with desktop sidebar) ──
-  // Show a small "NEW" dot on the Account/More trigger when the user hasn't
-  // claimed a creator page yet. Once they've enabled it + set a handle the
-  // dot disappears, matching the desktop sidebar's `isNew` behavior.
-  const userState = useSelector((state: any) => state.userReducer);
-  const hasClaimedCreator = Boolean(
-    userState?.profile?.handle && userState?.profile?.creator_page_enabled,
+  const sections = useMemo(
+    () => buildNavSections({ t, isIndividual, hasClaimedCreator, reveal, brandCount }),
+    [t, isIndividual, hasClaimedCreator, reveal, brandCount],
   );
-  const profileLoaded = Boolean(userState?.profile);
-  // Only show the indicator to signed-in users whose profile has loaded and
-  // who genuinely haven't claimed yet — avoids a "phantom NEW" flash on page
-  // load or for logged-out state.
-  const showCreatorNewDot = profileLoaded && !hasClaimedCreator;
 
-  const { kycRequired: onboardingKycRequired } = useOnboardingStatus();
+  // Hide on scroll-down and while typing; show again on scroll-up / blur.
+  const [scrollHidden, setScrollHidden] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const lastY = useRef(0);
   useEffect(() => {
-    if (onboardingKycRequired) setKycRequired(true);
-  }, [onboardingKycRequired]);
-
-  // One door for identity verification (plan 3.10): the nudge opens /kyc.
-  const handleKycClick = () => {
-    setIsExpanded(false);
-    router.push("/kyc");
-  };
-
-  const languages = LANGUAGES.map((l) => ({ code: l.code, label: l.name, flag: l.flag }));
-
-  // ── Persona rows + reveal-on-relevance (audit F13/N1) ─────────────────────
-  // Same source of truth as the desktop sidebar (useAccountProfile → useNavReveal)
-  // so the two navs can never disagree about which rows exist or what they are
-  // called. The bottom bar keeps 3 primary items; a creator's primary is their
-  // page, a business's is the dashboard.
-  const publicPageItem = {
-    // Move 6: ONE consistent name for the public page everywhere — "Your page"
-    // (was "Storefront" here, "Creator page" in quick-actions, "Checkout
-    // page" for businesses).
-    label: isIndividual
-      ? t("storefront", { defaultValue: "Your page" })
-      : t("checkoutPage", { defaultValue: "Your page" }),
-    icon: "creator",
-    path: "/storefront",
-    id: "storefront",
-    isNew: !hasClaimedCreator,
-  };
-  const dashboardItem = { label: t("dashboard"), icon: "dashboard", path: "/dashboard", id: "dash" };
-  const transactionsItem = {
-    label: t("transactions"),
-    icon: "transactions",
-    path: "/transactions",
-    id: "transactions",
-  };
-  // F4: receipts, not receivables — tbl_invoice only ever holds settled money.
-  const receiptsItem = {
-    label: t("receiptsTax", { defaultValue: "Receipts & Tax" }),
-    icon: "invoices",
-    path: "/invoices",
-    id: "invoices",
-  };
-  const customersItem = {
-    label: t("customers"),
-    icon: "customers",
-    path: "/customers",
-    id: "customers",
-  };
-
-  // Plan 1.14 (user-approved 2026-06): the phone tab set is
-  // **Home · Sell · [+] · Money · More** — the same Sell / Money groups as the
-  // desktop sidebar, with the ONE create control centred (CreateNewButton
-  // variant="tab"; the header "+ New" is hidden on phones). Sell = payment
-  // links + your page; Money = balances, transactions, receipts, payout
-  // wallets. Everything else lives under More.
-  const sellItem = {
-    label: t("sidebarSectionSell", { defaultValue: "Sell" }),
-    icon: "payment-links",
-    path: "/pay-links",
-    id: "sell",
-  };
-  const createItem = {
-    label: t("navNew", { defaultValue: "New" }),
-    icon: "add",
-    path: null as string | null,
-    id: "create",
-  };
-  const moneyItem = {
-    label: t("sidebarSectionMoney", { defaultValue: "Money" }),
-    icon: "balances",
-    path: "/payouts",
-    id: "money",
-  };
-  const walletsItem = {
-    label: t("payoutWallets", { defaultValue: "Payout addresses" }),
-    icon: "wallets",
-    path: "/wallet",
-    id: "wallet",
-  };
-  const moreItem = {
-    label: t("navMore", { defaultValue: "More" }),
-    icon: "more",
-    path: null as string | null,
-    id: "more",
-  };
-  const homeItem = isIndividual
-    ? publicPageItem
-    : { ...dashboardItem, label: t("navHome", { defaultValue: "Home" }) };
-  // The first tab is always addressable as "home" for tests/analytics whichever page it points to.
-  const firstRowItems = [{ ...homeItem, id: "home" }, sellItem, createItem, moneyItem, moreItem];
-  const SELL_ROUTES = ["/pay-links", "/create-pay-link"];
-  const MONEY_ROUTES = ["/payouts", "/transactions", "/invoices", "/wallet"];
-
-  // Second row items (expanded) - shown when expanded
-  // UX-2026-07-14: Added Creator page (Session 40+) and Products (Session 47)
-  // so mobile/tablet users can reach the new revenue streams. Previously
-  // these were desktop-only via the NewSidebar which only mounts at ≥lg
-  // (1200px), leaving tablets + phones with no way to navigate to them.
-  const secondRowItems = [
-    // A creator's dashboard sits after their page; a business already has it first.
-    ...(isIndividual ? [dashboardItem] : [publicPageItem]),
-    transactionsItem,
-    ...(reveal.receipts ? [receiptsItem] : []),
-    walletsItem,
-    ...(reveal.customers ? [customersItem] : []),
-  ];
-
-  // Third row items (expanded) - additional nav items
-  const thirdRowItems = [
-    ...(reveal.developers
-      ? [{ label: t("developers", { defaultValue: "Developers" }), icon: "api", path: "/developer-keys", id: "api" }]
-      : []),
-    {
-      label: t("referrals"),
-      icon: "referrals",
-      path: "/referrals",
-      id: "referrals",
-    },
-    {
-      label: t("notifications"),
-      icon: "notifications",
-      path: "/notifications",
-      id: "notifications",
-    },
-    {
-      label: t("settings", { defaultValue: "Settings" }),
-      icon: "settings",
-      path: "/settings",
-      id: "settings",
-    },
-    { label: t("language"), icon: "language", path: null, id: "language" },
-    {
-      label: t("helpSupport"),
-      icon: "help",
-      path: "/help-support",
-      id: "help-support",
-    },
-    // Phones: the floating chat launcher is docked here (it covered list rows).
-    {
-      label: t("chatWithSupport", { defaultValue: "Chat with support" }),
-      icon: "chat",
-      path: null,
-      id: "support-chat",
-    },
-  ];
-
-  const isActiveRoute = (path: string | null) => {
-    if (!path) return false;
-    if (path === "/") return router.pathname === "/";
-    return router.pathname.startsWith(path);
-  };
-
-  // Prefetch every mobile-nav route on mount so taps navigate instantly.
-  // router.prefetch is a no-op in dev; in PRODUCTION it warms the route's JS
-  // chunk. Mobile has no hover, so the desktop sidebar's hover-prefetch never
-  // fires here — without this, every tap downloads the chunk over the mobile
-  // network first (the "long spinner between pages" the merchant reported).
+    const main = document.getElementById("main-content");
+    if (!main) return;
+    lastY.current = main.scrollTop;
+    const onScroll = () => {
+      const y = main.scrollTop;
+      const dy = y - lastY.current;
+      if (Math.abs(dy) < 6) return;
+      setScrollHidden(dy > 0 && y > 56);
+      lastY.current = y;
+    };
+    main.addEventListener("scroll", onScroll, { passive: true });
+    return () => main.removeEventListener("scroll", onScroll);
+  }, [router.pathname]);
   useEffect(() => {
-    const paths = [
-      "/dashboard", "/pay-links", "/payouts", "/transactions", "/invoices", "/customers",
-      "/storefront", "/wallet", "/referrals", "/notifications", "/settings",
-      "/help-support", "/create-pay-link",
-    ];
-    paths.forEach((p) => {
+    setScrollHidden(false);
+    setMoreOpen(false);
+  }, [router.asPath]);
+  useEffect(() => {
+    const onIn = (e: FocusEvent) => setTyping(isTypingTarget(e.target));
+    const onOut = () => setTyping(false);
+    document.addEventListener("focusin", onIn);
+    document.addEventListener("focusout", onOut);
+    return () => {
+      document.removeEventListener("focusin", onIn);
+      document.removeEventListener("focusout", onOut);
+    };
+  }, []);
+
+  useEffect(() => {
+    ["/dashboard", "/pay-links", "/payouts", "/transactions", "/storefront", "/settings"].forEach((p) => {
       try {
         void router.prefetch(p)?.catch?.(() => {});
       } catch {
-        /* prefetch unsupported — ignore */
+        /* ignore */
       }
     });
   }, []);
 
-  const handleNavClick = (
-    item: (typeof firstRowItems)[0] | (typeof secondRowItems)[0] | (typeof thirdRowItems)[0],
-  ) => {
-    if (item.id === "more") {
-      setIsExpanded(!isExpanded);
-    } else if (item.path) {
-      router.push(item.path);
-      setIsExpanded(false);
-    } else if (item.id === "language") {
-      setOpenLang((prev) => !prev);
-      // setIsExpanded(false);
-    } else if (item.id === "support-chat") {
-      setIsExpanded(false);
-      window.dispatchEvent(new CustomEvent("dynopay:open-support-chat"));
-    }
-  };
-
-  // Close expanded navigation when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isExpanded &&
-        navBarRef.current &&
-        !navBarRef.current.contains(event.target as Node)
-      ) {
-        setIsExpanded(false);
-      }
-    };
-
-    if (isExpanded) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isExpanded]);
-
-  const renderIcon = (
-    icon: string | any,
-    active: boolean,
-    isCreate = false,
-  ) => {
-    if (typeof icon === "string") {
-      switch (icon) {
-        case "add":
-          return (
-            <AddIcon
-              sx={{
-                color: isCreate
-                  ? theme.palette.primary.main
-                  : active
-                    ? theme.palette.primary.main
-                    : theme.palette.text.primary,
-              }}
-            />
-          );
-        case "more":
-          return (
-            <MoreHorizRounded
-              sx={{
-                fontSize: 20,
-                color: active ? brandFg(isDark) : theme.palette.text.secondary,
-              }}
-            />
-          );
-        case "close":
-          return <KeyboardArrowDownIcon />;
-        case "language":
-          return <LanguageIcon />;
-        case "creator":
-          return <AutoAwesomeRounded sx={{ fontSize: 18, color: active ? brandFg(isDark) : theme.palette.text.secondary }} />;
-        case "products":
-          return <Inventory2Rounded sx={{ fontSize: 18, color: active ? brandFg(isDark) : theme.palette.text.secondary }} />;
-        default:
-          return null;
-      }
-    }
-    return <Image src={icon} width={20} height={20} alt="" draggable={false} />;
-  };
+  const active = (p: string) => isNavPathActive(router.pathname, p);
+  const home = isIndividual
+    ? { path: "/storefront", label: t("storefront", { defaultValue: "Your page" }), icon: "creator" }
+    : { path: "/dashboard", label: t("navHome", { defaultValue: "Home" }), icon: "dashboard" };
+  const tabs = [
+    { id: "home", ...home, on: active(home.path) },
+    { id: "sell", path: "/pay-links", label: t("sidebarSectionSell", { defaultValue: "Sell" }), icon: "payment-links", on: SELL_ROUTES.some(active) && !(isIndividual && active("/storefront")) },
+    { id: "create" },
+    { id: "money", path: "/payouts", label: t("sidebarSectionMoney", { defaultValue: "Money" }), icon: "balances", on: MONEY_ROUTES.some(active) },
+  ] as const;
+  const isHidden = hidden || typing || (scrollHidden && !moreOpen);
+  const color = (on: boolean) => (on ? theme.palette.text.primary : theme.palette.text.secondary);
 
   return (
-    <NavigationBarContainer>
-      <Box position="relative" ref={navBarRef}>
-        <NavigationBar expanded={isExpanded} data-testid="mobile-navigation-bar">
-          <MainNavRow expanded={isExpanded}>
-            {/* First row — Home · Sell · [+] · Money · More (plan 1.14) */}
-            <FirstRow>
-              {firstRowItems.map((item) => {
-                if (item.id === "create") {
-                  return (
-                    <Box
-                      key="create"
-                      data-testid="mobile-nav-create-slot"
-                      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                      <CreateNewButton variant="tab" />
-                    </Box>
-                  );
-                }
-                const active =
-                  item.id === "sell"
-                    ? SELL_ROUTES.some(isActiveRoute) || (!isIndividual && isActiveRoute("/storefront"))
-                    : item.id === "money"
-                      ? MONEY_ROUTES.some(isActiveRoute)
-                      : item.id === "more"
-                        ? isExpanded
-                        : isActiveRoute(item.path);
-                const isCreate = item.icon === "add";
-                const supportedIcons = [
-                  "dashboard",
-                  "transactions",
-                  "wallets",
-                  "balances",
-                  "api",
-                  "notifications",
-                  "payment-links",
-                  "referrals",
-                  "invoices",
-                  "customers",
-                ];
-                const useSidebarIcon = supportedIcons.includes(item.icon);
-                // Show a subtle NEW dot on the Account/More trigger while
-                // the drawer is COLLAPSED and the user hasn't discovered the
-                // new features hiding inside (creator page unclaimed).
-                const showAccountNewDot =
-                  item.id === "more" && !isExpanded && showCreatorNewDot;
-                return (
-                  <NavItem
-                    key={item.id}
-                    active={active}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={item.label}
-                    aria-current={active && item.id !== "more" ? "page" : undefined}
-                    data-testid={`mobile-nav-${item.id}`}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleNavClick(item); } }}
-                    onClick={() => handleNavClick(item)}
-                  >
-                    <IconButton
-                      active={active || isCreate}
-                      sx={{ position: "relative" }}
-                    >
-                      {useSidebarIcon ? (
-                        <SidebarIcon
-                          name={item.icon}
-                          size={16}
-                          color={
-                            active ? brandFg(isDark) : theme.palette.text.secondary
-                          }
-                        />
-                      ) : (
-                        renderIcon(item.icon, active, isCreate)
-                      )}
-                      {showAccountNewDot && (
-                        <Box
-                          data-testid="mobile-nav-account-new-dot"
-                          aria-label={t("ariaNewFeatures")}
-                          sx={{
-                            position: "absolute",
-                            top: -2,
-                            right: -4,
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            backgroundColor: BRAND_ACCENT,
-                            border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                            boxShadow: "0 0 6px rgba(255,209,0,0.75)",
-                          }}
-                        />
-                      )}
-                    </IconButton>
-                    <NavLabel active={active}>{item.label}</NavLabel>
-                  </NavItem>
-                );
-              })}
-            </FirstRow>
-
-            {/* Second row - expanded nav items */}
-            {isExpanded && (
-              <SecondRow>
-                {secondRowItems.map((item) => {
-                  const active = isActiveRoute(item.path);
-                  const isCreate = item.id === "create";
-                  const supportedIcons = [
-                    "dashboard",
-                    "transactions",
-                    "wallets",
-                    "api",
-                    "notifications",
-                    "payment-links",
-                    "referrals",
-                    "invoices",
-                    "customers",
-                  ];
-                  const useSidebarIcon = supportedIcons.includes(item.icon);
-                  const iconColor = active
-                    ? brandFg(isDark)
-                    : theme.palette.text.secondary;
-
-                  return (
-                    <NavItem
-                      key={item.id}
-                      active={active}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={item.label}
-                      aria-current={active && item.id !== "more" ? "page" : undefined}
-                      data-testid={`mobile-nav-${item.id}`}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleNavClick(item); } }}
-                      onClick={() => handleNavClick(item)}
-                    >
-                      <IconButton
-                        active={active || isCreate}
-                        sx={{ position: "relative" }}
-                      >
-                        {useSidebarIcon ? (
-                          <SidebarIcon
-                            name={item.icon}
-                            size={16}
-                            color={iconColor}
-                          />
-                        ) : item.icon === "creator" ? (
-                          <AutoAwesomeRounded
-                            sx={{ fontSize: 18, color: iconColor }}
-                          />
-                        ) : item.icon === "products" ? (
-                          <Inventory2Rounded
-                            sx={{ fontSize: 18, color: iconColor }}
-                          />
-                        ) : (
-                          renderIcon(item.icon, active, isCreate)
-                        )}
-                        {(item as any).isNew && (
-                          <Box
-                            data-testid={`mobile-nav-new-dot-${item.id}`}
-                            aria-label={t("ariaNewFeature")}
-                            sx={{
-                              position: "absolute",
-                              top: -2,
-                              right: -4,
-                              width: 8,
-                              height: 8,
-                              borderRadius: "50%",
-                              backgroundColor: BRAND_ACCENT,
-                              border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                              boxShadow: "0 0 6px rgba(255,209,0,0.75)",
-                            }}
-                          />
-                        )}
-                      </IconButton>
-                      <NavLabel active={active}>{item.label}</NavLabel>
-                    </NavItem>
-                  );
-                })}
-              </SecondRow>
-            )}
-
-            {/* Third row - more nav items */}
-            {isExpanded && (
-              <SecondRow>
-                {thirdRowItems.map((item) => {
-                  const active = isActiveRoute(item.path);
-                  const isCreate = item.id === "create";
-                  const currentLang = i18n.language || "en";
-                  const isNotif = item.id === "notifications";
-                  const showBadge = isNotif && unreadNotifications > 0;
-
-                  return (
-                    <NavItem
-                      key={item.id}
-                      active={active}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={item.label}
-                      aria-current={active && item.id !== "more" ? "page" : undefined}
-                      data-testid={`mobile-nav-${item.id}`}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleNavClick(item); } }}
-                      onClick={() => handleNavClick(item)}
-                    >
-                      <IconButton active={active || isCreate} sx={{ position: "relative" }}>
-                        {item.id === "language" ? (
-                          <Image
-                            src={languageFor(currentLang).flag}
-                            alt={languageFor(currentLang).name}
-                            width={22}
-                            height={22}
-                            draggable={false}
-                            unoptimized
-                            style={{ borderRadius: "50%" }}
-                            data-testid="mobile-nav-language-flag"
-                          />
-                        ) : item.id === "help-support" ? (
-                          <HelpOutlineRounded
-                            sx={{
-                              fontSize: 20,
-                              color: active
-                                ? theme.palette.primary.main
-                                : theme.palette.text.primary,
-                            }}
-                          />
-                        ) : item.icon === "settings" ? (
-                          <SettingsRounded
-                            sx={{
-                              fontSize: 18,
-                              color: active
-                                ? brandFg(isDark)
-                                : theme.palette.text.secondary,
-                            }}
-                          />
-                        ) : (
-                          <SidebarIcon
-                            name={item.icon}
-                            size={16}
-                            color={
-                              active ? brandFg(isDark) : theme.palette.text.secondary
-                            }
-                          />
-                        )}
-                        {showBadge && (
-                          <Box
-                            data-testid="mobile-nav-notifications-badge"
-                            aria-label={`${unreadNotifications} unread notifications`}
-                            sx={{
-                              position: "absolute",
-                              top: -4,
-                              right: -6,
-                              minWidth: 16,
-                              height: 16,
-                              px: unreadNotifications > 9 ? 0.4 : 0,
-                              borderRadius: 999,
-                              backgroundColor: "#E11D48",
-                              color: "#FFFFFF",
-                              fontSize: 9,
-                              fontFamily: "var(--font-sans), sans-serif",
-                              fontWeight: 700,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              border: `2px solid ${theme.palette.background.default || "#FFFFFF"}`,
-                            }}
-                          >
-                            {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                          </Box>
-                        )}
-                      </IconButton>
-                      <NavLabel active={active}>{item.label}</NavLabel>
-                    </NavItem>
-                  );
-                })}
-              </SecondRow>
-            )}
-          </MainNavRow>
-
-          {kycRequired && (
-            <ExpandedContent isExpanding={isExpanded}>
-              <AlertBanner
-                onClick={handleKycClick}
-                sx={{ cursor: kycLoading ? "wait" : "pointer" }}
-                data-testid="kyc-required-banner-mobile"
-              >
-                <ErrorIcon
-                  sx={{ color: theme.palette.error.main, fontSize: "20px" }}
-                />
-                <AlertText>{t("requiredKYC")}</AlertText>
-
-                <HeaderDivider />
-                <ArrowOutwardIcon
-                  sx={{ color: theme.palette.text.secondary, fontSize: "16px" }}
-                />
-              </AlertBanner>
-            </ExpandedContent>
-          )}
-
-          {showSetupWarning && (
-            <ExpandedContent isExpanding={isExpanded}>
-              <Link href={setupHref} onClick={() => setIsExpanded(false)}>
-                <AlertBanner data-testid="mobile-account-setup-warning">
-                  <ErrorIcon
-                    sx={{ color: theme.palette.error.main, fontSize: "20px" }}
-                  />
-                  <AlertText>{setupWarningText}</AlertText>
-                </AlertBanner>
-              </Link>
-            </ExpandedContent>
-          )}
-
-          {showWalletWarning && (
-            <ExpandedContent isExpanding={isExpanded}>
-              <Link href="/wallet" onClick={() => setIsExpanded(false)}>
-                <AlertBanner>
-                  <ErrorIcon
-                    sx={{ color: theme.palette.error.main, fontSize: "20px" }}
-                  />
-                  <AlertText>{t("walletSetUpWarnnigTitle")}</AlertText>
-                </AlertBanner>
-              </Link>
-            </ExpandedContent>
-          )}
-        </NavigationBar>
-
-        <LanguageSwitcherModal
-          open={openLang}
-          languages={languages}
-          currentLanguage={i18n.language || "en"}
-          onSelect={async (code: string) => {
-            const { setAppLanguage } = await import("@/helpers/setAppLanguage");
-            await setAppLanguage(code);
-          }}
-          onClose={() => setOpenLang(false)}
-        />
-      </Box>
-    </NavigationBarContainer>
+    <>
+      <TabBar hidden$={isHidden} aria-label={t("common:mainNavigation", { defaultValue: "Main navigation" })} data-testid="mobile-navigation-bar" data-hidden={isHidden ? "true" : "false"}>
+        {tabs.map((tab) =>
+          tab.id === "create" ? (
+            <Box key="create" data-testid="mobile-nav-create-slot" sx={{ display: "grid", placeItems: "center" }}>
+              <CreateNewButton variant="tab" />
+            </Box>
+          ) : (
+            <TabButton
+              key={tab.id}
+              type="button"
+              active={tab.on}
+              aria-current={tab.on ? "page" : undefined}
+              data-testid={`mobile-nav-${tab.id}`}
+              onClick={() => router.push(tab.path)}
+            >
+              <span className="tab-pill"><NavIcon name={tab.icon} color={color(tab.on)} size={20} /></span>
+              <span>{tab.label}</span>
+            </TabButton>
+          ),
+        )}
+        <TabButton
+          type="button"
+          active={moreOpen}
+          aria-haspopup="dialog"
+          aria-expanded={moreOpen}
+          data-testid="mobile-nav-more"
+          onClick={() => setMoreOpen(true)}
+        >
+          <span className="tab-pill"><MoreHorizRounded sx={{ fontSize: 22, color: color(moreOpen) }} /></span>
+          <span>{t("navMore", { defaultValue: "More" })}</span>
+          {(alertCount > 0 || unread > 0) && <TabDot data-testid="mobile-nav-more-dot" />}
+        </TabButton>
+      </TabBar>
+      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} sections={sections} unread={unread} />
+    </>
   );
 };
 

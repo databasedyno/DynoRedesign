@@ -21,9 +21,6 @@ export const UserTrigger = styled("div")(({ theme }) => ({
     minWidth: 44,
     justifyContent: "center",
   },
-  [theme.breakpoints.down("sm")]: {
-    minWidth: 40,
-  },
 }));
 
 export const UserName = styled("span")(({ theme }) => ({

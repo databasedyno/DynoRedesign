@@ -67,6 +67,7 @@ import Toast from "@/Components/UI/Toast";
 import { copyToClipboard } from "@/helpers/copyToClipboard";
 import { toShortPayLink } from "@/helpers/payLinkUrl";
 import SelectionBar from "@/Components/Common/SelectionBar";
+import { SelectModeButton, useCardSelectMode } from "@/Components/Common/SelectMode";
 import { downloadCsv } from "@/helpers/downloadCsv";
 import { useEdgeFades } from "@/Components/Common/ScrollHint";
 import useIsMobile from "@/hooks/useIsMobile";
@@ -319,6 +320,7 @@ const PaymentLinksTable = ({
       return next;
     });
   const clearSelection = () => setSelectedIds(new Set());
+  const cardSelect = useCardSelectMode(selectedIds.size, clearSelection);
   const selectedLinks = paymentLinks.filter((l) => selectedIds.has(String(l.id)));
   const exportSelectedCsv = () => {
     downloadCsv(
@@ -415,6 +417,11 @@ const PaymentLinksTable = ({
         {/* MOBILE: Card layout */}
         {isMobile ? (
           <>
+          {paginatedData.length > 0 && (
+            <Box sx={{ display: "flex", justifyContent: "flex-end", px: isPhone ? 2 : 0, pb: 1 }}>
+              <SelectModeButton active={cardSelect.showChecks} onEnter={cardSelect.enter} onExit={cardSelect.exit} testId="paylinks-select-mode" />
+            </Box>
+          )}
           <Box
             sx={{
               display: "grid",
@@ -437,11 +444,13 @@ const PaymentLinksTable = ({
                   data-link-id={row.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => openDetail(row)}
+                  aria-pressed={cardSelect.showChecks ? selectedIds.has(String(row.id)) : undefined}
+                  {...cardSelect.cardProps(() => toggleSelect(String(row.id)), () => openDetail(row))}
                   onKeyDown={(e: React.KeyboardEvent) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      openDetail(row);
+                      if (cardSelect.showChecks) toggleSelect(String(row.id));
+                      else openDetail(row);
                     }
                   }}
                   sx={{
@@ -457,6 +466,7 @@ const PaymentLinksTable = ({
                 >
                   {/* Top: Description + Status */}
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.25 }}>
+                    {cardSelect.showChecks && (
                     <Box component="span" onClick={(e) => e.stopPropagation()} sx={{ display: "inline-flex" }}>
                     <Checkbox
                       size="small"
@@ -464,10 +474,12 @@ const PaymentLinksTable = ({
                       onClick={(e) => e.stopPropagation()}
                       onChange={() => toggleSelect(String(row.id))}
                       data-testid={`paylink-select-${row.id}`}
+                      data-no-hit-area=""
                       inputProps={{ "aria-label": "Select payment link" }}
                       sx={{ p: 0.5, mr: 0.25, mt: -0.5 }}
                     />
                     </Box>
+                    )}
                     <Box sx={{ display: "flex", alignItems: "center", gap: "6px", flex: 1, mr: 1, flexWrap: "wrap" }}>
                       <Typography sx={{ fontSize: "14px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.primary, lineHeight: 1.3 }}>
                         {row.description || t("paymentLinkFallback", { defaultValue: "Payment Link" })}
@@ -517,28 +529,16 @@ const PaymentLinksTable = ({
                   <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
                     <Box sx={{ display: "flex", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
                       {row.status !== "expired" && (
-                        <Tooltip title={t("copyLinkTooltip", { defaultValue: "Copy link" })} arrow>
-                          <RowActionButton
-                            tone="primary"
-                            aria-label={t("copyLinkTooltip", { defaultValue: "Copy link" })}
-                            onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}
-                            sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
-                          >
-                            <Image src={CopyIcon} alt="" width={14} height={14} draggable={false} className="themed-icon-primary" />
-                          </RowActionButton>
-                        </Tooltip>
-                      )}
-                      <QrShareActions link={row} onToast={fireToast} compact hideQr />
-                      <Tooltip title={t("viewLinkTooltip", { defaultValue: "View details" })} arrow>
                         <RowActionButton
-                          aria-label={t("viewLinkTooltip", { defaultValue: "View details" })}
-                          data-testid={`paylink-view-mobile-${row.id}`}
-                          onClick={() => openDetail(row)}
-                          sx={{ width: 36, height: 36, minWidth: 36, borderRadius: "10px" }}
+                          tone="primary"
+                          data-testid={`paylink-copy-mobile-${row.id}`}
+                          onClick={() => handleCopy(toShortPayLink(row.paymentUrl))}
+                          sx={{ width: "auto", minWidth: 0, height: 36, px: 1.5, gap: 0.75, borderRadius: "10px", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap" }}
                         >
-                          <Image src={EyeIcon} alt="" width={14} height={14} draggable={false} className="themed-icon" />
+                          <Image src={CopyIcon} alt="" width={14} height={14} draggable={false} className="themed-icon-primary" />
+                          {t("copyLinkTooltip", { defaultValue: "Copy link" })}
                         </RowActionButton>
-                      </Tooltip>
+                      )}
                       {row.status === "expired" && row.linkType === "standard" && (
                         <Tooltip title={t("extendLinkTooltip", { defaultValue: "Reactivate link (7 days)" })} arrow>
                           <RowActionButton
@@ -633,7 +633,7 @@ const PaymentLinksTable = ({
               </MobileNavigationButtons>
             </Box>
           </TableFooter>
-          <Box sx={{ height: "180px", flexShrink: 0 }} />
+          <Box sx={{ height: "88px", flexShrink: 0 }} />
           </>
         ) : (
         /* DESKTOP: Table layout */

@@ -16,6 +16,7 @@ import {
 interface ThemeContextType {
   mode: ThemeMode;
   toggleTheme: () => void;
+  setPreference: (pref: ThemeMode | 'system') => void;
   isDark: boolean;
   /** "manual" = remembered choice, "system" = following the device, "fixed" = SafeDeal. */
   source: ThemeSource;
@@ -114,6 +115,7 @@ export const useThemeMode = () => {
     return {
       mode: 'light' as ThemeMode,
       toggleTheme: () => {},
+      setPreference: () => {},
       isDark: false,
       source: 'system' as ThemeSource,
     };
@@ -217,14 +219,37 @@ export const ThemeProvider: React.FC<{
     setState({ mode: next, source: 'manual' });
   }, []);
 
+  // Explicit Light / Dark / System choice (account menu segmented control).
+  const setPreference = useCallback((pref: ThemeMode | 'system') => {
+    if (stateRef.current.source === 'fixed') return;
+    if (pref === 'system') {
+      try {
+        window.localStorage.removeItem(THEME_KEY);
+      } catch {
+        /* ignore */
+      }
+      try {
+        document.cookie = `${THEME_KEY}=; path=/; max-age=0`;
+      } catch {
+        /* ignore */
+      }
+      apply();
+      return;
+    }
+    persistManual(pref);
+    writeCookie(THEME_EFFECTIVE_COOKIE, pref);
+    setState({ mode: pref, source: 'manual' });
+  }, [apply]);
+
   const value = useMemo(
     () => ({
       mode: state.mode,
       toggleTheme,
+      setPreference,
       isDark: state.mode === 'dark',
       source: state.source,
     }),
-    [state.mode, state.source, toggleTheme],
+    [state.mode, state.source, toggleTheme, setPreference],
   );
 
   return (

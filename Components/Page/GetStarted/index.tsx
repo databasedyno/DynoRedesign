@@ -54,8 +54,10 @@ const GetStartedWizard: React.FC = () => {
   // Resume from real data when no step is in the URL yet.
   useEffect(() => {
     if (!router.isReady || queryStep || !ready) return;
+    // Nothing left to set up: arriving here goes straight to the dashboard (UX audit S24).
+    if (progress.hasPayment || progress.doneCount >= progress.total) return void router.replace("/dashboard");
     setStep(firstIncomplete, true);
-  }, [router.isReady, queryStep, ready, firstIncomplete, setStep]);
+  }, [router.isReady, queryStep, ready, firstIncomplete, setStep, progress.hasPayment, progress.doneCount, progress.total, router]);
 
   useEffect(() => {
     if (shownTracked.current || !ready) return;

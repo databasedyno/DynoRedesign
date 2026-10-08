@@ -1,0 +1,925 @@
+{
+ "device": "pixel-8",
+ "theme": "light",
+ "cls": "phone",
+ "engine": "chromium",
+ "viewport": {
+  "width": 412,
+  "height": 839
+ },
+ "ua": "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.8010.12 Mobile Safari/537.36",
+ "pages": {
+  "settings-security": {
+   "path": "/settings?section=security",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 753,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 753,
+     "w": 412,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 616,
+   "contentViewportPct": 73,
+   "chromeTopPx": 137,
+   "mainW": 412,
+   "mainScrollH": 40318,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 380,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 380,
+     "h": 120
+    },
+    {
+     "d": "div \"Security 8 more tabs… Developers Ref\"",
+     "x": 16,
+     "y": 273,
+     "w": 380,
+     "h": 39921
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 18,
+    "12": 1885,
+    "13": 312,
+    "14": 11,
+    "15": 8,
+    "17": 1,
+    "22": 1,
+    "26": 1,
+    "13.5": 5,
+    "12.5": 4,
+    "11.5": 1,
+    "14.5": 3
+   },
+   "distinctFontSizes": 13,
+   "tinyText": 1,
+   "smallText": 19,
+   "textNodes": 2251,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 306,
+   "interactiveTotal": 318,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-security] \"Security\" 112x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 145x36",
+    "div[settings-rail-developers] \"Developers\" 138x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your ",
+   "gateway": false,
+   "loadMs": 3798,
+   "shotFold": "pixel-8/settings-security__fold.jpg",
+   "shotScrolled": "pixel-8/settings-security__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 651,
+    "bottomNavTop": 753,
+    "gap": 102
+   },
+   "shotBottom": "pixel-8/settings-security__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-company": {
+   "path": "/settings?section=company",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/settings?section=company",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 753,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 753,
+     "w": 412,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 616,
+   "contentViewportPct": 73,
+   "chromeTopPx": 137,
+   "mainW": 412,
+   "mainScrollH": 2214,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 380,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 380,
+     "h": 120
+    },
+    {
+     "d": "div \"Account details 8 more tabs… Develop\"",
+     "x": 16,
+     "y": 273,
+     "w": 380,
+     "h": 1817
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "9": 1,
+    "10": 1,
+    "11": 1,
+    "13": 16,
+    "14": 10,
+    "15": 2,
+    "17": 1,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 1,
+    "11.5": 1
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 2,
+   "smallText": 2,
+   "textNodes": 36,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 24,
+   "interactiveTotal": 36,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-company] \"Account details\" 163x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 145x36",
+    "div[settings-rail-developers] \"Developers\" 138x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34",
+    "div{Brand} \"The Dev Store\" 220x40",
+    "div \"Brand details\" 314x36",
+    "input 253x24",
+    "input 247x32"
+   ],
+   "small24": [
+    "input{Brand name*} 314x23",
+    "input{Website (optional)} 314x23",
+    "input{E-mail*} 314x23",
+    "input{Address, Line 1} 314x23",
+    "input{Address, Line 2 (optional)} 314x23",
+    "input{Zip Code} 314x23",
+    "input 180x23"
+   ],
+   "small24Count": 7,
+   "small44Count": 13,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your ",
+   "gateway": false,
+   "loadMs": 6797,
+   "shotFold": "pixel-8/settings-company__fold.jpg",
+   "shotScrolled": "pixel-8/settings-company__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 651,
+    "bottomNavTop": 753,
+    "gap": 103
+   },
+   "shotBottom": "pixel-8/settings-company__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-payments": {
+   "path": "/settings?section=payments",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/settings?section=payments",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 753,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 753,
+     "w": 412,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 616,
+   "contentViewportPct": 73,
+   "chromeTopPx": 137,
+   "mainW": 412,
+   "mainScrollH": 1653,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 380,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 380,
+     "h": 120
+    },
+    {
+     "d": "div \"Payments 8 more tabs… Developers Ref\"",
+     "x": 16,
+     "y": 273,
+     "w": 380,
+     "h": 1256
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "13": 15,
+    "14": 6,
+    "15": 2,
+    "17": 1,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 2,
+    "11.5": 1
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 29,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 10,
+   "interactiveTotal": 22,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-payments] \"Payments\" 123x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 145x36",
+    "div[settings-rail-developers] \"Developers\" 138x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34",
+    "div{Brand} \"The Dev Store\" 220x40",
+    "div \"$USD\" 200x40",
+    "div \"Crypto conversion\" 314x36"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 10,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your ",
+   "gateway": false,
+   "loadMs": 5621,
+   "shotFold": "pixel-8/settings-payments__fold.jpg",
+   "shotScrolled": "pixel-8/settings-payments__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 651,
+    "bottomNavTop": 753,
+    "gap": 103
+   },
+   "shotBottom": "pixel-8/settings-payments__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-team": {
+   "path": "/settings?section=team",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/settings?section=team",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 753,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 753,
+     "w": 412,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 616,
+   "contentViewportPct": 73,
+   "chromeTopPx": 137,
+   "mainW": 412,
+   "mainScrollH": 4914,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 380,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 380,
+     "h": 120
+    },
+    {
+     "d": "div \"Team 8 more tabs… Developers Referra\"",
+     "x": 16,
+     "y": 273,
+     "w": 380,
+     "h": 4517
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 50,
+    "13": 4,
+    "14": 105,
+    "16": 2,
+    "17": 1,
+    "18": 2,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 1,
+    "11.5": 1
+   },
+   "distinctFontSizes": 10,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 168,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 6,
+   "interactiveTotal": 18,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-team] \"Team\" 92x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 145x36",
+    "div[settings-rail-developers] \"Developers\" 138x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "Invite teammate"
+   ],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your ",
+   "gateway": false,
+   "loadMs": 4893,
+   "shotFold": "pixel-8/settings-team__fold.jpg",
+   "shotScrolled": "pixel-8/settings-team__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 651,
+    "bottomNavTop": 753,
+    "gap": 102
+   },
+   "shotBottom": "pixel-8/settings-team__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings-notifications": {
+   "path": "/settings?section=notifications",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/settings?section=notifications",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 753,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 753,
+     "w": 412,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 616,
+   "contentViewportPct": 73,
+   "chromeTopPx": 137,
+   "mainW": 412,
+   "mainScrollH": 948,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 380,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 380,
+     "h": 120
+    },
+    {
+     "d": "div \"Notifications 8 more tabs… Developer\"",
+     "x": 16,
+     "y": 273,
+     "w": 380,
+     "h": 551
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "13": 4,
+    "14": 2,
+    "17": 1,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 1,
+    "11.5": 1
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 11,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 5,
+   "interactiveTotal": 17,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-notifications] \"Notifications\" 144x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 145x36",
+    "div[settings-rail-developers] \"Developers\" 138x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your ",
+   "gateway": false,
+   "loadMs": 3902,
+   "shotFold": "pixel-8/settings-notifications__fold.jpg",
+   "shotScrolled": "pixel-8/settings-notifications__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 816,
+    "bottomNavTop": 753,
+    "gap": -63
+   },
+   "shotBottom": "pixel-8/settings-notifications__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "wallet-security-page": {
+   "path": "/wallet/security",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/settings?section=security",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 753,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 753,
+     "w": 412,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 616,
+   "contentViewportPct": 73,
+   "chromeTopPx": 137,
+   "mainW": 412,
+   "mainScrollH": 41841,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 380,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 380,
+     "h": 120
+    },
+    {
+     "d": "div \"Security 8 more tabs… Developers Ref\"",
+     "x": 16,
+     "y": 273,
+     "w": 380,
+     "h": 41444
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 18,
+    "12": 1885,
+    "13": 312,
+    "14": 11,
+    "15": 8,
+    "17": 1,
+    "22": 1,
+    "26": 1,
+    "13.5": 5,
+    "12.5": 4,
+    "11.5": 1,
+    "14.5": 3
+   },
+   "distinctFontSizes": 13,
+   "tinyText": 1,
+   "smallText": 19,
+   "textNodes": 2251,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 306,
+   "interactiveTotal": 318,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-security] \"Security\" 112x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 145x36",
+    "div[settings-rail-developers] \"Developers\" 138x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your ",
+   "gateway": false,
+   "loadMs": 3971,
+   "shotFold": "pixel-8/wallet-security-page__fold.jpg",
+   "shotScrolled": "pixel-8/wallet-security-page__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 651,
+    "bottomNavTop": 753,
+    "gap": 102
+   },
+   "shotBottom": "pixel-8/wallet-security-page__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "get-started": {
+   "path": "/get-started",
+   "iw": 412,
+   "ih": 839,
+   "coarse": true,
+   "url": "/get-started?step=share",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 839,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 783,
+   "contentViewportPct": 93,
+   "chromeTopPx": 56,
+   "mainW": 412,
+   "mainScrollH": 1682,
+   "mainClientH": 783,
+   "mainStack": [
+    {
+     "d": "main \"GETTING STARTED · DEVELOPER Set up D\"",
+     "x": 16,
+     "y": 68,
+     "w": 380,
+     "h": 1490
+    }
+   ],
+   "contentColW": 380,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [
+    "div r=466"
+   ],
+   "hScrollers": [],
+   "clippedRightCount": 1,
+   "truncated": [],
+   "fontSizes": {
+    "11": 4,
+    "12": 10,
+    "13": 7,
+    "14": 2,
+    "15": 1,
+    "22": 1,
+    "26": 1,
+    "13.5": 3
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 4,
+   "textNodes": 29,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 15,
+   "interactiveTotal": 18,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "button[wizard-save-exit]{Save & exit setup} \"Save & exit 117x36",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "input[sandbox-create-amount-input] 124x40",
+    "input[sandbox-sim-payment-id-input] 336x40"
+   ],
+   "small24": [
+    "button[gs-stepper-secure]{Secure your account} 71x6",
+    "button[gs-stepper-about]{About you} 71x6",
+    "button[gs-stepper-payouts]{Where payouts go} 71x6",
+    "button[gs-stepper-link]{Your API key} 71x6",
+    "button[gs-stepper-share]{Make a test payment} 71x6",
+    "button[sandbox-recent-refresh]{Refresh} 23x23",
+    "button \"a15b9932…113c23\" 105x19"
+   ],
+   "small24Count": 7,
+   "small44Count": 5,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Set up Dynopay"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content Save & exit GETTING STARTED · DEVELOPER Set up Dynopay Five short steps. Leave anytime — you'll pick up right where you left off. Do this l",
+   "gateway": false,
+   "loadMs": 6938,
+   "shotFold": "pixel-8/get-started__fold.jpg",
+   "shotScrolled": "pixel-8/get-started__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 658,
+    "bottomNavTop": 839,
+    "gap": 181
+   },
+   "shotBottom": "pixel-8/get-started__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  }
+ },
+ "overlays": {
+  "paylink-drawer": {
+   "shot": "pixel-8/overlay__paylink-drawer.jpg",
+   "m": {
+    "url": "/pay-links",
+    "w": 412,
+    "h": 839,
+    "x": 0,
+    "sh": 837
+   }
+  },
+  "tx-drawer": {
+   "missing": "[data-testid^=\"tx-row-\"]"
+  }
+ },
+ "firstVisit": {
+  "page": "settings-security",
+  "dialogs": [],
+  "banners": [
+   {
+    "d": "a[skip-to-content] \"Skip to main content\"",
+    "h": 38
+   }
+  ],
+  "mainStack": [
+   {
+    "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+    "x": 16,
+    "y": 56,
+    "w": 380,
+    "h": 81
+   },
+   {
+    "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+    "x": 16,
+    "y": 137,
+    "w": 380,
+    "h": 120
+   },
+   {
+    "d": "div \"Security 8 more tabs… Developers Ref\"",
+    "x": 16,
+    "y": 273,
+    "w": 380,
+    "h": 2765
+   }
+  ],
+  "fixed": [
+   {
+    "d": "div \"Home Sell Money More\"",
+    "x": 0,
+    "y": 753,
+    "w": 412,
+    "h": 86
+   }
+  ],
+  "shot": "pixel-8/settings-security__first-visit.jpg"
+ },
+ "blockedWrites": [
+  "POST /api/track/attribution",
+  "POST /api/track/onboarding"
+ ]
+}

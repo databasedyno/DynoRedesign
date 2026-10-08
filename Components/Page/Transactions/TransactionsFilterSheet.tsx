@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import useBackToClose from "@/hooks/useBackToClose";
 import { formatLocaleInt } from "@/utils/locale";
 import { Box, Drawer, IconButton, useTheme } from "@mui/material";
 import { format } from "date-fns";
@@ -10,7 +11,7 @@ import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { txStatusTone } from "@/helpers/txStatus";
 import { ALLCRYPTOCURRENCIES } from "@/hooks/useWalletData";
 import { Icon, MONO } from "@/styles/uiKit";
-import { tabPillActive } from "@/styles/tabPill";
+import { FilterOptionChip as OptionChip } from "@/Components/Common/FilterControls";
 import { ICustomerTransactions } from "@/utils/types";
 import { TxStatusFilter } from "@/utils/types/transaction";
 import { STATUS_FILTERS } from "./TransactionsToolbar";
@@ -28,44 +29,6 @@ interface Props {
   anchor?: "bottom" | "right";
 }
 
-const OptionChip: React.FC<{ selected: boolean; onClick: () => void; testId: string; children: React.ReactNode }> = ({ selected, onClick, testId, children }) => {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-  const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
-  return (
-    <Box
-      component="button"
-      type="button"
-      role="option"
-      aria-selected={selected}
-      data-testid={testId}
-      data-selected={selected ? "true" : "false"}
-      onClick={onClick}
-      sx={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 0.75,
-        minHeight: 38,
-        px: 1.5,
-        borderRadius: 999,
-        border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`,
-        backgroundColor: "transparent",
-        color: theme.palette.text.primary,
-        ...(selected ? tabPillActive(theme) : {}),
-        fontFamily: "var(--font-sans)",
-        fontSize: 13,
-        fontWeight: 600,
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-        transition: "background-color 150ms ease, border-color 150ms ease, color 150ms ease",
-        "&:focus-visible": { outline: `2px solid ${indigo}`, outlineOffset: 2 },
-      }}
-    >
-      {children}
-    </Box>
-  );
-};
-
 /** Phone bottom-sheet with every non-search filter (plan 2.5): Source · Status · Coin · Date range. */
 const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows, onApply, anchor = "bottom" }) => {
   const side = anchor === "right";
@@ -73,6 +36,7 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("transactions");
   const [draft, setDraft] = useState<TxFilters>(filters);
+  useBackToClose(open, onClose, "tx-filters");
   const datePickerRef = useRef<DatePickerRef>(null);
 
   useEffect(() => {

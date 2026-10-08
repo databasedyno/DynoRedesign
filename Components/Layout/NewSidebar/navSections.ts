@@ -80,3 +80,20 @@ export const buildNavSections = ({ t, isIndividual, hasClaimedCreator, reveal, b
     },
   ];
 };
+
+/** Active match on path-segment boundaries (never "/wallet" for "/wallet-security"). */
+export const isNavPathActive = (pathname: string, path: string): boolean => {
+  if (path === "/") return pathname === "/";
+  if (pathname === path) return true;
+  if (path === "/pay-links" && pathname.startsWith("/pay-links/products")) return false;
+  return pathname.startsWith(path + "/");
+};
+
+/** Caption + icon for each group in the labelled rail / phone tab bar. */
+export const GROUP_ICON: Record<SectionKey, string> = {
+  dashboard: "dashboard",
+  sell: "payment-links",
+  money: "balances",
+  grow: "grow",
+  settings: "settings",
+};

@@ -12,14 +12,17 @@ import FeeFreeBanner from "@/Components/UI/FeeFreeBanner";
 import InstallAppPrompt from "@/Components/UI/InstallAppPrompt";
 import ToastHost from "@/Components/UI/Toast/ToastHost";
 import useIsMobile from "@/hooks/useIsMobile";
+import useShellMode from "@/hooks/useShellMode";
+import { hasOpenOverlay } from "@/hooks/useBackToClose";
+import { SHELL_MQ, SHELL_SIZE } from "@/styles/shellTokens";
 import { useSidebarCollapsed } from "@/hooks/useSidebarCollapsed";
 import { LayoutProps } from "@/utils/types";
 import { recordShortcutVisit } from "@/helpers/shortcutUsage";
-import { Box, SxProps, Theme, ThemeProvider, useMediaQuery, useTheme } from "@mui/material";
+import { Box, SxProps, Theme, ThemeProvider, useTheme } from "@mui/material";
 import { sidebarTheme } from "@/styles/appTheme";
 import { DARK } from "@/constants/theme";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   MainPageHeader,
@@ -27,8 +30,15 @@ import {
   PageHeaderDescription,
   PageHeaderTitle,
 } from "./styled";
-import PageTip from "@/Components/UX/PageTip";
+import PageTip, { PageInfoButton } from "@/Components/UX/PageTip";
+import CompactTitleBar from "./CompactTitleBar";
 import { getPageTipKey } from "@/Components/UX/pageTips";
+
+const FOCUS_ROUTES = [
+  "/create-pay-link",
+  "/pay-links/products/new",
+  "/pay-links/products/[productId]/edit",
+];
 
 const ClientLayout = ({
   children,
@@ -43,12 +53,17 @@ const ClientLayout = ({
   const { t } = useTranslation("common");
   const isMobile = useIsMobile("md");
   const { collapsed: sidebarCollapsed } = useSidebarCollapsed();
-  // P2b responsive claim: 768–1024 is the TABLET band — the sidebar auto-shrinks
-  // to a 72px icon rail here (regardless of the user's manual expand preference)
-  // so tablets get real nav instead of the phone bottom-bar. ≥1024 = full sidebar,
-  // <768 = mobile bottom-bar + hamburger drawer.
-  const isTabletRail = useMediaQuery("(min-width:768px) and (max-width:1024px)");
-  const railed = sidebarCollapsed || isTabletRail;
+  // One frame per shell mode (styles/shellTokens.ts): phone < 600 = tab bar +
+  // More sheet; tablet 600–1023 = rail (labelled on touch); ≥ 1024 = sidebar.
+  const shell = useShellMode();
+  const isTabletRail = shell.isTablet;
+  const sidebarWidth = shell.isPhone
+    ? 0
+    : shell.labelledRail
+      ? SHELL_SIZE.labelledRail
+      : sidebarCollapsed || isTabletRail
+        ? SHELL_SIZE.rail
+        : SHELL_SIZE.sidebar;
   const companyState = useCompanyStore();
   const hasFetchedRef = useRef(false);
   // Session 75 fix — inner scrollable container. The main-content Box below
@@ -68,6 +83,13 @@ const ClientLayout = ({
       companyState.refetchCompanies();
     }
   }, [companyState?.fetched, companyState?.loading]);
+
+  // Back gesture closes an open sheet / drawer / dialog instead of leaving the
+  // page (useBackToClose): the router ignores pops while an overlay is open.
+  useEffect(() => {
+    router.beforePopState(() => !hasOpenOverlay());
+    return () => router.beforePopState(() => true);
+  }, [router]);
 
   // Session 75 fix — scroll the inner container back to top whenever the
   // route path changes. `router.asPath` covers query-string-only nav too
@@ -108,38 +130,21 @@ const ClientLayout = ({
   // is the single, deliberate exit. Nudge chips + the fee-free banner are also
   // suppressed here (see NewHeader + FeeFreeBanner).
   const isOnboarding = router.pathname === "/get-started";
+  // Create / edit flows on phones run in focus mode: no tab bar over the form.
+  const isFocusMode = FOCUS_ROUTES.includes(router.pathname);
   const hasPageHeader = !!(pageName || pageDescription);
-  const pageHeaderRef = useRef<HTMLDivElement | null>(null);
-  // Pinned title: show a hairline + soft shadow once content scrolls under it.
-  const [headerScrolled, setHeaderScrolled] = useState(false);
-  useEffect(() => {
-    const main = mainScrollRef.current;
-    if (!main) return;
-    const onScroll = () => setHeaderScrolled(main.scrollTop > 4);
-    onScroll();
-    main.addEventListener("scroll", onScroll, { passive: true });
-    return () => main.removeEventListener("scroll", onScroll);
-  }, []);
+  const pageTitleRef = useRef<HTMLDivElement | null>(null);
+  const tipKey = getPageTipKey(router.pathname);
 
-  // Sticky page header: publish its height as scroll-padding on the scroll
-  // container so scrollIntoView()/focus() never park a control underneath it
-  // (dropdown triggers were getting their clicks eaten by the header).
+  // The compact title bar is the only pinned element now: publish its height
+  // so scrollIntoView()/focus() and sticky children (live previews) clear it.
   useEffect(() => {
     const main = mainScrollRef.current;
-    const header = pageHeaderRef.current;
     if (!main) return;
-    const apply = () => {
-      const h = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
-      main.style.scrollPaddingTop = h ? `${h + 8}px` : "";
-      // Sticky children (e.g. live previews) offset themselves below the pinned title.
-      main.style.setProperty("--page-header-h", `${h}px`);
-    };
-    apply();
-    if (!header || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(apply);
-    ro.observe(header);
-    return () => ro.disconnect();
-  }, [router.pathname, hasPageHeader]);
+    const h = hasPageHeader ? (isMobile ? 44 : 48) : 0;
+    main.style.scrollPaddingTop = h ? `${h + 8}px` : "";
+    main.style.setProperty("--page-header-h", `${h}px`);
+  }, [router.pathname, hasPageHeader, isMobile]);
   return (
     <>
       <CompanySettingsDialogProvider>
@@ -150,8 +155,11 @@ const ClientLayout = ({
             // Flush shell (design_guidelines 2026-06): a 64px top bar spanning
             // the full width, a 240px sidebar (72px rail) and the page on the
             // canvas — hairline borders separate the three, no floating cards.
-            "--dp-sidebar-w": railed ? "72px" : "240px",
-            "--dp-topbar-h": isMobile ? "56px" : "64px",
+            "--dp-sidebar-w": `${sidebarWidth}px`,
+            "--dp-topbar-h": shell.isPhone ? `${SHELL_SIZE.topbarPhone}px` : `${SHELL_SIZE.topbar}px`,
+            "--dp-content-max": `${SHELL_SIZE.contentMax}px`,
+            [SHELL_MQ.wide]: { "--dp-content-max": `${SHELL_SIZE.contentMaxWide}px` },
+            [SHELL_MQ.ultra]: { "--dp-content-max": `${SHELL_SIZE.contentMaxUltra}px` },
             // The status-bar inset is padded once on <body> (globals.css); the
             // shell just gives it back so nothing overflows in standalone mode.
             height: "calc(100dvh - env(safe-area-inset-top, 0px))",
@@ -249,15 +257,16 @@ const ClientLayout = ({
                   overflow: "hidden",
                   backgroundColor: DARK.raised,
                   borderRight: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(18,18,20,0.18)"}`,
-                  // Desktop sidebar shows at ≥768 (icon rail in 768–1024, full ≥1024).
-                  display: "none",
-                  "@media (min-width:768px)": { display: "block" },
+                  // Rail / sidebar from 600px up; phones use the tab bar.
+                  display: "block",
+                  [SHELL_MQ.phone]: { display: "none" },
                   transition: "width 220ms cubic-bezier(0.16, 1, 0.3, 1)",
                   flexShrink: 0,
                 }}
-                data-sidebar-collapsed={railed ? "true" : "false"}
+                data-sidebar-collapsed={sidebarWidth < SHELL_SIZE.sidebar ? "true" : "false"}
+                data-shell-mode={shell.mode}
               >
-                <NewSidebar forceCollapsed={isTabletRail} />
+                <NewSidebar forceCollapsed={isTabletRail} labelled={shell.labelledRail} />
               </Box>
               </ThemeProvider>
               )}
@@ -288,82 +297,45 @@ const ClientLayout = ({
                   pt: { xs: isDashboard || hasPageHeader ? 0 : 1.5, md: hasPageHeader ? 0 : 3 },
                   "& > *": {
                     width: "100%",
-                    maxWidth: 1440,
+                    maxWidth: "var(--dp-content-max)",
                     mx: "auto",
-                    "@media (min-width:2000px)": { maxWidth: 1720 },
-                    "@media (min-width:2400px)": { maxWidth: 2040 },
                   },
-                  // Mobile: clear (a) the fixed bottom nav pill (~74px tall incl.
-                  // its own offset) AND (b) the "Emily" support-chat FAB above
-                  // it. Note: this outer container-level padding only helps
-                  // pages whose scrolling actually bubbles up to this
-                  // container. Pages with an inner-bounded scroll (e.g.
-                  // /transactions where TransactionsTable caps at fit-content
-                  // and the cards flow inside) also need their own bottom
-                  // spacer — see /app/Components/Page/Transactions/index.tsx.
-                  // 180px = FAB top edge (164px) + 16px breathing.
-                  // Plus safe-area inset for notched devices. Cleared at ≥768
-                  // where the bottom nav is replaced by the sidebar/rail (P2b).
-                  pb: "calc(180px + env(safe-area-inset-bottom, 0px))",
-                  "@media (min-width:768px)": { pb: 4 },
+                  // Phones: clear the 56px tab bar (+ safe area) with breathing room;
+                  // pages with an inner-bounded scroll add their own spacer.
+                  pb: "calc(88px + env(safe-area-inset-bottom, 0px))",
+                  [SHELL_MQ.tabletUp]: { pb: 4 },
                 }}
               >
                 <InstallAppPrompt brand="dynopay" wrapSx={{ px: 2, pt: 1.5 }} />
+                {hasPageHeader && pageName && <CompactTitleBar title={pageName} watch={pageTitleRef} root={mainScrollRef} />}
                 {hasPageHeader && (
                   <MainPageHeader
-                    ref={pageHeaderRef}
                     data-testid="main-page-header"
-                    data-scrolled={headerScrolled ? "true" : "false"}
-                    sx={{
-                      px: { xs: isDashboard ? 2 : 0, md: 0 },
-                      pt: { xs: 1.5, md: 3 },
-                      pb: 0,
-                      transition: "box-shadow 160ms ease",
-                      boxShadow: headerScrolled
-                        ? `0 1px 0 ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(10,10,15,0.08)"}, 0 10px 14px -14px rgba(10,10,15,0.35)`
-                        : "none",
-                    }}
+                    sx={{ px: { xs: isDashboard ? 2 : 0, md: 0 }, pt: { xs: 1.5, md: 3 }, pb: 0 }}
                   >
                     <PageHeader
                       sx={
                         pageHeaderSx
-                          ? ([
-                              { pt: 0, pb: { md: 3, xs: 2 }, mb: 0 },
-                              pageHeaderSx,
-                            ] as SxProps<Theme>)
+                          ? ([{ pt: 0, pb: { md: 3, xs: 2 }, mb: 0 }, pageHeaderSx] as SxProps<Theme>)
                           : { pt: 0, pb: { md: 3, xs: 2 }, mb: 0 }
                       }
                     >
-                      <Box
-                        sx={{
-                          flex: 1,
-                          minWidth: 0,
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: isMobile ? "6px" : "8px",
-                        }}
-                      >
+                      <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: isMobile ? "4px" : "8px" }}>
                         {pageName && (
-                          <PageHeaderTitle variant="h1">
-                            {pageName}
-                          </PageHeaderTitle>
+                          <Box ref={pageTitleRef} sx={{ display: "flex", alignItems: "center", gap: 0.5, minWidth: 0 }}>
+                            <PageHeaderTitle variant="h1">{pageName}</PageHeaderTitle>
+                            {/* ⓘ = the page's tip (all sizes) + its description (phones). */}
+                            <PageInfoButton tipKey={tipKey} description={shell.isPhone ? pageDescription : undefined} />
+                          </Box>
                         )}
-                        {pageDescription && (
-                          <PageHeaderDescription variant="body1">
-                            {pageDescription}
-                          </PageHeaderDescription>
+                        {pageDescription && !shell.isPhone && (
+                          <PageHeaderDescription variant="body1">{pageDescription}</PageHeaderDescription>
                         )}
                       </Box>
 
                       {pageAction && (
                         <Box
-                          sx={{
-                            flexShrink: 0,
-                            pt: { xs: 1, md: 0 },
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            gap: { xs: 1, md: 2 },
-                          }}
+                          sx={{ flexShrink: 0, display: "flex", justifyContent: "flex-end", gap: { xs: 1, md: 2 }, [SHELL_MQ.phone]: { width: "100%", justifyContent: "flex-start" } }}
                           className="pageAction"
                         >
                           {pageAction}
@@ -371,33 +343,19 @@ const ClientLayout = ({
                       )}
                     </PageHeader>
 
-                    {pageWarning && (
-                      <Box
-                        sx={{ mb: { xs: 1, md: 2.5 }, mt: { xs: 0, md: 0 } }}
-                      >
-                        {pageWarning}
-                      </Box>
-                    )}
+                    {pageWarning && <Box sx={{ mb: { xs: 1, md: 2.5 } }}>{pageWarning}</Box>}
                   </MainPageHeader>
                 )}
 
-                {getPageTipKey(router.pathname) && (
-                  <PageTip
-                    tipKey={getPageTipKey(router.pathname) as string}
-                  />
-                )}
+                {tipKey && <PageTip key={tipKey} tipKey={tipKey} />}
 
                 {children}
               </Box>
             </Box>
           </Box>
 
-          {/* ================= MOBILE NAV ================= */}
-          {!isOnboarding && (
-          <Box sx={{ display: "block", "@media (min-width:768px)": { display: "none" } }}>
-            <MobileNavigationBar />
-          </Box>
-          )}
+          {/* ================= PHONE TAB BAR ================= */}
+          {!isOnboarding && shell.isPhone && <MobileNavigationBar hidden={isFocusMode} />}
         </Box>
       </CompanySettingsDialogProvider>
     <ToastHost />

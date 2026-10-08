@@ -119,8 +119,9 @@ body {
   }
 }
 
-/* Prevent iOS zoom on input focus */
-@media screen and (max-width: 768px) {
+/* Prevent iOS zoom on input focus — every touch device (iPads included), not
+   just ≤ 768px: Safari zooms whenever a focused field is under 16px. */
+@media screen and (max-width: 768px), (pointer: coarse) {
   input, select, textarea {
     font-size: 16px !important;
   }
@@ -151,6 +152,28 @@ body {
   /* Scroll chaining: stop the body rubber-banding behind bottom sheets/drawers */
   .MuiDrawer-paper, .MuiDialog-paper {
     overscroll-behavior: contain;
+  }
+}
+
+/* Opt-in invisible hit area for small icon buttons / inline links (UX audit
+   S18): ≥ 24×24 with a mouse (WCAG 2.5.8), ≥ 44×44 on touch. */
+[data-hit-area] {
+  position: relative;
+}
+[data-hit-area]::after {
+  content: "";
+  position: absolute;
+  top: min(0px, calc(50% - 12px));
+  bottom: min(0px, calc(50% - 12px));
+  left: min(0px, calc(50% - 12px));
+  right: min(0px, calc(50% - 12px));
+}
+@media (pointer: coarse) {
+  [data-hit-area]::after {
+    top: min(0px, calc(50% - 22px));
+    bottom: min(0px, calc(50% - 22px));
+    left: min(0px, calc(50% - 22px));
+    right: min(0px, calc(50% - 22px));
   }
 }
 

@@ -114,7 +114,7 @@ const TrendCard: React.FC<Props> = ({ chartData, chartAssets, loading, currencyS
           <Skeleton variant="rounded" height="100%" sx={{ borderRadius: 3, bgcolor: isDark ? "rgba(255,255,255,0.04)" : "rgba(10,10,15,0.04)" }} />
         ) : (
           <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-            <AreaChart data={series} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
+            <AreaChart data={series} margin={{ top: 8, right: 16, bottom: 0, left: 16 }}>
               <defs>
                 <linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={stroke} stopOpacity={isDark ? 0.36 : 0.2} />
@@ -122,7 +122,7 @@ const TrendCard: React.FC<Props> = ({ chartData, chartAssets, loading, currencyS
                 </linearGradient>
               </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.05)"} />
-              <XAxis dataKey="label" interval={tickStep - 1} tickLine={false} axisLine={false} tick={{ fontSize: 11, fill: muted, fontFamily: "var(--font-sans)" }} dy={6} />
+              <XAxis dataKey="label" interval={tickStep - 1} tickLine={false} axisLine={false} padding={{ left: 8, right: 8 }} tick={{ fontSize: 12, fill: muted, fontFamily: "var(--font-sans)" }} dy={6} />
               <YAxis hide domain={[0, "auto"]} />
               <Tooltip
                 cursor={{ stroke: isDark ? "rgba(255,255,255,0.14)" : "rgba(10,10,15,0.14)", strokeDasharray: "3 3" }}

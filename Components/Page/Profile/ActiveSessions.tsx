@@ -6,10 +6,15 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   Skeleton,
   Tooltip,
   Typography,
 } from "@mui/material";
+import CloseRounded from "@mui/icons-material/CloseRounded";
 import { useTheme } from "@mui/material/styles";
 import { Icon } from "@/styles/uiKit";
 import React, { useState } from "react";
@@ -135,51 +140,19 @@ const ActiveSessions = () => {
   };
 
   const hasOthers = sessions.some((s) => !s.is_current);
+  // Cap the inline list (UX audit S6: ~280 sessions made Security 23,730px
+  // tall): this device + the 4 most recent; the rest live in a paged dialog.
+  const INLINE = 5;
+  const PAGE = 20;
+  const ordered = [...sessions].sort(
+    (a, b) => Number(b.is_current) - Number(a.is_current) || new Date(b.last_activity).getTime() - new Date(a.last_activity).getTime(),
+  );
+  const inline = ordered.slice(0, INLINE);
+  const [allOpen, setAllOpen] = useState(false);
+  const [pageN, setPageN] = useState(1);
+  const shownAll = ordered.slice(0, pageN * PAGE);
 
-  return (
-    <>
-      <PanelCard
-        bodyPadding={isMobile ? `${theme.spacing(1.5, 2, 2, 2)}` : `${theme.spacing(2, 2.5, 2.5, 2.5)}`}
-        title={t("activeSessions", { defaultValue: "Active devices" })}
-        subTitle={loading ? undefined : deviceCountLabel}
-        showHeaderBorder={false}
-        headerAction={
-          hasOthers ? (
-            <Button
-              data-testid="sign-out-all-others"
-              size="small"
-              color="error"
-              variant="outlined"
-              onClick={revokeAllOthers}
-              disabled={revokingAll || loading}
-              startIcon={revokingAll ? <CircularProgress size={14} color="inherit" /> : <Icon name="log-out" size={16} />}
-              sx={{ textTransform: "none", fontSize: "12px", fontFamily: "var(--font-sans)", borderRadius: "8px" }}
-            >
-              {t("signOutAllOthers", { defaultValue: "Sign out all others" })}
-            </Button>
-          ) : (
-            <Box aria-hidden sx={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Icon name="monitor-smartphone" size={16} color={theme.palette.text.secondary} />
-            </Box>
-          )
-        }
-      >
-        {loading ? (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {[1, 2].map((i) => (
-              <Skeleton key={i} variant="rounded" height={60} sx={{ borderRadius: "8px" }} />
-            ))}
-          </Box>
-        ) : sessions.length === 0 ? (
-          <Typography
-            data-testid="no-active-sessions"
-            sx={{ fontSize: "14px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", textAlign: "center", py: 3 }}
-          >
-            {t("noActiveSessions", { defaultValue: "No active sessions found." })}
-          </Typography>
-        ) : (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {sessions.map((s) => (
+  const renderRow = (s: SessionEntry) => (
               <Box
                 key={s.session_id}
                 data-testid={`session-row-${s.session_id}`}
@@ -220,7 +193,7 @@ const ActiveSessions = () => {
                         size="small"
                         color="success"
                         variant="outlined"
-                        sx={{ height: "20px", fontSize: "11px", fontFamily: "var(--font-sans)" }}
+                        sx={{ height: "22px", fontSize: "12px", fontFamily: "var(--font-sans)" }}
                       />
                     )}
                   </Box>
@@ -255,13 +228,84 @@ const ActiveSessions = () => {
                     onClick={() => revokeOne(s.session_id)}
                     disabled={revoking === s.session_id}
                     startIcon={revoking === s.session_id ? <CircularProgress size={13} color="inherit" /> : <Icon name="log-out" size={15} />}
-                    sx={{ textTransform: "none", fontSize: "12px", fontFamily: "var(--font-sans)", flexShrink: 0 }}
+                    sx={{ textTransform: "none", fontSize: "13px", fontFamily: "var(--font-sans)", flexShrink: 0, minHeight: 36 }}
                   >
                     {t("signOut", { defaultValue: "Sign out" })}
                   </Button>
                 )}
               </Box>
+);
+
+  return (
+    <>
+      <Dialog open={allOpen} onClose={() => setAllOpen(false)} fullWidth maxWidth="sm" data-testid="sessions-all-dialog" PaperProps={{ sx: { borderRadius: "16px", backgroundImage: "none" } }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontFamily: "var(--font-sans)", fontSize: 18, fontWeight: 700, pr: 1 }}>
+          {deviceCountLabel}
+          <IconButton aria-label={t("close", { defaultValue: "Close" })} data-testid="sessions-all-close" onClick={() => setAllOpen(false)} sx={{ width: 44, height: 44 }}>
+            <CloseRounded />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {shownAll.map(renderRow)}
+          {shownAll.length < ordered.length && (
+            <Button data-testid="sessions-load-more" variant="outlined" onClick={() => setPageN((n) => n + 1)} sx={{ textTransform: "none", minHeight: 40, borderRadius: "10px", fontFamily: "var(--font-sans)" }}>
+              {t("loadMore", { defaultValue: "Load more" })} ({ordered.length - shownAll.length})
+            </Button>
+          )}
+        </DialogContent>
+      </Dialog>
+      <PanelCard
+        bodyPadding={isMobile ? `${theme.spacing(1.5, 2, 2, 2)}` : `${theme.spacing(2, 2.5, 2.5, 2.5)}`}
+        title={t("activeSessions", { defaultValue: "Active devices" })}
+        subTitle={loading ? undefined : deviceCountLabel}
+        showHeaderBorder={false}
+        headerAction={
+          hasOthers ? (
+            <Button
+              data-testid="sign-out-all-others"
+              size="small"
+              color="error"
+              variant="outlined"
+              onClick={revokeAllOthers}
+              disabled={revokingAll || loading}
+              startIcon={revokingAll ? <CircularProgress size={14} color="inherit" /> : <Icon name="log-out" size={16} />}
+              sx={{ textTransform: "none", fontSize: "13px", fontFamily: "var(--font-sans)", borderRadius: "8px", minHeight: 36 }}
+            >
+              {t("signOutAllOthers", { defaultValue: "Sign out all others" })}
+            </Button>
+          ) : (
+            <Box aria-hidden sx={{ width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Icon name="monitor-smartphone" size={16} color={theme.palette.text.secondary} />
+            </Box>
+          )
+        }
+      >
+        {loading ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {[1, 2].map((i) => (
+              <Skeleton key={i} variant="rounded" height={60} sx={{ borderRadius: "8px" }} />
             ))}
+          </Box>
+        ) : sessions.length === 0 ? (
+          <Typography
+            data-testid="no-active-sessions"
+            sx={{ fontSize: "14px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", textAlign: "center", py: 3 }}
+          >
+            {t("noActiveSessions", { defaultValue: "No active sessions found." })}
+          </Typography>
+        ) : (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {inline.map(renderRow)}
+            {ordered.length > INLINE && (
+              <Button
+                data-testid="sessions-view-all"
+                variant="text"
+                onClick={() => { setPageN(1); setAllOpen(true); }}
+                sx={{ alignSelf: "flex-start", textTransform: "none", fontFamily: "var(--font-sans)", fontSize: "14px", fontWeight: 600, minHeight: 40, color: theme.palette.text.primary }}
+              >
+                {t("viewAllSessions", { count: ordered.length, defaultValue: `View all ${ordered.length} devices` })}
+              </Button>
+            )}
           </Box>
         )}
       </PanelCard>

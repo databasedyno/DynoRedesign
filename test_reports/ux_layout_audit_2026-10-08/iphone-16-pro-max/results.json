@@ -1,0 +1,2358 @@
+{
+ "device": "iphone-16-pro-max",
+ "theme": "light",
+ "cls": "phone",
+ "engine": "webkit",
+ "viewport": {
+  "width": 440,
+  "height": 763
+ },
+ "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6 Mobile/15E148 Safari/604.1",
+ "pages": {
+  "dashboard": {
+   "path": "/dashboard",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/dashboard",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 1734,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Good afternoon, John Thursday, Octob\"",
+     "x": 0,
+     "y": 56,
+     "w": 440,
+     "h": 81
+    },
+    {
+     "d": "main \"Quiet · last paid 18 min ago 7D SETT\"",
+     "x": 0,
+     "y": 137,
+     "w": 440,
+     "h": 1473
+    }
+   ],
+   "contentColW": 440,
+   "mainPadX": "0px/0px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div[money-row] \"SETTLED · 7 DAYS $1,161.31 30.9% 17 \"",
+     "sw": 1011,
+     "cw": 440
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [
+    "\"Growth tier · 1% · $34,834 lifetime ne\" 259/577"
+   ],
+   "fontSizes": {
+    "11": 16,
+    "12": 28,
+    "13": 9,
+    "14": 5,
+    "15": 1,
+    "16": 1,
+    "18": 3,
+    "22": 1,
+    "26": 3,
+    "13.5": 5,
+    "12.5": 14,
+    "11.5": 2
+   },
+   "distinctFontSizes": 12,
+   "tinyText": 0,
+   "smallText": 18,
+   "textNodes": 88,
+   "truncatedCount": 1,
+   "longLines": [],
+   "interactiveInMain": 20,
+   "interactiveTotal": 32,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[plan-growth-toggle-btn] \"Growth tier · 1% · $34,8 408x37"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 4,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Good afternoon, John"
+   ],
+   "navActive": [
+    "Home"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Good afternoon, John Thursday, October 8 Quiet · last paid 18 min ago 7D SETTLED · 7 DAYS $1,161.31 30.9% 17 payments · vs",
+   "gateway": false,
+   "loadMs": 15098,
+   "shotFold": "iphone-16-pro-max/dashboard__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/dashboard__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 573,
+    "bottomNavTop": 677,
+    "gap": 104
+   },
+   "shotBottom": "iphone-16-pro-max/dashboard__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "pay-links": {
+   "path": "/pay-links",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/pay-links",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 2803,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Payment links Manage and view all yo\"",
+     "x": 0,
+     "y": 56,
+     "w": 440,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-payLinks]{Your payment links} \"Your payment links Create ",
+     "x": 0,
+     "y": 137,
+     "w": 440,
+     "h": 83
+    },
+    {
+     "d": "div \"Links Orders (9) Period All Statuses\"",
+     "x": 0,
+     "y": 235,
+     "w": 440,
+     "h": 348
+    }
+   ],
+   "contentColW": 440,
+   "mainPadX": "0px/0px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 12,
+    "12": 16,
+    "13": 15,
+    "14": 10,
+    "16": 10,
+    "22": 1,
+    "13.5": 1,
+    "11.5": 14
+   },
+   "distinctFontSizes": 9,
+   "tinyText": 1,
+   "smallText": 26,
+   "textNodes": 80,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 51,
+   "interactiveTotal": 63,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[paylinks-kind-links] \"Links\" 55x32",
+    "button[paylinks-kind-orders] \"Orders (9)\" 84x32",
+    "input[paylinks-search]{Search links...} 358x32",
+    "div{Filter by status} \"All Statuses\" 382x39"
+   ],
+   "small24": [
+    "div[rows-per-page-trigger]{Rows per page} \"10\" 36x14"
+   ],
+   "small24Count": 1,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Payment links"
+   ],
+   "navActive": [
+    "Sell"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Payment links Manage and view all your created payment links Your payment links Create a reusable link or QR for any amou",
+   "gateway": false,
+   "loadMs": 6404,
+   "shotFold": "iphone-16-pro-max/pay-links__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/pay-links__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 763,
+    "bottomNavTop": 677,
+    "gap": -86
+   },
+   "shotBottom": "iphone-16-pro-max/pay-links__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "create-pay-link": {
+   "path": "/create-pay-link",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/create-pay-link",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 54,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 567,
+   "contentViewportPct": 74,
+   "chromeTopPx": 110,
+   "mainW": 440,
+   "mainScrollH": 1372,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Create Payment Link\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 54
+    },
+    {
+     "d": "div \"Payment link Request a fixed amount \"",
+     "x": 16,
+     "y": 114,
+     "w": 408,
+     "h": 1133
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 4,
+    "11": 2,
+    "12": 13,
+    "13": 25,
+    "14": 10,
+    "15": 10,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 5,
+    "11.5": 1
+   },
+   "distinctFontSizes": 10,
+   "tinyText": 4,
+   "smallText": 3,
+   "textNodes": 72,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 24,
+   "interactiveTotal": 36,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[currency-selector-trigger] \"USD\" 374x32",
+    "button[crypto-show-all] \"Show All (10 more)\" 340x32",
+    "button[crypto-select-all] \"Select All\" 155x32",
+    "button[crypto-clear-all] \"Clear All\" 155x32",
+    "div[expire-selector-trigger] \"No expiration\" 340x32",
+    "input 340x42"
+   ],
+   "small24": [
+    "input 374x23",
+    "input 340x23",
+    "input{Callback URL} 340x23",
+    "input{Redirect URL} 340x23",
+    "input{Webhook URL} 340x23"
+   ],
+   "small24Count": 5,
+   "small44Count": 9,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Create Payment Link"
+   ],
+   "navActive": [
+    "Sell"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Create Payment Link Payment link Request a fixed amount for a product, invoice or service. Fundraiser Collect donations ",
+   "gateway": false,
+   "loadMs": 7301,
+   "shotFold": "iphone-16-pro-max/create-pay-link__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/create-pay-link__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 734,
+    "bottomNavTop": 677,
+    "gap": -56
+   },
+   "shotBottom": "iphone-16-pro-max/create-pay-link__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "products": {
+   "path": "/pay-links/products",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/storefront?tab=products",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 1145,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Your page Your Dynopay page — tips, \"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div[storefront-page] \"Editing The Dev Store's page Page Pr\"",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 864
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div \"BRAND VIEWS · 30D TREND TIPS SALES R\"",
+     "sw": 620,
+     "cw": 374
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 3,
+    "11": 13,
+    "12": 2,
+    "13": 3,
+    "14": 3,
+    "15": 1,
+    "16": 1,
+    "22": 1,
+    "13.5": 22,
+    "12.5": 2,
+    "11.5": 4
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 3,
+   "smallText": 17,
+   "textNodes": 55,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 12,
+   "interactiveTotal": 24,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[storefront-tab-page] \"Page\" 85x36",
+    "div[storefront-tab-products] \"Products\" 112x36",
+    "div[storefront-tab-share] \"Share\" 90x36",
+    "input[products-search-input] 326x32",
+    "div{Status} \"All statuses\" 150x39",
+    "button[products-view-grid]{Grid} 32x30",
+    "button[products-view-list]{List} 32x30"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 10,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Your page"
+   ],
+   "navActive": [
+    "Sell"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Your page Your Dynopay page — tips, products and payment links behind one link. Editing The Dev Store's page Page Product",
+   "gateway": false,
+   "loadMs": 8998,
+   "shotFold": "iphone-16-pro-max/products__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/products__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 466,
+    "bottomNavTop": 677,
+    "gap": 211
+   },
+   "shotBottom": "iphone-16-pro-max/products__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "storefront": {
+   "path": "/storefront",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/storefront",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 2500,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Your page Your Dynopay page — tips, \"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div[storefront-page] \"Editing The Dev Store's page Page Pr\"",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 2219
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div \"BRAND VIEWS · 30D TREND TIPS SALES R\"",
+     "sw": 620,
+     "cw": 374
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [
+    "\"4efc03ef-e58f-4eb0-9e31-2551073ae682.p\" 342/518",
+    "\"4efc03ef-e58f-4eb0-9e31-2551073ae682.p\" 139/410"
+   ],
+   "fontSizes": {
+    "10": 3,
+    "11": 15,
+    "12": 2,
+    "13": 16,
+    "14": 5,
+    "15": 7,
+    "16": 1,
+    "18": 2,
+    "20": 3,
+    "22": 1,
+    "13.5": 23,
+    "12.5": 7,
+    "10.5": 4,
+    "11.5": 11
+   },
+   "distinctFontSizes": 14,
+   "tinyText": 7,
+   "smallText": 26,
+   "textNodes": 100,
+   "truncatedCount": 2,
+   "longLines": [],
+   "interactiveInMain": 24,
+   "interactiveTotal": 36,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[storefront-tab-page] \"Page\" 85x36",
+    "div[storefront-tab-products] \"Products\" 111x36",
+    "div[storefront-tab-share] \"Share\" 90x36",
+    "input[creator-handle-input] 153x43"
+   ],
+   "small24": [
+    "button[your-page-copy]{Copy link} 22x22",
+    "a[your-page-open]{View my page} 22x22",
+    "button[your-page-funnel-checkouts-hint]{Checkouts starte 12x12"
+   ],
+   "small24Count": 3,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Your page"
+   ],
+   "navActive": [
+    "Sell"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Your page Your Dynopay page — tips, products and payment links behind one link. Editing The Dev Store's page Page Product",
+   "gateway": false,
+   "loadMs": 7804,
+   "shotFold": "iphone-16-pro-max/storefront__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/storefront__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 466,
+    "bottomNavTop": 677,
+    "gap": 212
+   },
+   "shotBottom": "iphone-16-pro-max/storefront__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "payouts": {
+   "path": "/payouts",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/payouts",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 2701,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Balances & Settlement Did your money\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div[page-tip-payouts]{How payouts work} \"How payouts work This shows w",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div \"Showing payouts for last 30 days Tod\"",
+     "x": 16,
+     "y": 274,
+     "w": 408,
+     "h": 309
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div[payouts-tiles] \"FORWARDED TO YOUR WALLETS · LAST 30 \"",
+     "sw": 1060,
+     "cw": 440
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 14,
+    "12": 22,
+    "13": 12,
+    "14": 26,
+    "16": 4,
+    "20": 1,
+    "22": 2,
+    "26": 2,
+    "13.5": 3,
+    "12.5": 9,
+    "11.5": 32
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 0,
+   "smallText": 46,
+   "textNodes": 127,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 36,
+   "interactiveTotal": 48,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[payouts-wallets-toggle-quiet] \"Show 9 addresses w 370x41",
+    "div{Settlement coin} \"USDT (TRC-20)\" 200x43"
+   ],
+   "small24": [
+    "button[payouts-autoconvert-settings-link] \"Settlement co 186x15",
+    "a[payouts-recent-explorer]{View on explorer} 14x14"
+   ],
+   "small24Count": 13,
+   "small44Count": 5,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Balances & Settlement"
+   ],
+   "navActive": [
+    "Money"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Balances & Settlement Did your money reach your wallet? Forwarded payouts, anything stuck, and where funds land. How payou",
+   "gateway": false,
+   "loadMs": 8184,
+   "shotFold": "iphone-16-pro-max/payouts__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/payouts__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 746,
+    "bottomNavTop": 677,
+    "gap": -69
+   },
+   "shotBottom": "iphone-16-pro-max/payouts__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "transactions": {
+   "path": "/transactions",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/transactions",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 1803,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Transactions View and manage all you\"",
+     "x": 0,
+     "y": 56,
+     "w": 440,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-transactions]{What the statuses mean} \"What the statuses ",
+     "x": 0,
+     "y": 137,
+     "w": 440,
+     "h": 120
+    },
+    {
+     "d": "div \"​ Filters Today 7D 30D 90D All time \"",
+     "x": 0,
+     "y": 273,
+     "w": 440,
+     "h": 310
+    }
+   ],
+   "contentColW": 440,
+   "mainPadX": "0px/0px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 1,
+    "11": 13,
+    "12": 10,
+    "13": 24,
+    "16": 10,
+    "22": 1,
+    "13.5": 2,
+    "12.5": 6,
+    "11.5": 19
+   },
+   "distinctFontSizes": 9,
+   "tinyText": 1,
+   "smallText": 32,
+   "textNodes": 86,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 23,
+   "interactiveTotal": 35,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[transactions-filters-btn]{Filters} \"Filters\" 89x40"
+   ],
+   "small24": [
+    "input[transactions-search-input]{Search transactions...} 273x23",
+    "div[rows-per-page-trigger]{Rows per page} \"10\" 36x14"
+   ],
+   "small24Count": 2,
+   "small44Count": 4,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Transactions"
+   ],
+   "navActive": [
+    "Money"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Transactions View and manage all your cryptocurrency payment transactions What the statuses mean Every payment shows a st",
+   "gateway": false,
+   "loadMs": 9709,
+   "shotFold": "iphone-16-pro-max/transactions__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/transactions__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 763,
+    "bottomNavTop": 677,
+    "gap": -86
+   },
+   "shotBottom": "iphone-16-pro-max/transactions__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "invoices": {
+   "path": "/invoices",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/invoices",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 1999,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Receipts & Tax View invoices and tax\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-invoices]{Receipts & tax in one place} \"Receipts & tax in",
+     "x": 16,
+     "y": 137,
+     "w": 408,
+     "h": 83
+    },
+    {
+     "d": "div \"Showing All Time Export period (CSV)\"",
+     "x": 16,
+     "y": 235,
+     "w": 408,
+     "h": 1640
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div \"GROSS COLLECTED $35,850.16 536 settl\"",
+     "sw": 936,
+     "cw": 408
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 3,
+    "12": 10,
+    "13": 24,
+    "14": 2,
+    "15": 1,
+    "16": 20,
+    "22": 1,
+    "24": 3,
+    "13.5": 1,
+    "12.5": 4
+   },
+   "distinctFontSizes": 10,
+   "tinyText": 0,
+   "smallText": 3,
+   "textNodes": 69,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 27,
+   "interactiveTotal": 39,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div{Period} \"All Time\" 150x39",
+    "div[invoices-tab-receipts] \"Receipts\" 113x36",
+    "div[overflow-tabs-more] \"2 more tabs…\" 144x36",
+    "input[invoices-search-input] 292x32"
+   ],
+   "small24": [
+    "button[invoices-tile-collected-hint]{What buyers paid fo 12x12"
+   ],
+   "small24Count": 1,
+   "small44Count": 7,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Receipts & Tax"
+   ],
+   "navActive": [
+    "Money"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Receipts & Tax View invoices and tax reports Receipts & tax in one place A receipt is created for every settled payment. ",
+   "gateway": false,
+   "loadMs": 5816,
+   "shotFold": "iphone-16-pro-max/invoices__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/invoices__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 549,
+    "bottomNavTop": 677,
+    "gap": 128
+   },
+   "shotBottom": "iphone-16-pro-max/invoices__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "wallet": {
+   "path": "/wallet",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/wallet",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 145,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 476,
+   "contentViewportPct": 62,
+   "chromeTopPx": 201,
+   "mainW": 440,
+   "mainScrollH": 3172,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Payout addresses Manage the addresse\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 145
+    },
+    {
+     "d": "div[page-tip-wallet]{Where your money lands} \"Where your money lands A",
+     "x": 16,
+     "y": 201,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div \"NET RECEIVED · ALL TIME THE DEV STOR\"",
+     "x": 16,
+     "y": 318,
+     "w": 408,
+     "h": 265
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 9,
+    "12": 1,
+    "13": 18,
+    "14": 14,
+    "15": 14,
+    "22": 4,
+    "34": 1,
+    "13.5": 3,
+    "10.5": 11,
+    "11.5": 14,
+    "12.5": 24
+   },
+   "distinctFontSizes": 11,
+   "tinyText": 11,
+   "smallText": 23,
+   "textNodes": 113,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 64,
+   "interactiveTotal": 76,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[wallet-address-reveal-1]{Show full address} 40x40",
+    "button[wallet-more-1]{More actions} 40x40",
+    "a[wallet-last-forward-1-explorer]{View on explorer} 28x28",
+    "button[wallet-address-reveal-2]{Show full address} 40x40",
+    "button[wallet-more-2]{More actions} 40x40",
+    "a[wallet-last-forward-2-explorer]{View on explorer} 28x28",
+    "button[wallet-address-reveal-7]{Show full address} 40x40",
+    "button[wallet-more-7]{More actions} 40x40",
+    "a[wallet-last-forward-7-explorer]{View on explorer} 28x28"
+   ],
+   "small24": [
+    "button[wallet-total-hint]{What reached your payout add} 12x12",
+    "button[wallet-shared-tag-1]{Used on 2 networks} \"Used on 128x18",
+    "button[wallet-shared-tag-2]{Used on 6 networks} \"Used on 128x18",
+    "button[wallet-shared-tag-13]{Used on 2 networks} \"Used o 128x18",
+    "button[wallet-shared-tag-3]{Used on 2 networks} \"Used on 128x18",
+    "button[wallet-shared-tag-11]{Used on 6 networks} \"Used o 128x18",
+    "button[wallet-shared-tag-5]{Used on 6 networks} \"Used on 128x18",
+    "button[wallet-shared-tag-4]{Used on 2 networks} \"Used on 128x18",
+    "button[wallet-shared-tag-12]{Used on 6 networks} \"Used o 128x18",
+    "button[wallet-shared-tag-6]{Used on 6 networks} \"Used on 128x18",
+    "button[wallet-shared-tag-1389]{Used on 6 networks} \"Used 128x18"
+   ],
+   "small24Count": 11,
+   "small44Count": 38,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Payout addresses"
+   ],
+   "navActive": [
+    "Money"
+   ],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": {
+    "x": 16,
+    "y": 125,
+    "w": 408,
+    "h": 52
+   },
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Payout addresses Manage the addresses your payments are forwarded to Options Add payout address Where your money lands ",
+   "gateway": false,
+   "loadMs": 8897,
+   "shotFold": "iphone-16-pro-max/wallet__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/wallet__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 693,
+    "bottomNavTop": 677,
+    "gap": -15
+   },
+   "shotBottom": "iphone-16-pro-max/wallet__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "wallet-security": {
+   "path": "/wallet-security",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/wallet-security",
+   "hasShell": false,
+   "topbarH": 0,
+   "banners": [],
+   "mainTop": 0,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 763,
+   "bottomNavH": 0,
+   "fixed": [],
+   "contentViewportPx": 763,
+   "contentViewportPct": 100,
+   "chromeTopPx": 0,
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "14": 1,
+    "15": 1,
+    "22": 1,
+    "14.5": 1
+   },
+   "distinctFontSizes": 4,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 4,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 0,
+   "interactiveTotal": 2,
+   "small44": [],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 0,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "This link has expired"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "This link has expired This security link has already been used or has expired. If you still think something's wrong, contact support right away. Contact suppo",
+   "gateway": false,
+   "loadMs": 2690,
+   "shotFold": "iphone-16-pro-max/wallet-security__fold.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "customers": {
+   "path": "/customers",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/customers",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 916,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Customers Everyone who has paid you \"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div[page-tip-customers]{Your customers} \"Your customers Anyone who pay",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div \"PAYING CUSTOMERS 0 + 12 invited, not\"",
+     "x": 16,
+     "y": 274,
+     "w": 408,
+     "h": 309
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [
+    {
+     "d": "div[customers-segment-chips] \"Paying Repeat New Dormant Invi",
+     "sw": 580,
+     "cw": 376
+    }
+   ],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 4,
+    "13": 4,
+    "15": 1,
+    "16": 1,
+    "22": 1,
+    "24": 4,
+    "13.5": 2,
+    "12.5": 8
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 4,
+   "textNodes": 25,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 14,
+   "interactiveTotal": 26,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "input[customers-search-input] 326x32",
+    "div{Sort customers} \"Most recent\" 174x39",
+    "button[customers-segment-paying] \"Paying\" 67x36",
+    "button[customers-segment-repeat] \"Repeat\" 68x36",
+    "button[customers-segment-new] \"New\" 53x36",
+    "button[customers-segment-dormant] \"Dormant\" 78x36",
+    "button[customers-segment-prospects] \"Invited\" 67x36",
+    "button[customers-segment-anonymous] \"Unidentified paymen 163x36",
+    "button[customers-segment-all] \"All\" 42x36"
+   ],
+   "small24": [
+    "button[customers-stat-revenue-hint]{What you received af 12x12"
+   ],
+   "small24Count": 1,
+   "small44Count": 12,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Customers"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Customers Everyone who has paid you — across links, store, tips and donations Your customers Anyone who pays you appears ",
+   "gateway": false,
+   "loadMs": 5599,
+   "shotFold": "iphone-16-pro-max/customers__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/customers__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 714,
+    "bottomNavTop": 677,
+    "gap": -37
+   },
+   "shotBottom": "iphone-16-pro-max/customers__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "referrals": {
+   "path": "/referrals",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/referrals",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 1061,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Refer & earn Earn 25% revenue share \"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div[page-tip-referrals]{Refer & earn} \"Refer & earn Share your link — ",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 83
+    },
+    {
+     "d": "div \"YOUR REFERRAL LINK You get 25% of th\"",
+     "x": 16,
+     "y": 255,
+     "w": 408,
+     "h": 682
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [
+    "\"4efc03ef-e58f-4eb0-9e31-2551073ae682.p\" 316/652"
+   ],
+   "fontSizes": {
+    "11": 1,
+    "13": 9,
+    "14": 7,
+    "16": 1,
+    "22": 1,
+    "13.5": 1,
+    "12.5": 3
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 23,
+   "truncatedCount": 1,
+   "longLines": [],
+   "interactiveInMain": 7,
+   "interactiveTotal": 19,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[copy-referral-link-btn] \"Copy Link\" 125x40",
+    "button[share-referral-btn]{Share Link} \"Share Link\" 127x40",
+    "button[share-whatsapp-btn]{Share on WhatsApp} 34x34",
+    "button[share-telegram-btn]{Share on Telegram} 34x34",
+    "button[share-x-btn]{Share on X} 34x34"
+   ],
+   "small24": [
+    "button[copy-referral-code-btn]{Copy referral code} 22x22"
+   ],
+   "small24Count": 1,
+   "small44Count": 8,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Refer & earn"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Refer & earn Earn 25% revenue share for every merchant you refer — they get 50% off fees Refer & earn Share your link — y",
+   "gateway": false,
+   "loadMs": 7134,
+   "shotFold": "iphone-16-pro-max/referrals__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/referrals__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 530,
+    "bottomNavTop": 677,
+    "gap": 147
+   },
+   "shotBottom": "iphone-16-pro-max/referrals__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "settings": {
+   "path": "/settings",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/settings",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 1741,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Settings Manage your account, brand,\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-settings]{Account vs. brand settings} \"Account vs. brand ",
+     "x": 16,
+     "y": 137,
+     "w": 408,
+     "h": 120
+    },
+    {
+     "d": "div \"Profile 8 more tabs… Developers Refe\"",
+     "x": 16,
+     "y": 273,
+     "w": 408,
+     "h": 1344
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 5,
+    "13": 11,
+    "14": 6,
+    "15": 2,
+    "17": 1,
+    "22": 1,
+    "13.5": 3,
+    "12.5": 1,
+    "11.5": 1
+   },
+   "distinctFontSizes": 9,
+   "tinyText": 0,
+   "smallText": 1,
+   "textNodes": 31,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 17,
+   "interactiveTotal": 29,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "div[overflow-tab-profile] \"Profile\" 99x36",
+    "div[overflow-tabs-more] \"8 more tabs…\" 144x36",
+    "div[settings-rail-developers] \"Developers\" 137x34",
+    "div[settings-rail-referrals] \"Referrals\" 123x34",
+    "a[profile-brand-logo-link] \"manage brand logos\" 198x34",
+    "div{Communication language} \"English\" 342x39"
+   ],
+   "small24": [
+    "input[first-name-input]{First name} 342x23",
+    "input[last-name-input]{Surname} 342x23",
+    "input[email-display-input]{E-mail} 230x23",
+    "input[phone-display-input]{Mobile} 210x23"
+   ],
+   "small24Count": 4,
+   "small44Count": 9,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Settings"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Settings Manage your account, brand, and integration configuration Account vs. brand settings Some settings apply to your",
+   "gateway": false,
+   "loadMs": 5996,
+   "shotFold": "iphone-16-pro-max/settings__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/settings__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 575,
+    "bottomNavTop": 677,
+    "gap": 103
+   },
+   "shotBottom": "iphone-16-pro-max/settings__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "developer-keys": {
+   "path": "/developer-keys",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/developer-keys",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 3508,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Developers API keys, webhooks, deliv\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div \"WEBHOOKS · 24 H 100% Last failure Se\"",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 3227
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "10": 2,
+    "11": 7,
+    "12": 21,
+    "13": 12,
+    "14": 5,
+    "15": 1,
+    "18": 2,
+    "22": 4,
+    "13.5": 1,
+    "10.5": 12,
+    "12.5": 15,
+    "11.5": 1
+   },
+   "distinctFontSizes": 12,
+   "tinyText": 14,
+   "smallText": 8,
+   "textNodes": 83,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 26,
+   "interactiveTotal": 38,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[dev-health-retry] \"Retry last failure\" 117x36",
+    "button[dev-health-open-webhooks] \"Events log\" 81x36",
+    "button[dev-health-open-keys] \"Manage keys\" 98x36",
+    "button[dev-health-open-docs] \"Docs\" 48x36",
+    "a[dev-health-open-reference]{Full API reference (opens i 100x36",
+    "div[developers-tab-keys] \"Keys\" 84x36",
+    "div[overflow-tabs-more] \"3 more tabs…\" 144x36",
+    "div{Settlement currency} \"USD\" 118x38",
+    "input[sandbox-create-amount-input] 124x40"
+   ],
+   "small24": [
+    "span[sandbox-badge]{Created automatically when y} \"· San 57x19",
+    "button[try-first-payment-regenerate] \"Regenerate sandbox 234x23",
+    "button[sandbox-recent-refresh]{Refresh} 23x23",
+    "button \"a15b9932…113c23\" 108x19"
+   ],
+   "small24Count": 4,
+   "small44Count": 14,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Developers"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Developers API keys, webhooks, delivery events and integration docs — in one place WEBHOOKS · 24 H 100% Last failure Sep",
+   "gateway": false,
+   "loadMs": 8095,
+   "shotFold": "iphone-16-pro-max/developer-keys__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/developer-keys__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 566,
+    "bottomNavTop": 677,
+    "gap": 112
+   },
+   "shotBottom": "iphone-16-pro-max/developer-keys__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "notifications": {
+   "path": "/notifications",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/notifications",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 2704,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Notifications Payments, payouts and \"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-notifications]{Every event, in one feed} \"Every event, in",
+     "x": 16,
+     "y": 137,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div \"Inbox Settings All 20 Payments 20 Se\"",
+     "x": 16,
+     "y": 254,
+     "w": 408,
+     "h": 2326
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "11": 5,
+    "12": 42,
+    "13": 7,
+    "14": 2,
+    "22": 1,
+    "13.5": 21,
+    "12.5": 20
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 5,
+   "textNodes": 98,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 48,
+   "interactiveTotal": 60,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "button[notifications-inbox-tab] \"Inbox\" 65x36",
+    "button[notifications-settings-tab] \"Settings\" 83x36"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 5,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Notifications"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Notifications Payments, payouts and account activity, newest first Every event, in one feed Payments, payouts, KYC and se",
+   "gateway": false,
+   "loadMs": 8966,
+   "shotFold": "iphone-16-pro-max/notifications__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/notifications__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 564,
+    "bottomNavTop": 677,
+    "gap": 113
+   },
+   "shotBottom": "iphone-16-pro-max/notifications__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "help-support": {
+   "path": "/help-support",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/help-support",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 707,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Help & Support Get help and hints on\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 81
+    },
+    {
+     "d": "div \"Getting Started with Dynopay Learn h\"",
+     "x": 16,
+     "y": 137,
+     "w": 408,
+     "h": 446
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 1,
+    "13": 1,
+    "14": 8,
+    "15": 1,
+    "17": 8,
+    "22": 2,
+    "13.5": 1
+   },
+   "distinctFontSizes": 7,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 22,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 12,
+   "interactiveTotal": 24,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44",
+    "input[help-search-input]{Search articles...} 376x40"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 4,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Help & Support"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Help & Support Get help and hints on how to use Dynopay Getting Started with Dynopay Learn how to set up your account an",
+   "gateway": false,
+   "loadMs": 6807,
+   "shotFold": "iphone-16-pro-max/help-support__fold.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "brands": {
+   "path": "/brands",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/brands",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 101,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 520,
+   "contentViewportPct": 68,
+   "chromeTopPx": 157,
+   "mainW": 440,
+   "mainScrollH": 1472,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Brands All your brands at a glance —\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 101
+    },
+    {
+     "d": "div \"Sorted by settled volume Today 7D 30\"",
+     "x": 16,
+     "y": 157,
+     "w": 408,
+     "h": 426
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 20,
+    "13": 10,
+    "15": 4,
+    "16": 17,
+    "18": 5,
+    "22": 1,
+    "13.5": 2,
+    "12.5": 5
+   },
+   "distinctFontSizes": 8,
+   "tinyText": 0,
+   "smallText": 0,
+   "textNodes": 64,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 10,
+   "interactiveTotal": 22,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 3,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Brands"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Brands All your brands at a glance — settled volume, pending funds and anything that needs attention. Sorted by settled vo",
+   "gateway": false,
+   "loadMs": 8801,
+   "shotFold": "iphone-16-pro-max/brands__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/brands__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 745,
+    "bottomNavTop": 677,
+    "gap": -67
+   },
+   "shotBottom": "iphone-16-pro-max/brands__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "kyc": {
+   "path": "/kyc",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/kyc",
+   "hasShell": true,
+   "topbarH": 56,
+   "banners": [
+    {
+     "d": "a[skip-to-content] \"Skip to main content\"",
+     "h": 38
+    }
+   ],
+   "mainTop": 56,
+   "pageHeaderH": 81,
+   "pageHeaderPos": "sticky",
+   "bottomNavTop": 677,
+   "bottomNavH": 78,
+   "fixed": [
+    {
+     "d": "div \"Home Sell Money More\"",
+     "x": 0,
+     "y": 677,
+     "w": 440,
+     "h": 86
+    }
+   ],
+   "contentViewportPx": 540,
+   "contentViewportPct": 71,
+   "chromeTopPx": 137,
+   "mainW": 440,
+   "mainScrollH": 1209,
+   "mainClientH": 707,
+   "mainStack": [
+    {
+     "d": "div[main-page-header] \"Identity verification Where you stan\"",
+     "x": 16,
+     "y": 56,
+     "w": 408,
+     "h": 81
+    },
+    {
+     "d": "div[page-tip-kyc]{Verification is a one-time, } \"Verification is a one",
+     "x": 16,
+     "y": 137,
+     "w": 408,
+     "h": 120
+    },
+    {
+     "d": "div \"You're verified Identity confirmed. \"",
+     "x": 16,
+     "y": 273,
+     "w": 408,
+     "h": 310
+    }
+   ],
+   "contentColW": 408,
+   "mainPadX": "16px/16px",
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 3,
+    "13": 9,
+    "14": 1,
+    "15": 2,
+    "20": 1,
+    "22": 1,
+    "13.5": 1,
+    "14.5": 4,
+    "11.5": 6
+   },
+   "distinctFontSizes": 9,
+   "tinyText": 0,
+   "smallText": 6,
+   "textNodes": 28,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 1,
+   "interactiveTotal": 13,
+   "small44": [
+    "a[skip-to-content] \"Skip to main content\" 172x38",
+    "a[header-notifications-bell]{Notifications} 40x44",
+    "div[user-menu-trigger]{John Davis} 40x44"
+   ],
+   "small24": [],
+   "small24Count": 0,
+   "small44Count": 3,
+   "inputsUnder16": [],
+   "containedAboveFold": [],
+   "h1": [
+    "Identity verification"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": false,
+   "bodyStart": "Skip to main content The Dev Store Identity verification Where you stand, what you'll need and how long it takes. Verification is a one-time, few-minute chec",
+   "gateway": false,
+   "loadMs": 7203,
+   "shotFold": "iphone-16-pro-max/kyc__fold.jpg",
+   "shotScrolled": "iphone-16-pro-max/kyc__scrolled.jpg",
+   "bottom": {
+    "lastContentBottom": 648,
+    "bottomNavTop": 677,
+    "gap": 29
+   },
+   "shotBottom": "iphone-16-pro-max/kyc__bottom.jpg",
+   "errors": [],
+   "apiErr": []
+  },
+  "saved": {
+   "path": "/saved",
+   "iw": 440,
+   "ih": 763,
+   "coarse": true,
+   "url": "/saved",
+   "hasShell": false,
+   "topbarH": 0,
+   "banners": [],
+   "mainTop": 0,
+   "pageHeaderH": 0,
+   "pageHeaderPos": null,
+   "bottomNavTop": 763,
+   "bottomNavH": 0,
+   "fixed": [
+    {
+     "d": "header[home-header] \"ProductDevelopersResourcesPricingEng\"",
+     "x": 0,
+     "y": 0,
+     "w": 440,
+     "h": 65
+    },
+    {
+     "d": "div[public-dashboard-bar]{You're signed in} \"You're signed in onarriva",
+     "x": 0,
+     "y": 699,
+     "w": 440,
+     "h": 64
+    },
+    {
+     "d": "button[support-chat-button]{Open support chat}",
+     "x": 368,
+     "y": 619,
+     "w": 56,
+     "h": 56
+    }
+   ],
+   "contentViewportPx": 763,
+   "contentViewportPct": 100,
+   "chromeTopPx": 0,
+   "sidebarW": 0,
+   "docOverflowX": false,
+   "clippedRight": [],
+   "hScrollers": [],
+   "clippedRightCount": 0,
+   "truncated": [],
+   "fontSizes": {
+    "12": 5,
+    "13": 3,
+    "14": 33,
+    "17": 1,
+    "28": 1,
+    "14.5": 1,
+    "11.5": 6,
+    "70.5": 1,
+    "13.5": 2
+   },
+   "distinctFontSizes": 9,
+   "tinyText": 0,
+   "smallText": 6,
+   "textNodes": 53,
+   "truncatedCount": 0,
+   "longLines": [],
+   "interactiveInMain": 0,
+   "interactiveTotal": 43,
+   "small44": [
+    "a[footer-status-link] \"All systems operational\" 187x34",
+    "a[footer-social-x]{X} 38x38",
+    "a[footer-social-instagram]{Instagram} 38x38",
+    "a[footer-social-linkedin]{LinkedIn} 38x38",
+    "a[footer-social-facebook]{Facebook} 38x38"
+   ],
+   "small24": [
+    "a[footer-link-products-payment-links] \"Payment links\" 94x21",
+    "a[footer-link-pay-demo-hosted-checkout] \"Hosted checkout 115x21",
+    "a[footer-link-for-creators-storefront] \"Storefront\" 68x21",
+    "a[footer-link-pay-donation-demo-donations-tips] \"Donatio 110x21",
+    "a[footer-link-products-invoices] \"Invoices\" 56x21",
+    "a[footer-link-fees-fees] \"Fees\" 32x21",
+    "a[footer-link-for-ecommerce-e-commerce] \"E-commerce\" 87x21",
+    "a[footer-link-for-saas-saas] \"SaaS\" 34x21",
+    "a[footer-link-for-freelancers-freelancers] \"Freelancers\" 79x21",
+    "a[footer-link-for-digital-downloads-digital-downloads] \" 122x21",
+    "a[footer-link-for-marketplaces-marketplaces] \"Marketplac 91x21",
+    "a[footer-link-for-nonprofits-nonprofits] \"Nonprofits\" 71x21"
+   ],
+   "small24Count": 30,
+   "small44Count": 5,
+   "inputsUnder16": [],
+   "containedAboveFold": [
+    "Back to home"
+   ],
+   "h1": [
+    "Your saved merchants"
+   ],
+   "navActive": [],
+   "skeletons": 0,
+   "dialogs": [],
+   "pageAction": null,
+   "footer": true,
+   "bodyStart": "Your saved merchants Merchants you saved after paying. Stored on this device only — no account needed. Nothing saved yet After you pay a merchant with Dynopa",
+   "gateway": false,
+   "loadMs": 4297,
+   "shotFold": "iphone-16-pro-max/saved__fold.jpg",
+   "errors": [],
+   "apiErr": []
+  }
+ },
+ "overlays": {
+  "drawer": {
+   "shot": "iphone-16-pro-max/overlay__drawer.jpg",
+   "m": {
+    "w": 340,
+    "h": 763,
+    "items": 13,
+    "innerScroll": {
+     "sh": 725,
+     "ch": 542
+    }
+   }
+  },
+  "bottom-more": {
+   "shot": "iphone-16-pro-max/overlay__bottom-more.jpg",
+   "m": {
+    "top": 655,
+    "h": 100,
+    "pct": 13,
+    "items": 19
+   }
+  },
+  "create": {
+   "shot": "iphone-16-pro-max/overlay__create.jpg",
+   "m": null
+  },
+  "user-menu": {
+   "shot": "iphone-16-pro-max/overlay__user-menu.jpg",
+   "m": null
+  }
+ },
+ "firstVisit": {
+  "page": "dashboard",
+  "dialogs": [],
+  "banners": [
+   {
+    "d": "a[skip-to-content] \"Skip to main content\"",
+    "h": 38
+   }
+  ],
+  "mainStack": [
+   {
+    "d": "div[main-page-header] \"Good afternoon, John Thursday, Octob\"",
+    "x": 0,
+    "y": 56,
+    "w": 440,
+    "h": 81
+   },
+   {
+    "d": "main \"Quiet · last paid 18 min ago 7D SETT\"",
+    "x": 0,
+    "y": 137,
+    "w": 440,
+    "h": 1473
+   }
+  ],
+  "fixed": [
+   {
+    "d": "div \"Home Sell Money More\"",
+    "x": 0,
+    "y": 677,
+    "w": 440,
+    "h": 86
+   }
+  ],
+  "shot": "iphone-16-pro-max/dashboard__first-visit.jpg"
+ },
+ "blockedWrites": [
+  "POST /api/track/attribution"
+ ]
+}

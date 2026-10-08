@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Box, Button, useTheme } from "@mui/material";
 import AddRounded from "@mui/icons-material/AddRounded";
-import KeyboardArrowDownRounded from "@mui/icons-material/KeyboardArrowDownRounded";
 import QuickCreateLinkPanel from "@/Components/Page/Payment-link/QuickCreateLinkPanel";
 import CreateHub from "./CreateHub";
 import { OPEN_CREATE_HUB_EVENT, QUICK_CREATE_LINK_EVENT } from "@/Components/Common/CommandPalette";
@@ -164,7 +163,6 @@ const CreateNewButton: React.FC<Props> = ({ variant = "header" }) => {
         <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
           {t("navNew", { defaultValue: "New" })}
         </Box>
-        <KeyboardArrowDownRounded sx={{ fontSize: 16, display: { xs: "none", sm: "inline-block" }, opacity: 0.8 }} />
       </Button>
       )}
 

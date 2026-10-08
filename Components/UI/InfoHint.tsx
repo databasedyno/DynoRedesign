@@ -22,6 +22,10 @@ const InfoHint: React.FC<{ text: string; testId?: string; size?: number }> = ({ 
         color: "text.secondary",
         opacity: 0.75,
         borderRadius: "50%",
+        // Invisible hit area: ≥ 24px with a mouse, ≥ 44px on touch (UX audit S18).
+        position: "relative",
+        "&::after": { content: '""', position: "absolute", inset: "-6px" },
+        "@media (pointer: coarse)": { "&::after": { inset: "-16px" } },
         "&:hover": { opacity: 1 },
         "&:focus-visible": { outline: "2px solid currentColor", outlineOffset: 2 },
       }}

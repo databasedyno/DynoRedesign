@@ -1,17 +1,16 @@
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { SHELL_Q } from "@/styles/shellTokens";
 
 /**
- * useTableCardView — the ONE shared responsive-table breakpoint (§4.2).
+ * useTableCardView — the ONE shared responsive-table breakpoint.
  *
- * Data tables (transactions, pay-links, invoices, customers) must stay TABLES
- * at >=768px (with horizontal scroll + a sticky action/first column) and
- * collapse to a CARD LIST below 768px. Centralising the breakpoint here means
- * all four surfaces switch at exactly the same width instead of each picking a
- * different MUI breakpoint (md=900 vs sm=600 vs never), which is what the §7
- * responsive sweep flagged.
+ * Data tables (transactions, invoices, customers) render as a CARD LIST on
+ * phones, tablets (< 1024px) and touch screens up to 1279px (iPad landscape):
+ * the tablet band used to squeeze the full desktop table into ~700px (wrapped
+ * headers, cut columns — UX audit S4a) and gave fingers desktop density.
  *
- * @returns true when the viewport should render the mobile card list (< 768px).
+ * @returns true when the viewport should render the card list.
  */
 export default function useTableCardView(): boolean {
-  return useMediaQuery("(max-width:767.95px)");
+  return useMediaQuery(SHELL_Q.cardList, { noSsr: true });
 }

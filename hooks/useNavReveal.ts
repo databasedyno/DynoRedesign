@@ -69,7 +69,9 @@ const listeners = new Set<(key: string, flags: NavRevealFlags) => void>();
 const readSession = (companyKey: string): NavRevealFlags | null => {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.sessionStorage.getItem(storageKey(companyKey));
+    // localStorage (cross-session) so the full nav renders on a cold start
+    // instead of popping rows in after /getCompany resolves (UX audit S5).
+    const raw = window.localStorage.getItem(storageKey(companyKey)) ?? window.sessionStorage.getItem(storageKey(companyKey));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     return {
@@ -85,7 +87,7 @@ const readSession = (companyKey: string): NavRevealFlags | null => {
 const writeSession = (companyKey: string, flags: NavRevealFlags) => {
   if (typeof window === "undefined") return;
   try {
-    window.sessionStorage.setItem(storageKey(companyKey), JSON.stringify(flags));
+    window.localStorage.setItem(storageKey(companyKey), JSON.stringify(flags));
   } catch {
     /* private mode / quota — the in-memory cache still holds for this page */
   }

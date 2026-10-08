@@ -20,6 +20,7 @@ export const SelectorTrigger = styled("div")(({ theme }) => ({
     padding: "0px",
     gap: "4px",
     border: "none",
+    justifyContent: "flex-start",
   },
 }));
 
@@ -42,7 +43,8 @@ export const TriggerText = styled("span")(({ theme }) => ({
     verticalAlign: "middle",
   },
   [theme.breakpoints.down("sm")]: {
-    fontSize: "12.5px",
+    fontSize: "14px",
+    fontWeight: 600,
   },
 }));
 
