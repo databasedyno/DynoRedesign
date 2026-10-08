@@ -137,6 +137,15 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────
   docker-build:
     name: docker build ./Dockerfile (no push)
+    # Minute-saver (2026-06): on a push to `Improvement`, deploy-droplet.yml already
+    # runs this exact `docker build` as part of build-and-deploy. Both fire on the same
+    # push, so preflight's copy gives no fast-fail head start — it just doubles the
+    # ~10-min build and burns the free Actions allotment twice as fast (which is what
+    # exhausted the quota and blocked deploys, 2026-10-08). Keep the heavy build only
+    # where it is the ONLY build: PRs (pre-merge), manual dispatch, and pushes to any
+    # OTHER branch that deploy-droplet does not build. The cheap tsc/unused-import/eslint
+    # gates below still run on EVERY push, so real code errors still fail fast in <60s.
+    if: ${{ !(github.event_name == 'push' && github.ref_name == 'Improvement') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
