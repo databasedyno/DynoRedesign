@@ -142,6 +142,13 @@
 ## - SafeDeal customer sign-in: any *@example.com email → one-time code in UI (sd-signin-preview-code) and POST /api/safedeal/auth/send-code → data.preview_code.
 ## - Simulated funding is DISABLED on this pod (SAFEDEAL_ALLOW_SIMULATION unset) — cannot fund deals; test fee math via /api/safedeal/fee-preview and the create-deal quote UI.
 
+## 2026-10-08 — SafeDeal REFERRALS & REWARDS QA identities (throwaway @example.com, sign in via preview_code)
+## - Referrer A: sd_qa_refa_1791457005@example.com (cid 1116) — referral code 55QYKP8, $30 fee credit (3 rewarded friends + $15 milestone; seeded by backend/scripts/safedeal_rewards_selftest.ts on IN-MEMORY deals).
+## - Referee B: sd_qa_refb_1791457005@example.com (cid 1117) — referred by A, welcome credit already spent (balance $0). Open deal SD-353 "QA ref deal" A(seller)→B(buyer) $120, invite_url carries ?ref=55QYKP8.
+## - Referees C/D: sd_qa_refc_/sd_qa_refd_1791457005@example.com (cid 1118/1119).
+## - A NEW referee: open /safedeal?ref=55QYKP8 (banner sd-referral-banner) → sign in with a NEW *@example.com → gets $5 welcome credit (GET /api/safedeal/rewards → credit.balance 5).
+## - Purge after QA: node /app/backend/scripts/purge_test_data.js --apply (customers cascade → referral + credit-ledger rows).
+
 
 ## 2026-09-25 (fork) — POD PREVIEW URL + QA CENTER PASSCODE (read first)
 ## - LIVE preview URL for THIS pod = https://secure-passphrase-18.preview.emergentagent.com (env `preview_endpoint`). The parent-job URL db6f1699-…preview.emergentagent.com is STALE → resolves to Cloudflare/Webflow prod → 404s all /api/*. Never use it.

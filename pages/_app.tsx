@@ -729,11 +729,12 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
              navigation instead of leaving the last-rendered one stuck. */}
         {pathname.startsWith("/safedeal") ? (
           <>
-            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/safedeal/favicon.svg?v=1" />
-            <link key="fav-ico" rel="icon" href="/safedeal/favicon-48.png?v=1" sizes="any" />
-            <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/safedeal/favicon-48.png?v=1" />
-            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/safedeal/favicon-192.png?v=1" />
-            <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/safedeal/apple-touch-icon.png?v=1" />
+            {/* Tab icon adapts to the browser theme (black symbol on light tabs, white on dark);
+                the ICO (black symbol on a white tile) is the legacy fallback. */}
+            <link key="fav-ico" rel="icon" href="/safedeal/favicon.ico?v=2" sizes="32x32" />
+            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/safedeal/favicon.svg?v=2" />
+            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/safedeal/favicon-192.png?v=2" />
+            <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/safedeal/apple-touch-icon.png?v=2" />
             <link key="fav-manifest" rel="manifest" href="/safedeal/manifest.webmanifest" />
           </>
         ) : (

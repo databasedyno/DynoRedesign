@@ -210,7 +210,7 @@ const RouteTransitionLoader: React.FC = () => {
               },
             }}
           >
-            <SafeDealMark size={96} ring={isDark} />
+            <SafeDealMark size={96} onDark={isDark} />
           </Box>
           <Typography
             data-testid="route-transition-caption-safedeal"

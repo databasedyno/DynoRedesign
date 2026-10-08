@@ -44,6 +44,7 @@ r.post("/safedeal/auth/send-code", otpRateLimiter, safedealController.sendCode);
 r.post("/safedeal/auth/verify-code", otpRateLimiter, safedealController.verifyCode);
 r.post("/safedeal/auth/telegram", telegramLimiter, safedealController.telegramAuth);
 r.get("/safedeal/deals/:token/preview", safedealController.previewDeal);
+r.get("/safedeal/referral/:code", safedealController.referralCheck);
 // Rendered share card for chat/social unfurls of a deal link (public, read-only)
 r.get("/safedeal/og-image", getSafeDealOgImage);
 // Dynopay → SafeDeal payment events (HMAC-signed; SafeDeal is an API-key merchant of Dynopay)
@@ -51,6 +52,7 @@ r.post("/safedeal/webhooks/dynopay", safedealController.dynopayWebhook);
 
 // ── signed-in SafeDeal user (x-safedeal-token) ───────────────────────────────
 r.get("/safedeal/me", safedealAuth, safedealController.me);
+r.get("/safedeal/rewards", safedealAuth, safedealController.rewards);
 r.post("/safedeal/profile", safedealAuth, safedealController.updateProfile);
 r.get("/safedeal/telegram", safedealAuth, safedealController.telegramStatus);
 r.post("/safedeal/telegram/link", safedealAuth, safedealController.telegramLink);

@@ -1184,6 +1184,58 @@ const createCheckoutSessionTable = async (): Promise<void> => {
   await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_checkout_session_viewed" ON "tbl_checkout_session" ("viewed_at" DESC)`);
 };
 
+/**
+ * 0064 — SafeDeal referrals & loyalty: referral code + non-cashable fee-credit balance on the
+ * profile, referral + credit-ledger tables, and per-deal loyalty level / applied credits.
+ * Additive + idempotent — safe on live prod.
+ */
+const addSafeDealRewards = async (): Promise<void> => {
+  const { default: sequelize } = await import("../utils/dbInstance");
+  await sequelize.query(
+    `ALTER TABLE "tbl_safedeal_profile"
+       ADD COLUMN IF NOT EXISTS "referral_code" VARCHAR(16),
+       ADD COLUMN IF NOT EXISTS "referred_by_customer_id" INTEGER,
+       ADD COLUMN IF NOT EXISTS "fee_credit_usd" NUMERIC(12,2) NOT NULL DEFAULT 0`
+  );
+  await sequelize.query(`CREATE UNIQUE INDEX IF NOT EXISTS "ux_sd_profile_referral_code" ON "tbl_safedeal_profile" ("referral_code") WHERE "referral_code" IS NOT NULL`);
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_safedeal_referral" (
+       "referral_id" SERIAL PRIMARY KEY,
+       "referrer_customer_id" INTEGER NOT NULL REFERENCES "tbl_customer"("customer_id") ON DELETE CASCADE,
+       "referee_customer_id" INTEGER NOT NULL UNIQUE REFERENCES "tbl_customer"("customer_id") ON DELETE CASCADE,
+       "code" VARCHAR(16) NOT NULL,
+       "status" VARCHAR(16) NOT NULL DEFAULT 'joined',
+       "qualifying_escrow_id" INTEGER,
+       "reward_usd" NUMERIC(12,2) NOT NULL DEFAULT 0,
+       "rewarded_at" TIMESTAMPTZ,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_sd_referral_referrer" ON "tbl_safedeal_referral" ("referrer_customer_id", "created_at" DESC)`);
+  await sequelize.query(
+    `CREATE TABLE IF NOT EXISTS "tbl_safedeal_credit_ledger" (
+       "entry_id" SERIAL PRIMARY KEY,
+       "customer_id" INTEGER NOT NULL REFERENCES "tbl_customer"("customer_id") ON DELETE CASCADE,
+       "kind" VARCHAR(24) NOT NULL,
+       "amount_usd" NUMERIC(12,2) NOT NULL,
+       "balance_after_usd" NUMERIC(12,2) NOT NULL DEFAULT 0,
+       "escrow_id" INTEGER,
+       "referral_id" INTEGER,
+       "note" TEXT,
+       "reference" VARCHAR(80) NOT NULL UNIQUE,
+       "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+     )`
+  );
+  await sequelize.query(`CREATE INDEX IF NOT EXISTS "idx_sd_credit_ledger_customer" ON "tbl_safedeal_credit_ledger" ("customer_id", "created_at" DESC)`);
+  await sequelize.query(
+    `ALTER TABLE "tbl_escrow_deal"
+       ADD COLUMN IF NOT EXISTS "creator_ref_code" VARCHAR(16),
+       ADD COLUMN IF NOT EXISTS "fee_level" VARCHAR(40),
+       ADD COLUMN IF NOT EXISTS "fee_credit_buyer_usd" NUMERIC(12,2) NOT NULL DEFAULT 0,
+       ADD COLUMN IF NOT EXISTS "fee_credit_seller_usd" NUMERIC(12,2) NOT NULL DEFAULT 0`
+  );
+};
+
 
 export async function buildBootMigrations(): Promise<Migration[]> {  const { v1, extra } = await loadBootModelGroups();  return [
     { version: "0001_boot_model_tables", up: syncGroup(v1) },
@@ -1246,6 +1298,7 @@ export async function buildBootMigrations(): Promise<Migration[]> {  const { v1,
     { version: "0061_bot_hit", up: createBotHitTable },
     { version: "0062_admin_trusted_device", up: createAdminTrustedDeviceTable },
     { version: "0063_checkout_session", up: createCheckoutSessionTable },
+    { version: "0064_safedeal_rewards", up: addSafeDealRewards },
     ...perfMigrations,
     ...securityMigrations,
   ];

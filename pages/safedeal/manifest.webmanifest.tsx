@@ -29,14 +29,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     background_color: "#F5F7FA",
     categories: ["finance", "business"],
     icons: [
-      { src: "/safedeal/favicon-192.png?v=1", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/safedeal/favicon-512.png?v=1", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/safedeal/favicon-maskable-512.png?v=1", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/safedeal/favicon-192.png?v=2", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/safedeal/favicon-512.png?v=2", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/safedeal/favicon-maskable-512.png?v=2", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "New deal", short_name: "New deal", url: `${base}/deals/new?source=pwa`, icons: [{ src: "/safedeal/favicon-192.png?v=1", sizes: "192x192" }] },
-      { name: "My deals", short_name: "Deals", url: `${base}/deals?tab=deals&source=pwa`, icons: [{ src: "/safedeal/favicon-192.png?v=1", sizes: "192x192" }] },
-      { name: "Wallet", short_name: "Wallet", url: `${base}/wallet?source=pwa`, icons: [{ src: "/safedeal/favicon-192.png?v=1", sizes: "192x192" }] },
+      { name: "New deal", short_name: "New deal", url: `${base}/deals/new?source=pwa`, icons: [{ src: "/safedeal/favicon-192.png?v=2", sizes: "192x192" }] },
+      { name: "My deals", short_name: "Deals", url: `${base}/deals?tab=deals&source=pwa`, icons: [{ src: "/safedeal/favicon-192.png?v=2", sizes: "192x192" }] },
+      { name: "Wallet", short_name: "Wallet", url: `${base}/wallet?source=pwa`, icons: [{ src: "/safedeal/favicon-192.png?v=2", sizes: "192x192" }] },
     ],
   };
 

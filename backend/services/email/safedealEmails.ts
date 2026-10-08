@@ -199,6 +199,30 @@ export async function sendSafeDealWithdrawalRejectedEmail(toEmail: string, w: Wi
 
 // ─── Top-ups & invoices ──────────────────────────────────────────────────────
 
+/** Referral reward / milestone bonus credited (non-cashable SafeDeal fee credit). */
+export async function sendSafeDealReferralRewardEmail(
+  toEmail: string,
+  r: { amount: number; kind: "referral" | "milestone"; friend?: string; friends?: number; balance: number }
+): Promise<void> {
+  if (!toEmail || /@telegram\.safedeal$/i.test(toEmail)) return;
+  const why =
+    r.kind === "milestone"
+      ? `You reached <b>${r.friends} rewarded friends</b> — here's your milestone bonus.`
+      : `<b>${esc(r.friend || "Your friend")}</b> completed their first SafeDeal. Thanks for spreading the word.`;
+  const message =
+    amountHero(usd(r.amount), { pill: "FEE CREDIT", pillType: "success", sublabel: `Credit balance ${usd(r.balance)}` }) +
+    p(why) +
+    p(`Fee credit is used automatically on the escrow fee of your next released deal where you pay the fee. It can't be cashed out.`);
+  await sendEmail(
+    toEmail,
+    toEmail,
+    r.kind === "milestone" ? `Milestone bonus: ${usd(r.amount)} SafeDeal fee credit` : `You earned ${usd(r.amount)} SafeDeal fee credit`,
+    message,
+    false,
+    sdAccount("wallet", { heading: r.kind === "milestone" ? "Milestone reached" : "Referral reward", cta: { text: "See my rewards", link: `${safedealBaseUrl()}/rewards` } })
+  );
+}
+
 const pdfAttachment = (name: string, pdf: Buffer) => ({ name, content: pdf.toString("base64"), contentType: "application/pdf" });
 
 /** Wallet top-up credited — send the branded deposit receipt PDF (DEP-<id>) + the funding tx. */

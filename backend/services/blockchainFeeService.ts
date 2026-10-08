@@ -321,7 +321,7 @@ const calculateUtxoFee = async (
     ? { fast: BCH_SAT_PER_BYTE, medium: BCH_SAT_PER_BYTE, slow: BCH_SAT_PER_BYTE }
     : (await fetchTatumFee(chain) as { fast?: number; medium?: number; slow?: number });
   const satPerByte = feeData[speed] || feeData.fast || 0;
-  const txSize = TX_SIZES[chain] || 250;
+  const txSize = (TX_SIZES as Record<string, number>)[chain] || 250;
   
   // Calculate fee in satoshis, then convert to native currency
   const feeInSatoshis = satPerByte * txSize;

@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Alert, Box, Button, Container, Skeleton, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { motion, useReducedMotion } from "framer-motion";
-import safedealApi, { SdAddress, SdDeal, SdStatementRow, SdTopup, SdWallet, isPlaceholderSdEmail, sdError } from "@/api/safedeal";
+import safedealApi, { SdAddress, SdDeal, SdStatementRow, SdTopup, SdWallet, isPlaceholderSdEmail, sdError, sdReferral } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useRequireSdSession, useSdHref } from "../sdRouting";
 import useToast from "@/hooks/useToast";
@@ -21,6 +21,7 @@ import DocumentsList from "./DocumentsList";
 import CashoutsList from "./CashoutsList";
 import PayoutSettings from "./PayoutSettings";
 import TelegramAlertsCard from "./TelegramAlertsCard";
+import RewardsTeaser from "../Rewards/RewardsTeaser";
 import { AddAddressDialog, WithdrawDialog, shortAddr } from "./WalletDialogs";
 
 export type HomeTab = "overview" | "deals" | "activity" | "documents";
@@ -84,6 +85,10 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
   const [dialog, setDialog] = useState<Dialog>(null);
   const [addEmailOpen, setAddEmailOpen] = useState(false);
   const notify = useCallback((msg: string, severity: "success" | "error" = "success") => showToast({ message: msg, severity }), [showToast]);
+  useEffect(() => {
+    const welcome = sdReferral.takeWelcome();
+    if (welcome) notify(`Welcome to SafeDeal — your friend's invite gave you $${welcome} off your first deal fee.`);
+  }, [notify]);
 
   useEffect(() => {
     if (router.isReady && isTab(router.query.tab)) setTab(router.query.tab);
@@ -257,6 +262,7 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
           <Box sx={{ display: "grid", gap: 2.5, gridTemplateColumns: { xs: "1fr", lg: "1.6fr 1fr" }, alignItems: "start" }}>
             <ActivityFeed rows={rows} from={from} to={to} onRange={(f, t) => { setFrom(f); setTo(t); }} onCsv={() => void exportCsv()} compact={6} onSeeAll={() => changeTab("activity")} />
             <Stack spacing={2.5}>
+              <RewardsTeaser href={href} />
               {w ? <PayoutSettings wallet={w} onAdd={() => setDialog("address")} onRemove={(a) => setDialog({ remove: a })} onToggleAuto={(on) => void toggleAutoWithdraw(on)} onAutoAddress={(id) => void setAutoAddress(id)} onVerified={() => void load()} /> : <Skeleton variant="rounded" height={200} />}
               <TelegramAlertsCard notify={notify} />
             </Stack>

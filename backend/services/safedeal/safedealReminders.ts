@@ -44,8 +44,8 @@ export async function runSafeDealReminders(now = new Date()): Promise<ReminderRu
   for (const deal of invited) {
     if (!notSent(deal, "invite_3d")) continue;
     try {
-      void sendEscrowInviteReminderEmail(deal.counterparty_email, deal, deal.creator_email || "the other party", escrowEngine.dealUrl(deal));
-      void notifyDealStage(deal, "remind_invite", deal.counterparty_email, escrowEngine.dealUrl(deal));
+      void sendEscrowInviteReminderEmail(deal.counterparty_email, deal, deal.creator_email || "the other party", escrowEngine.inviteLinkFor(deal));
+      void notifyDealStage(deal, "remind_invite", deal.counterparty_email, escrowEngine.inviteLinkFor(deal));
       await stamp(deal, "invite_3d");
       out.invite_3d.push(deal.escrow_id);
     } catch (e) {

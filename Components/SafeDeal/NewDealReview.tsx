@@ -77,6 +77,19 @@ function Fact({ icon, label, value, testid }: { icon: string; label: string; val
 /** Itemised live quote (dark panel + mobile bar), tailored to the viewer's role.
  *  `showFees=false` renders a limited quote (deal amount + hint) for the early step,
  *  before the buyer/seller/split fee-payer choice is made. */
+/** Loyalty rate + fee credit (applied when the deal is released) for the signed-in creator. */
+function RewardsQuoteNote({ preview }: { preview: SdFeePreview }) {
+  const credit = preview.feeCreditPreviewUsd || 0;
+  const loyal = !!preview.feeLevel && preview.standardFeePercent != null && preview.feePercent < preview.standardFeePercent;
+  if (!credit && !loyal) return null;
+  return (
+    <Stack spacing={0.4} data-testid="sd-quote-rewards" sx={{ p: 1, borderRadius: 2, border: `1px dashed ${SD_GOLD}`, backgroundColor: "rgba(255,198,26,0.08)" }}>
+      {loyal && <Typography sx={{ fontSize: 12, color: "#fff" }} data-testid="sd-quote-loyalty">Loyalty rate <b>{preview.feePercent}%</b> instead of {preview.standardFeePercent}%.</Typography>}
+      {credit > 0 && <Typography sx={{ fontSize: 12, color: "#fff" }} data-testid="sd-quote-credit">Your fee credit takes <b>{money(credit, "USD")}</b> off your share of the escrow fee when the deal is released.</Typography>}
+    </Stack>
+  );
+}
+
 export function QuoteBody({ preview, role = "seller", showFees = true }: { preview: SdFeePreview; role?: "buyer" | "seller"; showFees?: boolean }) {
   const isSeller = role === "seller";
   if (!showFees) {
@@ -129,6 +142,7 @@ export function QuoteBody({ preview, role = "seller", showFees = true }: { previ
         <Row l={youLabel} v={money(youValue, "USD")} strong color={youColor} testid={youTestid} />
         <Row l={otherLabel} v={money(otherValue, "USD")} soft testid={otherTestid} />
       </Box>
+      <RewardsQuoteNote preview={preview} />
       <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
         {isSeller
           ? "The cashout fee is your cost to withdraw — it's deducted from your payout, not added to what the buyer pays. "

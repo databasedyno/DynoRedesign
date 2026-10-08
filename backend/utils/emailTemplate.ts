@@ -59,7 +59,7 @@ export type EmailHero = string;
  */
 export type EmailAudience = 'merchant' | 'buyer' | 'admin' | 'account';
 
-/** Which product the email speaks for. SafeDeal reuses the Dynopay chrome with its own wordmark + copy. */
+/** Which product the email speaks for. SafeDeal reuses the Dynopay chrome with its own logo + copy. */
 export type EmailBrand = 'dynopay' | 'safedeal';
 
 export const safedealBaseUrl = (): string =>
@@ -91,15 +91,18 @@ const SOCIALS: Array<{ name: string; url: string; label: string }> = [
 ];
 
 /** Black logo (light) / white logo (dark) — swapped by the dark-mode CSS below. */
-const dynopayLogo = (): string => {
+const logoPair = (lightSrc: string, darkSrc: string, alt: string): string => {
   const img = (src: string) =>
-    `<img src="${src}" alt="Dynopay" width="132" height="44" style="display: block; width: 132px; height: 44px; border: 0;" />`;
-  return `<span class="logo-light" style="display: block;">${img(getDynopayLogoUrl("light"))}</span>` +
-    `<!--[if !mso]><!--><span class="logo-dark" style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">${img(getDynopayLogoUrl("dark"))}</span><!--<![endif]-->`;
+    `<img src="${src}" alt="${alt}" width="132" height="44" style="display: block; width: 132px; height: 44px; border: 0;" />`;
+  return `<span class="logo-light" style="display: block;">${img(lightSrc)}</span>` +
+    `<!--[if !mso]><!--><span class="logo-dark" style="display: none; max-height: 0; overflow: hidden; mso-hide: all;">${img(darkSrc)}</span><!--<![endif]-->`;
 };
 
-const safedealWordmark = (): string =>
-  `<span class="sd-mark" style="display: inline-block; font-family: ${FONT}; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: ${C.ink}; line-height: 44px;">SafeDeal</span>`;
+const dynopayLogo = (): string => logoPair(getDynopayLogoUrl("light"), getDynopayLogoUrl("dark"), "Dynopay");
+
+// SafeDeal pair (scripts/brand/safedeal-logo.mjs): gold-free, same light-chip / white-on-dark rules as Dynopay.
+const safedealLogo = (): string =>
+  logoPair(`${assetBase()}/api/static/safedeal-email-logo-light-v1.png`, `${assetBase()}/api/static/safedeal-email-logo-dark-v1.png`, "SafeDeal");
 
 const footerRow = (html: string, pad = '0 8px 10px'): string =>
   `<tr><td align="center" class="ftr-text" style="color: ${C.muted}; font-size: 12px; line-height: 1.6; font-family: ${FONT}; padding: ${pad};">${html}</td></tr>`;
@@ -114,7 +117,6 @@ const DARK_CSS = (btnBg: string, btnText: string): string => `
       .hdr { border-bottom-color: #26262B !important; }
       .logo-light { display: none !important; }
       .logo-dark { display: block !important; max-height: none !important; overflow: visible !important; }
-      .sd-mark { color: #FFFFFF !important; }
       h1.hdg { color: #FAFAFA !important; }
       /* Main CTA: same gold + dark label in BOTH modes (inversion-proof) */
       .btn { background-color: ${btnBg} !important; color: ${btnText} !important; -webkit-text-fill-color: ${btnText} !important; }
@@ -161,8 +163,7 @@ const DARK_CSS = (btnBg: string, btnText: string): string => `
       u + .body .bg { background-color: #0A0A0D !important; }
     }
     [data-ogsc] .logo-light { display: none !important; }
-    [data-ogsc] .logo-dark { display: block !important; max-height: none !important; overflow: visible !important; }
-    [data-ogsc] .sd-mark { color: #FFFFFF !important; }`;
+    [data-ogsc] .logo-dark { display: block !important; max-height: none !important; overflow: visible !important; }`;
 
 export const baseEmailTemplate = (
   heading: string,
@@ -224,7 +225,7 @@ export const baseEmailTemplate = (
     ? { privacy: `${brandHome}/privacy`, terms: `${brandHome}/terms`, help: `${brandHome}/help` }
     : { privacy: `${frontendUrl}/privacy-policy`, terms: `${frontendUrl}/terms-conditions`, help: `${frontendUrl}/help-support` };
   const brandTitle = isSafeDeal ? 'SafeDeal' : 'Dynopay';
-  const headerMark = isSafeDeal ? safedealWordmark() : dynopayLogo();
+  const headerMark = isSafeDeal ? safedealLogo() : dynopayLogo();
 
   const buttonBlock = showButton && buttonText && buttonLink
     ? ctaButton(buttonText, buttonLink, { padding: '26px 0 6px 0', bg: bc.btnBg, color: bc.btnText })

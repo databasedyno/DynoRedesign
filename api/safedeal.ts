@@ -56,6 +56,42 @@ export const sdSession = {
   },
 };
 
+/** Referral code captured from `?ref=` (kept 30 days, sent with the first sign-in). */
+const SD_REF_KEY = "sd_ref";
+const REF_TTL_MS = 30 * 24 * 3600 * 1000;
+export const sdReferral = {
+  capture(raw: unknown) {
+    const code = String(raw ?? "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (typeof window === "undefined" || code.length < 5 || code.length > 16) return;
+    window.localStorage.setItem(SD_REF_KEY, JSON.stringify({ code, at: Date.now() }));
+  },
+  get(): string | null {
+    if (typeof window === "undefined") return null;
+    try {
+      const v = JSON.parse(window.localStorage.getItem(SD_REF_KEY) || "null");
+      return v && Date.now() - Number(v.at) < REF_TTL_MS ? String(v.code) : null;
+    } catch {
+      return null;
+    }
+  },
+  clear() {
+    if (typeof window !== "undefined") window.localStorage.removeItem(SD_REF_KEY);
+  },
+  /** After sign-in: drop the captured code; remember a granted welcome credit for a one-time toast. */
+  settle(r?: { applied: boolean; welcome_credit_usd?: number }) {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem(SD_REF_KEY);
+    if (r?.applied) window.sessionStorage.setItem("sd_welcome_credit", String(r.welcome_credit_usd || 0));
+  },
+  /** One-shot read of the welcome-credit flag set by settle(). */
+  takeWelcome(): number | null {
+    if (typeof window === "undefined") return null;
+    const v = window.sessionStorage.getItem("sd_welcome_credit");
+    window.sessionStorage.removeItem("sd_welcome_credit");
+    return v ? Number(v) : null;
+  },
+};
+
 const client = axios.create({ headers: { "Content-Type": "application/json" } });
 client.interceptors.request.use((cfg) => {
   cfg.baseURL = `${sdApiBase()}/api/safedeal`;
@@ -310,10 +346,53 @@ export interface SdDeal extends EscrowDeal {
   fx_locked_at?: string | null;
   attachments?: SdAttachment[];
   counterparty?: SdCounterparty;
+  fee_level?: string | null;
+  fee_credit_buyer_usd?: number;
+  fee_credit_seller_usd?: number;
+  /** Viewer's fee credit: what it would knock off this open deal at release / what was applied. */
+  rewards?: { fee_credit_available: number; fee_credit_preview: number; fee_credit_applied: number };
 }
 
 export interface SdFeePreview extends FeeBreakdown {
   price?: { currency: string; amount: number; rate: number; usd: number; indicative: boolean } | null;
+  feeLevel?: string | null;
+  standardFeePercent?: number;
+  feeCreditAvailableUsd?: number;
+  feeCreditPreviewUsd?: number;
+}
+
+export type SdReferralStatus = "joined" | "rewarded" | "capped";
+export interface SdRewards {
+  code: string;
+  link: string;
+  credit: { balance: number; earned_total: number; used_total: number };
+  level: {
+    key: string;
+    label: string;
+    fee_percent: number;
+    base_fee_percent: number;
+    completed_deals: number;
+    completed_volume_usd: number;
+    next: { key: string; label: string; fee_percent: number; min_deals: number; min_volume_usd: number; deals_needed: number; volume_needed_usd: number; progress: number } | null;
+    levels: { key: string; label: string; fee_percent: number; min_deals: number; min_volume_usd: number }[];
+  };
+  referrals: {
+    total: number;
+    rewarded: number;
+    pending: number;
+    earned_usd: number;
+    list: { referral_id: number; friend: string; status: SdReferralStatus; reward_usd: number; joined_at: string; rewarded_at: string | null }[];
+  };
+  milestones: { friends: number; bonus_usd: number; reached: boolean }[];
+  next_milestone: { friends: number; bonus_usd: number; remaining: number } | null;
+  history: { entry_id: number; kind: "welcome" | "referral" | "milestone" | "applied"; amount_usd: number; balance_after_usd: number; escrow_id: number | null; note: string | null; created_at: string }[];
+  referred: boolean;
+  rules: { referrer_reward_usd: number; welcome_credit_usd: number; qualify_min_deal_usd: number; monthly_reward_cap: number; min_fee_usd: number };
+}
+export interface SdSignInResult {
+  token: string;
+  user: SdUser;
+  referral?: { applied: boolean; welcome_credit_usd?: number };
 }
 
 export interface SdDealPreview {
@@ -439,10 +518,12 @@ export type SdAmendBody = Partial<Pick<SdCreateDealBody, "title" | "amount" | "p
 
 export const safedealApi = {
   config: async (): Promise<SdConfig> => unwrap(await client.get("/config")),
-  feePreview: async (body: { amount: number; fee_payer: string; price_currency?: string }): Promise<SdFeePreview> => unwrap(await client.post("/fee-preview", body)),
+  feePreview: async (body: { amount: number; fee_payer: string; price_currency?: string; my_role?: string }): Promise<SdFeePreview> => unwrap(await client.post("/fee-preview", body)),
   sendCode: async (email: string): Promise<{ email: string; preview_code?: string }> => unwrap(await client.post("/auth/send-code", { email })),
-  verifyCode: async (email: string, code: string): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/verify-code", { email, code })),
-  telegramAuth: async (data: Record<string, unknown>): Promise<{ token: string; user: SdUser }> => unwrap(await client.post("/auth/telegram", data)),
+  verifyCode: async (email: string, code: string): Promise<SdSignInResult> => unwrap(await client.post("/auth/verify-code", { email, code, ref: sdReferral.get() })),
+  telegramAuth: async (data: Record<string, unknown>): Promise<SdSignInResult> => unwrap(await client.post("/auth/telegram", { ...data, ref: sdReferral.get() })),
+  rewards: async (): Promise<SdRewards> => unwrap(await client.get("/rewards")),
+  referralCheck: async (code: string): Promise<{ valid: boolean; code: string | null; welcome_credit_usd: number }> => unwrap(await client.get(`/referral/${encodeURIComponent(code)}`)),
   telegramStatus: async (): Promise<{ linked: boolean; bot: string | null; configured: boolean }> => unwrap(await client.get("/telegram")),
   telegramLink: async (data: Record<string, unknown>): Promise<{ linked: boolean; message_sent: boolean; bot: string | null }> => unwrap(await client.post("/telegram/link", data)),
   telegramTest: async (): Promise<{ sent: boolean }> => unwrap(await client.post("/telegram/test", {})),

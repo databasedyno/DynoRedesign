@@ -1,0 +1,147 @@
+<!-- from: hi@safedeal.sh | to: alex.rivera@example.com | subject: SafeDeal cashout #42 — sent -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <meta name="x-apple-disable-message-reformatting" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta content="telephone=no" name="format-detection" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="supported-color-schemes" content="light dark" />
+  <title>SafeDeal</title>
+  <!--[if mso]>
+  <style type="text/css">
+    body, table, td { font-family: Arial, Helvetica, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style type="text/css">
+    :root { color-scheme: light dark; supported-color-schemes: light dark; }
+    body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+    table { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+    @media only screen and (max-width: 620px) {
+      .outer { width: 100% !important; }
+      .inner { padding: 28px 22px 32px !important; }
+      .hdr { padding: 22px 22px 18px !important; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body, .bg { background-color: #0A0A0D !important; }
+      .card { background-color: #121214 !important; border-color: #26262B !important; }
+      .hdr { border-bottom-color: #26262B !important; }
+      .logo-light { display: none !important; }
+      .logo-dark { display: block !important; max-height: none !important; overflow: visible !important; }
+      h1.hdg { color: #FAFAFA !important; }
+      /* Main CTA: same gold + dark label in BOTH modes (inversion-proof) */
+      .btn { background-color: #FFC61A !important; color: #0A0A0B !important; -webkit-text-fill-color: #0A0A0B !important; }
+      .btn span { color: #0A0A0B !important; -webkit-text-fill-color: #0A0A0B !important; }
+      .btn-secondary { background-color: transparent !important; border-color: #3F3F46 !important; color: #FAFAFA !important; -webkit-text-fill-color: #FAFAFA !important; }
+      .msg, .msg p, .msg li, .msg td, .msg div, .msg span { color: #D4D4D8 !important; }
+      .msg strong, .msg b, .msg h2, .msg h3, .msg h4, .msg .accent { color: #FAFAFA !important; }
+      .msg a:not(.btn) { color: #FAFAFA !important; }
+      .msg table td, .msg table td span, .msg table th { color: #D4D4D8 !important; }
+      .msg table td strong { color: #FAFAFA !important; }
+      .info-box, .money-card, .neutral-box, .stat-card, .tbl-surface, .hl-box { background-color: #18181B !important; border-color: #2A2A2F !important; }
+      .info-box strong, .money-card strong, .neutral-box strong, .hl-box strong, .stat-card .stat-value { color: #FAFAFA !important; }
+      .msg .stat-card .stat-value-green { color: #4ADE80 !important; }
+      .msg .status-success { background-color: #052E16 !important; color: #86EFAC !important; }
+      .msg .status-pending { background-color: #3B2A06 !important; color: #FCD34D !important; }
+      .msg .status-error { background-color: #3B0D0D !important; color: #FCA5A5 !important; }
+      .msg .status-info { background-color: #27272A !important; color: #E4E4E7 !important; }
+      .data-row, .fee-row td, .section-border { border-bottom-color: #26262B !important; }
+      .fee-row td { color: #D4D4D8 !important; }
+      .fee-total td, .msg .amt-hero-value { color: #FAFAFA !important; }
+      .msg .amt-hero-sub, .sign { color: #A1A1AA !important; }
+      .sign strong { color: #D4D4D8 !important; }
+      .sep { border-top-color: #26262B !important; }
+      .alert-box { background-color: #2B2108 !important; border-color: #4D3A0A !important; }
+      .alert-box td, .alert-box p, .alert-box span { color: #FCD34D !important; }
+      .alert-box strong { color: #FEF3C7 !important; }
+      .error-box { background-color: #2C0F0F !important; border-color: #4C1818 !important; }
+      .error-box td, .error-box p, .error-box span { color: #FCA5A5 !important; }
+      .error-box strong { color: #FEE2E2 !important; }
+      .success-box { background-color: #052E16 !important; border-color: #14532D !important; }
+      .success-box td, .success-box p, .success-box span { color: #86EFAC !important; }
+      .success-box strong { color: #DCFCE7 !important; }
+      .msg .otp-code { background-color: #18181B !important; border-color: #2A2A2F !important; color: #FAFAFA !important; }
+      .msg .warn-text, .msg p.warn-text, .msg strong.warn-text { color: #FCA5A5 !important; }
+      .msg .warn-text strong { color: #FEE2E2 !important; }
+      .msg .mono, .addr-box td { color: #D4D4D8 !important; }
+      .addr-box { background-color: #18181B !important; }
+      .msg .pill, .msg a.pill, .msg .chip { background-color: #26262C !important; color: #E4E4E7 !important; -webkit-text-fill-color: #E4E4E7 !important; border-color: #33333A !important; }
+      .msg .chip-success, .msg .success-box .chip { background-color: #14532D !important; color: #DCFCE7 !important; }
+      .tbl-head { background-color: #26262C !important; }
+      .track { background-color: #3A3A42 !important; }
+      .ftr-text { color: #9CA3AF !important; }
+      .ftr-link { color: #D4D4D8 !important; }
+      u + .body .bg { background-color: #0A0A0D !important; }
+    }
+    [data-ogsc] .logo-light { display: none !important; }
+    [data-ogsc] .logo-dark { display: block !important; max-height: none !important; overflow: visible !important; }
+  </style>
+</head>
+<body class="body" style="margin: 0; padding: 0; background-color: #FFFFFF;">
+  <div style="display:none;font-size:1px;color:#FFFFFF;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">Cashout sent</div>
+  <table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; table-layout: fixed;">
+    <tr>
+      <td align="center" style="padding: 40px 16px 32px;">
+        <table role="presentation" class="outer" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;">
+          <tr>
+            <td>
+              <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF; border: 1px solid #E6E8EB; border-radius: 12px; border-collapse: separate;">
+                <!-- Header: black logo on white (white logo in dark mode) -->
+                <tr>
+                  <td class="hdr" align="left" style="padding: 26px 40px 22px; border-bottom: 1px solid #EEF0F2;">
+                    <a href="https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com/safedeal" style="text-decoration: none; display: inline-block;"><span class="logo-light" style="display: block;"><img src="https://dynopay.com/api/static/safedeal-email-logo-light-v1.png" alt="SafeDeal" width="132" height="44" style="display: block; width: 132px; height: 44px; border: 0;" /></span><!--[if !mso]><!--><span class="logo-dark" style="display: none; max-height: 0; overflow: hidden; mso-hide: all;"><img src="https://dynopay.com/api/static/safedeal-email-logo-dark-v1.png" alt="SafeDeal" width="132" height="44" style="display: block; width: 132px; height: 44px; border: 0;" /></span><!--<![endif]--></a>
+                  </td>
+                </tr>
+                <!-- Content -->
+                <tr>
+                  <td class="inner msg" style="padding: 34px 40px 36px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; color: #374151; font-size: 15px; line-height: 1.65;">
+                    <h1 class="hdg" style="font-size: 22px; font-weight: 700; color: #0A0A0D; margin: 0 0 16px 0; line-height: 1.3; letter-spacing: -0.3px;">Cashout sent</h1>
+                    <p style="font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; ">Hey there,</p>
+<table role="presentation" class="amt-hero" width="100%" cellpadding="0" cellspacing="0" style="margin: 4px 0 22px;">
+    <tr><td>
+      <div style="margin: 0 0 12px;"><span class="status-success" style="display: inline-block; background: #ECFDF3; color: #067647; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">SENT</span></div>
+      <div class="amt-hero-value" style="font-size: 34px; font-weight: 700; color: #0A0A0D; letter-spacing: -0.8px; line-height: 1.1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">$1,200.00</div>
+      <div class="amt-hero-sub" style="font-size: 14px; color: #6B7280; margin-top: 8px; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">You receive $1,198.80 via USDT (Tron) (network fee $1.20)</div>
+    </td></tr>
+  </table><p style="font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; ">Your cashout <b>#42</b> has been handed to the network. We'll email you the blockchain transaction hash as soon as the network confirms it — usually within a few minutes.</p><p style="font-size: 15px; color: #374151; line-height: 1.65; margin: 0 0 14px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; ">To: <span class="mono" style="font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; font-size: 13px; word-break: break-all; color: #374151;">TTve8v6Y48ChsCTEiCjMRFSbjNtz4mAkxR</span></p>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="left" style="padding: 26px 0 6px 0;">
+        <a href="https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com/safedeal/wallet" class="btn" style="display: inline-block; background-color: #FFC61A; color: #0A0A0B; -webkit-text-fill-color: #0A0A0B; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 15px; letter-spacing: 0.1px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; mso-padding-alt: 0; text-align: center;">
+          <!--[if mso]><i style="mso-font-width: 150%; mso-text-raise: 24pt;">&nbsp;</i><![endif]-->
+          <span style="mso-text-raise: 12pt; color: #0A0A0B; -webkit-text-fill-color: #0A0A0B;">Open my wallet</span>
+          <!--[if mso]><i style="mso-font-width: 150%;">&nbsp;</i><![endif]-->
+        </a>
+      </td></tr></table>
+                    <table role="presentation" class="sep" width="100%" cellpadding="0" cellspacing="0" style="margin-top: 32px; border-top: 1px solid #EEF0F2;">
+                      <tr>
+                        <td class="sign" style="padding-top: 20px; font-size: 14px; color: #6B7280; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; line-height: 1.5;">
+                          Best regards,<br /><strong style="color: #374151;">The SafeDeal team</strong>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 28px 24px 0;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                
+                <tr><td align="center" class="ftr-text" style="color: #6B7280; font-size: 12px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 0 8px 10px;"><strong class="ftr-link" style="color: #374151; font-weight: 600;">SafeDeal</strong> · Escrow for online deals</td></tr>
+                <tr><td align="center" class="ftr-text" style="color: #6B7280; font-size: 12px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 0 8px 10px;">You're receiving this because you have a SafeDeal account (alex.rivera@example.com). Security and wallet notices can't be switched off.</td></tr>
+                <tr><td align="center" class="ftr-text" style="color: #6B7280; font-size: 12px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 0 8px 10px;">This email was sent from an unmonitored mailbox — replies are not read. <a class="ftr-link" href="https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com/safedeal/help" style="color: #374151; text-decoration: underline; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Need help? Visit the Help centre</a></td></tr>
+                <tr><td align="center" class="ftr-text" style="color: #6B7280; font-size: 12px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 0 8px 14px;">© SafeDeal 2026. All rights reserved.</td></tr>
+                <tr><td align="center" class="ftr-text" style="color: #6B7280; font-size: 12px; line-height: 1.6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 0;"><a class="ftr-link" href="https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com/safedeal/privacy" style="color: #374151; text-decoration: none; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Privacy</a><span class="ftr-text" style="color: #C4C8CE; padding: 0 8px;">·</span><a class="ftr-link" href="https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com/safedeal/terms" style="color: #374151; text-decoration: none; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Terms</a><span class="ftr-text" style="color: #C4C8CE; padding: 0 8px;">·</span><a class="ftr-link" href="https://b3e8a0ae-58d8-4d4e-9384-206e4f1f52b2.preview.emergentagent.com/safedeal/help" style="color: #374151; text-decoration: none; font-size: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">Support</a></td></tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

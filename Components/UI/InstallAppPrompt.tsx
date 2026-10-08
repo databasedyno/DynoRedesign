@@ -10,7 +10,7 @@ type Brand = "dynopay" | "safedeal";
 
 const BRANDS: Record<Brand, { name: string; icon: string; accent: string; accentText: string; storageKey: string }> = {
   dynopay: { name: "Dynopay", icon: "/pwa-192.png?v=7", accent: "#FFD100", accentText: "#121214", storageKey: "dp_pwa" },
-  safedeal: { name: "SafeDeal", icon: "/safedeal/favicon-192.png?v=1", accent: "#FFC61A", accentText: "#121214", storageKey: "sd_pwa" },
+  safedeal: { name: "SafeDeal", icon: "/safedeal/favicon-192.png?v=2", accent: "#FFC61A", accentText: "#121214", storageKey: "sd_pwa" },
 };
 
 interface Props {

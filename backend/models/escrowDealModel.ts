@@ -196,6 +196,12 @@ const escrowDealModel = sequelize.define(
     // Fee/cost breakdown frozen at funding (network, conversion, withdrawal, exchange lines):
     // every later view, settlement and invoice uses these numbers so quote == charged.
     fee_breakdown_locked: { type: DataTypes.JSONB, allowNull: true },
+    // SafeDeal rewards (0064): creator's referral code (added to invite links), loyalty level
+    // behind fee_percent, and the non-cashable fee credits applied per side at release.
+    creator_ref_code: { type: DataTypes.STRING(16), allowNull: true },
+    fee_level: { type: DataTypes.STRING(40), allowNull: true },
+    fee_credit_buyer_usd: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
+    fee_credit_seller_usd: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
     // Per-party payout destination: { seller?: { address_id, set_at, before_funding }, buyer?: {...} }.
     payout_prefs: { type: DataTypes.JSONB, allowNull: true },
     // USDT actually realised on Binance after auto-convert (custody stays there).

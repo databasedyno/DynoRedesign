@@ -66,10 +66,10 @@ export default function NewDeal() {
   useEffect(() => {
     if (!(amountNum > 0) || (!fiat && amountNum < minDeal)) return setPreview(null);
     const t = setTimeout(() => {
-      safedealApi.feePreview({ amount: amountNum, fee_payer: feePayer, price_currency: currency }).then((p) => setPreview(p.belowMinimum ? null : p)).catch(() => setPreview(null));
+      safedealApi.feePreview({ amount: amountNum, fee_payer: feePayer, price_currency: currency, my_role: role }).then((p) => setPreview(p.belowMinimum ? null : p)).catch(() => setPreview(null));
     }, 250);
     return () => clearTimeout(t);
-  }, [amountNum, feePayer, minDeal, currency, fiat]);
+  }, [amountNum, feePayer, minDeal, currency, fiat, role]);
 
   const step0Ok = title.trim().length >= 2 && amountNum > 0 && !belowMin && !aboveMax && contactOk;
   const canSubmit = step0Ok && !!preview && !busy;

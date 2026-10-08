@@ -378,6 +378,15 @@ export default function DealPage({ token }: { token: string }) {
                 <Row l="Buyer pays" v={money(b.buyerPays, deal.currency)} strong hi={isBuyer} testid="sd-amt-buyer-pays" />
                 <Row l="Seller receives" v={money(b.sellerReceives, deal.currency)} strong hi={!isBuyer} testid="sd-amt-seller-receives" />
               </Stack>
+              {(deal.rewards?.fee_credit_applied || 0) > 0 ? (
+                <Typography sx={{ fontSize: 12, color: "#065F46", mt: 1, p: 1, borderRadius: 1.5, backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }} data-testid="sd-amt-credit-applied">
+                  Your <b>{money(deal.rewards?.fee_credit_applied || 0, "USD")}</b> SafeDeal fee credit was applied to this deal&apos;s escrow fee.
+                </Typography>
+              ) : (deal.rewards?.fee_credit_preview || 0) > 0 ? (
+                <Typography sx={{ fontSize: 12, color: "#7A5300", mt: 1, p: 1, borderRadius: 1.5, backgroundColor: "#FFF3CE", border: "1px solid #F0DFA8" }} data-testid="sd-amt-credit-preview">
+                  Your fee credit takes <b>{money(deal.rewards?.fee_credit_preview || 0, "USD")}</b> off your share of the escrow fee when this deal is released.
+                </Typography>
+              ) : null}
               {b.fundingCoinAssumed && (b.nonStableSurchargeUsd || 0) > 0 && (
                 <Typography sx={{ fontSize: 11.5, color: "#92400E", mt: 1, p: 1, borderRadius: 1.5, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }} data-testid="sd-amt-surcharge-note">
                   Priced for a stablecoin payment (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds ≈ {money(b.nonStableSurchargeUsd || 0, deal.currency)} ({b.exchangeFeePercent ?? 2}% exchange fee, conversion and network costs){deal.fee_payer === "buyer" ? " to what the buyer pays" : deal.fee_payer === "seller" ? " to the costs deducted from the seller" : ", shared per the fee split"} — the exact total is shown per coin at checkout.

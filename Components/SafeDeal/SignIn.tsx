@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { Alert, Box, Button, Container, Divider, Stack, TextField, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { SD_ACCENT, SD_GOLD, SD_GOLD_DARK, SD_INK, SD_NOTE_BG, SD_NOTE_BORDER } from "./sdTheme";
-import safedealApi, { SdDealPreview, sdError, sdSession } from "@/api/safedeal";
+import safedealApi, { SdDealPreview, sdError, sdReferral, sdSession } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { useSdHref, useSdSession } from "./sdRouting";
 import { SafeDealLogo } from "./SafeDealShell";
@@ -112,6 +112,7 @@ export default function SignIn() {
     setBusy(true);
     try {
       const r = await safedealApi.verifyCode(email.trim(), value);
+      sdReferral.settle(r.referral);
       sdSession.set(r.token, r.user);
       void router.replace(target);
     } catch (e) {

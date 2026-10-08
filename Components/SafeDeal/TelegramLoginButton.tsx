@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, CircularProgress, Stack, Typography } from "@mui/material";
 import { Icon } from "@iconify/react";
-import safedealApi, { sdError, sdSession } from "@/api/safedeal";
+import safedealApi, { sdError, sdReferral, sdSession } from "@/api/safedeal";
 
 const CALLBACK = "onSafeDealTelegramAuth";
 
@@ -42,6 +42,7 @@ export default function TelegramLoginButton({ bot, onSuccess, onError, mode = "s
           await safedealApi.telegramLink(user);
         } else {
           const r = await safedealApi.telegramAuth(user);
+          sdReferral.settle(r.referral);
           sdSession.set(r.token, r.user);
         }
         ok();

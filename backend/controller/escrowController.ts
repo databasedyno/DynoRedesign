@@ -66,6 +66,7 @@ import {
   sendEscrowChangesRequestedEmail,
 } from "../services/email/escrowEmails";
 import { notifyDealStage } from "../services/safedeal/safedealTelegram";
+import { applyReleaseFeeCredits, onDealCompleted, feeTermsFor } from "../services/safedeal/safedealRewards";
 
 // ── error type + utilities ───────────────────────────────────────────────────
 
@@ -114,6 +115,9 @@ const inviteUrl = (token: string): string => `${frontendBase()}/escrow/invite/${
 const dealUrl = (deal: any): string =>
   deal?.source === "safedeal" ? `${safedealBase()}/deal/${deal.deal_token}` : inviteUrl(deal.deal_token);
 const isSafeDeal = (deal: any): boolean => deal?.source === "safedeal";
+/** Invite link for the counterparty — SafeDeal links carry the creator's referral code. */
+const inviteLinkFor = (deal: any): string =>
+  isSafeDeal(deal) && deal?.creator_ref_code ? `${dealUrl(deal)}?ref=${encodeURIComponent(String(deal.creator_ref_code))}` : dealUrl(deal);
 const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 
 interface ActorInfo {
@@ -242,7 +246,10 @@ function serializeDeal(deal: any, includePrivate = true): Record<string, unknown
     custody_realized_usd: d.custody_realized_usd != null ? Number(d.custody_realized_usd) : null,
     payout_prefs: d.payout_prefs || null,
     simulated: d.simulated,
-    invite_url: dealUrl(d),
+    invite_url: inviteLinkFor(d),
+    fee_level: d.fee_level || null,
+    fee_credit_buyer_usd: Number(d.fee_credit_buyer_usd || 0),
+    fee_credit_seller_usd: Number(d.fee_credit_seller_usd || 0),
     stablecoins: ESCROW_STABLECOINS,
     breakdown,
     fee_locked: !!d.fee_breakdown_locked,
@@ -282,10 +289,12 @@ async function authorizeOutcome(
   // A mutually-agreed cancellation after funding is charged a cancellation fee
   // (SAFEDEAL_CANCELLATION_FEE_PERCENT, default 5%) and settled exactly like a refund:
   // the buyer is refunded the net pool, and the platform keeps the fee + real costs.
-  const breakdown = dealFeeBreakdown(deal, outcome);
-  const amounts = computeSettlementAmounts(breakdown, outcome, opts.splitPercentSeller);
   const nextStatus = outcomeToStatus(outcome);
   assertTransition(deal.status, nextStatus as any);
+  // SafeDeal release: spend each fee-paying party's (non-cashable) fee credit on the escrow fee.
+  if (isSafeDeal(deal) && outcome === "release") await applyReleaseFeeCredits(deal, dealFeeBreakdown({ ...(deal.dataValues || deal), fee_credit_buyer_usd: 0, fee_credit_seller_usd: 0 }, outcome).escrowFee);
+  const breakdown = dealFeeBreakdown(deal, outcome);
+  const amounts = computeSettlementAmounts(breakdown, outcome, opts.splitPercentSeller);
 
   const now = new Date();
   deal.status = nextStatus;
@@ -402,6 +411,7 @@ async function attemptPayouts(deal: any, actorLabel = "system"): Promise<{ selle
     deal.fully_paid_at = now;
     deal.needs_admin_review = false;
     await deal.save();
+    if (deal.status === "completed") void onDealCompleted(deal);
     return { sellerPaid, buyerPaid };
   }
 
@@ -496,12 +506,26 @@ async function actAccept(deal: any, actor: ActorInfo): Promise<any> {
   assertTransition(deal.status, "awaiting_payment");
   deal.status = "awaiting_payment";
   deal.accepted_at = new Date();
+  if (isSafeDeal(deal) && !deal.fee_breakdown_locked) await applyLevelFeeTerms(deal);
   if (actor.signedIn) deal.counterparty_user_id = deal.counterparty_user_id;
   deal.activity_log = appendActivity(deal.activity_log, { type: "accepted", actor: actor.label, role: actor.role, note: "Counterparty accepted the terms." });
   await deal.save();
   const { creatorEmail, creatorName } = await loadCreatorAndCompany(deal);
   if (creatorEmail) { void sendEscrowAcceptedEmail(creatorEmail, creatorName, deal, actor.label); void notifyDealStage(deal, "accepted", creatorEmail, dealUrl(deal)); }
   return deal;
+}
+
+/** SafeDeal loyalty: set fee_percent from the fee payer's level (both parties known after accept). */
+async function applyLevelFeeTerms(deal: any): Promise<void> {
+  const creatorIsBuyer = deal.creator_role === "buyer";
+  const { feePercent, feeLevel } = await feeTermsFor({
+    basePercent: ESCROW_FEE_PERCENT,
+    feePayer: String(deal.fee_payer || "buyer"),
+    buyerCid: creatorIsBuyer ? deal.creator_customer_id : deal.counterparty_customer_id,
+    sellerCid: creatorIsBuyer ? deal.counterparty_customer_id : deal.creator_customer_id,
+  });
+  deal.fee_percent = feePercent;
+  deal.fee_level = feeLevel;
 }
 
 async function actDecline(deal: any, actor: ActorInfo, reason?: string): Promise<any> {
@@ -774,8 +798,8 @@ async function actResendInvite(deal: any, actor: ActorInfo): Promise<any> {
   deal.invite_resent_at = new Date();
   deal.activity_log = appendActivity(deal.activity_log, { type: "invite_resent", actor: actor.label, role: actor.role, note: `Invite re-sent to ${deal.counterparty_email}.` });
   await deal.save();
-  void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, actor.label, counterparty, dealUrl(deal));
-  void notifyDealStage(deal, "invited", deal.counterparty_email, dealUrl(deal));
+  void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, actor.label, counterparty, inviteLinkFor(deal));
+  void notifyDealStage(deal, "invited", deal.counterparty_email, inviteLinkFor(deal));
   return deal;
 }
 
@@ -1192,6 +1216,8 @@ export const escrowEngine = {
   loadCreatorAndCompany,
   partyEmails,
   dealUrl,
+  inviteLinkFor,
+  applyLevelFeeTerms,
   actAccept,
   actDecline,
   actCancel,

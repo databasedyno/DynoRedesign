@@ -88,12 +88,16 @@ export async function fundFromBalance(deal: any, amountUsd: number): Promise<voi
 export async function settleToWallets(
   deal: any,
   amounts: { sellerAmount: number; buyerRefund: number },
-  breakdown: { buyerPays: number; escrowFee: number; exchangeFeeUsd?: number; passThroughCosts: number; totalCost: number }
+  breakdown: { buyerPays: number; escrowFee: number; exchangeFeeUsd?: number; passThroughCosts: number; totalCost: number; feeCreditBuyerUsd?: number; feeCreditSellerUsd?: number }
 ): Promise<{ sellerCredited: boolean; buyerRefunded: boolean }> {
   const { buyer, seller } = await resolveDealParties(deal);
   const held = round2(Number(deal.custody_amount_stable ?? deal.funded_amount_usd ?? breakdown.buyerPays));
   const outcome = String(deal.outcome || "release");
   const exchangeFee = round2(Number(breakdown.exchangeFeeUsd || 0));
+  // Buyer's SafeDeal fee credit (release): that part of the fee is never debited, so it stays
+  // in the buyer's available balance after the hold is released.
+  const buyerFeeCredit = round2(Number(breakdown.feeCreditBuyerUsd || 0));
+  const totalFeeCredit = round2(buyerFeeCredit + Number(breakdown.feeCreditSellerUsd || 0));
   const ref = (k: string) => `escrow:${deal.escrow_id}:settle:${k}`;
   const title = `deal ${dealRef(deal)} "${deal.title}"`;
   // Money that entered escrow as a simulated payment stays flagged all the way through settlement.
@@ -136,12 +140,12 @@ export async function settleToWallets(
       type: "DEBIT",
       amount: breakdown.escrowFee,
       kind: "escrow_fee",
-      description: `Escrow fee — ${title}`,
+      description: `Escrow fee — ${title}${totalFeeCredit > 0 ? ` (after $${totalFeeCredit.toFixed(2)} SafeDeal fee credit)` : ""}`,
       reference: ref("fee"),
       escrowId: deal.escrow_id,
       dealTitle: deal.title,
       allowNegative: true,
-      meta: { outcome },
+      meta: { outcome, ...(totalFeeCredit > 0 ? { fee_credit_usd: totalFeeCredit } : {}) },
     });
   }
   if (exchangeFee > 0) {
@@ -176,7 +180,7 @@ export async function settleToWallets(
   // if the pieces don't sum exactly to the hold (cents), true it up on the buyer side.
   const consumed = round2((amounts.sellerAmount > 0 ? amounts.sellerAmount : 0) + breakdown.escrowFee + exchangeFee + breakdown.passThroughCosts);
   const leftover = round2(held - consumed);
-  const drift = round2(leftover - amounts.buyerRefund);
+  const drift = round2(leftover - amounts.buyerRefund - buyerFeeCredit);
   if (Math.abs(drift) >= 0.01) {
     entries.push({
       customer: buyer,

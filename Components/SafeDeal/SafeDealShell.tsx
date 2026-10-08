@@ -6,8 +6,10 @@ import { Box, Button, Container, Stack, Typography, ThemeProvider, createTheme, 
 import { Icon } from "@iconify/react";
 import safedealApi, { isPlaceholderSdEmail } from "@/api/safedeal";
 import { useSdHref, useSdSession } from "./sdRouting";
-import SafeDealMark from "./SafeDealMark";
+import { SdLockup } from "./brand/SdLockup";
+import { SD_MARK } from "./brand/sdLogoData";
 import AddEmailDialog from "./AddEmailDialog";
+import ReferralBanner from "./Rewards/ReferralBanner";
 import InstallAppPrompt from "@/Components/UI/InstallAppPrompt";
 import ToastHost from "@/Components/UI/Toast/ToastHost";
 import {
@@ -28,18 +30,9 @@ export const SD_INK_SOFT = SD_INK_SOFT_TOKEN;
 export const SD_AMBER = SD_GOLD;
 export const SD_INK_MUTED = SD_INK_MUTED_TOKEN;
 
+/** Full SafeDeal logo — symbol + one-colour wordmark. `size` ≈ the old font size (cap height = 72%). */
 export function SafeDealLogo({ light = false, size = 22 }: { light?: boolean; size?: number }) {
-  return (
-    <Stack direction="row" alignItems="center" spacing={1} data-testid="sd-logo">
-      <SafeDealMark size={size + 12} ring={light} />
-      <Typography
-        component="span"
-        sx={{ fontWeight: 900, fontSize: size, letterSpacing: -0.6, color: light ? "#fff" : SD_INK, lineHeight: 1 }}
-      >
-        Safe<span style={{ color: SD_GOLD }}>Deal</span>
-      </Typography>
-    </Stack>
-  );
+  return <SdLockup mark={SD_MARK} cap={Math.round(size * 0.72)} ink={light ? "#FFFFFF" : SD_INK} testId="sd-logo" />;
 }
 
 const FOOTER_LINKS = [
@@ -117,7 +110,7 @@ export default function SafeDealShell({
   const metaDescription = description || SD_DEFAULT_DESC;
   const cleanPath = path.split("?")[0].split("#")[0].replace(/^\/safedeal(?=\/|$)/, "") || "/";
   const canonicalUrl = `${SD_SITE}${cleanPath === "/" ? "" : cleanPath}`;
-  const ogImageUrl = ogImage || `${SD_SITE}/safedeal/og-image.png`;
+  const ogImageUrl = ogImage || `${SD_SITE}/safedeal/og-image.png?v=2`;
   // Structured data (schema.org). Base Organization + WebSite graph on every
   // indexable SafeDeal page so Google/Bing resolve the brand entity; pages may
   // add their own (FAQPage on /help, Service on the landing).
@@ -130,7 +123,7 @@ export default function SafeDealShell({
           "@id": `${SD_SITE}/#organization`,
           name: "SafeDeal",
           url: SD_SITE,
-          logo: `${SD_SITE}/safedeal/favicon-512.png`,
+          logo: `${SD_SITE}/safedeal/favicon-512.png?v=2`,
           image: ogImageUrl,
           description: SD_DEFAULT_DESC,
         },
@@ -156,10 +149,11 @@ export default function SafeDealShell({
     safedealApi.config().then((c) => c.legal_name && setLegalName(c.legal_name)).catch(() => undefined);
   }, []);
 
-  const nav = user
+  const nav: Array<{ label: string; to: string; key: string; testid: string; icon?: string }> = user
     ? [
         { label: "Home", to: "/deals", key: "/deals", testid: "sd-nav-deals" },
         { label: "Wallet", to: "/wallet", key: "/wallet", testid: "sd-nav-wallet" },
+        { label: "Rewards", to: "/rewards", key: "/rewards", testid: "sd-nav-rewards", icon: "mdi:gift-outline" },
       ]
     : [{ label: "How it works", to: "/#how", key: "#how", testid: "sd-nav-how" }, { label: "Fees", to: "/#fees", key: "#fees", testid: "sd-nav-fees" }];
 
@@ -220,12 +214,14 @@ export default function SafeDealShell({
           <Link href={href(user ? "/deals" : "/")} style={{ textDecoration: "none" }} aria-label="SafeDeal home">
             <SafeDealLogo light={dark} />
           </Link>
-          <Stack component="nav" aria-label="Main" direction="row" spacing={{ xs: 1, sm: 2.5 }} alignItems="center">
+          <Stack component="nav" aria-label="Main" direction="row" spacing={{ xs: 0.25, sm: 2.5 }} alignItems="center">
             {nav.map((n) => (
-              <Link key={n.key} href={href(n.to)} data-testid={n.testid} style={{ textDecoration: "none", display: "inline-flex" }} aria-current={isActive(n.key) ? "page" : undefined}>
+              <Link key={n.key} href={href(n.to)} data-testid={n.testid} style={{ textDecoration: "none", display: "inline-flex" }} aria-current={isActive(n.key) ? "page" : undefined} aria-label={n.label}>
                 {/* ≥44px tap target on phones (was a bare 26px text run) */}
-                <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", minHeight: 44, px: { xs: 0.75, sm: 0.5 }, borderRadius: 2, fontSize: { xs: 13.5, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? navActive : dark ? "rgba(255,255,255,0.8)" : "#4B4B52", "&:hover": { color: navActive }, "&:active": { backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(18,18,20,0.05)" }, transition: "color .15s, background-color .15s" }}>
-                  {n.label}
+                <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, minHeight: 44, px: { xs: 0.6, sm: 0.5 }, borderRadius: 2, fontSize: { xs: 13.5, sm: 14 }, fontWeight: 700, whiteSpace: "nowrap", color: isActive(n.key) ? navActive : dark ? "rgba(255,255,255,0.8)" : "#4B4B52", "&:hover": { color: navActive }, "&:active": { backgroundColor: dark ? "rgba(255,255,255,0.06)" : "rgba(18,18,20,0.05)" }, transition: "color .15s, background-color .15s" }}>
+                  {n.icon && <Icon icon={n.icon} width={17} aria-hidden />}
+                  {/* Icon-only on phones so the header never overflows. */}
+                  <Box component="span" sx={n.icon ? { display: { xs: "none", sm: "inline" } } : undefined}>{n.label}</Box>
                 </Typography>
               </Link>
             ))}
@@ -269,7 +265,7 @@ export default function SafeDealShell({
               </Stack>
             ) : ready ? (
               <Link href={href("/signin")} data-testid="sd-nav-signin" style={{ textDecoration: "none" }}>
-                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, minHeight: 36, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
+                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, minHeight: 36, whiteSpace: "nowrap", color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
                   Sign in
                 </Button>
               </Link>
@@ -284,6 +280,7 @@ export default function SafeDealShell({
             <InstallAppPrompt brand="safedeal" body="Track your deals and cash out in one tap." />
           </Container>
         )}
+        {ready && !user && <ReferralBanner wide={wide} dark={dark} />}
         {children}
       </Box>
 

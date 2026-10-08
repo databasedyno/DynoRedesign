@@ -143,6 +143,11 @@ export interface FeeBreakdown {
   sellerReceives: number; // net to seller after their share of costs
   platformFee: number; // == escrowFee (kept by platform)
   networkNote: string;
+  // SafeDeal fee credit applied at release, per side (0 until a deal is released).
+  // escrowFee above is NET of these; grossEscrowFee is the fee before credits.
+  grossEscrowFee: number;
+  feeCreditBuyerUsd: number;
+  feeCreditSellerUsd: number;
   // Fee-allocation model, FROZEN at funding so already-funded deals never re-split:
   //   v2 (current) — the cashout/withdrawal fee is ALWAYS the seller's cost (the seller
   //                  cashes out); the buyer never funds it. Escrow + inbound funding costs
@@ -248,6 +253,10 @@ export function computeFeeBreakdown(input: {
   lockedCosts?: LockedCosts | null;
   /** Paid from the SafeDeal wallet — funds already sit in custody (USDT), so no inbound costs. */
   fromBalance?: boolean;
+  /** SafeDeal fee credits spent at release, per side (each capped at that side's escrow-fee share). */
+  feeCredits?: { buyer?: number | string | null; seller?: number | string | null } | null;
+  /** Extra note on the escrow-fee line (e.g. the loyalty level rate). */
+  rateNote?: string | null;
 }): FeeBreakdown {
   const amount = round2(Number(input.amount) || 0);
   const currency = (input.currency || "USD").toUpperCase();
@@ -333,26 +342,42 @@ export function computeFeeBreakdown(input: {
     sellerReceives = round2(Math.max(0, amount - (feePayerCost - half) - sellerOnlyCost));
   }
 
+  // Fee credits (release only): each side's credit lowers its own share of the escrow fee.
+  const buyerFeeShare = feePayer === "buyer" ? escrowFee : feePayer === "split" ? round2(escrowFee / 2) : 0;
+  const sellerFeeShare = round2(escrowFee - buyerFeeShare);
+  const feeCreditBuyerUsd = round2(Math.min(Math.max(0, Number(input.feeCredits?.buyer) || 0), buyerFeeShare));
+  const feeCreditSellerUsd = round2(Math.min(Math.max(0, Number(input.feeCredits?.seller) || 0), sellerFeeShare));
+  const feeCreditTotal = round2(feeCreditBuyerUsd + feeCreditSellerUsd);
+  buyerPays = round2(buyerPays - feeCreditBuyerUsd);
+  sellerReceives = round2(sellerReceives + feeCreditSellerUsd);
+  const netEscrowFee = round2(escrowFee - feeCreditTotal);
+
   const isCancel = input.cancellationFee === true && !waiveFee;
   const feeKind = isCancel ? "Cancellation fee" : "Escrow fee";
-  const feeLabel = waiveFee
+  const baseFeeLabel = waiveFee
     ? "Escrow fee (waived)"
     : feeFloorApplied
     ? `${feeKind} (min $${feeMinUsd})`
     : `${feeKind} (${feePercent}%)`;
-  const feeNote = waiveFee
+  const feeLabel = feeCreditTotal > 0 ? `${baseFeeLabel} − $${feeCreditTotal.toFixed(2)} credit` : baseFeeLabel;
+  const baseFeeNote = waiveFee
     ? "Escrow fee waived for this mutually-agreed cancellation — only real network/exchange costs are kept."
     : isCancel
     ? `Cancellation fee (${feePercent}%) is kept on this cancelled deal; the buyer is refunded the rest after real network/exchange costs.`
     : feeFloorApplied
     ? `${feePercent}% of ${amount} is below the $${feeMinUsd} minimum escrow fee, so the minimum applies.`
     : "";
+  const feeNote = [
+    baseFeeNote,
+    !waiveFee && !isCancel ? input.rateNote || "" : "",
+    feeCreditTotal > 0 ? `$${feeCreditTotal.toFixed(2)} SafeDeal fee credit applied (escrow fee $${escrowFee.toFixed(2)} before credit).` : "",
+  ].filter(Boolean).join(" ");
   const cashoutBorneBy: "buyer" | "seller" | "split" = feeModel === "v2" ? "seller" : feePayer;
   const costItems: CostItem[] = [
     {
       key: "escrow_fee",
       label: feeLabel,
-      amount: escrowFee,
+      amount: netEscrowFee,
       borneBy: feePayer,
       ...(feeNote ? { note: feeNote } : {}),
     },
@@ -395,14 +420,14 @@ export function computeFeeBreakdown(input: {
     feePercent,
     feeMinUsd,
     feePayer,
-    escrowFee,
+    escrowFee: netEscrowFee,
     exchangeFeePercent: exchangePct,
     exchangeFeeUsd,
     networkFeeUsd,
     conversionFeeUsd,
     withdrawalFeeUsd,
     passThroughCosts,
-    totalCost,
+    totalCost: round2(totalCost - feeCreditTotal),
     payoutCoin: payoutKey,
     costsEstimated: includeCosts && !locked,
     quotedFundingCoin: quoteCoin.coin,
@@ -411,8 +436,11 @@ export function computeFeeBreakdown(input: {
     costItems,
     buyerPays,
     sellerReceives,
-    platformFee: escrowFee,
+    platformFee: netEscrowFee,
     feeModel,
+    grossEscrowFee: escrowFee,
+    feeCreditBuyerUsd,
+    feeCreditSellerUsd,
     networkNote: locked
       ? "Network, conversion and withdrawal costs were fixed when the deal was funded and are settled from the funded amount."
       : quoteCoin.assumed && fundedIsStable
@@ -470,7 +498,25 @@ export function dealFeeBreakdown(deal: any, outcome?: SettlementOutcome): FeeBre
     acceptedCoins: deal.accepted_coins,
     cancellationFee: cancellation,
     lockedCosts: locked ? lockedCostsFrom(locked) : null,
+    feeCredits: cancellation ? null : { buyer: deal.fee_credit_buyer_usd, seller: deal.fee_credit_seller_usd },
+    rateNote: feeLevelNote(deal.fee_level, Number(deal.fee_percent), standardEscrowFeePercent()),
   });
+}
+
+/** The standard (Member) escrow fee percent — ESCROW_FEE_PERCENT, default 5. */
+export const standardEscrowFeePercent = (): number => Number(envRaw("ESCROW_FEE_PERCENT")) || 5;
+
+export const FEE_LEVEL_LABELS: Record<string, string> = { member: "Member", silver: "Silver", gold: "Gold", platinum: "Platinum" };
+
+/** Note for the escrow-fee line when a SafeDeal loyalty rate applies (fee_level 'gold' or split 'gold/member'). */
+export function feeLevelNote(feeLevel: string | null | undefined, feePercent: number, basePercent: number): string | null {
+  if (!feeLevel || !(feePercent < basePercent)) return null;
+  const label = (k: string) => FEE_LEVEL_LABELS[k] || "Member";
+  if (feeLevel.includes("/")) {
+    const [b, s] = feeLevel.split("/");
+    return `Loyalty rate ${feePercent}% (standard ${basePercent}%) — blended from the buyer's ${label(b)} and the seller's ${label(s)} level.`;
+  }
+  return `${label(feeLevel)} level rate ${feePercent}% (standard ${basePercent}%).`;
 }
 
 /** Quote for paying a SafeDeal from the buyer's wallet balance (no inbound network/exchange costs). */

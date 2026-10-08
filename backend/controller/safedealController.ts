@@ -81,6 +81,8 @@ import {
   validatePendingIds,
 } from "../services/safedeal/safedealAttachments";
 import { round2Float as round2 } from "../utils/money";
+import { attachReferral, ensureReferralCode, feeCreditPreview, feeTermsFor, referralLookup, rewardsSummary } from "../services/safedeal/safedealRewards";
+import { feeLevelNote } from "./escrow/escrowShared";
 
 const { EscrowError, fail } = escrowEngine;
 
@@ -193,6 +195,21 @@ export const safedealAuth = async (req: express.Request, res: express.Response, 
 
 const session = (res: express.Response): SafeDealSession => res.locals.sd as SafeDealSession;
 
+/** Optional session on public endpoints (fee preview): a valid token personalises, never required. */
+async function peekSession(req: express.Request): Promise<SafeDealSession | null> {
+  try {
+    const header = (req.headers["x-safedeal-token"] as string) || String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+    if (!header) return null;
+    const payload = jwt.verify(header, secret()) as any;
+    if (!payload || payload.kind !== "safedeal") return null;
+    const customerId = Number(payload.cid);
+    if (isTokenIssuedBeforeCutoff(payload.iat, await sdTokensValidAfter(customerId))) return null;
+    return { customer_id: customerId, company_id: Number(payload.coid), email: String(payload.email) };
+  } catch {
+    return null;
+  }
+}
+
 async function customerFor(sess: SafeDealSession): Promise<CustomerRow> {
   return resolveCustomerForBrand({ companyId: sess.company_id, customerId: sess.customer_id });
 }
@@ -202,7 +219,7 @@ async function ensureProfile(customer: CustomerRow): Promise<Record<string, any>
     `INSERT INTO tbl_safedeal_profile (customer_id, company_id, last_login_at)
      VALUES (:cid, :coid, NOW())
      ON CONFLICT (customer_id) DO UPDATE SET last_login_at = NOW(), updated_at = NOW()
-     RETURNING *`,
+     RETURNING *, (xmax = 0) AS inserted`,
     { replacements: { cid: customer.customer_id, coid: customer.company_id }, type: QueryTypes.SELECT }
   );
   return rows[0];
@@ -267,6 +284,7 @@ const verifyCode = async (req: express.Request, res: express.Response) => {
     let isNewCustomer = false;
     const customer = await resolveCustomerForBrand({ companyId: companyId(), email, createIfMissing: true, onCreate: () => { isNewCustomer = true; } });
     const profile = await ensureProfile(customer);
+    const referral = await attachReferral(customer.customer_id, req.body?.ref, !!profile?.inserted);
     // First-ever sign-in for this email → tell the operator a new SafeDeal user onboarded.
     if (isNewCustomer) notifyAdminNewSafeDealUser({ email, name: customer.customer_name, customerId: customer.customer_id, method: "email" });
     // Link any deals this email was invited to / created.
@@ -278,6 +296,7 @@ const verifyCode = async (req: express.Request, res: express.Response) => {
     return successResponseHelper(res, 200, "Signed in.", {
       token,
       user: { email, customer_id: customer.customer_id, display_name: profile?.display_name || null },
+      referral,
     });
   } catch (e) {
     return handle(res, e, "verifyCode");
@@ -315,7 +334,8 @@ function verifyTelegramAuth(data: Record<string, any>): { ok: boolean; reason?: 
 const telegramAuth = async (req: express.Request, res: express.Response) => {
   try {
     if (!telegramBotToken()) return errorResponseHelper(res, 503, "Telegram sign-in isn't configured.");
-    const data = { ...(req.body || {}) } as Record<string, any>;
+    // `ref` (referral code) rides along with the widget payload but is NOT part of Telegram's signature.
+    const { ref, ...data } = { ...(req.body || {}) } as Record<string, any>;
     const check = verifyTelegramAuth(data);
     if (!check.ok) {
       if (check.reason === "expired") return errorResponseHelper(res, 401, "This Telegram sign-in has expired. Please try again.");
@@ -327,6 +347,7 @@ const telegramAuth = async (req: express.Request, res: express.Response) => {
     let isNewTgCustomer = false;
     const customer = await resolveCustomerByTelegram({ companyId: companyId(), telegramId, name, onCreate: () => { isNewTgCustomer = true; } });
     const profile = await ensureProfile(customer);
+    const referral = await attachReferral(customer.customer_id, ref, !!profile?.inserted);
     if (isNewTgCustomer)
       notifyAdminNewSafeDealUser({
         email: customer.email,
@@ -347,6 +368,7 @@ const telegramAuth = async (req: express.Request, res: express.Response) => {
     return successResponseHelper(res, 200, "Signed in with Telegram.", {
       token,
       user: { email: customer.email, customer_id: customer.customer_id, display_name: name || profile?.display_name || null },
+      referral,
     });
   } catch (e) {
     return handle(res, e, "telegramAuth");
@@ -512,15 +534,28 @@ const config = async (_req: express.Request, res: express.Response) => {
 
 const feePreview = async (req: express.Request, res: express.Response) => {
   try {
-    const { amount, fee_payer, payout_coin, price_currency } = req.body || {};
+    const { amount, fee_payer, payout_coin, price_currency, my_role } = req.body || {};
     if (amount == null || Number(amount) <= 0) return errorResponseHelper(res, 400, "A positive amount is required.");
     void refreshEscrowCostRates();
     const cur = String(price_currency || "USD").toUpperCase();
     const { usd, rate } = await fiatToUsd(cur, Number(amount));
-    const breakdown = computeFeeBreakdown({ amount: usd, currency: "USD", feePercent: escrowEngine.ESCROW_FEE_PERCENT, feeMinUsd: escrowEngine.ESCROW_FEE_MIN_USD, feePayer: fee_payer, payoutCoin: payout_coin });
+    // Signed-in creator: price with THEIR loyalty level + show what their fee credit would knock off.
+    const base = escrowEngine.ESCROW_FEE_PERCENT;
+    const payer = ["buyer", "seller", "split"].includes(String(fee_payer)) ? String(fee_payer) : "buyer";
+    const role = my_role === "buyer" || my_role === "seller" ? (my_role as "buyer" | "seller") : null;
+    const sess = role ? await peekSession(req) : null;
+    const terms = sess && role
+      ? await feeTermsFor({ basePercent: base, feePayer: payer, buyerCid: role === "buyer" ? sess.customer_id : null, sellerCid: role === "seller" ? sess.customer_id : null })
+      : { feePercent: base, feeLevel: null };
+    const breakdown = computeFeeBreakdown({ amount: usd, currency: "USD", feePercent: terms.feePercent, feeMinUsd: escrowEngine.ESCROW_FEE_MIN_USD, feePayer: payer, payoutCoin: payout_coin, rateNote: feeLevelNote(terms.feeLevel, terms.feePercent, base) });
+    const credit = sess && role ? await feeCreditPreview(sess.customer_id, breakdown.escrowFee, payer, role) : { available: 0, preview: 0 };
     const maxUsd = await maxDealUsd();
     return successResponseHelper(res, 200, "Fee breakdown computed.", {
       ...breakdown,
+      feeLevel: terms.feeLevel,
+      standardFeePercent: base,
+      feeCreditAvailableUsd: credit.available,
+      feeCreditPreviewUsd: credit.preview,
       minDealUsd: escrowEngine.ESCROW_MIN_DEAL_USD,
       belowMinimum: usd < escrowEngine.ESCROW_MIN_DEAL_USD,
       maxDealUsd: maxUsd,
@@ -659,11 +694,18 @@ const viewFull = async (deal: any, actor: ActorInfo) => {
   const v = view(deal, actor) as Record<string, any>;
   const otherEmail = actor.isCreator ? deal.counterparty_email : deal.creator_email;
   const myCustomerId = actor.isCreator ? deal.creator_customer_id : deal.counterparty_customer_id;
-  const [attachments, counterparty, myAddresses] = await Promise.all([
+  const open = !["completed", "refunded", "split", "cancelled", "declined", "expired"].includes(String(deal.status));
+  const [attachments, counterparty, myAddresses, credit] = await Promise.all([
     listAttachments(Number(deal.escrow_id)),
     partyStats(Number(deal.company_id), String(otherEmail || "")),
     myCustomerId ? listAddresses(Number(myCustomerId)) : Promise.resolve([]),
+    open && myCustomerId ? feeCreditPreview(Number(myCustomerId), Number(v.breakdown?.escrowFee || 0), String(deal.fee_payer || "buyer"), actor.role) : Promise.resolve({ available: 0, preview: 0 }),
   ]);
+  v.rewards = {
+    fee_credit_available: credit.available,
+    fee_credit_preview: credit.preview,
+    fee_credit_applied: Number((actor.role === "buyer" ? deal.fee_credit_buyer_usd : deal.fee_credit_seller_usd) || 0),
+  };
   v.attachments = attachments;
   v.counterparty = counterparty;
   v.my_addresses = myAddresses.map((a) => ({ address_id: a.address_id, payout_key: a.payout_key, address: a.address, label: a.label, usable_at: a.usable_at, created_at: a.created_at }));
@@ -749,6 +791,22 @@ const createDeal = async (req: express.Request, res: express.Response) => {
     if (!byLink && norm(counterparty_email) === norm(sess.email)) return errorResponseHelper(res, 400, "You can't invite yourself as the other party.");
 
     const customer = await customerFor(sess);
+    let counterpartyCid: number | null = null;
+    if (!byLink) {
+      try {
+        counterpartyCid = (await resolveCustomerForBrand({ companyId: sess.company_id, email: String(counterparty_email).trim(), createIfMissing: false })).customer_id;
+      } catch { /* not a customer yet — linked on first sign-in */ }
+    }
+    const creatorIsBuyer = my_role === "buyer";
+    const [feeTerms, refCode] = await Promise.all([
+      feeTermsFor({
+        basePercent: escrowEngine.ESCROW_FEE_PERCENT,
+        feePayer: String(fee_payer),
+        buyerCid: creatorIsBuyer ? customer.customer_id : counterpartyCid,
+        sellerCid: creatorIsBuyer ? counterpartyCid : customer.customer_id,
+      }),
+      ensureReferralCode(customer.customer_id).catch(() => null),
+    ]);
     const now = new Date();
     const deal: any = await escrowDealModel.create({
       deal_token: crypto.randomBytes(24).toString("hex"),
@@ -772,7 +830,10 @@ const createDeal = async (req: express.Request, res: express.Response) => {
       terms: terms ? String(terms).slice(0, 10000) : null,
       deal_type: normalizeDealType(deal_type),
       delivery_due_at: dueAt,
-      fee_percent: escrowEngine.ESCROW_FEE_PERCENT,
+      fee_percent: feeTerms.feePercent,
+      fee_level: feeTerms.feeLevel,
+      creator_ref_code: refCode,
+      counterparty_customer_id: counterpartyCid,
       fee_min_usd: escrowEngine.ESCROW_FEE_MIN_USD,
       fee_payer,
       auto_release_days: escrowEngine.clampAutoReleaseDays(auto_release_days),
@@ -781,14 +842,8 @@ const createDeal = async (req: express.Request, res: express.Response) => {
       activity_log: appendActivity([], { type: "created", actor: sess.email, role: my_role, note: byLink ? "Deal created on SafeDeal — shareable invite link generated." : "Deal created on SafeDeal and the other party invited." }),
     } as any);
     if (!byLink) {
-      // If the counterparty already has a SafeDeal account, link them right away.
-      try {
-        const cp = await resolveCustomerForBrand({ companyId: sess.company_id, email: deal.counterparty_email, createIfMissing: false });
-        deal.counterparty_customer_id = cp.customer_id;
-        await deal.save();
-      } catch { /* not a customer yet — linked on first sign-in */ }
       const { counterparty } = resolveRoles(my_role as EscrowRole);
-      void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, sess.email, counterparty, escrowEngine.dealUrl(deal));
+      void sendEscrowInviteEmail(deal.counterparty_email, deal.counterparty_email, deal, sess.email, counterparty, escrowEngine.inviteLinkFor(deal));
     }
     return successResponseHelper(res, 201, byLink ? "Deal created — share the invite link with the other party." : "Deal created — invite sent.", view(deal, actorFor(deal, sess)!));
   } catch (e) {
@@ -1091,6 +1146,7 @@ async function amendDeal(deal: any, actor: ActorInfo, body: any, actorEmail: str
     if (!["buyer", "seller", "split"].includes(String(body.fee_payer))) fail(400, "fee_payer must be buyer, seller or split.");
     changes.push(`Escrow fee paid by: ${deal.fee_payer} → ${body.fee_payer}`);
     deal.fee_payer = body.fee_payer;
+    await escrowEngine.applyLevelFeeTerms(deal);
   }
   if (body.auto_release_days !== undefined) {
     const d = escrowEngine.clampAutoReleaseDays(body.auto_release_days);
@@ -1874,7 +1930,29 @@ const claimDeal = async (req: express.Request, res: express.Response) => {
   }
 };
 
+// ── rewards (referrals + loyalty) ────────────────────────────────────────────
+
+const rewards = async (_req: express.Request, res: express.Response) => {
+  try {
+    const sess = session(res);
+    return successResponseHelper(res, 200, "OK", await rewardsSummary(sess.customer_id, escrowEngine.ESCROW_FEE_PERCENT, escrowEngine.ESCROW_FEE_MIN_USD));
+  } catch (e) {
+    return handle(res, e, "rewards");
+  }
+};
+
+/** Public: validate a referral code for the "invited by a friend" banner. */
+const referralCheck = async (req: express.Request, res: express.Response) => {
+  try {
+    return successResponseHelper(res, 200, "OK", await referralLookup(req.params.code));
+  } catch (e) {
+    return handle(res, e, "referralCheck");
+  }
+};
+
 export default {
+  rewards,
+  referralCheck,
   sendCode,
   verifyCode,
   telegramAuth,

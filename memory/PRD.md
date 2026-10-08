@@ -1,3 +1,21 @@
+# === 2026-10-08 (fork) pt3 — SAFEDEAL LOGO RE-IMAGINED ("The Hold") — ROLLED OUT EVERYWHERE ===
+# USER: approved plan "SafeDeal Logo Re-imagined" -> 3 concepts on a private comparison page -> owner picked Concept 1 "The Hold", no tweaks.
+# MARK: an "S" of two halves (buyer/seller) holding a small gold square (money in escrow). Ink #0A0A0B / white + SafeDeal gold #FFC61A.
+#   Wordmark "SafeDeal" one colour, Outfit SemiBold outlined (two-tone gold "Deal" retired). Old gold shield + shield-tick + text logo REMOVED.
+# GENERATOR (single source of truth): node scripts/brand/safedeal-logo.mjs --final=hold  (writes everything below; concepts mode = no flag).
+#   React: Components/SafeDeal/brand/{sdLogoData.ts (generated), SdMark.tsx, SdLockup.tsx}; SafeDealMark.tsx (prop onDark, was ring) + SafeDealLogo (Shell).
+#   Tab icon: public/safedeal/favicon.svg adaptive (black light / white dark, gold kept) + favicon.ico/16/32/48 (black on white tile); _app links v=2.
+#   App icons: favicon-192/512, favicon-maskable-512, apple-touch-icon (ink tile, white mark, gold). Manifest + InstallAppPrompt v=2.
+#   Family: public/safedeal/brand/* (logo black/white/mono, mark colour/mono, icon tile SVG) + safedeal-telegram-avatar-640.png
+#     (owner uploads by hand: @BotFather -> /setuserpic -> @SafeDealAlert_bot).
+#   Emails: backend/public/safedeal-email-logo-{light,dark}-v1.png (gold-free; light = black lockup on white chip -> readable under Gmail forced dark);
+#     emailTemplate.ts logoPair()/safedealLogo() (old .sd-mark text wordmark + CSS removed).
+#   PDFs (deal summary SD-/invoice + DEP- receipt): backend/assets/safedeal-logo.png in safedealPdf.drawBrandHeader.
+#   Share cards: public/safedeal/og-image.png (calm ink card, ?v=2) + per-deal /api/safedeal/og-image composites backend/assets/safedeal-og-lockup.png
+#     (glow/grid/gold bar dropped; deal page og url &v=2). Comparison page /safedeal/preview/logo DELETED after the pick.
+# VERIFIED: generator renders, BE tsc 0, FE prod build swapped, email light/dark/Gmail shots, PDF + OG renders, screenshots of /safedeal + signin.
+# ============================================================================================
+
 # === 2026-10-08 (fork, pod 22f1a66e) pt2 — SAFEDEAL #351 PROD RCA + BALANCE-FEE FIX + API-KEY BRAND EMAIL + CALM EMAIL REDESIGN + ADAPTIVE FAVICON — DONE & TESTED ===
 # PROD RCA (read-only DB + droplet logs; new pod SSH key authorized by owner 2026-10-08, pub "emergent-agent-dynopay-prodlogs-2026-10-08"):
 #   Deal #351 "Calling log" ($70, buyer admoff1305@gmail.com cust 951, seller cotylynn111@gmail.com) stays awaiting_payment CORRECTLY:

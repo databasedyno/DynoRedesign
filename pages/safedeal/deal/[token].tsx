@@ -46,7 +46,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
           // Serve the rendered card from the origin the link was shared on (safedeal.sh in prod, the pod host in preview).
           const host = String(ctx.req.headers["x-forwarded-host"] || ctx.req.headers.host || "safedeal.sh").split(",")[0].trim();
           const proto = String(ctx.req.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
-          share = { title: s.title, description: s.description, image: `${proto}://${host}/api/safedeal/og-image?d=${encodeURIComponent(token)}` };
+          share = { title: s.title, description: s.description, image: `${proto}://${host}/api/safedeal/og-image?d=${encodeURIComponent(token)}&v=2` };
         }
       }
     } catch (e) {

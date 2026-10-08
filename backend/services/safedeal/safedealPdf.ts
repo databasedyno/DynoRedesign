@@ -1,7 +1,7 @@
 /**
  * SafeDeal deal summary PDF — a party's record of the agreement, money,
- * delivery proof, dispute outcome and full timeline. Text-only (no logo file
- * for SafeDeal); same indigo/grey palette as the invoice chrome.
+ * delivery proof, dispute outcome and full timeline. Header = the SafeDeal logo
+ * (backend/assets/safedeal-logo.png, scripts/brand/safedeal-logo.mjs); grey invoice palette.
  */
 import PDFDocument from "pdfkit";
 import path from "path";
@@ -13,22 +13,18 @@ import type { AttachmentPublic } from "./safedealAttachments";
 // SafeDeal brand — gold + near-black (matches the app's sdTheme).
 const SD_GOLD = "#F0A500";
 const SD_INK = "#0A0A0B";
-const SD_LOGO_PATH = path.resolve(__dirname, "../../../public/safedeal/favicon-512.png");
+// Source tree (ts-node) and compiled dist/ both resolve to backend/assets.
+const SD_LOGO_PATH = [
+  path.join(__dirname, "../../assets/safedeal-logo.png"),
+  path.join(__dirname, "../../../assets/safedeal-logo.png"),
+].find((p) => fs.existsSync(p));
 
-/** Draw the SafeDeal brand mark (gold top rule + logo icon + wordmark) and return the y below it. */
+/** Draw the SafeDeal brand header (gold top rule + full logo + subtitle). */
 function drawBrandHeader(doc: PDFKit.PDFDocument, subtitle: string): void {
   doc.rect(0, 0, doc.page.width, 6).fill(SD_GOLD);
-  let tx = 48;
-  try {
-    if (fs.existsSync(SD_LOGO_PATH)) {
-      doc.image(SD_LOGO_PATH, 48, 30, { width: 28, height: 28 });
-      tx = 84;
-    }
-  } catch {
-    /* logo optional — fall back to wordmark only */
-  }
-  doc.font("Helvetica-Bold").fontSize(18).fillColor(SD_INK).text("SafeDeal", tx, 34);
-  doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text(subtitle, tx, 56);
+  if (SD_LOGO_PATH) doc.image(SD_LOGO_PATH, 48, 28, { height: 24 });
+  else doc.font("Helvetica-Bold").fontSize(18).fillColor(SD_INK).text("SafeDeal", 48, 32);
+  doc.font("Helvetica").fontSize(9).fillColor(INK.muted).text(subtitle, 48, 58);
 }
 
 const fmt = (n: number | string | null | undefined, cur = "USD") =>
