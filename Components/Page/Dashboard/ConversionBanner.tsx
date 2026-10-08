@@ -272,7 +272,7 @@ const ConversionBanner = () => {
             </Typography>
             <Typography
               sx={{
-                fontSize: isMobile ? 11 : 12,
+                fontSize: isMobile ? 12 : 12,
                 fontFamily: "var(--font-sans)",
                 color: !hasStablecoinWallet && !enabled
                   ? "#F59E0B"

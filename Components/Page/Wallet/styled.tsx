@@ -65,7 +65,7 @@ export const WalletHeaderAction = styled(Box)(({ theme }) => ({
       width: 14,
     },
     "& span": {
-      fontSize: 10,
+      fontSize: 12,
       lineHeight: "100%",
     },
   },

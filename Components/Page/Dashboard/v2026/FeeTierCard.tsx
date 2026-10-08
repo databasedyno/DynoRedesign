@@ -206,7 +206,7 @@ const FeeTierCard: React.FC = () => {
                       component="span"
                       sx={{
                         fontFamily: "var(--font-sans)",
-                        fontSize: 10.5,
+                        fontSize: 12,
                         fontWeight: isCurrent ? 700 : 500,
                         lineHeight: 1.2,
                         textAlign: "center",
@@ -224,7 +224,7 @@ const FeeTierCard: React.FC = () => {
                       sx={{
                         fontFamily: MONO,
                         fontVariantNumeric: "tabular-nums",
-                        fontSize: 10.5,
+                        fontSize: 12,
                         fontWeight: 600,
                         lineHeight: 1.2,
                         color: isCurrent ? indigo : mutedInk,

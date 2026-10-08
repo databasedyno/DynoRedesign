@@ -181,7 +181,7 @@ export default function InvoicePreviewDrawer({ open, invoice, onClose }: Props) 
               <Typography
                 sx={{
                   fontFamily: "var(--font-tech), monospace",
-                  fontSize: 11,
+                  fontSize: 12,
                   letterSpacing: "0.24em",
                   textTransform: "uppercase",
                   color: theme.palette.text.secondary,

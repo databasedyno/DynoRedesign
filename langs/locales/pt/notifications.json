@@ -83,5 +83,14 @@
   "marketingEmailsTitle": "E-mails de Marketing e Produto",
   "marketingEmailsDescription": "Novidades, dicas e atualizações do produto. Desative para parar os e-mails promocionais — continuará a receber e-mails de pagamento, segurança e conta.",
   "pushNotConfigured": "As notificações push do navegador ainda não estão ativas nesta plataforma — os alertas por e‑mail e na app continuam a funcionar.",
-  "pushEnableFailed": "Não foi possível ativar o push do navegador agora. Os alertas por e‑mail e na app continuam a funcionar."
+  "pushEnableFailed": "Não foi possível ativar o push do navegador agora. Os alertas por e‑mail e na app continuam a funcionar.",
+  "notificationSettingsLink": "Configurações de notificação",
+  "accountEmailsTitle": "E-mails da conta",
+  "accountEmailsSubtitle": "Relatórios e alertas de login da sua conta pessoal. Os e-mails de pagamento, repasse e pedido são definidos por marca acima.",
+  "newDeviceOnlyTitle": "Alertas de login: apenas dispositivos novos",
+  "newDeviceOnlyDescription": "Envie-me um e-mail apenas quando um login vier de um dispositivo ou local que eu não usei antes, em vez de a cada nova sessão.",
+  "securityAlertsAlwaysOn": "Alertas de senha, 2FA, endereço de repasse e novo dispositivo são sempre enviados — eles protegem o seu dinheiro e não podem ser desativados.",
+  "alwaysOn": "Sempre ativo",
+  "otherChannelsTitle": "Novidades do produto e push",
+  "otherChannelsSubtitle": "E-mails e notificações do navegador opcionais"
 }

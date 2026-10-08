@@ -54,7 +54,7 @@ const StorefrontComparePanel: React.FC = () => {
 
   const HEAD_SX = {
     fontFamily: "var(--font-sans)",
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     letterSpacing: "0.08em",
     textTransform: "uppercase" as const,
@@ -137,7 +137,7 @@ const StorefrontComparePanel: React.FC = () => {
                       <Typography
                         sx={{
                           fontFamily: MONO,
-                          fontSize: 11.5,
+                          fontSize: 12,
                           color: theme.palette.text.secondary,
                           whiteSpace: "nowrap",
                           overflow: "hidden",
@@ -172,13 +172,13 @@ const StorefrontComparePanel: React.FC = () => {
                     </Box>
                     <Box sx={{ textAlign: "right" }}>
                       <Typography sx={NUM_SX}>{fmtMoney(row.tips_amount_30d)}</Typography>
-                      <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary }}>
+                      <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary }}>
                         {t("storefront.tipCount", { count: row.tips_count_30d, defaultValue: `${row.tips_count_30d} tips` })}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "right" }}>
                       <Typography sx={NUM_SX}>{fmtMoney(row.sales_amount_30d)}</Typography>
-                      <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary }}>
+                      <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary }}>
                         {t("storefront.orderCount", { count: row.sales_count_30d, defaultValue: `${row.sales_count_30d} orders` })}
                       </Typography>
                     </Box>

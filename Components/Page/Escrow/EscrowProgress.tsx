@@ -135,7 +135,7 @@ export default function EscrowProgress({ deal, testId = "escrow-progress", accen
                 </Box>
                 <Typography
                   sx={{
-                    fontSize: { xs: 9, sm: 10.5 },
+                    fontSize: { xs: 12, sm: 12 },
                     letterSpacing: { xs: "-0.2px", sm: 0 },
                     fontWeight: reached ? 700 : 500,
                     color: reached ? (s.state === "disputed" ? AMBER : theme.palette.text.primary) : NEUTRAL,

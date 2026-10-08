@@ -37,7 +37,7 @@ const ProductDetailPanel: React.FC<Props> = ({ open, product: p, publicUrl, onCl
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
-  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted };
+  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted };
   const iconBtnSx = { border: `1px solid ${border}`, borderRadius: "12px", minWidth: 42, minHeight: 42, color: ink, "&:hover": { backgroundColor: theme.palette.action.hover } };
 
   const [price, setPrice] = useState("");

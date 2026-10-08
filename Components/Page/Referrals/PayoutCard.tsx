@@ -213,7 +213,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
             <Box>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.5, borderRadius: "10px", bgcolor: theme.palette.secondary.main, mb: 1.5 }}>
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     {t("payoutCurrentMethod", { defaultValue: "Payout address" })}
                   </Typography>
                   <Typography data-testid="payout-current-address" sx={{ fontSize: "14px", fontFamily: MONO, fontWeight: 600, color: theme.palette.text.primary }}>
@@ -350,7 +350,7 @@ export const PayoutCard = ({ isMobile, onToast }: Props) => {
                     </Box>
                   </Box>
 
-                  <Typography sx={{ mt: 1.5, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
+                  <Typography sx={{ mt: 1.5, fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
                     {t("payoutTronWarning", { defaultValue: "Sent on Tron (TRC-20). Double-check it — crypto sent to a wrong address can't be recovered." })}
                   </Typography>
                   <Box component="button" type="button" data-testid="payout-add-cancel-btn" onClick={resetForms} sx={{ ...pillBtn("ghost"), mt: 1.5 }}>

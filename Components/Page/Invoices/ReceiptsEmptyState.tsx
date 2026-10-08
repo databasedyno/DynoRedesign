@@ -41,7 +41,7 @@ const ReceiptsEmptyState: React.FC<Props> = ({ periodActive, onShowAll, compact 
         <Box component="ol" data-testid="receipts-empty-steps" sx={{ m: 0, p: 0, listStyle: "none", display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 0.75, sm: 2 }, mt: 0.5 }}>
           {steps.map((s, i) => (
             <Box component="li" key={i} sx={{ display: "flex", alignItems: "center", gap: 0.75, fontFamily: "var(--font-sans)", fontSize: 12.5, color: theme.palette.text.secondary }}>
-              <Box component="span" sx={{ width: 20, height: 20, borderRadius: "50%", border: `1px solid ${theme.palette.divider}`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: theme.palette.text.primary, flexShrink: 0 }}>{i + 1}</Box>
+              <Box component="span" sx={{ width: 20, height: 20, borderRadius: "50%", border: `1px solid ${theme.palette.divider}`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: theme.palette.text.primary, flexShrink: 0 }}>{i + 1}</Box>
               {s}
             </Box>
           ))}

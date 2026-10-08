@@ -137,7 +137,7 @@ export const PillButton = styled(Button, {
  */
 export const Eyebrow = styled(Box)(({ theme }) => ({
   fontFamily: "var(--font-sans)",
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 700,
   letterSpacing: 1.2,
   textTransform: "uppercase",

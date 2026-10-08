@@ -15,6 +15,14 @@ export interface BottomSheetProps {
   /** Exposes the overlay's history release (call before router.replace from inside). */
   onReleaseRef?: React.MutableRefObject<(() => void) | null>;
   maxHeight?: string;
+  /**
+   * Keep the sheet mounted after its first open (C12): the first open stays
+   * `keepMounted: false` (nothing in the DOM until needed), but once opened the
+   * contents stay mounted so re-opening is instant (no 1.2–2s first-paint compile
+   * of a heavy sheet). `useBackToClose` keys off `open`, so the back gesture is
+   * unaffected by the drawer staying mounted.
+   */
+  keepMountedAfterOpen?: boolean;
 }
 
 /** Phone overlay pattern (§8.5): drag handle, safe-area padding, 44px rows, back gesture closes. */
@@ -28,11 +36,19 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   "data-testid": testId = "bottom-sheet",
   onReleaseRef,
   maxHeight = "88dvh",
+  keepMountedAfterOpen = false,
 }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const release = useBackToClose(open, onClose, testId);
   if (onReleaseRef) onReleaseRef.current = release;
+
+  // C12: once opened, keep the contents mounted so re-opening is instant.
+  const [hasOpened, setHasOpened] = React.useState(false);
+  React.useEffect(() => {
+    if (open) setHasOpened(true);
+  }, [open]);
+  const keepMounted = keepMountedAfterOpen ? hasOpened : false;
 
   return (
     <SwipeableDrawer
@@ -42,7 +58,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
       onOpen={() => {}}
       disableSwipeToOpen
       disableDiscovery
-      ModalProps={{ keepMounted: false }}
+      ModalProps={{ keepMounted }}
       PaperProps={{
         "data-testid": testId,
         role: "dialog",

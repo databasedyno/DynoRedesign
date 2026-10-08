@@ -83,5 +83,14 @@
   "marketingEmailsTitle": "E-mails Marketing et Produit",
   "marketingEmailsDescription": "Actualités, conseils et nouveautés produit. Désactivez pour ne plus recevoir d'e-mails promotionnels — vous recevrez toujours les e-mails de paiement, de sécurité et de compte.",
   "pushNotConfigured": "Les notifications push du navigateur ne sont pas encore activées sur cette plateforme — les alertes par e‑mail et dans l’application fonctionnent toujours.",
-  "pushEnableFailed": "Impossible d’activer le push du navigateur pour le moment. Les alertes par e‑mail et dans l’application fonctionnent toujours."
+  "pushEnableFailed": "Impossible d’activer le push du navigateur pour le moment. Les alertes par e‑mail et dans l’application fonctionnent toujours.",
+  "notificationSettingsLink": "Paramètres de notification",
+  "accountEmailsTitle": "E-mails du compte",
+  "accountEmailsSubtitle": "Rapports et alertes de connexion pour votre compte personnel. Les e-mails de paiement, de versement et de commande se règlent par marque ci-dessus.",
+  "newDeviceOnlyTitle": "Alertes de connexion : nouveaux appareils uniquement",
+  "newDeviceOnlyDescription": "Envoyez-moi un e-mail uniquement lorsqu'une connexion provient d'un appareil ou d'un lieu que je n'ai jamais utilisé, plutôt qu'à chaque nouvelle session.",
+  "securityAlertsAlwaysOn": "Les alertes de mot de passe, 2FA, adresse de versement et nouvel appareil sont toujours envoyées : elles protègent votre argent et ne peuvent pas être désactivées.",
+  "alwaysOn": "Toujours activé",
+  "otherChannelsTitle": "Nouveautés produit et push",
+  "otherChannelsSubtitle": "E-mails et notifications du navigateur facultatifs"
 }

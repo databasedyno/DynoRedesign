@@ -100,12 +100,12 @@ const RecentForwards: React.FC<Props> = ({ data, loading, companyId }) => {
                     </Box>
                     <Box sx={{ fontFamily: MONO, fontSize: 12, color: muted }}>≈ {money(r.amount, sym, cur)}</Box>
                     {r.converted && (
-                      <Box data-testid="payouts-recent-converted" sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: positive, backgroundColor: isDark ? CB_TOKENS.semantic.positive.glowDark : CB_TOKENS.semantic.positive.glowLight, px: 0.75, py: 0.15, borderRadius: 999 }}>
+                      <Box data-testid="payouts-recent-converted" sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: positive, backgroundColor: isDark ? CB_TOKENS.semantic.positive.glowDark : CB_TOKENS.semantic.positive.glowLight, px: 0.75, py: 0.15, borderRadius: 999 }}>
                         → {r.target_amount != null ? `${formatDisplayAmount(r.target_amount, r.target_currency || "")} ` : ""}{r.target_currency}
                       </Box>
                     )}
                   </Box>
-                  <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: muted }}>
+                  <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
                     {relativeTime(r.forwarded_at, t as any, i18n.language)} · {t("payouts.toWallet", { wallet: r.wallet_address_masked || r.wallet_type, defaultValue: "to {{wallet}}" })}
                   </Box>
                 </Box>
@@ -118,7 +118,7 @@ const RecentForwards: React.FC<Props> = ({ data, loading, companyId }) => {
                       <Icon name="external-link" size={14} />
                     </Box>
                   ) : (
-                    <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: muted }}>{t("payouts.hashPending", { defaultValue: "hash pending" })}</Box>
+                    <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>{t("payouts.hashPending", { defaultValue: "hash pending" })}</Box>
                   )}
                 </Box>
               </Box>

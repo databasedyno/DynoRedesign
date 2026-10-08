@@ -123,7 +123,7 @@ const TrustedDevices: React.FC = () => {
                   </Typography>
                   {d.os && d.os !== "Unknown" && <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{d.os}</Typography>}
                   {d.is_current && (
-                    <Chip data-testid={`trusted-device-current-${d.id}`} label={t("thisDevice", { defaultValue: "This device" })} size="small" color="success" variant="outlined" sx={{ height: "20px", fontSize: "11px", fontFamily: "var(--font-sans)" }} />
+                    <Chip data-testid={`trusted-device-current-${d.id}`} label={t("thisDevice", { defaultValue: "This device" })} size="small" color="success" variant="outlined" sx={{ height: "20px", fontSize: "12px", fontFamily: "var(--font-sans)" }} />
                   )}
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "4px", mt: "2px", flexWrap: "wrap" }}>

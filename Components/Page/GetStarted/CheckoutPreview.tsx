@@ -40,7 +40,7 @@ const CheckoutPreview: React.FC<Props> = ({ brandName, logoUrl, description, amo
 
   return (
     <Box data-testid="gs-checkout-preview" sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5 }}>
-      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+      <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
         <Box sx={{ width: 7, height: 7, borderRadius: "50%", backgroundColor: isDark ? CB_TOKENS.semantic.positive.dark : CB_TOKENS.semantic.positive.light, boxShadow: `0 0 0 3px ${isDark ? "rgba(63,217,138,0.18)" : "rgba(5,147,106,0.14)"}` }} />
         {t("gs.previewEyebrow", { defaultValue: "Live preview" })}
       </Box>
@@ -72,7 +72,7 @@ const CheckoutPreview: React.FC<Props> = ({ brandName, logoUrl, description, amo
                 <Box data-testid="gs-preview-brand" sx={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {t("gs.previewPayTo", { brand, defaultValue: "Pay {{brand}}" })}
                 </Box>
-                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 11, color: muted }}>
+                <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
                   <Icon name="lock" size={11} />
                   {t("gs.previewSecured", { defaultValue: "Secured by Dynopay" })}
                 </Box>
@@ -86,7 +86,7 @@ const CheckoutPreview: React.FC<Props> = ({ brandName, logoUrl, description, amo
               {money || `${currency} 0.00`}
             </Box>
 
-            <Box sx={{ mt: 2.25, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: muted }}>
+            <Box sx={{ mt: 2.25, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: muted }}>
               {t("gs.previewPayWith", { defaultValue: "Pay with" })}
             </Box>
             <Box data-testid="gs-preview-coins" sx={{ mt: 0.75, minHeight: 26 }}>

@@ -131,7 +131,7 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
         data-testid={`referral-reward-${r.id}`}
         data-reward={rs}
         title={rs === "pending" ? (t("rewardPendingTip", { defaultValue: "Earns once they complete a qualifying payment." }) as string) : undefined}
-        sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.35, borderRadius: 999, fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 11.5, fontWeight: 700, color: palette.fg, backgroundColor: palette.bg, whiteSpace: "nowrap" }}
+        sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.35, borderRadius: 999, fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 700, color: palette.fg, backgroundColor: palette.bg, whiteSpace: "nowrap" }}
       >
         <Icon name={palette.icon} size={12} />
         {label}

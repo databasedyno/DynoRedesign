@@ -537,7 +537,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   {disabledInfo.reason && (
                     <Typography
                       data-testid="webhook-disabled-reason"
-                      sx={{ fontSize: 11.5, color: t.secondary, mt: 0.5, fontFamily: "monospace", wordBreak: "break-word" }}
+                      sx={{ fontSize: 12, color: t.secondary, mt: 0.5, fontFamily: "monospace", wordBreak: "break-word" }}
                     >
                       {disabledInfo.reason}
                     </Typography>
@@ -584,7 +584,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   </Typography>
                   <Typography
                     data-testid="webhook-redirect-target"
-                    sx={{ fontSize: 11.5, color: t.secondary, mt: 0.75, fontFamily: "monospace", wordBreak: "break-word" }}
+                    sx={{ fontSize: 12, color: t.secondary, mt: 0.75, fontFamily: "monospace", wordBreak: "break-word" }}
                   >
                     {(redirectNotice.original_url || savedUrl || "your URL")} → {redirectNotice.final_url}
                     {redirectNotice.detected_at ? ` (${tr("webhook.since", { defaultValue: "since {{time}}", time: fmtTime(redirectNotice.detected_at) })})` : ""}
@@ -645,7 +645,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             )}
 
             {/* Endpoint URL */}
-            <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
               {tr("webhook.endpointUrl", { defaultValue: "Endpoint URL" })}
             </Typography>
             <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 1, mb: 2 }}>
@@ -678,7 +678,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             {hasUrl && (
               <>
             {/* Signing secret */}
-            <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.75 }}>
               {tr("webhook.signingSecret", { defaultValue: "Signing secret" })}
             </Typography>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, flexWrap: "wrap" }}>
@@ -737,7 +737,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
             </Box>
 
             {/* Event subscriptions — opt-in extras on top of the always-on payment updates */}
-            <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.5 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mb: 0.5 }}>
               {tr("webhook.eventSubscriptions", { defaultValue: "Event subscriptions" })}
             </Typography>
             <Typography sx={{ fontSize: 12, color: t.secondary, mb: 1 }}>
@@ -796,7 +796,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   { k: tr("webhook.statAvgLatency", { defaultValue: "Avg latency" }), v: stats.avg_response_time_ms ? `${stats.avg_response_time_ms} ms` : "—", c: t.primary },
                 ].map((s) => (
                   <Box key={s.k} sx={{ px: 1.5, py: 1, borderRadius: 2, border: `1px solid ${theme.palette.divider}`, minWidth: 92 }}>
-                    <Typography sx={{ fontSize: 10.5, color: t.secondary, textTransform: "uppercase", letterSpacing: 0.4, fontWeight: 700 }}>{s.k}</Typography>
+                    <Typography sx={{ fontSize: 12, color: t.secondary, textTransform: "uppercase", letterSpacing: 0.4, fontWeight: 700 }}>{s.k}</Typography>
                     <Typography sx={{ fontSize: 16, fontWeight: 800, color: s.c }}>{s.v}</Typography>
                   </Box>
                 ))}
@@ -805,7 +805,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
 
             {/* Recent deliveries */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary }}>
                 {tr("webhook.recentDeliveries", { defaultValue: "Recent deliveries" })}
               </Typography>
               <Select
@@ -855,14 +855,14 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                           <Typography
                             title={lg.webhook_url}
                             sx={{
-                              fontSize: 11, color: t.secondary, fontFamily: "monospace",
+                              fontSize: 12, color: t.secondary, fontFamily: "monospace",
                               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                             }}
                           >
                             {"\u2192 "}{shortEndpoint(lg.webhook_url)}
                           </Typography>
                         )}
-                        <Typography sx={{ fontSize: 11, color: t.secondary }}>
+                        <Typography sx={{ fontSize: 12, color: t.secondary }}>
                           {fmtTime(lg.created_at)}
                           {lg.retry_count > 0 ? ` · ${lg.retry_count} retr${lg.retry_count === 1 ? "y" : "ies"}` : ""}
                         </Typography>
@@ -917,7 +917,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
               ))}
               {detail.error_message && (
                 <Box sx={{ mt: 1.5, p: 1.25, borderRadius: 2, bgcolor: "rgba(220,38,38,0.10)", border: "1px solid rgba(220,38,38,0.3)" }}>
-                  <Typography sx={{ fontSize: 11, fontWeight: 700, color: "#DC2626", mb: 0.5 }}>{tr("webhook.errorLabel", { defaultValue: "ERROR" })}</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#DC2626", mb: 0.5 }}>{tr("webhook.errorLabel", { defaultValue: "ERROR" })}</Typography>
                   <Typography sx={{ fontSize: 12.5, color: "#DC2626", wordBreak: "break-word" }}>{detail.error_message}</Typography>
                 </Box>
               )}
@@ -935,7 +935,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                 return (
                   <>
                     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 2, mb: 0.5 }}>
-                      <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary }}>
+                      <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary }}>
                         {tr("webhook.requestHeaders", { defaultValue: "Request headers" })}
                       </Typography>
                       <Tooltip title={tr("webhook.copyHeaders", { defaultValue: "Copy headers" })}>
@@ -948,7 +948,7 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                       component="pre"
                       data-testid="webhook-detail-headers"
                       sx={{
-                        m: 0, p: 1.5, borderRadius: 2, maxHeight: 160, overflow: "auto", fontSize: 11.5,
+                        m: 0, p: 1.5, borderRadius: 2, maxHeight: 160, overflow: "auto", fontSize: 12,
                         fontFamily: "monospace", whiteSpace: "pre-wrap", wordBreak: "break-word",
                         bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
                         color: t.primary, border: `1px solid ${theme.palette.divider}`,
@@ -959,13 +959,13 @@ const WebhookConsoleSection = ({ view = "all" }: { view?: "all" | "settings" | "
                   </>
                 );
               })()}
-              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mt: 2, mb: 0.5 }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: t.secondary, mt: 2, mb: 0.5 }}>
                 {tr("webhook.payloadSent", { defaultValue: "Payload sent" })}
               </Typography>
               <Box
                 component="pre"
                 sx={{
-                  m: 0, p: 1.5, borderRadius: 2, maxHeight: 220, overflow: "auto", fontSize: 11.5,
+                  m: 0, p: 1.5, borderRadius: 2, maxHeight: 220, overflow: "auto", fontSize: 12,
                   fontFamily: "monospace", whiteSpace: "pre-wrap", wordBreak: "break-word",
                   bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
                   color: t.primary, border: `1px solid ${theme.palette.divider}`,

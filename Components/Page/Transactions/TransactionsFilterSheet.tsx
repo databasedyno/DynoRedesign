@@ -45,7 +45,7 @@ const TransactionsFilterSheet: React.FC<Props> = ({ open, onClose, filters, rows
 
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
-  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted, mb: 1.25 };
+  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted, mb: 1.25 };
 
   const baseRows = useMemo(() => rows.filter((r) => matchesBaseFilters(r, draft)), [rows, draft]);
   const statusCounts = useMemo(() => {

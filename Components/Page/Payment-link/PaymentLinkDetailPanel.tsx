@@ -74,7 +74,7 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
   const secondary = isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight;
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const surface = isDark ? "rgba(255,255,255,0.03)" : "rgba(10,10,15,0.02)";
-  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted };
+  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted };
   const iconBtnSx = { border: `1px solid ${border}`, borderRadius: "12px", minWidth: 44, minHeight: 44, color: ink, "&:hover": { backgroundColor: theme.palette.action.hover } };
 
   const url = link ? toShortPayLink(link.paymentUrl) : "";
@@ -277,7 +277,7 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
             <Box data-testid="paylink-detail-stats" sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, minmax(0, 1fr))" }, gap: 1 }}>
               {stats.map((s) => (
                 <Box key={s.key} data-testid={`paylink-stat-${s.key}`} sx={{ p: { xs: "10px 14px", sm: 1.5 }, borderRadius: "14px", border: `1px solid ${border}`, minWidth: 0, display: "flex", flexDirection: { xs: "row", sm: "column" }, alignItems: { xs: "center", sm: "stretch" }, justifyContent: "space-between", gap: { xs: 1.5, sm: 0.5 } }}>
-                  <Box sx={{ ...eyebrowSx, fontSize: 10.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.label}</Box>
+                  <Box sx={{ ...eyebrowSx, fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.label}</Box>
                   {s.value == null ? (
                     <Skeleton variant="text" width={64} height={22} />
                   ) : (

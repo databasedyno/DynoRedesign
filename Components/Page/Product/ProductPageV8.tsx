@@ -139,7 +139,7 @@ const ProductPageV8: React.FC<{ config: ProductPageConfig }> = ({ config: c }) =
             {c.stats.map((x, i) => (
               <Box key={x.l} sx={{ px: { md: 2 }, borderLeft: { md: i === 0 ? "none" : `1px solid ${PANEL.line}` } }}>
                 <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: { xs: 32, md: 46 }, lineHeight: 1, letterSpacing: "-0.03em", color: PANEL.gold }}>{x.v}</Typography>
-                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, letterSpacing: "0.08em", textTransform: "uppercase", color: PANEL.ink3, mt: 1.5 }}>{x.l}</Typography>
+                <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: PANEL.ink3, mt: 1.5 }}>{x.l}</Typography>
               </Box>
             ))}
           </Box>

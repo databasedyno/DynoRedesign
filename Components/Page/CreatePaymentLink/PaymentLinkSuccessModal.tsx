@@ -298,12 +298,12 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                         <QRCodeSVG value={singleCryptoWallet.address} size={isMobile ? 140 : 160} level="M" includeMargin={false} />
                       )}
                     </Box>
-                    <Typography sx={{ fontSize: 11, color: muted, textAlign: "center", lineHeight: 1.4 }}>
+                    <Typography sx={{ fontSize: 12, color: muted, textAlign: "center", lineHeight: 1.4 }}>
                       {t("common:scanQrPayWallet")}
                     </Typography>
                     <Box sx={{ display: "flex", gap: 1, alignItems: "center", width: "100%" }}>
                       <Box sx={{ flex: 1, overflow: "hidden", borderRadius: "10px", border: `1px solid ${border}`, px: 1.5, py: 1, backgroundColor: surface }}>
-                        <Typography sx={{ fontSize: isMobile ? 10 : 12, fontFamily: MONO, color: ink, wordBreak: "break-all", lineHeight: 1.4 }}>
+                        <Typography sx={{ fontSize: isMobile ? 12 : 12, fontFamily: MONO, color: ink, wordBreak: "break-all", lineHeight: 1.4 }}>
                           {singleCryptoWallet.address}
                         </Typography>
                       </Box>

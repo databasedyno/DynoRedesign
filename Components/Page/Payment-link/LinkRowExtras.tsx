@@ -24,7 +24,7 @@ export const ExpiringSoonBadge: React.FC<{ link: PaymentLinkData; testId: string
       <Box
         component="span"
         data-testid={testId}
-        sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.2, borderRadius: 999, fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, color: tone, backgroundColor: isDark ? CB_TOKENS.semantic.warning.glowDark : CB_TOKENS.semantic.warning.glowLight, whiteSpace: "nowrap" }}
+        sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.2, borderRadius: 999, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: tone, backgroundColor: isDark ? CB_TOKENS.semantic.warning.glowDark : CB_TOKENS.semantic.warning.glowLight, whiteSpace: "nowrap" }}
       >
         <Icon name="clock" size={11} />
         {t("expiringSoon", { defaultValue: "Expiring soon" })}
@@ -42,7 +42,7 @@ export const Last30Cell: React.FC<{ link: PaymentLinkData; compact?: boolean }> 
   const muted = theme.palette.text.secondary;
   return (
     <Tooltip arrow title={t("last30Tip", { count: link.paidTotalCount ?? link.timesUsed ?? 0, defaultValue: "{{count}} settled payments all-time" })}>
-      <Box data-testid={`paylink-last30-${link.id}`} data-count={count} sx={{ display: "inline-flex", alignItems: "baseline", gap: 0.5, fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: compact ? 11.5 : 13, color: count > 0 ? theme.palette.text.primary : muted, whiteSpace: "nowrap" }}>
+      <Box data-testid={`paylink-last30-${link.id}`} data-count={count} sx={{ display: "inline-flex", alignItems: "baseline", gap: 0.5, fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: compact ? 12 : 13, color: count > 0 ? theme.palette.text.primary : muted, whiteSpace: "nowrap" }}>
         {count > 0 ? (
           <>
             <Box component="span" sx={{ fontWeight: 600 }}>{t("paidCount", { count, defaultValue: "{{count}} paid" })}</Box>
@@ -83,7 +83,7 @@ export const RowQrPopover: React.FC<{ link: PaymentLinkData; anchor: HTMLElement
         <Box sx={{ p: 1, borderRadius: "10px", backgroundColor: "#FFFFFF" }}>
           <QRCodeCanvas value={url} size={148} />
         </Box>
-        <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</Typography>
+        <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</Typography>
       </Box>
     </Popover>
   );
@@ -139,7 +139,7 @@ export const QrShareActions: React.FC<QrShareProps> = ({ link, onToast, compact,
           <Box sx={{ p: 1, borderRadius: "10px", backgroundColor: "#FFFFFF" }}>
             <QRCodeCanvas value={url} size={148} />
           </Box>
-          <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</Typography>
+          <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</Typography>
         </Box>
       </Popover>
     </>

@@ -142,7 +142,7 @@ const RowMenu: React.FC<{ row: KeyRow } & Handlers> = ({ row, onDelete, onRegene
 };
 
 const Label: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Box component="span" sx={{ display: { xs: "block", md: "none" }, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "text.secondary", mb: 0.25 }}>
+  <Box component="span" sx={{ display: { xs: "block", md: "none" }, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "text.secondary", mb: 0.25 }}>
     {children}
   </Box>
 );
@@ -206,7 +206,7 @@ const KeyRowView: React.FC<{ row: KeyRow; revealedKey?: string } & Handlers> = (
             )}
           </Box>
           {isSandbox && (
-            <Typography data-testid="sandbox-limits" sx={{ mt: 0.25, fontSize: 11.5, color: muted }}>
+            <Typography data-testid="sandbox-limits" sx={{ mt: 0.25, fontSize: 12, color: muted }}>
               {t("keys.sandboxLimits", { max: sandbox?.max_amount ?? 100, currencies: (sandbox?.allowed_currencies || []).join(" · "), defaultValue: "Max ${{max}} · {{currencies}} · sandbox mode" })}
             </Typography>
           )}
@@ -264,7 +264,7 @@ const ApiKeysTable: React.FC<{ rows: KeyRow[]; revealedKeys?: Record<string | nu
     <Box data-testid="api-keys-table" sx={{ mb: 2.5, borderRadius: "14px", border: `1px solid ${theme.palette.divider}`, backgroundColor: theme.palette.background.paper, overflow: "hidden" }}>
       <Box sx={{ display: { xs: "none", md: "grid" }, gridTemplateColumns: COLS, columnGap: 2, px: 2.5, py: 1.25 }}>
         {head.map((h, i) => (
-          <Box key={i} sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+          <Box key={i} sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
             {h}
           </Box>
         ))}

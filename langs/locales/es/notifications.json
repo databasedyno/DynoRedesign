@@ -83,5 +83,14 @@
   "marketingEmailsTitle": "Correos de Marketing y Producto",
   "marketingEmailsDescription": "Novedades, consejos y actualizaciones del producto. Desactiva para dejar de recibir correos promocionales; seguirás recibiendo correos de pago, seguridad y cuenta.",
   "pushNotConfigured": "Las notificaciones push del navegador aún no están habilitadas en esta plataforma; las alertas por correo y en la app siguen funcionando.",
-  "pushEnableFailed": "No se pudo activar el push del navegador ahora mismo. Las alertas por correo y en la app siguen funcionando."
+  "pushEnableFailed": "No se pudo activar el push del navegador ahora mismo. Las alertas por correo y en la app siguen funcionando.",
+  "notificationSettingsLink": "Configuración de notificaciones",
+  "accountEmailsTitle": "Correos de la cuenta",
+  "accountEmailsSubtitle": "Informes y alertas de inicio de sesión para tu cuenta personal. Los correos de pago, retiro y pedido se configuran por marca más arriba.",
+  "newDeviceOnlyTitle": "Alertas de inicio de sesión: solo dispositivos nuevos",
+  "newDeviceOnlyDescription": "Envíame un correo solo cuando un inicio de sesión provenga de un dispositivo o una ubicación que no haya usado antes, en lugar de en cada sesión nueva.",
+  "securityAlertsAlwaysOn": "Las alertas de contraseña, 2FA, dirección de retiro y dispositivo nuevo siempre se envían: protegen tu dinero y no se pueden desactivar.",
+  "alwaysOn": "Siempre activo",
+  "otherChannelsTitle": "Novedades del producto y push",
+  "otherChannelsSubtitle": "Correos y notificaciones del navegador opcionales"
 }

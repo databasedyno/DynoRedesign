@@ -71,7 +71,7 @@ const BrandCard: React.FC<{ brand: BrandRow; currency: string; onManage: () => v
             {brand.is_member && (
               <Box
                 data-testid={`brand-role-${brand.company_id}`}
-                sx={{ px: "6px", py: "1px", borderRadius: "999px", fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: BRAND_ACCENT, border: `1px solid ${BRAND_ACCENT}` }}
+                sx={{ px: "6px", py: "1px", borderRadius: "999px", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: BRAND_ACCENT, border: `1px solid ${BRAND_ACCENT}` }}
               >
                 {String(brand.member_role) === "admin"
                   ? t("brandsOverview.roleAdmin", { defaultValue: "Admin" })
@@ -79,7 +79,7 @@ const BrandCard: React.FC<{ brand: BrandRow; currency: string; onManage: () => v
               </Box>
             )}
             {nativeDiffers && (
-              <Typography data-testid={`brand-native-${brand.company_id}`} sx={{ fontFamily: "var(--font-sans)", fontSize: 11, color: muted }}>
+              <Typography data-testid={`brand-native-${brand.company_id}`} sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
                 {t("brandsOverview.native", { defaultValue: "In {{currency}}", currency: (brand.native_currency || "").toUpperCase() })}
               </Typography>
             )}

@@ -36,8 +36,8 @@ export const AddressFormatBadge: React.FC<{ chain: string; address: string; test
         data-format={status}
         aria-label={(ok ? t("formatOk", { defaultValue: "Format OK" }) : t("formatUnusual", { defaultValue: "Unusual format" })) as string}
         sx={compact && ok
-          ? { display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 11.5, fontWeight: 600, color: tone, whiteSpace: "nowrap" }
-          : { ml: compact ? 0 : "auto", display: "inline-flex", alignItems: "center", gap: 0.5, px: 0.9, py: 0.25, borderRadius: 999, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 0.2, color: tone, backgroundColor: glow, whiteSpace: "nowrap" }}
+          ? { display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: tone, whiteSpace: "nowrap" }
+          : { ml: compact ? 0 : "auto", display: "inline-flex", alignItems: "center", gap: 0.5, px: 0.9, py: 0.25, borderRadius: 999, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 0.2, color: tone, backgroundColor: glow, whiteSpace: "nowrap" }}
       >
         <Icon name={ok ? "circle-check" : "triangle-alert"} size={compact && ok ? 13 : 11} />
         {compact && ok ? null : ok ? t("formatOk", { defaultValue: "Format OK" }) : t("formatUnusual", { defaultValue: "Unusual format" })}

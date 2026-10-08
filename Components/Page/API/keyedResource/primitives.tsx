@@ -56,7 +56,7 @@ export const SectionLabel = ({ children, mt }: { children: ReactNode; mt?: numbe
 };
 
 export const MetaChip = ({ label }: { label: string }) => (
-  <Chip size="small" label={label} sx={{ height: 22, fontSize: 11 }} />
+  <Chip size="small" label={label} sx={{ height: 22, fontSize: 12 }} />
 );
 
 export const TokenChips = ({ tokens, mt }: { tokens: string[]; mt?: number }) => (
@@ -110,7 +110,7 @@ export const SnippetPre = ({ code, onCopy, suffixLabel, copyLabel }: SnippetPreP
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
         <Typography
           sx={{
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             letterSpacing: 0.4,
             textTransform: "uppercase",

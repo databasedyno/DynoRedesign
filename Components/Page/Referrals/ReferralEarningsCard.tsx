@@ -44,7 +44,7 @@ const ReferralEarningsCard: React.FC<Props> = ({ earnings, stats, loading }) => 
         <Typography component="h2" sx={{ m: 0, fontSize: { xs: 15, md: 16 }, fontWeight: 700, color: theme.palette.text.primary }}>
           {t("earnings.title", { defaultValue: "Earnings" })}
         </Typography>
-        <Box sx={{ ml: "auto", px: 1, py: 0.25, borderRadius: 999, bgcolor: theme.palette.action.hover, fontSize: 11, fontFamily: MONO, fontWeight: 600, color: theme.palette.text.secondary }}>
+        <Box sx={{ ml: "auto", px: 1, py: 0.25, borderRadius: 999, bgcolor: theme.palette.action.hover, fontSize: 12, fontFamily: MONO, fontWeight: 600, color: theme.palette.text.secondary }}>
           {`${c?.rate_percent ?? 25}% · ${c?.window_months ?? 12}mo`}
         </Box>
       </Box>

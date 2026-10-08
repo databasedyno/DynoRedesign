@@ -60,10 +60,10 @@ export const BrandEscrowTotals: React.FC<{ companyId: string | number | null | u
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "repeat(2, minmax(0,1fr))", md: "repeat(5, minmax(0,1fr))" }, gap: 1 }}>
         {cells.map(([l, v, tid, sub]) => (
           <Box key={l}>
-            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{l}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>{l}</Typography>
             <Typography data-testid={tid} className="tabular-nums" sx={{ fontSize: 15, fontWeight: 700, fontFamily: "var(--font-mono)" }}>{v}</Typography>
             {sub && (
-              <Typography data-testid={`${tid}-pipeline`} sx={{ fontSize: 11, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mt: 0.25 }}>{sub}</Typography>
+              <Typography data-testid={`${tid}-pipeline`} sx={{ fontSize: 12, color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mt: 0.25 }}>{sub}</Typography>
             )}
           </Box>
         ))}

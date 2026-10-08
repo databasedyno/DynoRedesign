@@ -58,7 +58,7 @@ const SavingsCard: React.FC<Props> = ({ companyId, cardSx }) => {
                   sx={{
                     height: 22,
                     fontWeight: 700,
-                    fontSize: 11,
+                    fontSize: 12,
                     color: SUCCESS_GREEN,
                     bgcolor: `${SUCCESS_GREEN}1A`,
                     "& .MuiChip-icon": { color: SUCCESS_GREEN, ml: 0.5 },

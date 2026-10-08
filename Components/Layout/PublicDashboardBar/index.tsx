@@ -66,7 +66,7 @@ const PublicDashboardBar: FC = () => {
           <Typography
             data-testid="public-dashboard-bar-email"
             noWrap
-            sx={{ fontSize: 11.5, color: theme.palette.text.secondary, lineHeight: 1.2, maxWidth: 170 }}
+            sx={{ fontSize: 12, color: theme.palette.text.secondary, lineHeight: 1.2, maxWidth: 170 }}
           >
             {user.email}
           </Typography>

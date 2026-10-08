@@ -127,7 +127,7 @@ const TrendCard: React.FC<Props> = ({ chartData, chartAssets, loading, currencyS
               <Tooltip
                 cursor={{ stroke: isDark ? "rgba(255,255,255,0.14)" : "rgba(10,10,15,0.14)", strokeDasharray: "3 3" }}
                 contentStyle={{ borderRadius: 10, border: `1px solid ${isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light}`, backgroundColor: isDark ? "#1F2029" : "#FFFFFF", fontFamily: "var(--font-sans)", fontSize: 12 }}
-                labelStyle={{ color: muted, fontSize: 11 }}
+                labelStyle={{ color: muted, fontSize: 12 }}
                 itemStyle={{ color: ink, fontWeight: 700 }}
                 formatter={(v: unknown) => [fmt(Number(v ?? 0)), metrics.find((m) => m.id === metric)?.label ?? ""]}
               />

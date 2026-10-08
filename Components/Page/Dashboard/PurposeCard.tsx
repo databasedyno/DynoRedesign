@@ -105,7 +105,7 @@ const PurposeCard: React.FC = () => {
         sx={{
           display: "inline-flex", alignItems: "center", gap: 1,
           fontFamily: "var(--font-tech), ui-monospace, monospace",
-          fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
+          fontSize: 12, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
           color: theme.palette.text.secondary, mb: 0.75,
           "&::before": { content: '""', width: 6, height: 6, borderRadius: "50%", backgroundColor: BRAND_ACCENT, boxShadow: `0 0 10px ${BRAND_ACCENT}` },
         }}

@@ -223,7 +223,7 @@ const CollectedTaxReport: React.FC = () => {
             background: `${theme.palette.primary.main}0A`,
           }}
         >
-          <Typography sx={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: sub, fontFamily: "var(--font-tech)" }}>
+          <Typography sx={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: sub, fontFamily: "var(--font-tech)" }}>
             Total tax collected · {data!.summary.display_currency}
           </Typography>
           <Typography sx={{ fontSize: 28, fontWeight: 700, fontVariantNumeric: "tabular-nums", lineHeight: 1.2 }} data-testid="collected-tax-total-value">
@@ -251,7 +251,7 @@ const CollectedTaxReport: React.FC = () => {
                 minWidth: 180,
               }}
             >
-              <Typography sx={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: sub, fontFamily: "var(--font-tech)" }}>
+              <Typography sx={{ fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: sub, fontFamily: "var(--font-tech)" }}>
                 {c.currency} · tax collected
               </Typography>
               <Typography sx={{ fontSize: 20, fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>
@@ -301,7 +301,7 @@ const CollectedTaxReport: React.FC = () => {
                     <TableCell>
                       {r.country_name}
                       {r.is_eu && (
-                        <Box component="span" sx={{ ml: 1, fontSize: 10, px: 0.75, py: 0.25, borderRadius: "6px", background: theme.palette.action.hover, color: sub }}>
+                        <Box component="span" sx={{ ml: 1, fontSize: 12, px: 0.75, py: 0.25, borderRadius: "6px", background: theme.palette.action.hover, color: sub }}>
                           EU/OSS
                         </Box>
                       )}
@@ -373,7 +373,7 @@ const CollectedTaxReport: React.FC = () => {
                       <Box
                         component="span"
                         data-testid={`nexus-status-${thr.key}`}
-                        sx={{ fontSize: 11, fontWeight: 700, px: 1, py: 0.25, borderRadius: "6px", color, background: `${color}1A`, textTransform: "uppercase", letterSpacing: "0.04em" }}
+                        sx={{ fontSize: 12, fontWeight: 700, px: 1, py: 0.25, borderRadius: "6px", color, background: `${color}1A`, textTransform: "uppercase", letterSpacing: "0.04em" }}
                       >
                         {chipLabel}
                       </Box>

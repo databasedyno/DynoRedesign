@@ -2156,7 +2156,7 @@ const CreatePaymentLinkPage = ({
                   </Box>
                 )}
                 {paymentSettings.blockchainFees && (
-                  <Typography sx={{ fontSize: 11, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, opacity: 0.7 }}>
+                  <Typography sx={{ fontSize: 12, fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, opacity: 0.7 }}>
                     Fee paid by: {paymentSettings.blockchainFees === "customer" ? "Customer" : "Company"}
                   </Typography>
                 )}

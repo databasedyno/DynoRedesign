@@ -82,13 +82,13 @@ const KycTimeline = ({ view, status, latest }: Props) => {
               <Box sx={{ minWidth: 0, pt: 0.25 }}>
                 <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
                   <Typography sx={{ fontSize: 14.5, fontWeight: 700, color: s.state === "upcoming" ? muted : theme.palette.text.primary }}>{s.title}</Typography>
-                  <Typography data-testid={`kyc-step-wait-${s.id}`} sx={{ fontSize: 11.5, fontWeight: 700, color: c, fontVariantNumeric: "tabular-nums", display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                  <Typography data-testid={`kyc-step-wait-${s.id}`} sx={{ fontSize: 12, fontWeight: 700, color: c, fontVariantNumeric: "tabular-nums", display: "inline-flex", alignItems: "center", gap: 0.5 }}>
                     <Icon icon="mdi:clock-outline" width={13} />
                     {s.wait}
                   </Typography>
                 </Box>
                 <Typography sx={{ fontSize: 13, color: muted, lineHeight: 1.5, mt: 0.35 }}>{s.body}</Typography>
-                {s.stamp && <Typography sx={{ fontSize: 11.5, color: muted, mt: 0.5 }}>{s.stamp}</Typography>}
+                {s.stamp && <Typography sx={{ fontSize: 12, color: muted, mt: 0.5 }}>{s.stamp}</Typography>}
                 {s.state === "current" && s.id !== "review" && (
                   <Typography data-testid="kyc-step-next" sx={{ fontSize: 12.5, fontWeight: 700, color: theme.palette.primary.main, mt: 0.75 }}>
                     {t("kycTimeline.nextUp", { defaultValue: "Next up — use the button above to continue." })}

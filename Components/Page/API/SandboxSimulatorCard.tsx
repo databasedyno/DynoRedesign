@@ -507,7 +507,7 @@ const SandboxSimulatorCard = () => {
                 <Box
                   sx={{
                     fontFamily: mono,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: 600,
                     textTransform: "uppercase",
                     letterSpacing: "0.03em",

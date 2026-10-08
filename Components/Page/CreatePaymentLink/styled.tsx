@@ -49,7 +49,7 @@ export const TabItem = styled(Box, {
       textOverflow: "ellipsis",
     },
     [theme.breakpoints.down("sm")]: {
-      fontSize: "10px",
+      fontSize: "12px",
       lineHeight: 1.2,
       whiteSpace: "nowrap",
       overflow: "hidden",
@@ -202,7 +202,7 @@ export const LabelText = styled(Typography)(({ theme }) => ({
   fontSize: "13px",
   lineHeight: "1.2",
   [theme.breakpoints.down("md")]: {
-    fontSize: "10px",
+    fontSize: "12px",
     lineHeight: "1.2",
   },
 }));
@@ -223,7 +223,7 @@ export const ValueText = styled(Typography)(({ theme }) => ({
   fontSize: "13px",
   lineHeight: "1.2",
   [theme.breakpoints.down("md")]: {
-    fontSize: "10px",
+    fontSize: "12px",
     lineHeight: "1.2",
   },
 }));
@@ -326,7 +326,7 @@ export const FormSectionHeader = styled(Box)(({ theme }) => ({
     alignItems: "center",
     justifyContent: "center",
     fontFamily: "var(--font-tech), monospace",
-    fontSize: 11.5,
+    fontSize: 12,
     fontWeight: 700,
     letterSpacing: "0.08em",
     color: theme.palette.mode === "dark" ? "#FFD100" : "#8B5E00",
@@ -348,7 +348,7 @@ export const FormSectionHeader = styled(Box)(({ theme }) => ({
   },
   [theme.breakpoints.down("md")]: {
     "& .title": { fontSize: 15, lineHeight: "26px" },
-    "& .step": { minWidth: 26, height: 26, fontSize: 11 },
+    "& .step": { minWidth: 26, height: 26, fontSize: 12 },
   },
 }));
 

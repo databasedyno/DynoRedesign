@@ -854,7 +854,8 @@
     "securityDevices": "Dispositivos y actividad",
     "security": "Seguridad",
     "securityDesc": "Verificación en dos pasos, contraseña, protección de direcciones de pago y dispositivos conectados.",
-    "sectionsAria": "Secciones de ajustes"
+    "sectionsAria": "Secciones de ajustes",
+    "brandProfile": "Perfil de marca"
   },
   "donation": {
     "defaultTitle": "Apoya esta campaña",
@@ -1923,5 +1924,10 @@
   "toast": {
     "dismiss": "Descartar",
     "undo": "Deshacer"
-  }
+  },
+  "filters": "Filtros",
+  "clearFilters": "Borrar",
+  "filtersDone": "Listo",
+  "selectItems": "Seleccionar",
+  "selectDone": "Listo"
 }

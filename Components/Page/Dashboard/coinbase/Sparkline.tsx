@@ -59,7 +59,7 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label, currencySymbol }
     >
       <Box
         sx={{
-          fontSize: 11,
+          fontSize: 12,
           color:
             theme.palette.mode === "dark"
               ? CB_TOKENS.ink.mutedDark

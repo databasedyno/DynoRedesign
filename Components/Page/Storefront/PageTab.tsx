@@ -92,7 +92,7 @@ const PageTab = () => {
         {isDesktop && mounted && (
           <Box sx={{ flex: "0 0 360px", position: "sticky", top: "calc(var(--page-header-h, 0px) + 16px)" }} data-testid="creator-preview-column">
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mb: 1, ml: 0.5 }}>
-              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+              <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
                 {t("creatorPreviewLabel", { defaultValue: "Live preview", ns: "dashboardLayout" })}
               </Typography>
               {/* Live-updates hint: makes it obvious the preview reflects

@@ -107,7 +107,7 @@ export default function WalletTotalHero() {
             <Typography
               sx={{
                 fontFamily: "var(--font-sans)",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
@@ -138,7 +138,7 @@ export default function WalletTotalHero() {
                   py: "2px",
                   borderRadius: 999,
                   fontFamily: "var(--font-sans)",
-                  fontSize: 10.5,
+                  fontSize: 12,
                   fontWeight: 700,
                   letterSpacing: "0.06em",
                   textTransform: "uppercase",
@@ -238,7 +238,7 @@ function StatChip({ icon, label, value }: { icon: string; label: string; value: 
         <Typography
           sx={{
             fontFamily: "var(--font-tech), ui-monospace, monospace",
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 600,
             letterSpacing: { xs: "0.04em", sm: "0.12em" },
             textTransform: "uppercase",

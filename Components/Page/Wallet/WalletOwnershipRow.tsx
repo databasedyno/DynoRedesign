@@ -28,7 +28,7 @@ const WalletOwnershipRow: React.FC<Props> = ({ wallet: w }) => {
         <Box
           component="span"
           data-testid={`wallet-ownership-verified-${id}`}
-          sx={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 0.5, px: 0.9, py: 0.3, borderRadius: 999, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, color: tone, backgroundColor: glow, whiteSpace: "nowrap" }}
+          sx={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: 0.5, px: 0.9, py: 0.3, borderRadius: 999, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, color: tone, backgroundColor: glow, whiteSpace: "nowrap" }}
         >
           <Icon name="shield-check" size={12} />
           {t("ownershipVerified", { defaultValue: "Ownership verified · {{via}}", via: w.ownershipVerifiedVia || "wallet" })}

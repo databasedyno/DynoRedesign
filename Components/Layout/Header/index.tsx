@@ -301,7 +301,7 @@ const Header = ({ pageName, component }: HeaderProps) => {
             }}
           >
             <Typography sx={{ fontSize: "14px" }}>{tokenData?.name}</Typography>
-            <Typography sx={{ fontSize: "11px", color: "text.disabled" }}>
+            <Typography sx={{ fontSize: "12px", color: "text.disabled" }}>
               {tokenData?.email}
             </Typography>
           </ListItem>

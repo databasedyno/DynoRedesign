@@ -27,7 +27,7 @@ export const ApiKeyCardSubTitle = styled(Typography)<{ component?: ElementType }
     position: "relative",
   },
   [theme.breakpoints.down("md")]: {
-    fontSize: 11,
+    fontSize: 12,
     lineHeight: "13px",
   },
 }));
@@ -122,7 +122,7 @@ export const ApiKeyCreatedText = styled(Typography)(({ theme }) => ({
   },
   [theme.breakpoints.down("md")]: {
     "& .created-on-text": {
-      fontSize: 10,
+      fontSize: 12,
     },
   },
 }));
@@ -163,7 +163,7 @@ export const InfoText = styled(Typography)(({ theme }) => ({
   lineHeight: "18px",
   fontFamily: "var(--font-sans)",
   [theme.breakpoints.down("md")]: {
-    fontSize: "10px",
+    fontSize: "12px",
     lineHeight: "12px",
   },
 }));
@@ -177,7 +177,7 @@ export const ApiDocumentationCardDescription = styled(Typography)(
     lineHeight: "16px",
     maxWidth: "309px",
     [theme.breakpoints.down("md")]: {
-      fontSize: 10,
+      fontSize: 12,
       lineHeight: "12px",
     },
   }),

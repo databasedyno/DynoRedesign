@@ -74,7 +74,7 @@ const EmbedSnippet: React.FC<Props> = ({ url, label }) => {
             <Box
               component="pre"
               data-testid="paylink-embed-code"
-              sx={{ m: 0, p: 1.5, pr: 6, fontFamily: MONO, fontSize: 11.5, lineHeight: 1.55, color: theme.palette.text.primary, whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 140, overflow: "auto" }}
+              sx={{ m: 0, p: 1.5, pr: 6, fontFamily: MONO, fontSize: 12, lineHeight: 1.55, color: theme.palette.text.primary, whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 140, overflow: "auto" }}
             >
               {snippet}
             </Box>

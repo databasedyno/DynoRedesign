@@ -35,7 +35,7 @@ export const LinkCoinsBadge: React.FC<Props> = ({ value, max = 4, size = "sm", s
       <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, flexWrap: "wrap" }}>
         <CoinChips value={linkCoins} max={max} size={size} />
         {configured.length > linkCoins.length && (
-          <Box component="span" data-testid="paylink-coins-partial" sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: theme.palette.text.secondary }}>
+          <Box component="span" data-testid="paylink-coins-partial" sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: theme.palette.text.secondary }}>
             {t("coins.acceptsSome", { defaultValue: "Accepts {{count}} of {{total}} coins", count: linkCoins.length, total: configured.length })}
           </Box>
         )}
@@ -58,7 +58,7 @@ export const LinkCoinsBadge: React.FC<Props> = ({ value, max = 4, size = "sm", s
           py: 0.3,
           borderRadius: 999,
           fontFamily: "var(--font-sans)",
-          fontSize: size === "xs" ? 11 : 12,
+          fontSize: 12,
           fontWeight: 700,
           letterSpacing: "0.01em",
           color: isDark ? "#A7F3D0" : "#047857",

@@ -79,10 +79,10 @@ const ProductGridCard: React.FC<Props> = ({ product: p, onOpen, onEdit, onQuickS
         <Typography noWrap sx={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 700, color: theme.palette.text.primary }}>{p.title}</Typography>
         <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1 }}>
           <Typography sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 13.5, fontWeight: 600, color: theme.palette.text.primary }}>
-            {toFixedStr(p.base_price_cents / 100, 2)} <Box component="span" sx={{ fontSize: 11.5, color: muted }}>{p.currency}</Box>
+            {toFixedStr(p.base_price_cents / 100, 2)} <Box component="span" sx={{ fontSize: 12, color: muted }}>{p.currency}</Box>
           </Typography>
           {typeof p.sold_count === "number" && p.sold_count > 0 && (
-            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: muted, whiteSpace: "nowrap" }}>
+            <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted, whiteSpace: "nowrap" }}>
               {t("products.soldCount", { count: p.sold_count, defaultValue: "{{count}} sold" })}
             </Typography>
           )}

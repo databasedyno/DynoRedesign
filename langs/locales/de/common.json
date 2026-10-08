@@ -854,7 +854,8 @@
     "securityDevices": "Geräte & Aktivitäten",
     "security": "Sicherheit",
     "securityDesc": "Zwei-Faktor-Authentifizierung, Passwort, Schutz der Auszahlungsadresse und angemeldete Geräte.",
-    "sectionsAria": "Einstellungsbereiche"
+    "sectionsAria": "Einstellungsbereiche",
+    "brandProfile": "Markenprofil"
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",
@@ -1923,5 +1924,10 @@
   "toast": {
     "dismiss": "Schließen",
     "undo": "Rückgängig"
-  }
+  },
+  "filters": "Filter",
+  "clearFilters": "Zurücksetzen",
+  "filtersDone": "Fertig",
+  "selectItems": "Auswählen",
+  "selectDone": "Fertig"
 }

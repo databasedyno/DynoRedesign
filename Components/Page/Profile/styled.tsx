@@ -24,7 +24,7 @@ export const InfoText = styled(Typography)(({ theme }) => ({
   fontFamily: "var(--font-sans)",
   flex: 1,
   [theme.breakpoints.down("md")]: {
-    fontSize: "10px",
+    fontSize: "12px",
   },
 }));
 

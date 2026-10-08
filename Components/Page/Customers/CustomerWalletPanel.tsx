@@ -142,7 +142,7 @@ export const CustomerWalletPanel: React.FC<Props> = ({ customerKey, customerName
           {notice && <Typography data-testid="customer-wallet-notice" sx={{ mt: 1, fontSize: 12.5, color: theme.palette.success.main, ...sans }}>{notice}</Typography>}
 
           <Box sx={{ mt: 1.5 }}>
-            <Typography sx={{ fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sans }}>
+            <Typography sx={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sans }}>
               {t("customers.wallet.ledger", { defaultValue: "Ledger" })}
             </Typography>
             {!loading && (data?.entries?.length ?? 0) === 0 && (
@@ -154,7 +154,7 @@ export const CustomerWalletPanel: React.FC<Props> = ({ customerKey, customerName
               <Box key={e.reference || e.id || e.created_at} data-testid="customer-wallet-ledger-row" data-direction={e.direction} sx={{ display: "flex", alignItems: "center", gap: 1, py: 0.75, borderBottom: `1px solid ${cardBorder}` }}>
                 <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                   <Typography noWrap sx={{ fontSize: 13, ...sans }}>{e.description || (e.direction === "credit" ? t("customers.wallet.creditTitle", { defaultValue: "Add credit" }) : t("customers.wallet.debitTitle", { defaultValue: "Debit balance" }))}</Typography>
-                  <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, ...sans }}>
+                  <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, ...sans }}>
                     {formatDateI18n(e.created_at, { year: "numeric", month: "short", day: "numeric" })} · {e.source === "ADMIN" ? "API" : e.source === "MERCHANT" ? t("customers.wallet.sourceDashboard", { defaultValue: "Dashboard" }) : e.source}
                   </Typography>
                 </Box>

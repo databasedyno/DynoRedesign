@@ -302,7 +302,7 @@ const CreatorPageCard: React.FC = () => {
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
                   {t("creatorCardSparklineLabel", { defaultValue: "Visits · Last 14 days" })}
                 </Typography>
                 <Icon icon="mdi:chart-line" width={12} color={theme.palette.text.secondary} />
@@ -340,7 +340,7 @@ const CreatorPageCard: React.FC = () => {
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
                   {t("creatorCardTopReferrers", { defaultValue: "Top referrers" })}
                 </Typography>
                 <Icon icon="mdi:share-outline" width={12} color={theme.palette.text.secondary} />
@@ -363,7 +363,7 @@ const CreatorPageCard: React.FC = () => {
                   data-testid="creator-view-analytics"
                   sx={{
                     textTransform: "none",
-                    fontSize: 11.5,
+                    fontSize: 12,
                     alignSelf: "flex-start",
                     p: 0,
                     minWidth: 0,
@@ -427,11 +427,11 @@ const CreatorPageCard: React.FC = () => {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
                 <Box sx={{ p: 1.25, borderRadius: "10px", border: `1px solid ${border}` }}>
-                  <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>{t("creatorCardTotalVisits", { defaultValue: "Total visits" })}</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>{t("creatorCardTotalVisits", { defaultValue: "Total visits" })}</Typography>
                   <Typography sx={{ fontFamily: MONO, fontSize: 22, fontWeight: 800 }}>{formatLocaleInt(totalVisits)}</Typography>
                 </Box>
                 <Box sx={{ p: 1.25, borderRadius: "10px", border: `1px solid ${border}` }}>
-                  <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>{t("creatorCardLast7Days", { defaultValue: "Last 7 days" })}</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary }}>{t("creatorCardLast7Days", { defaultValue: "Last 7 days" })}</Typography>
                   <Typography sx={{ fontFamily: MONO, fontSize: 22, fontWeight: 800 }}>{formatLocaleInt(weekVisits)}</Typography>
                 </Box>
               </Box>
@@ -588,17 +588,17 @@ const CreatorPageCard: React.FC = () => {
         </Box>
 
         {claimFormatError && (
-          <Typography sx={{ fontSize: 11.5, color: theme.palette.error.main, mt: -0.75 }}>
+          <Typography sx={{ fontSize: 12, color: theme.palette.error.main, mt: -0.75 }}>
             {claimFormatError}
           </Typography>
         )}
         {!claimFormatError && availState === "taken" && (
-          <Typography sx={{ fontSize: 11.5, color: theme.palette.error.main, mt: -0.75 }}>
+          <Typography sx={{ fontSize: 12, color: theme.palette.error.main, mt: -0.75 }}>
             {claimAvail?.reason || "Already taken"}
           </Typography>
         )}
         {!claimFormatError && availState === "available" && (
-          <Typography sx={{ fontSize: 11.5, color: theme.palette.success.main, mt: -0.75 }}>
+          <Typography sx={{ fontSize: 12, color: theme.palette.success.main, mt: -0.75 }}>
             ✓ Available — reserve it now!
           </Typography>
         )}

@@ -159,7 +159,7 @@ export const TxStatusTimeline: React.FC<Props> = ({
                   px: 0.75,
                   py: "1px",
                   borderRadius: "6px",
-                  fontSize: 11.5,
+                  fontSize: 12,
                   fontWeight: 700,
                   fontFamily: "var(--font-mono), monospace",
                   color: banner.color,
@@ -220,7 +220,7 @@ export const TxStatusTimeline: React.FC<Props> = ({
                 <Typography
                   sx={{
                     mt: 0.75,
-                    fontSize: isMobile ? 10.5 : 11.5,
+                    fontSize: 12,
                     fontWeight: step.done || isActive ? 700 : 500,
                     textAlign: "center",
                     lineHeight: 1.2,

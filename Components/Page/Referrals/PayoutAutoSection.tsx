@@ -76,7 +76,7 @@ export const PayoutAutoSection: React.FC<Props> = ({ data, min, busy, pillBtn, s
               {t("payoutCancel", { defaultValue: "Cancel" })}
             </Box>
           </Box>
-          <Typography sx={{ mt: 1, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
+          <Typography sx={{ mt: 1, fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.disabled }}>
             {t("payoutAutoMinHint", { defaultValue: "Minimum ${{min}}. Higher amounts batch payouts and save on network fees.", min: toFixedStr(min, 0) })}
           </Typography>
         </Box>

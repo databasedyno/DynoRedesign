@@ -145,7 +145,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
                 ) : (
                   <>
                     <TrendIcon value={card.change} />
-                    <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", fontWeight: 500 }}>
+                    <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 500 }}>
                       {card.change > 0 ? "+" : ""}{toFixedStr(card.change, 1)}%
                     </Typography>
                   </>
@@ -153,7 +153,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
               </Box>
               <Typography
                 sx={{
-                  fontSize: "11px",
+                  fontSize: "12px",
                   fontFamily: "var(--font-sans)",
                   color: theme.palette.text.secondary,
                 }}
@@ -166,7 +166,7 @@ const TodaySummaryStrip: React.FC<TodaySummaryProps> = ({ todaySummary, loading 
           {card.change === null && card.subLabel && (
             <Typography
               sx={{
-                fontSize: "11px",
+                fontSize: "12px",
                 fontFamily: "var(--font-sans)",
                 color: theme.palette.text.secondary,
               }}

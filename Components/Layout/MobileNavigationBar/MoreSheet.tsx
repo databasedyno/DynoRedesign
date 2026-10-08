@@ -75,7 +75,7 @@ const MoreSheet: React.FC<Props> = ({ open, onClose, sections, unread }) => {
 
   return (
     <>
-      <BottomSheet open={open} onClose={onClose} title={t("navMore", { defaultValue: "More" })} closeLabel={t("navClose", { defaultValue: "Close" })} data-testid="mobile-more-sheet" onReleaseRef={releaseRef}>
+      <BottomSheet open={open} onClose={onClose} title={t("navMore", { defaultValue: "More" })} closeLabel={t("navClose", { defaultValue: "Close" })} data-testid="mobile-more-sheet" onReleaseRef={releaseRef} keepMountedAfterOpen>
         <SheetRow type="button" data-testid="mobile-more-account" onClick={() => go("/settings?section=profile")} sx={{ py: 1.25 }}>
           <UserAvatar name={name} photo={photo} size={40} fontSize={15} />
           <Box sx={{ flex: 1, minWidth: 0 }}>

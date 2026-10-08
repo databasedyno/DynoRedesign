@@ -32,7 +32,7 @@ export const AutoConvertPayoutRow: React.FC<Props> = ({ info, isMobile, onCopied
   const { t } = useTranslation("transactions");
   const chainLabel = [info.targetCurrency, info.settlementChain].filter(Boolean).join(" · ");
   const hint = (key: string, fallback: string, vars?: Record<string, unknown>) => (
-    <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, lineHeight: "16px", mt: "6px" }}>
+    <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, lineHeight: "16px", mt: "6px" }}>
       {t(key, { defaultValue: fallback, ...vars })}
     </Typography>
   );

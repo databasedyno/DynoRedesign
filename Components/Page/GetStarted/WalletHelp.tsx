@@ -57,7 +57,7 @@ const WalletHelp: React.FC = () => {
             </Box>
           </Box>
 
-          <Box sx={{ mt: 1.5, fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+          <Box sx={{ mt: 1.5, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
             {t("gs.recommendedWallets", { defaultValue: "Popular wallets" })}
           </Box>
           <Box component="ul" sx={{ listStyle: "none", m: 0, mt: 0.75, p: 0, display: "grid", gap: 0.5, gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" } }}>

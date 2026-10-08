@@ -221,7 +221,7 @@ export const StatusText = styled(Typography)<{
     textTransform: "capitalize",
     lineHeight: 1.2,
     [theme.breakpoints.down("md")]: {
-      fontSize: "10px",
+      fontSize: "12px",
       lineHeight: "100%",
     },
   };

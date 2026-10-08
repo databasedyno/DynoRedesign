@@ -558,13 +558,13 @@ const TransactionPage = () => {
             backgroundColor: theme.palette.background.paper,
           }}
         >
-          <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-tech), monospace", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+          <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-tech), monospace", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
             {t("taxCollected", { defaultValue: "Tax collected" })}
           </Typography>
           <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary }}>
             {formatWithSeparators(taxSummary.total, undefined, 2)}
           </Typography>
-          <Typography sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+          <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
             {t("taxAcross", {
               count: taxSummary.count,
               defaultValue: `across ${taxSummary.count} ${taxSummary.count === 1 ? "payment" : "payments"}`,

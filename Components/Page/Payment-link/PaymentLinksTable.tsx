@@ -108,7 +108,7 @@ const Header = React.memo(({ label, tooltip, align }: { label: string; tooltip?:
       <Typography
         sx={{
           ...EYEBROW_SX,
-          fontSize: isMobile ? 10.5 : 11,
+          fontSize: 12,
           lineHeight: 1.2,
           color: headerTheme.palette.text.secondary,
           whiteSpace: "nowrap",
@@ -253,7 +253,7 @@ const PaymentLinksTable = ({
         <Typography
           component="span"
           sx={{
-            fontSize: "11px",
+            fontSize: "12px",
             fontFamily: "var(--font-sans)",
             color: theme.palette.text.secondary,
             fontVariantNumeric: "tabular-nums",
@@ -790,7 +790,7 @@ const PaymentLinksTable = ({
                         Status and Last 30 days fit without a horizontal scroll. */}
                     <TableBodyCell sx={{ whiteSpace: "nowrap" }} data-testid={`paylink-dates-${row.id}`}>
                       <Box component="span" sx={{ display: "block", lineHeight: 1.3 }}>{formatUtcToDisplay(row.createdAt)}</Box>
-                      <Box component="span" sx={{ display: "block", fontSize: "11.5px", lineHeight: 1.3, color: theme.palette.text.secondary }}>
+                      <Box component="span" sx={{ display: "block", fontSize: "12px", lineHeight: 1.3, color: theme.palette.text.secondary }}>
                         {row.expiresAt && row.expiresAt !== "Never"
                           ? t("expiresInline", { defaultValue: "Expires {{date}}", date: formatUtcToDisplay(row.expiresAt) })
                           : t("neverExpires", { defaultValue: "No expiry" })}

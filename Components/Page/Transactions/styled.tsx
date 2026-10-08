@@ -27,7 +27,7 @@ export const CARD_RADIUS = CB_TOKENS.radius.card;
 /** Uppercase tech-font eyebrow — identical to the dashboard's card labels. */
 export const EYEBROW_SX = {
   fontFamily: "var(--font-tech), monospace",
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 700,
   letterSpacing: "0.12em",
   textTransform: "uppercase",
@@ -108,7 +108,7 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
     overflow: "hidden",
     textOverflow: "ellipsis",
     [theme.breakpoints.down("md")]: {
-      fontSize: "10.5px",
+      fontSize: "12px",
     },
   },
   "& img": {
@@ -122,7 +122,7 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
     minWidth: "180px",
     gap: 8,
     "& span": {
-      fontSize: "10px",
+      fontSize: "12px",
     },
     "& img": {
       width: "14px",
@@ -133,7 +133,7 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
     minWidth: "110px",
     gap: 6,
     "& span": {
-      fontSize: "11px",
+      fontSize: "12px",
     },
     "& img": {
       width: "12px",
@@ -143,7 +143,7 @@ export const TransactionsTableHeaderItem = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down("xs")]: {
     gap: 6,
     "& span": {
-      fontSize: "10px",
+      fontSize: "12px",
     },
     "& img": {
       width: "10px",
@@ -233,7 +233,7 @@ export const TransactionsTableCell = styled(Box)(({ theme }) => ({
   },
   [theme.breakpoints.down("xs")]: {
     maxWidth: "90px",
-    fontSize: "11px",
+    fontSize: "12px",
     lineHeight: "12px",
   },
 }));
@@ -264,7 +264,7 @@ export const TransactionsTableFooterText = styled(Typography)(({ theme }) => ({
   lineHeight: "16px",
   whiteSpace: "nowrap",
   [theme.breakpoints.down("md")]: {
-    fontSize: "10px",
+    fontSize: "12px",
     lineHeight: "12px",
   },
 }));
@@ -337,11 +337,11 @@ export const StatusText = styled(Typography)<{
     textTransform: "capitalize",
     lineHeight: "16px",
     [theme.breakpoints.down("md")]: {
-      fontSize: "10px",
+      fontSize: "12px",
       lineHeight: "12px",
     },
     [theme.breakpoints.down("sm")]: {
-      fontSize: "10px",
+      fontSize: "12px",
       lineHeight: "12px",
     },
     [theme.breakpoints.down("xs")]: {
@@ -381,11 +381,11 @@ export const CryptoIconChip = styled(Box, {
       flexShrink: 0,
       color: theme.palette.text.primary,
       [theme.breakpoints.down("md")]: {
-        fontSize: "10px",
+        fontSize: "12px",
         lineHeight: "12px",
       },
       [theme.breakpoints.down("sm")]: {
-        fontSize: "10px",
+        fontSize: "12px",
         lineHeight: "12px",
       },
       [theme.breakpoints.down("xs")]: {
@@ -905,7 +905,7 @@ export const StatusChip = styled(ButtonBase, {
     "& .chip-count": {
       fontFamily: MONO,
       fontVariantNumeric: "tabular-nums",
-      fontSize: "11.5px",
+      fontSize: "12px",
       fontWeight: 600,
       opacity: selected ? 1 : 0.8,
     },

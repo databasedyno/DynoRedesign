@@ -621,7 +621,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                                     sx={{
                                       fontFamily: MONO,
                                       fontVariantNumeric: "tabular-nums",
-                                      fontSize: 11,
+                                      fontSize: 12,
                                       fontWeight: 600,
                                       letterSpacing: "0.08em",
                                       color: muiTheme.palette.text.secondary,
@@ -1162,7 +1162,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                               size="small"
                               sx={{
                                 fontFamily: "var(--font-sans)",
-                                fontSize: 11,
+                                fontSize: 12,
                                 backgroundColor:
                                   row.tax_rate > 0 ? "#22C55E1A" : "#F3F4F6",
                                 color:

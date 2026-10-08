@@ -444,7 +444,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         width: 18,
                         height: 18,
                         borderRadius: "50%",
-                        fontSize: "10px",
+                        fontSize: "12px",
                         fontWeight: 700,
                         color: BRAND_ON_ACCENT,
                         bgcolor: theme.palette.primary.main,
@@ -746,7 +746,7 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                       <Typography
                         sx={{
                           fontFamily: "var(--font-sans)",
-                          fontSize: "11px",
+                          fontSize: "12px",
                           color: theme.palette.text.secondary,
                           mt: isCompact ? 0.25 : 0.5,
                         }}

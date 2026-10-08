@@ -145,7 +145,7 @@ const LoginActivity = () => {
                       size="small"
                       color="error"
                       variant="outlined"
-                      sx={{ height: "20px", fontSize: "11px", fontFamily: "var(--font-sans)" }}
+                      sx={{ height: "20px", fontSize: "12px", fontFamily: "var(--font-sans)" }}
                     />
                   )}
                 </Box>

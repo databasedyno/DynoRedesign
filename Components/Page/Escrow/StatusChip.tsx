@@ -36,7 +36,7 @@ export default function StatusChip({
         px: size === "sm" ? 0.9 : 1.2,
         py: size === "sm" ? 0.25 : 0.4,
         borderRadius: 999,
-        fontSize: size === "sm" ? 11 : 12.5,
+        fontSize: size === "sm" ? 12 : 12.5,
         fontWeight: 600,
         lineHeight: 1.3,
         whiteSpace: "nowrap",

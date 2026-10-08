@@ -854,7 +854,8 @@
     "securityDevices": "Apparaten & activiteit",
     "security": "Beveiliging",
     "securityDesc": "Twee-staps verificatie, wachtwoord, bescherming van uitbetalingsadressen en ingelogde apparaten.",
-    "sectionsAria": "Instellingensecties"
+    "sectionsAria": "Instellingensecties",
+    "brandProfile": "Merkprofiel"
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",
@@ -1923,5 +1924,10 @@
   "toast": {
     "dismiss": "Sluiten",
     "undo": "Ongedaan maken"
-  }
+  },
+  "filters": "Filters",
+  "clearFilters": "Wissen",
+  "filtersDone": "Klaar",
+  "selectItems": "Selecteren",
+  "selectDone": "Klaar"
 }

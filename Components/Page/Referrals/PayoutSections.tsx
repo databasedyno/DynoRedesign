@@ -15,9 +15,9 @@ interface StatsProps {
 export const PayoutCreditStats: React.FC<StatsProps> = ({ data, isMobile }) => {
   const theme = useTheme();
   const { t } = useTranslation("referrals");
-  const labelSx = { fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, textTransform: "uppercase", letterSpacing: "0.5px" } as const;
+  const labelSx = { fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, textTransform: "uppercase", letterSpacing: "0.5px" } as const;
   const valueSx = { fontSize: "22px", fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 700, color: theme.palette.text.primary } as const;
-  const hintSx = { fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 } as const;
+  const hintSx = { fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, mt: 0.25 } as const;
   const tile = { flex: 1, minWidth: isMobile ? "100%" : 200, p: 1.5, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}` } as const;
   return (
     <Box data-testid="payout-credit-stats" sx={{ display: "flex", gap: 1.5, mb: 2, flexWrap: "wrap" }}>
@@ -68,7 +68,7 @@ export const PayoutHistory: React.FC<HistoryProps> = ({ history, onDownload, pil
             <Box key={h.payout_id} data-testid={`payout-history-row-${h.payout_id}`} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, p: 1.25, borderRadius: "8px", bgcolor: theme.palette.secondary.main }}>
               <Box sx={{ minWidth: 0 }}>
                 <Typography sx={{ fontSize: "14px", fontFamily: MONO, fontWeight: 700, color: theme.palette.text.primary }}>{`$${toFixedStr(h.amount_usd, 2)}`}</Typography>
-                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
+                <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary }}>
                   {when}{" · "}{h.trc20_address_masked}
                 </Typography>
               </Box>
@@ -78,7 +78,7 @@ export const PayoutHistory: React.FC<HistoryProps> = ({ history, onDownload, pil
                     <Icon name="external-link" size={14} color={theme.palette.text.secondary} />
                   </a>
                 )}
-                <Typography sx={{ fontSize: "11px", fontFamily: "var(--font-sans)", fontWeight: 600, color, textTransform: "capitalize", px: 1, py: 0.25, borderRadius: "6px", bgcolor: `${color}18` }}>
+                <Typography sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600, color, textTransform: "capitalize", px: 1, py: 0.25, borderRadius: "6px", bgcolor: `${color}18` }}>
                   {t(`payoutStatus_${h.status}`, { defaultValue: h.status })}
                 </Typography>
               </Box>

@@ -91,5 +91,6 @@
   "securityAlertsAlwaysOn": "Password, 2FA, payout-address and new-device alerts are always sent — they protect your money and can't be switched off.",
   "alwaysOn": "Always on",
   "otherChannelsTitle": "Product updates & push",
-  "otherChannelsSubtitle": "Optional emails and browser notifications"
+  "otherChannelsSubtitle": "Optional emails and browser notifications",
+  "notificationSettingsLink": "Notification settings"
 }

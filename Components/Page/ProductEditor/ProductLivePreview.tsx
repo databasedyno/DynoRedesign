@@ -31,7 +31,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
 
   return (
     <Box data-testid="product-live-preview" sx={{ position: { lg: "sticky" }, top: { lg: 96 } }}>
-      <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1, display: "flex", alignItems: "center", gap: 0.75 }}>
+      <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1, display: "flex", alignItems: "center", gap: 0.75 }}>
         <Box component="span" sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: "#22C55E", boxShadow: "0 0 0 3px rgba(34,197,94,0.18)" }} />
         {t("productEditor.preview.label", { defaultValue: "Live preview" })}
       </Typography>
@@ -40,7 +40,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
           <Box sx={{ width: 64, height: 5, borderRadius: 3, bgcolor: dark ? "#2A3040" : "#E5E7EB" }} />
         </Box>
         <Box sx={{ px: 1.75, pb: 2 }}>
-          <Typography sx={{ fontSize: 10.5, color: theme.palette.text.secondary, mb: 1 }} noWrap>
+          <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 1 }} noWrap>
             {brandName || "Your brand"} · {t("productEditor.preview.crumb", { defaultValue: "Shop" })}
           </Typography>
           <Box data-testid="product-live-preview-cover" sx={{ aspectRatio: "4 / 3", borderRadius: "14px", overflow: "hidden", border: `1px solid ${border}`, bgcolor: dark ? "rgba(255,255,255,0.04)" : "#F3F4F6", display: "grid", placeItems: "center" }}>
@@ -52,11 +52,11 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
             )}
           </Box>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 1.5 }}>
-            <Box component="span" sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", px: 0.9, py: 0.25, borderRadius: "999px", border: `1px solid ${border}`, color: theme.palette.text.secondary }} data-testid="product-live-preview-type">
+            <Box component="span" sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", px: 0.9, py: 0.25, borderRadius: "999px", border: `1px solid ${border}`, color: theme.palette.text.secondary }} data-testid="product-live-preview-type">
               {t("productEditor.preview.digital", { defaultValue: "Digital" })}
             </Box>
             {!draft.isActive && (
-              <Box component="span" sx={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", px: 0.9, py: 0.25, borderRadius: "999px", bgcolor: dark ? "rgba(251,191,36,0.15)" : "#FEF3C7", color: dark ? "#FCD34D" : "#92400E" }} data-testid="product-live-preview-draft">
+              <Box component="span" sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", px: 0.9, py: 0.25, borderRadius: "999px", bgcolor: dark ? "rgba(251,191,36,0.15)" : "#FEF3C7", color: dark ? "#FCD34D" : "#92400E" }} data-testid="product-live-preview-draft">
                 {t("productEditor.preview.draft", { defaultValue: "Draft" })}
               </Box>
             )}
@@ -69,7 +69,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
           )}
           <Typography data-testid="product-live-preview-price" sx={{ fontWeight: 800, fontSize: 22, mt: 1, fontVariantNumeric: "tabular-nums" }}>
             {priceLabel}
-            {draft.variantCount > 1 && <Box component="span" sx={{ fontSize: 11, fontWeight: 600, color: theme.palette.text.secondary, ml: 0.75 }}>{t("productEditor.preview.fromVariants", { count: draft.variantCount, defaultValue: `${draft.variantCount} options` })}</Box>}
+            {draft.variantCount > 1 && <Box component="span" sx={{ fontSize: 12, fontWeight: 600, color: theme.palette.text.secondary, ml: 0.75 }}>{t("productEditor.preview.fromVariants", { count: draft.variantCount, defaultValue: `${draft.variantCount} options` })}</Box>}
           </Typography>
           {desc && (
             <Typography data-testid="product-live-preview-desc" sx={{ fontSize: 12.5, color: theme.palette.text.secondary, lineHeight: 1.5, mt: 1, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", whiteSpace: "pre-line" }}>
@@ -84,7 +84,7 @@ const ProductLivePreview = ({ draft, brandName }: { draft: ProductDraft; brandNa
               {t("productEditor.preview.buyNow", { defaultValue: "Buy now" })}
             </Box>
           </Box>
-          <Typography sx={{ fontSize: 10.5, color: theme.palette.text.secondary, textAlign: "center", mt: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+          <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, textAlign: "center", mt: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
             <Icon icon="mdi:lock-outline" width={11} />
             {t("productEditor.preview.secured", { defaultValue: "Secured by Dynopay · pay with crypto" })}
           </Typography>

@@ -66,7 +66,7 @@ const FeeFreeWidget: React.FC = () => {
         </Box>
         <Typography
           sx={{
-            fontSize: isMobile ? 11 : 12,
+            fontSize: isMobile ? 12 : 12,
             fontWeight: 600,
             color: brandFg(theme.palette.mode === "dark"),
             bgcolor: `${theme.palette.primary.main}15`,

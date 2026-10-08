@@ -604,7 +604,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
               {transaction.settlementAddress && !isSettled && (
                 <Typography
                   sx={{
-                    fontSize: 11.5,
+                    fontSize: 12,
                     color: theme.palette.text.secondary,
                     lineHeight: "16px",
                     mt: "-4px",

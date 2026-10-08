@@ -91,7 +91,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
                   <Box data-testid="payouts-wallet-amount" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 14, fontWeight: 600, color: w.forwarded_count > 0 ? ink : muted }}>
                     {w.forwarded_count > 0 ? money(w.forwarded_amount, sym, cur) : "—"}
                   </Box>
-                  <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: muted }}>
+                  <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
                     {w.forwarded_count > 0 ? t("payouts.walletCount", { count: w.forwarded_count, defaultValue: "{{count}} payouts in range" }) : t("payouts.walletNoneRange", { defaultValue: "none in range" })}
                   </Box>
                 </Box>
@@ -100,7 +100,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
                     <Box data-testid="payouts-wallet-last" sx={{ fontFamily: "var(--font-sans)", fontSize: 12.5, color: ink, whiteSpace: "nowrap" }}>
                       {isIdle ? t("payouts.walletIdle", { defaultValue: "No payouts yet" }) : relativeTime(w.last_forward_at, t as any, i18n.language)}
                     </Box>
-                    <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11, color: muted }}>{isIdle ? "" : t("payouts.lastPayout", { defaultValue: "last payout" })}</Box>
+                    <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>{isIdle ? "" : t("payouts.lastPayout", { defaultValue: "last payout" })}</Box>
                   </Box>
                   {w.last_tx_hash && (
                     <Box

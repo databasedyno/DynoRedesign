@@ -62,7 +62,7 @@ const SharedHighlightBar: React.FC<Props> = ({ wallets, onJump, onClear }) => {
             type="button"
             onClick={() => onJump(w.id)}
             data-testid={`wallet-highlight-jump-${w.id}`}
-            sx={{ appearance: "none", m: 0, cursor: "pointer", height: 24, px: 1, borderRadius: 999, border: `1px solid ${indigo}`, backgroundColor: dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.08)", color: indigo, fontFamily: MONO, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap", "&:hover": { backgroundColor: indigo, color: dark ? "#0A0A0B" : "#fff" } }}
+            sx={{ appearance: "none", m: 0, cursor: "pointer", height: 24, px: 1, borderRadius: 999, border: `1px solid ${indigo}`, backgroundColor: dark ? "rgba(255,209,0,0.14)" : "rgba(139,94,0,0.08)", color: indigo, fontFamily: MONO, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", "&:hover": { backgroundColor: indigo, color: dark ? "#0A0A0B" : "#fff" } }}
           >
             {w.walletTitle}
           </Box>

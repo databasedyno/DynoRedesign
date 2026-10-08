@@ -22,7 +22,7 @@ Audit + blueprint: `memory/reports/UX_LAYOUT_AUDIT_2026-10-08.md` (§8 blueprint
 - `/app` restored by the platform from branch `Improvement` @ `c9896b4`; then `bash scripts/pod-bootstrap.sh` with the
   vault passphrase (user-provided, see test_credentials.md) → `.env.local` + `backend/.env` restored, SAFE MODE on.
 - **Preview host gotcha hit (POD_SETUP.md):** supervisor APP_URL is the UUID host, user-facing host is
-  **https://ux-handoff-app.preview.emergentagent.com** → re-synced with `--url https://ux-handoff-app.preview.emergentagent.com --no-restart`,
+  **https://secure-vault-app-58.preview.emergentagent.com** → re-synced with `--url https://secure-vault-app-58.preview.emergentagent.com --no-restart`,
   UUID host appended back to `CORS_ALLOWED_ORIGINS`, frontend rebuilt + swapped. Verified: `/health` healthy (db+redis),
   `/auth/login` 200 on the pretty host, CORS `access-control-allow-origin` = pretty host.
 - The self-heal `yarn install` pruned stale entries from `yarn.lock` + `backend/yarn.lock` → both RESTORED to HEAD content

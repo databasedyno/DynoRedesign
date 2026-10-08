@@ -192,7 +192,7 @@ export default function DisputePanel({ deal, myRole, api, onUpdated, notify }: P
             data-testid="escrow-dispute-stage"
             sx={{
               fontWeight: 700,
-              fontSize: 11,
+              fontSize: 12,
               color: escalated ? theme.palette.error.main : theme.palette.warning.main,
               backgroundColor: (escalated ? theme.palette.error.main : theme.palette.warning.main) + "22",
             }}
@@ -208,7 +208,7 @@ export default function DisputePanel({ deal, myRole, api, onUpdated, notify }: P
             sx={{ p: 1.6, borderRadius: 2, mb: 1.5, backgroundColor: brandAlpha(isDark ? 0.1 : 0.05), border: `1px solid ${theme.palette.divider}` }}
             data-testid="escrow-dispute-current-proposal"
           >
-            <Typography sx={{ fontSize: 11.5, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, color: brandFg(isDark) }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, color: brandFg(isDark) }}>
               {iProposed
                 ? liveIsCancellation ? "Your cancellation request — awaiting their agreement" : "Your proposal — awaiting their response"
                 : liveIsCancellation ? `${prop.by || "other"} asked to cancel — your agreement needed` : `${(prop.by || "other")} proposed — your response needed`}
@@ -218,7 +218,7 @@ export default function DisputePanel({ deal, myRole, api, onUpdated, notify }: P
               <Typography sx={{ fontSize: 12.5, color: "text.secondary", mt: 0.3 }}>
                 Seller gets <b>{money(amounts.seller, deal.currency)}</b> · Buyer refunded <b>{money(amounts.buyer, deal.currency)}</b>
                 <br />
-                <span style={{ fontSize: 11 }}>Fees are non-refundable and already deducted — figures are from the {money(pool, deal.currency)} net pool.</span>
+                <span style={{ fontSize: 12 }}>Fees are non-refundable and already deducted — figures are from the {money(pool, deal.currency)} net pool.</span>
               </Typography>
             )}
           </Box>
@@ -320,7 +320,7 @@ export default function DisputePanel({ deal, myRole, api, onUpdated, notify }: P
                   border: `1px solid ${theme.palette.divider}`,
                 }}
               >
-                <Typography sx={{ fontSize: 11, fontWeight: 700, color: "text.secondary", textTransform: "capitalize" }}>
+                <Typography sx={{ fontSize: 12, fontWeight: 700, color: "text.secondary", textTransform: "capitalize" }}>
                   {t.by || "system"} {t.at ? `· ${shortDate(t.at)}` : ""}
                 </Typography>
                 {label && <Typography sx={{ fontSize: 12.5, fontStyle: "italic", color: "text.secondary" }}>{label}</Typography>}

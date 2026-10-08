@@ -19,7 +19,7 @@ export const StepHeader: React.FC<{ eyebrow: string; title: string; subtitle: st
           alignItems: "center",
           gap: 1,
           fontFamily: MONO,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 700,
           letterSpacing: "0.16em",
           textTransform: "uppercase",

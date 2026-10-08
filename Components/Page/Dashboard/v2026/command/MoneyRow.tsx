@@ -57,7 +57,7 @@ const Tile: React.FC<TileProps> = ({ testId, eyebrow, value, loading, href, chil
       }}
     >
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-        <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase", color: muted }}>{eyebrow}</Box>
+        <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase", color: muted }}>{eyebrow}</Box>
         <Box className="tile-arrow" aria-hidden sx={{ color: muted, opacity: 0.5, transform: "translateX(-2px)", transition: "opacity 150ms ease, transform 150ms ease", display: "flex" }}>
           <Icon name="arrow-up-right" size={15} />
         </Box>

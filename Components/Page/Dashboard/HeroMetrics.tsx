@@ -246,7 +246,7 @@ const DeltaChip: React.FC<{ change: number }> = ({ change }) => {
         backgroundColor: bg,
         color,
         fontFamily: "var(--font-sans)",
-        fontSize: "11px",
+        fontSize: "12px",
         fontWeight: 600,
         lineHeight: 1,
       }}

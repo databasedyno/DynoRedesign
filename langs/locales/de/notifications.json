@@ -83,5 +83,14 @@
   "marketingEmailsTitle": "Marketing- und Produkt-E-Mails",
   "marketingEmailsDescription": "News, Tipps und Produktupdates. Deaktivieren, um Werbe-E-Mails zu stoppen — Zahlungs-, Sicherheits- und Konto-E-Mails erhalten Sie weiterhin.",
   "pushNotConfigured": "Browser‑Push ist auf dieser Plattform noch nicht aktiviert – E‑Mail‑ und In‑App‑Benachrichtigungen funktionieren weiterhin.",
-  "pushEnableFailed": "Browser‑Push konnte gerade nicht aktiviert werden. E‑Mail‑ und In‑App‑Benachrichtigungen funktionieren weiterhin."
+  "pushEnableFailed": "Browser‑Push konnte gerade nicht aktiviert werden. E‑Mail‑ und In‑App‑Benachrichtigungen funktionieren weiterhin.",
+  "notificationSettingsLink": "Benachrichtigungseinstellungen",
+  "accountEmailsTitle": "Konto-E-Mails",
+  "accountEmailsSubtitle": "Berichte und Anmeldewarnungen für Ihr persönliches Konto. Zahlungs-, Auszahlungs- und Bestell-E-Mails werden oben pro Marke festgelegt.",
+  "newDeviceOnlyTitle": "Anmeldewarnungen: nur neue Geräte",
+  "newDeviceOnlyDescription": "Mailen Sie mir nur, wenn eine Anmeldung von einem Gerät oder Ort erfolgt, den ich noch nicht verwendet habe – statt bei jeder neuen Sitzung.",
+  "securityAlertsAlwaysOn": "Warnungen zu Passwort, 2FA, Auszahlungsadresse und neuen Geräten werden immer gesendet – sie schützen Ihr Geld und können nicht deaktiviert werden.",
+  "alwaysOn": "Immer aktiv",
+  "otherChannelsTitle": "Produktneuigkeiten & Push",
+  "otherChannelsSubtitle": "Optionale E-Mails und Browser-Benachrichtigungen"
 }

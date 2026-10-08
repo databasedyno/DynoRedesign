@@ -35,7 +35,7 @@ const PayoutTiles: React.FC<Props> = ({ data, loading, rangeLabel, ac }) => {
   const assets = data?.by_asset || [];
   const maxAsset = Math.max(1, ...assets.map((a) => a.amount));
 
-  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase" as const, color: muted };
+  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase" as const, color: muted };
   const valueSx = { fontFamily: MONO, fontVariantNumeric: "tabular-nums" as const, fontSize: { xs: 26, md: 30 }, fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.05, color: ink, minHeight: 34 };
   const captionSx = { fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted, lineHeight: 1.4 };
 
@@ -59,12 +59,12 @@ const PayoutTiles: React.FC<Props> = ({ data, loading, rangeLabel, ac }) => {
               <Box key={a.asset} data-testid={`payouts-asset-${a.asset}`} sx={{ display: "grid", gridTemplateColumns: "84px 1fr auto", alignItems: "center", gap: 1 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
                   <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: getAssetColor(a.asset), opacity: ASSET_SHADES[i] ?? 0.14, flexShrink: 0 }} />
-                  <Box sx={{ fontFamily: MONO, fontSize: 11.5, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.asset}</Box>
+                  <Box sx={{ fontFamily: MONO, fontSize: 12, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.asset}</Box>
                 </Box>
                 <Box sx={{ height: 6, borderRadius: 3, backgroundColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(10,10,15,0.06)", overflow: "hidden" }}>
                   <Box sx={{ width: `${Math.max(3, (a.amount / maxAsset) * 100)}%`, height: "100%", borderRadius: 3, backgroundColor: getAssetColor(a.asset), transition: "width 400ms ease" }} />
                 </Box>
-                <Box sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 11.5, color: muted, whiteSpace: "nowrap" }}>{money(a.amount, sym, cur)}</Box>
+                <Box sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 12, color: muted, whiteSpace: "nowrap" }}>{money(a.amount, sym, cur)}</Box>
               </Box>
             ))}
           </Box>

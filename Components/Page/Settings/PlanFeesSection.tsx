@@ -168,7 +168,7 @@ const PlanFeesSection: React.FC = () => {
             border: `1px dashed ${theme.palette.divider}`,
           }}
         >
-          <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary, fontFamily: "var(--font-tech), monospace", mb: 0.75 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary, fontFamily: "var(--font-tech), monospace", mb: 0.75 }}>
             {t("planFees.exampleTitle", { defaultValue: "Example" })}
           </Typography>
           <Typography sx={{ fontSize: 13.5, fontFamily: "var(--font-sans)", color: theme.palette.text.primary, lineHeight: 1.6 }}>

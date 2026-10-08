@@ -464,7 +464,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
         data-testid="tx-underpaid-split"
         sx={{
           mt: 0.25,
-          fontSize: "11.5px",
+          fontSize: "12px",
           fontFamily: MONO,
           fontVariantNumeric: "tabular-nums",
           fontWeight: 600,
@@ -611,7 +611,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                       data-testid="tx-card-status"
                     />
                     {transaction.sandbox && <Box sx={{ mt: 0.5 }}><SandboxChip data-testid="tx-card-sandbox" /></Box>}
-                    <Typography sx={{ mt: 0.5, fontSize: "11px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                    <Typography sx={{ mt: 0.5, fontSize: "12px", fontFamily: "var(--font-sans)", color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
                       {transaction.dateTime}
                     </Typography>
                   </Box>
@@ -623,7 +623,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     {transaction.source && renderSourceBadge(transaction.source, { withTitle: true, compact: true })}
                     <Typography
                       sx={{
-                        fontSize: "11.5px",
+                        fontSize: "12px",
                         fontFamily: MONO,
                         fontVariantNumeric: "tabular-nums",
                         color: theme.palette.text.secondary,
@@ -636,11 +636,11 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                     </Typography>
                   </Box>
                   {isSyntheticCustomer(transaction.customerName, transaction.customerEmail) ? (
-                    <Typography data-testid="tx-card-customer" sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
+                    <Typography data-testid="tx-card-customer" sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 500, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>
                       {tTransactions("viaApi", { defaultValue: "via API" })}
                     </Typography>
                   ) : (transaction.customerName || transaction.customerEmail) ? (
-                    <Typography data-testid="tx-card-customer" sx={{ fontSize: "11.5px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.secondary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "45%" }}>
+                    <Typography data-testid="tx-card-customer" sx={{ fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600, color: theme.palette.text.secondary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "45%" }}>
                       {transaction.customerName || transaction.customerEmail}
                     </Typography>
                   ) : (transaction.reverseCharge || Number(transaction.taxAmount) > 0) && (
@@ -825,7 +825,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         py: "7px",
                         mt: idx === 0 ? 0 : "2px",
                         fontFamily: "var(--font-sans)",
-                        fontSize: "11px",
+                        fontSize: "12px",
                         fontWeight: 700,
                         letterSpacing: "0.08em",
                         textTransform: "uppercase",
@@ -906,7 +906,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         <Typography
                           component="span"
                           data-testid="tx-network"
-                          sx={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: theme.palette.text.secondary, whiteSpace: "nowrap", pl: "2px", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: theme.palette.text.secondary, whiteSpace: "nowrap", pl: "2px", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}
                         >
                           {transaction.network}
                         </Typography>
@@ -980,7 +980,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         {transaction.customerName && transaction.customerEmail && (
                           <Typography
                             component="span"
-                            sx={{ fontFamily: "var(--font-sans)", fontSize: "11.5px", color: theme.palette.text.secondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                            sx={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: theme.palette.text.secondary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
                           >
                             {transaction.customerEmail}
                           </Typography>
@@ -1016,7 +1016,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         </Typography>
                         <Typography
                           component="span"
-                          sx={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: theme.palette.text.secondary }}
+                          sx={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: theme.palette.text.secondary }}
                         >
                           {(transaction.taxLabel || "VAT")}
                           {transaction.taxRate != null ? ` ${Number(transaction.taxRate)}%` : ""}
@@ -1044,7 +1044,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                         <Typography
                           component="span"
                           data-testid="tx-row-confirmations"
-                          sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "11px", color: theme.palette.text.secondary, pl: "2px", whiteSpace: "nowrap" }}
+                          sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: "12px", color: theme.palette.text.secondary, pl: "2px", whiteSpace: "nowrap" }}
                         >
                           {tTransactions("confirmationsShort", { value: transaction.confirmations, defaultValue: "{{value}} conf." })}
                         </Typography>

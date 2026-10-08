@@ -92,7 +92,7 @@ const WalletList: React.FC<Props> = ({
 
   const eyebrow = {
     fontFamily: "var(--font-tech), monospace",
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 600,
     letterSpacing: "0.08em",
     textTransform: "uppercase" as const,
@@ -131,7 +131,7 @@ const WalletList: React.FC<Props> = ({
             {w.name}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: "2px" }}>
-            <Box component="span" sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>{tickerFor(w)}</Box>
+            <Box component="span" sx={{ fontFamily: MONO, fontSize: 12, color: muted }}>{tickerFor(w)}</Box>
             {netLabel && (
               <Tooltip
                 arrow
@@ -148,7 +148,7 @@ const WalletList: React.FC<Props> = ({
                   sx={{
                     fontFamily: "var(--font-sans)",
                     fontWeight: 600,
-                    fontSize: 11,
+                    fontSize: 12,
                     lineHeight: 1,
                     px: "7px",
                     py: "3px",

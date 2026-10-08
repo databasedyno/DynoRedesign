@@ -94,7 +94,7 @@ const TopSourcesCard: React.FC<Props> = ({ sources, loading, currencySymbol, cur
                 <Box data-testid="top-source-amount" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 13.5, fontWeight: 600, color: ink }}>
                   {money(s.amount, currencySymbol, currency)}
                 </Box>
-                <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: muted }}>
+                <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted }}>
                   {t("command.paidCount", { count: s.paid_count, defaultValue: "{{count}} paid" })}
                 </Box>
               </Box>

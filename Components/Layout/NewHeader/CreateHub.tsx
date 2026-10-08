@@ -225,7 +225,7 @@ const CreateHub: React.FC<Props> = ({ open, onClose, onQuickCreatePaylink }) => 
                       data-testid={`${it.testId}-mostused`}
                       sx={{
                         fontFamily: "var(--font-sans)",
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 800,
                         letterSpacing: 0.4,
                         textTransform: "uppercase",

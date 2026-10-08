@@ -18,7 +18,7 @@ const Group: React.FC<{ title: string; testId: string; children: React.ReactNode
   const theme = useTheme();
   return (
     <Box data-testid={testId} sx={{ display: "flex", flexDirection: "column", gap: { xs: 1.5, md: 2 } }}>
-      <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase", color: theme.palette.text.secondary }}>
+      <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase", color: theme.palette.text.secondary }}>
         {title}
       </Typography>
       {children}

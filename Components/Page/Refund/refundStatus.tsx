@@ -43,7 +43,7 @@ export const RefundStatusChip: React.FC<{ status: string; testid?: string }> = (
     <Chip
       size="small"
       label={refundStatusLabel(status)}
-      sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700, fontSize: 11, height: 22 }}
+      sx={{ bgcolor: sc.bg, color: sc.fg, fontWeight: 700, fontSize: 12, height: 22 }}
       data-testid={testid || "refund-status-chip"}
     />
   );
@@ -104,7 +104,7 @@ export const RefundStatusTimeline: React.FC<{ status: string }> = ({ status }) =
               <Typography
                 variant="caption"
                 sx={{
-                  fontSize: 10.5,
+                  fontSize: 12,
                   lineHeight: 1.2,
                   textAlign: "center",
                   fontWeight: active ? 700 : 500,

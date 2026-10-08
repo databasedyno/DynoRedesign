@@ -48,7 +48,7 @@ const ResourceRow = ({ badge, title, status, actions, value, meta, expand, dimme
             size="small"
             sx={{
               height: 22,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: 0.5,
               bgcolor: badge.bgcolor,

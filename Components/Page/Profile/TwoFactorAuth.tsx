@@ -123,7 +123,7 @@ const TwoFactorAuth = () => {
                   size="small"
                   color={enabled ? "success" : "default"}
                   variant="outlined"
-                  sx={{ height: "20px", fontSize: "11px", fontFamily: "var(--font-sans)", fontWeight: 600 }}
+                  sx={{ height: "20px", fontSize: "12px", fontFamily: "var(--font-sans)", fontWeight: 600 }}
                 />
               </Box>
               <Typography sx={{ fontSize: "12.5px", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", mt: "3px" }}>

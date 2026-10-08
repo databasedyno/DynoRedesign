@@ -214,7 +214,7 @@ const LivePaymentFeed: React.FC<Props> = ({ paused = false }) => {
               gap: 0.5,
               ml: 0.5,
               fontFamily: "var(--font-sans)",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 600,
               color: isDark
                 ? CB_TOKENS.ink.mutedDark
@@ -387,7 +387,7 @@ const LivePaymentFeed: React.FC<Props> = ({ paused = false }) => {
                 {label && (
                   <Box
                     sx={{
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: 600,
                       color: dot,
                       letterSpacing: 0.4,
@@ -401,7 +401,7 @@ const LivePaymentFeed: React.FC<Props> = ({ paused = false }) => {
                 {/* Tx short id — muted */}
                 <Box
                   sx={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontFamily: "'JetBrains Mono', ui-monospace, monospace",
                     color: isDark
                       ? CB_TOKENS.ink.mutedDark
@@ -417,14 +417,14 @@ const LivePaymentFeed: React.FC<Props> = ({ paused = false }) => {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: 0.25,
-                    fontSize: 11,
+                    fontSize: 12,
                     color: isDark
                       ? CB_TOKENS.ink.mutedDark
                       : CB_TOKENS.ink.mutedLight,
                     lineHeight: 1,
                   }}
                 >
-                  <TrendingUpRounded sx={{ fontSize: 10 }} />
+                  <TrendingUpRounded sx={{ fontSize: 12 }} />
                   {rel(tx.createdAt)}
                 </Box>
               </Box>

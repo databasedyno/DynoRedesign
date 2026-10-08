@@ -525,7 +525,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
         <Box
           component="span"
           sx={{
-            fontSize: 10.5,
+            fontSize: 12,
             fontWeight: 700,
             letterSpacing: 0.5,
             px: 1,
@@ -588,7 +588,7 @@ export function DynopayCryptoElement({ amount = 5 }: { amount?: number }) {
             background: theme.palette.mode === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.015)",
           }}
         >
-          <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1 }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", color: theme.palette.text.secondary, mb: 1 }}>
             {t("elements.livePreviewLabel", { defaultValue: "Live preview · $5 · sandbox" })}
           </Typography>
           {previewError ? (
@@ -724,7 +724,7 @@ Content-Type: application/json
         <Box
           component="span"
           sx={{
-            fontSize: 10.5,
+            fontSize: 12,
             fontWeight: 700,
             letterSpacing: 0.5,
             px: 1,

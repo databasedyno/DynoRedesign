@@ -854,7 +854,8 @@
     "securityDevices": "Devices & activity",
     "security": "Security",
     "securityDesc": "Two-step verification, password, payout address protection and signed-in devices.",
-    "sectionsAria": "Settings sections"
+    "sectionsAria": "Settings sections",
+    "brandProfile": "Brand profile"
   },
   "donation": {
     "defaultTitle": "Support this campaign",
@@ -1923,5 +1924,10 @@
   "toast": {
     "dismiss": "Dismiss",
     "undo": "Undo"
-  }
+  },
+  "filters": "Filters",
+  "clearFilters": "Clear",
+  "filtersDone": "Done",
+  "selectItems": "Select",
+  "selectDone": "Done"
 }

@@ -83,5 +83,14 @@
   "marketingEmailsTitle": "Marketing- en Producte-mails",
   "marketingEmailsDescription": "Nieuws, tips en productupdates. Zet uit om promotionele e-mails te stoppen — betaal-, beveiligings- en account-e-mails blijf je ontvangen.",
   "pushNotConfigured": "Browserpush is op dit platform nog niet ingeschakeld — e‑mail‑ en in‑app‑meldingen werken gewoon.",
-  "pushEnableFailed": "Browserpush kon nu niet worden ingeschakeld. E‑mail‑ en in‑app‑meldingen werken gewoon."
+  "pushEnableFailed": "Browserpush kon nu niet worden ingeschakeld. E‑mail‑ en in‑app‑meldingen werken gewoon.",
+  "notificationSettingsLink": "Meldingsinstellingen",
+  "accountEmailsTitle": "Account-e-mails",
+  "accountEmailsSubtitle": "Rapporten en aanmeldwaarschuwingen voor je persoonlijke account. Betaal-, uitbetaal- en bestel-e-mails stel je hierboven per merk in.",
+  "newDeviceOnlyTitle": "Aanmeldwaarschuwingen: alleen nieuwe apparaten",
+  "newDeviceOnlyDescription": "Mail me alleen wanneer een aanmelding komt van een apparaat of locatie die ik niet eerder heb gebruikt, in plaats van bij elke nieuwe sessie.",
+  "securityAlertsAlwaysOn": "Waarschuwingen voor wachtwoord, 2FA, uitbetaaladres en nieuw apparaat worden altijd verzonden – ze beschermen je geld en kunnen niet worden uitgezet.",
+  "alwaysOn": "Altijd aan",
+  "otherChannelsTitle": "Productupdates & push",
+  "otherChannelsSubtitle": "Optionele e-mails en browsermeldingen"
 }

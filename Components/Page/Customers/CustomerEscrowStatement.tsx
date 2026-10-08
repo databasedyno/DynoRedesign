@@ -77,7 +77,7 @@ export const CustomerEscrowStatement: React.FC<{ companyId: string | number; cus
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
         <ShieldRounded sx={{ fontSize: 18, color: theme.palette.text.secondary }} />
         <Typography sx={{ fontSize: "13px", color: theme.palette.text.secondary, ...sans, flexGrow: 1 }}>SafeDeal escrow wallet</Typography>
-        <Chip size="small" label={`${data.deals.count} funded deal${data.deals.count === 1 ? "" : "s"} · ${toFixedStr(data.deals.volume, 2)} USD${data.deals.open ? ` · ${data.deals.open} awaiting funding` : ""}`} data-testid="customer-escrow-deals" sx={{ fontWeight: 700, fontSize: 11 }} />
+        <Chip size="small" label={`${data.deals.count} funded deal${data.deals.count === 1 ? "" : "s"} · ${toFixedStr(data.deals.volume, 2)} USD${data.deals.open ? ` · ${data.deals.open} awaiting funding` : ""}`} data-testid="customer-escrow-deals" sx={{ fontWeight: 700, fontSize: 12 }} />
       </Box>
       <Box sx={{ mt: 1, display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 1 }}>
         {[
@@ -86,7 +86,7 @@ export const CustomerEscrowStatement: React.FC<{ companyId: string | number; cus
           ["Active deals", data.deals.active, "customer-escrow-active"],
         ].map(([l, v, tid]) => (
           <Box key={String(l)} sx={{ p: 1, borderRadius: "10px", bgcolor: softBg }}>
-            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sans }}>{l}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sans }}>{l}</Typography>
             <Typography data-testid={String(tid)} className="tabular-nums" sx={{ fontSize: 15, fontWeight: 700, ...mono }}>{typeof v === "number" && l !== "Active deals" ? `${toFixedStr(v, 2)} USD` : v}</Typography>
           </Box>
         ))}
@@ -105,7 +105,7 @@ export const CustomerEscrowStatement: React.FC<{ companyId: string | number; cus
                 <Typography noWrap sx={{ fontSize: 13, ...sans }}>
                   <b>{KIND[r.kind] || r.kind}</b>{r.escrow_id ? ` · #${r.escrow_id}${r.deal_title ? ` ${r.deal_title}` : ""}` : ""}
                 </Typography>
-                <Typography noWrap sx={{ fontSize: 11.5, color: theme.palette.text.secondary, ...sans }}>
+                <Typography noWrap sx={{ fontSize: 12, color: theme.palette.text.secondary, ...sans }}>
                   {formatDateI18n(r.at, { year: "numeric", month: "short", day: "numeric" })} · {r.description}
                 </Typography>
               </Box>
@@ -113,7 +113,7 @@ export const CustomerEscrowStatement: React.FC<{ companyId: string | number; cus
                 <Typography className="tabular-nums" sx={{ fontSize: 13, fontWeight: 700, ...mono, color: r.signed > 0 ? theme.palette.success.main : r.signed < 0 ? theme.palette.error.main : theme.palette.text.secondary }}>
                   {r.signed !== 0 ? `${r.signed > 0 ? "+" : "−"}${toFixedStr(Math.abs(r.signed), 2)}` : `${r.type === "HOLD" ? "→ held" : "→ avail"} ${toFixedStr(r.amount, 2)}`}
                 </Typography>
-                <Typography className="tabular-nums" sx={{ fontSize: 11, color: theme.palette.text.secondary, ...mono }}>bal {toFixedStr(r.running_balance, 2)}</Typography>
+                <Typography className="tabular-nums" sx={{ fontSize: 12, color: theme.palette.text.secondary, ...mono }}>bal {toFixedStr(r.running_balance, 2)}</Typography>
               </Box>
             </Box>
           ))}

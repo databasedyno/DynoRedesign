@@ -244,7 +244,7 @@ const CustomersPage: React.FC = () => {
   const accent = isDark ? "#FFD100" : "#8B5E00";
 
   const eyebrowSx = {
-    fontSize: "11px",
+    fontSize: "12px",
     fontWeight: 700,
     letterSpacing: "0.08em",
     textTransform: "uppercase" as const,
@@ -510,11 +510,11 @@ const CustomersPage: React.FC = () => {
             key={tag}
             label={tag}
             size="small"
-            sx={{ height: 18, fontSize: "10.5px", fontWeight: 600, ...sansSx, bgcolor: isDark ? "rgba(255,209,0,0.15)" : "rgba(139,94,0,0.08)", color: accent, "& .MuiChip-label": { px: 0.75 } }}
+            sx={{ height: 18, fontSize: "12px", fontWeight: 600, ...sansSx, bgcolor: isDark ? "rgba(255,209,0,0.15)" : "rgba(139,94,0,0.08)", color: accent, "& .MuiChip-label": { px: 0.75 } }}
           />
         ))}
         {tg.length > max && (
-          <Typography sx={{ fontSize: "10.5px", color: theme.palette.text.secondary, ...sansSx }}>+{tg.length - max}</Typography>
+          <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx }}>+{tg.length - max}</Typography>
         )}
       </Box>
     );
@@ -526,7 +526,7 @@ const CustomersPage: React.FC = () => {
         <TransactionSourceBadge key={ch} source={{ type: ch }} compact />
       ))}
       {c.channels.length > max && (
-        <Typography component="span" sx={{ fontSize: "11px", color: theme.palette.text.secondary, ...sansSx }}>
+        <Typography component="span" sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx }}>
           +{c.channels.length - max}
         </Typography>
       )}
@@ -537,7 +537,7 @@ const CustomersPage: React.FC = () => {
   const renderLastPaid = (c: DirectoryEntry, compact = false) => {
     if (!c.last_payment) {
       return (
-        <Typography component="span" sx={{ fontSize: compact ? "11.5px" : "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
+        <Typography component="span" sx={{ fontSize: compact ? "12px" : "12.5px", color: theme.palette.text.secondary, ...sansSx }}>
           {compact ? t("customers.noPaymentsYet", { defaultValue: "No payments yet" }) : "—"}
         </Typography>
       );
@@ -550,7 +550,7 @@ const CustomersPage: React.FC = () => {
             {amount}
           </Typography>
         )}
-        <Typography component="span" sx={{ fontSize: compact ? "11.5px" : "12px", color: theme.palette.text.secondary, ...sansSx }}>
+        <Typography component="span" sx={{ fontSize: compact ? "12px" : "12px", color: theme.palette.text.secondary, ...sansSx }}>
           {amount ? `· ${fmtDate(c.last_payment)}` : fmtDate(c.last_payment)}
         </Typography>
       </Box>
@@ -875,7 +875,7 @@ const CustomersPage: React.FC = () => {
                     >
                       {fx.formatFromUsd(c.ltv_usd) || `$${toFixedStr(c.ltv_usd, 2)}`}
                     </Typography>
-                    <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                    <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx }}>
                       {t("customers.paymentsShort", { count: c.payments_count, defaultValue: "{{count}} payments" })}
                     </Typography>
                   </Box>
@@ -1025,7 +1025,7 @@ const CustomersPage: React.FC = () => {
                       {c.pending_count > 0 && (
                         <Typography
                           component="span"
-                          sx={{ fontSize: "11px", color: "#B45309", ml: 0.75, ...sansSx }}
+                          sx={{ fontSize: "12px", color: "#B45309", ml: 0.75, ...sansSx }}
                         >
                           +{c.pending_count} {t("customers.pendingShort", { defaultValue: "pending" })}
                         </Typography>
@@ -1322,7 +1322,7 @@ const DetailPanel: React.FC<{
     <Box sx={{ flex: 1, minWidth: 0 }}>
       <Typography
         sx={{
-          fontSize: "10.5px",
+          fontSize: "12px",
           fontWeight: 700,
           letterSpacing: "0.07em",
           textTransform: "uppercase",
@@ -1353,7 +1353,7 @@ const DetailPanel: React.FC<{
   const sectionTitle = (label: string) => (
     <Typography
       sx={{
-        fontSize: "11px",
+        fontSize: "12px",
         fontWeight: 700,
         letterSpacing: "0.08em",
         textTransform: "uppercase",
@@ -1416,11 +1416,11 @@ const DetailPanel: React.FC<{
       {isPerson && c.email && (
         <Box sx={{ mt: 1.5, p: "12px 14px", borderRadius: "12px", border: `1px solid ${cardBorder}` }} data-testid="customer-detail-crm">
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-            <Typography sx={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sansSx }}>
+            <Typography sx={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: theme.palette.text.secondary, ...sansSx }}>
               {t("customers.crmSection", { defaultValue: "Notes & tags" })}
             </Typography>
             {c.manual && (
-              <Chip size="small" label={t("customers.manualBadge", { defaultValue: "Added manually" })} data-testid="customer-detail-manual-badge" sx={{ height: 20, fontSize: "10.5px", ...sansSx }} />
+              <Chip size="small" label={t("customers.manualBadge", { defaultValue: "Added manually" })} data-testid="customer-detail-manual-badge" sx={{ height: 20, fontSize: "12px", ...sansSx }} />
             )}
           </Box>
           {companyId ? (
@@ -1528,7 +1528,7 @@ const DetailPanel: React.FC<{
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, minWidth: 0 }}>
                   <TransactionSourceBadge source={{ type: p.channel, title: p.title }} compact />
                 </Box>
-                <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx, mt: 0.25 }}>
+                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx, mt: 0.25 }}>
                   {fmtDate(p.createdAt)}
                 </Typography>
               </Box>
@@ -1565,7 +1565,7 @@ const DetailPanel: React.FC<{
                 <Typography sx={{ fontSize: "13px", fontWeight: 600, color: theme.palette.text.primary, ...sansSx }}>
                   {String(o.order_number || o.public_ref || `#${o.order_id}`)}
                 </Typography>
-                <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx }}>
                   {fmtDate(o.paid_at || o.createdAt)}
                 </Typography>
               </Box>
@@ -1612,7 +1612,7 @@ const DetailPanel: React.FC<{
                 >
                   {String(l.title || t("customers.paymentLinkFallback", { defaultValue: "Payment link" }))}
                 </Typography>
-                <Typography sx={{ fontSize: "11.5px", color: theme.palette.text.secondary, ...sansSx }}>
+                <Typography sx={{ fontSize: "12px", color: theme.palette.text.secondary, ...sansSx }}>
                   {fmtDate(String(l.createdAt))}
                 </Typography>
               </Box>

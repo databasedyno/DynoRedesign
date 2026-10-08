@@ -53,7 +53,7 @@ const FunnelStep: React.FC<{ testId: string; icon: string; label: string; value:
     <Box data-testid={testId} sx={{ display: "flex", flexDirection: "column", gap: 0.35, minWidth: 96 }}>
       <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, color: theme.palette.text.secondary }}>
         <Icon name={icon} size={13} />
-        <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase" }}>{label}</Typography>
+        <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase" }}>{label}</Typography>
         {hint && <InfoHint text={hint} testId={`${testId}-hint`} size={12} />}
       </Box>
       {loading && value === undefined ? (
@@ -63,7 +63,7 @@ const FunnelStep: React.FC<{ testId: string; icon: string; label: string; value:
           {formatLocaleInt(value ?? 0)}
         </Typography>
       )}
-      {sub && <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>{sub}</Typography>}
+      {sub && <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, whiteSpace: "nowrap" }}>{sub}</Typography>}
     </Box>
   );
 };
@@ -73,7 +73,7 @@ const Arrow: React.FC<{ label: string }> = ({ label }) => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.25, px: { xs: 0.5, sm: 1.25 }, color: theme.palette.text.secondary, alignSelf: "center" }}>
       <Icon name="arrow-right" size={16} />
-      <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>{label}</Typography>
+      <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>{label}</Typography>
     </Box>
   );
 };

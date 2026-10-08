@@ -292,10 +292,10 @@ const QuickCreateLinkPanel = ({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+                <Typography sx={{ fontFamily: "var(--font-tech), monospace", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
                   {t("quickCreate.previewLabel", { defaultValue: "Buyer will see" })}
                 </Typography>
-                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11, color: theme.palette.text.secondary }}>
+                <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: theme.palette.text.secondary }}>
                   {t("quickCreate.previewHint", { defaultValue: "Tap a line to edit" })}
                 </Typography>
               </Box>

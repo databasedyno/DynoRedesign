@@ -29,7 +29,7 @@ const HowItWorks: React.FC<{ alertEmail?: string }> = ({ alertEmail }) => {
               <Icon name={s.icon} size={18} />
             </Box>
             <Box sx={{ minWidth: 0 }}>
-              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+              <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
                 {t("security.stepN", { n: i + 1, defaultValue: "Step {{n}}" })}
               </Typography>
               <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 14.5, fontWeight: 700, color: theme.palette.text.primary, mt: 0.25 }}>{s.title}</Typography>

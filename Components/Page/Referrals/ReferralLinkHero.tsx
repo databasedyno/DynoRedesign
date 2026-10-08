@@ -35,7 +35,7 @@ const ReferralLinkHero: React.FC<Props> = ({ code, link, loading, showHowToggle,
   return (
     <Box data-testid="referral-code-card" sx={{ mb: 2.5, p: { xs: 2, md: 3 }, borderRadius: "14px", border: `1px solid ${border}`, bgcolor: theme.palette.background.paper, display: "flex", flexDirection: "column", gap: 2 }}>
       <Box>
-        <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
           {t("hero.eyebrow", { defaultValue: "Your referral link" })}
         </Typography>
         <Typography sx={{ mt: 0.5, fontSize: { xs: 14, md: 15 }, color: theme.palette.text.primary }} data-testid="referral-hero-value">

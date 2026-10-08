@@ -52,7 +52,7 @@ const Tile: React.FC<{ testId: string; icon: string; label: string; tone: Tone; 
       <Box sx={{ display: "flex", alignItems: "center", gap: 0.75, color: theme.palette.text.secondary }}>
         <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: color, boxShadow: `0 0 0 3px ${color}26` }} />
         <Icon name={icon} size={14} />
-        <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase" }}>{label}</Typography>
+        <Typography sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase" }}>{label}</Typography>
       </Box>
       <Typography sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 22, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.02em", color: theme.palette.text.primary }}>{value}</Typography>
       {sub && <Typography component="div" sx={{ fontSize: 12.5, color: theme.palette.text.secondary, lineHeight: 1.4, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</Typography>}

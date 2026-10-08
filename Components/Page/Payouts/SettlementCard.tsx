@@ -111,7 +111,7 @@ const SettlementCard: React.FC<Props> = ({ ac, cardSx, hideToggle }) => {
             return (
               <Stack key={o.wallet_type || i} direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 1 }}>
                 <Stack direction="row" alignItems="center" gap={1.25}>
-                  <Box sx={{ width: 32, height: 32, borderRadius: "50%", display: "grid", placeItems: "center", bgcolor: theme.palette.action.hover, fontSize: 11, fontWeight: 700 }}>
+                  <Box sx={{ width: 32, height: 32, borderRadius: "50%", display: "grid", placeItems: "center", bgcolor: theme.palette.action.hover, fontSize: 12, fontWeight: 700 }}>
                     {(o.currency || "?").slice(0, 3)}
                   </Box>
                   <Box>

@@ -10,7 +10,7 @@ const Tile: React.FC<{ children: React.ReactNode; sx?: object }> = ({ children, 
   <Box sx={{ background: PANEL.surface, border: `1px solid ${PANEL.line}`, borderRadius: "12px", p: 1.5, ...sx }}>{children}</Box>
 );
 const Label: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: "0.12em", color: PANEL.ink3, textTransform: "uppercase" }}>{children}</Typography>
+  <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, letterSpacing: "0.12em", color: PANEL.ink3, textTransform: "uppercase" }}>{children}</Typography>
 );
 const GoldBtn: React.FC<{ children: React.ReactNode; icon?: string }> = ({ children, icon }) => (
   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1, py: 1.3, borderRadius: "12px", background: PANEL.gold }}>
@@ -24,7 +24,7 @@ export const PaymentLinkMock: React.FC = () => (
     <Label>Your payment link</Label>
     <Tile sx={{ mt: 1.2, display: "flex", alignItems: "center", gap: 1 }}>
       <Icon icon="mdi:link-variant" width={16} height={16} color={PANEL.gold} />
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, color: PANEL.ink2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>dynopay.com/pay/aurora</Typography>
+      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.ink2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>dynopay.com/pay/aurora</Typography>
       <Icon icon="mdi:content-copy" width={14} height={14} color={PANEL.ink3} />
     </Tile>
     <Box sx={{ display: "flex", gap: 2, mt: 2, alignItems: "center" }}>
@@ -34,7 +34,7 @@ export const PaymentLinkMock: React.FC = () => (
       <Box sx={{ flex: 1 }}>
         <Label>Amount due</Label>
         <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 30, color: PANEL.ink, lineHeight: 1.1 }}>$149.00</Typography>
-        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, color: PANEL.ink3, mt: 0.5 }}>Any coin · any chain</Typography>
+        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.ink3, mt: 0.5 }}>Any coin · any chain</Typography>
       </Box>
     </Box>
     <Box sx={{ mt: 2 }}><GoldBtn icon="mdi:bitcoin">Pay with crypto</GoldBtn></Box>
@@ -63,14 +63,14 @@ export const DonationMock: React.FC = () => (
   <Box>
     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
       <Label>Clean Water Fund</Label>
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, color: PANEL.green }}>78% funded</Typography>
+      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.green }}>78% funded</Typography>
     </Box>
     <Box sx={{ mt: 1, height: 8, borderRadius: 999, background: PANEL.surfaceStrong, overflow: "hidden" }}>
       <Box sx={{ width: "78%", height: "100%", background: "linear-gradient(90deg,#FFD100,#F5A800)" }} />
     </Box>
     <Box sx={{ display: "flex", justifyContent: "space-between", mt: 0.8 }}>
       <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: PANEL.ink }}>$39,120</Typography>
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, color: PANEL.ink3, alignSelf: "flex-end" }}>of $50,000</Typography>
+      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.ink3, alignSelf: "flex-end" }}>of $50,000</Typography>
     </Box>
     <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
       {["$10", "$25", "$100", "Custom"].map((v, i) => (
@@ -88,7 +88,7 @@ export const InvoiceMock: React.FC = () => (
     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
       <Box>
         <Typography sx={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 16, color: PANEL.ink }}>Invoice #INV-118</Typography>
-        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, color: PANEL.ink3 }}>Due Jul 31, 2026</Typography>
+        <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.ink3 }}>Due Jul 31, 2026</Typography>
       </Box>
       <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, px: 1, py: 0.4, borderRadius: 999, background: PANEL.goldSoft }}>
         <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: PANEL.gold }} />
@@ -138,7 +138,7 @@ export const PayoutMock: React.FC = () => {
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Icon icon={r.icon} width={18} height={18} />
-              <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11.5, fontWeight: 700, color: PANEL.ink }}>{r.amt}</Typography>
+              <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, fontWeight: 700, color: PANEL.ink }}>{r.amt}</Typography>
               <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.4, px: 0.8, py: 0.3, borderRadius: 999, background: PANEL.greenSoft }}>
                 <Icon icon="mdi:check" width={11} height={11} color={PANEL.green} />
                 <Typography sx={{ fontFamily: FONT_MONO, fontSize: 9, fontWeight: 700, color: PANEL.green }}>Sent</Typography>
@@ -159,9 +159,9 @@ export const ApiMock: React.FC = () => (
           <Box key={c} sx={{ width: 8, height: 8, borderRadius: "50%", background: c }} />
         ))}
       </Box>
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 10.5, color: PANEL.ink3, ml: 0.5 }}>create-payment.sh</Typography>
+      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.ink3, ml: 0.5 }}>create-payment.sh</Typography>
     </Box>
-    <Box component="pre" sx={{ m: 0, p: 1.5, borderRadius: "10px", background: "rgba(0,0,0,0.35)", border: `1px solid ${PANEL.line}`, overflowX: "auto", fontFamily: FONT_MONO, fontSize: 11, lineHeight: 1.7, color: PANEL.ink2 }}>
+    <Box component="pre" sx={{ m: 0, p: 1.5, borderRadius: "10px", background: "rgba(0,0,0,0.35)", border: `1px solid ${PANEL.line}`, overflowX: "auto", fontFamily: FONT_MONO, fontSize: 12, lineHeight: 1.7, color: PANEL.ink2 }}>
       <Box component="code" sx={{ whiteSpace: "pre" }}>
         <Box component="span" sx={{ color: PANEL.green }}>POST</Box>{` /v1/payments
 `}<Box component="span" sx={{ color: PANEL.ink3 }}>Authorization:</Box>{` sk_live_•••
@@ -175,7 +175,7 @@ export const ApiMock: React.FC = () => (
     </Box>
     <Box sx={{ mt: 1.2, display: "flex", alignItems: "center", gap: 1, px: 1.5, py: 1, borderRadius: "10px", background: PANEL.greenSoft, border: "1px solid rgba(52,211,153,0.3)" }}>
       <Icon icon="mdi:check-circle" width={16} height={16} color={PANEL.green} />
-      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 11, color: PANEL.ink }}>201 · checkout_url returned</Typography>
+      <Typography sx={{ fontFamily: FONT_MONO, fontSize: 12, color: PANEL.ink }}>201 · checkout_url returned</Typography>
     </Box>
   </Box>
 );

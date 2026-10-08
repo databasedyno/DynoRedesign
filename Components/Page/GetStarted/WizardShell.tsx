@@ -111,7 +111,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
               alignItems: "center",
               gap: 1,
               fontFamily: MONO,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.18em",
               textTransform: "uppercase",
@@ -269,7 +269,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
                       placeItems: "center",
                       flexShrink: 0,
                       fontFamily: MONO,
-                      fontSize: 11.5,
+                      fontSize: 12,
                       fontWeight: 700,
                       color: s.done ? "#0A0A0D" : active ? "#121214" : muted,
                       background: s.done
@@ -302,7 +302,7 @@ const WizardShell: React.FC<Props> = ({ progress, current, onSelect, onLater, ch
           <Box data-testid="gs-stepper" sx={{ display: { xs: "block", md: "none" }, ...rise(60) }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.25, gap: 1 }}>
               <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1, minWidth: 0 }}>
-                <Box sx={{ px: 1, py: 0.375, borderRadius: 999, background: `linear-gradient(90deg, ${GOLD} 0%, #FFE566 100%)`, color: "#121214", fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: "0.04em", flexShrink: 0 }}>
+                <Box sx={{ px: 1, py: 0.375, borderRadius: 999, background: `linear-gradient(90deg, ${GOLD} 0%, #FFE566 100%)`, color: "#121214", fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", flexShrink: 0 }}>
                   {t("gs.stepOf", { n: currentIndex + 1, total, defaultValue: "Step {{n}} of {{total}}" })}
                 </Box>
                 <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 700, color: ink, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>

@@ -2,7 +2,7 @@
 # Render every email (+3 SafeDeal samples) to backend/public/_email_preview_tmp for visual QA.
 set -e
 cd /app/backend
-export SERVER_URL=https://ux-handoff-app.preview.emergentagent.com
+export SERVER_URL=https://secure-vault-app-58.preview.emergentagent.com
 OUT=/app/backend/public/_email_preview_tmp
 EMAIL_DUMP_DIR=$OUT timeout 200 node_modules/.bin/ts-node --transpile-only scripts/audit_render_all_emails.ts > /app/memory/tmp/email_render.log 2>&1
 cat > scripts/_tmp_sd_render.ts <<'EOF'

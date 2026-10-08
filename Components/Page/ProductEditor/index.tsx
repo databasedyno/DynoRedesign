@@ -1511,7 +1511,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
                   onClick={() => onVariantImgClick(idx)}
                   disabled={variantImgUploadIdx !== null}
                   data-testid={`product-variant-image-upload-${idx}`}
-                  sx={{ minWidth: 0, px: 0.5, fontSize: 11 }}
+                  sx={{ minWidth: 0, px: 0.5, fontSize: 12 }}
                 />
               </Stack>
               </ImageDropTarget>

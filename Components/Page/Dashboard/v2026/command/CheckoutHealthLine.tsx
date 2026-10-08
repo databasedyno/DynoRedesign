@@ -82,7 +82,7 @@ const CheckoutHealthLine: React.FC<Props> = ({ health, loading }) => {
       {stats.map((s) => (
         <Tooltip key={s.id} title={s.tip} placement="top" arrow>
           <Box data-testid={`health-${s.id}`} sx={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 0.5 }}>
-            <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", color: muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {s.label}
             </Box>
             <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, flexWrap: "wrap" }}>

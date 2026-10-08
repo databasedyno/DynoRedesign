@@ -27,7 +27,7 @@ export const SectionHeader = ({ sectionKey, label, open, count, onToggle }: Prop
       {!open && (
         <span
           data-testid={`sidebar-section-count-${sectionKey}`}
-          style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0, color: theme.palette.text.disabled, marginLeft: "auto" }}
+          style={{ fontSize: 12, fontWeight: 700, letterSpacing: 0, color: theme.palette.text.disabled, marginLeft: "auto" }}
         >
           {count}
         </span>

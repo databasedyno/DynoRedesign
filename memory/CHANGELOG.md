@@ -1,3 +1,12 @@
+## 2026-10-08 (evening) — UX shell Part 2 §4 continued: lint/i18n/C12/C13 + rebuilt & live
+- Pod set up from vault (SAFE MODE; backend db+redis+Tatum healthy; UUID preview host).
+- §4.1 `tsc --noEmit` CLEAN; ESLint CLEAN on all touched files.
+- §4.2 i18n (6 locales en/de/es/fr/nl/pt): common.json `filters`,`clearFilters`,`filtersDone`,`selectItems`,`selectDone`,`settingsPage.brandProfile`; notifications.json `notificationSettingsLink` (added via scripts/qa/add_i18n_keys.py).
+- §4.3 C12: BottomSheet gained opt-in `keepMountedAfterOpen` (tracks `hasOpened` → keepMounted after first open; useBackToClose keys off `open`, unaffected). Applied to MobileNavigationBar/MoreSheet.
+- §4.4 C13 type scale: 54 sub-12px `fontSize` literals bumped to 12 (TYPE_SCALE.xs) across the audited app-shell pages — Transactions (table+styled), Payment-link (styled/table/detail/rows/coins/quick-create), Invoices/receipts, Payouts, NewSidebar. Landing/marketing mocks intentionally left.
+- Rebuilt prod (.next-prod-new → swapped to .next-prod, BUILD_ID 2miZhzYzk3onoqOWDjyuq) + restarted frontend → changes LIVE on preview.
+- Remaining (handoff §4): C13 sweep of other audited pages (Customers etc.), optional 13-device audit re-run 3, frontend testing agent. Pre-existing: check-i18n flags 40 older notifications.json keys missing in de/es/fr/nl/pt (unrelated to this work).
+
 ## 2026-10-08 — UX shell blueprint Part 2 (working tree, unbuilt, not testing-agent verified)
 - Tap targets (desktop ≥24 / touch ≥44) via styles/tapTarget.ts + [data-touch-44]; MuiButton small minHeight 24.
 - hooks/useAutoRowsPerPage (Transactions, Payment links, Receipts), hooks/useElementWidth (paylinks condensed <1100px).
@@ -90,7 +99,7 @@
 
 # === 2026-10-05 (fork, pod 33379795) — STALE `secure-passphrase-13` URL CLEANUP → console CORS errors resolved — DONE & VERIFIED (self-test) ===
 # USER: "Clean up stale hardcoded secure-passphrase-13 URLs to resolve console errors." (The errors were flagged by testing_agent iteration_268 as a cross-pod artifact.)
-# ROOT CAUSE: The ticker components (Components/Page/Home/v7/{mock/payments.ts,CoinsStripV7.tsx}, v5/demoCoins.ts) fetch GET /api/public/tickers from `NEXT_PUBLIC_BASE_URL || NEXT_PUBLIC_SERVER_URL`. In the PREVIEW build NEXT_PUBLIC_BASE_URL is intentionally empty (most components fetch same-origin/relative), so these fell back to NEXT_PUBLIC_SERVER_URL which was baked to the STALE prior-pod origin https://ux-handoff-app.preview.emergentagent.com → cross-origin → CORS error in the browser console. PREVIEW-ONLY: production injects NEXT_PUBLIC_* from GitHub secrets (dynopay.com), so prod was never affected.
+# ROOT CAUSE: The ticker components (Components/Page/Home/v7/{mock/payments.ts,CoinsStripV7.tsx}, v5/demoCoins.ts) fetch GET /api/public/tickers from `NEXT_PUBLIC_BASE_URL || NEXT_PUBLIC_SERVER_URL`. In the PREVIEW build NEXT_PUBLIC_BASE_URL is intentionally empty (most components fetch same-origin/relative), so these fell back to NEXT_PUBLIC_SERVER_URL which was baked to the STALE prior-pod origin https://secure-vault-app-58.preview.emergentagent.com → cross-origin → CORS error in the browser console. PREVIEW-ONLY: production injects NEXT_PUBLIC_* from GitHub secrets (dynopay.com), so prod was never affected.
 # FIX (preview-scoped; both env files are git-IGNORED so no prod/commit impact):
 #   .env.local: repointed NEXT_PUBLIC_SERVER_URL, NEXT_PUBLIC_CREATOR_BASE_URL, NEXTAUTH_URL from secure-passphrase-13 → current pod origin 33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com (left NEXT_PUBLIC_BASE_URL empty, the robust same-origin default).
 #   backend/.env: repointed CHECKOUT_URL, FRONTEND_URL, NEXT_PUBLIC_BASE_URL, SERVER_URL, NEXTAUTH_URL → current origin; removed the stale entry from CORS_ALLOWED_ORIGINS (current pod already listed).

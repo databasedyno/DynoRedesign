@@ -389,7 +389,7 @@ const StepClaimHandle: React.FC<Props> = ({ progress, onBack, onNext }) => {
                 placeholder={t("gs.handleBioPlaceholder", { defaultValue: "Tell visitors who you are and what you're about…" })}
                 sx={{ width: "100%", boxSizing: "border-box", resize: "vertical", border: `1px solid ${border}`, borderRadius: "12px", outline: "none", background: surface, padding: "12px", fontFamily: "var(--font-sans)", fontSize: 14, lineHeight: 1.55, color: ink, "&:focus": { borderColor: theme.palette.primary.main } }}
               />
-              <Box sx={{ mt: 0.25, textAlign: "right", fontFamily: MONO, fontSize: 11, color: muted }}>{bio.length}/500</Box>
+              <Box sx={{ mt: 0.25, textAlign: "right", fontFamily: MONO, fontSize: 12, color: muted }}>{bio.length}/500</Box>
             </Box>
           </Box>
         )}

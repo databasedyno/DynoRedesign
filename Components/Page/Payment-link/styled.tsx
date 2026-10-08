@@ -15,7 +15,7 @@ export const rowHover = (theme: { palette: { mode: string } }) =>
   theme.palette.mode === "dark" ? "rgba(255,255,255,0.03)" : "#FAFBFD";
 export const EYEBROW_SX = {
   fontFamily: "var(--font-tech), monospace",
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 700,
   letterSpacing: "0.12em",
   textTransform: "uppercase",
@@ -135,7 +135,7 @@ export const StatusChip = styled(Box)<StatusChipProps>(({ status, theme }) => {
     letterSpacing: 0,
     whiteSpace: "nowrap",
     [theme.breakpoints.down("md")]: {
-      fontSize: "10px",
+      fontSize: "12px",
       padding: "6px 8px",
     },
   };
@@ -196,7 +196,7 @@ export const FooterText = styled(Box)(({ theme }) => ({
   lineHeight: "100%",
   whiteSpace: "nowrap",
   [theme.breakpoints.down("md")]: {
-    fontSize: "10px",
+    fontSize: "12px",
     lineHeight: "12px",
   },
 }));

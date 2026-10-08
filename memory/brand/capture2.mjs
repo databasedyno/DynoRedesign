@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 import fs from "fs";
-const BASE = "https://ux-handoff-app.preview.emergentagent.com";
+const BASE = "https://secure-vault-app-58.preview.emergentagent.com";
 const CHROME = "/pw-browsers/chromium_headless_shell-1208/chrome-linux/headless_shell";
 const OUT = "/app/memory/brand/verify";
 fs.mkdirSync(OUT, { recursive: true });

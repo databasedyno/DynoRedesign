@@ -111,7 +111,7 @@ const NotificationInbox: React.FC<Props> = ({ notifications, loading, unreadCoun
           <PillButton key={k} active={kind === k} role="tab" aria-selected={kind === k} data-testid={`notifications-kind-${k}`} onClick={() => setKind(k)} sx={{ display: "inline-flex", alignItems: "center", gap: 0.6, whiteSpace: "nowrap", ...(kind === k ? { ...tabPillActive(theme), "&:hover": tabPillActive(theme) } : {}) }}>
             {k !== "all" && <Icon name={KIND_ICON[k]} size={13} />}
             {kindLabel[k]}
-            <Box component="span" sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, opacity: 0.75 }}>{count}</Box>
+            <Box component="span" sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, opacity: 0.75 }}>{count}</Box>
           </PillButton>
         );
       })}

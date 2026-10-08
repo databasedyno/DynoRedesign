@@ -193,13 +193,13 @@ const StepShare: React.FC<Props> = ({ link, companyId, justCreated, onBack, onDo
           </Box>
 
           <Box sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${border}` }}>
-            <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
+            <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: muted }}>
               {t("gs.nextTitle", { defaultValue: "What happens next" })}
             </Box>
             <Box component="ol" sx={{ m: 0, mt: 1.25, p: 0, listStyle: "none", display: "grid", gap: 1 }}>
               {nextSteps.map((s, i) => (
                 <Box component="li" key={i} sx={{ display: "flex", gap: 1.25, alignItems: "flex-start" }}>
-                  <Box sx={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 11.5, fontWeight: 700, color: ink, backgroundColor: isDark ? "rgba(255,255,255,0.07)" : "rgba(10,10,15,0.06)" }}>
+                  <Box sx={{ width: 22, height: 22, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: MONO, fontSize: 12, fontWeight: 700, color: ink, backgroundColor: isDark ? "rgba(255,255,255,0.07)" : "rgba(10,10,15,0.06)" }}>
                     {i + 1}
                   </Box>
                   <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, lineHeight: 1.5, color: isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight }}>{s}</Box>

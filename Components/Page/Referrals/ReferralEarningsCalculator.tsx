@@ -41,7 +41,7 @@ const ReferralEarningsCalculator: React.FC = () => {
         border: `1px solid ${accent ? "rgba(139,94,0,0.35)" : s.line}`,
       }}
     >
-      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1 }}>
+      <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1 }}>
         {label}
       </Typography>
       <Typography sx={{ fontFamily: FONT_BODY, fontSize: { xs: 26, md: 34 }, fontWeight: 700, lineHeight: 1.05 }}>
@@ -67,7 +67,7 @@ const ReferralEarningsCalculator: React.FC = () => {
 
       {/* Payout mode toggle — same amount, different delivery */}
       <Box sx={{ mb: { xs: 3, md: 4 } }}>
-        <Typography sx={{ fontFamily: FONT_TECH, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1.5 }}>
+        <Typography sx={{ fontFamily: FONT_TECH, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: s.ink3, mb: 1.5 }}>
           {t("public.calcModeLabel")}
         </Typography>
         <Box sx={{ display: "inline-flex", p: "4px", gap: "4px", borderRadius: "999px", background: s.bgAlt, border: `1px solid ${s.line}` }}>

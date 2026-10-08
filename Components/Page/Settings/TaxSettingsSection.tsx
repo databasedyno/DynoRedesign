@@ -410,7 +410,7 @@ const TaxSettingsSection: React.FC = () => {
               sx={{ "& .MuiOutlinedInput-root": { borderRadius: "10px", fontFamily: "var(--font-sans)", fontSize: 14 } }}
             />
             {vatValid === false && (
-              <Typography sx={{ fontSize: 11.5, color: theme.palette.warning?.main || "#ED6C02", mt: 0.5, fontFamily: "var(--font-sans)" }}>
+              <Typography sx={{ fontSize: 12, color: theme.palette.warning?.main || "#ED6C02", mt: 0.5, fontFamily: "var(--font-sans)" }}>
                 {t("taxSettings.vatInvalidHint", {
                   defaultValue: "This doesn't match a known EU/GB VAT format — it will still be saved as entered.",
                 })}
