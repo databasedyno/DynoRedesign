@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 import fs from "node:fs";
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => { const s = a.replace(/^--/, ""); const i = s.indexOf("="); return i < 0 ? [s, "1"] : [s.slice(0, i), s.slice(i + 1)]; }));
-const BASE = args.base || "https://vault-katiekendra.preview.emergentagent.com";
+const BASE = args.base || "https://secure-passphrase-18.preview.emergentagent.com";
 const OUT = args.out || "/app/test_reports/quick";
 const THEME = args.theme || "light";
 const TOKEN = fs.readFileSync("/app/memory/tmp/merchant_token.txt", "utf8").trim();

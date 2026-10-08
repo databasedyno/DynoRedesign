@@ -5,7 +5,7 @@ Cleanup (R7) is performed separately via /app/backend/scripts/cleanup_r225.js.
 """
 import os, time, subprocess, json, requests, pytest
 
-BASE = "https://vault-katiekendra.preview.emergentagent.com"
+BASE = "https://secure-passphrase-18.preview.emergentagent.com"
 API = f"{BASE}/api/safedeal"
 TS = str(int(time.time()))
 

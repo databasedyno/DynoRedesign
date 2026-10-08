@@ -37,5 +37,5 @@
   "seed_data_creation": "None. Only persistent side-effect: added 'transactions' to QA user 221's dismissed page-tip list via /api/track/page-tips/dismiss as per the review request's own test instruction. No writes to merchant (user 1) account.",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "All 10 UX-overhaul feature groups verified against the preview build at https://vault-katiekendra.preview.emergentagent.com. If re-testing: inject merchant token on /auth/login origin first, then navigate (don't paste token on an app page - localStorage won't be set in time). Pace navigation ~15-20s between heavy pages (/payouts, /notifications, /wallet have many lazy chunks and Cloudflare 429s them under rapid load). Page-tip server now stores ['payouts','transactions'] for QA user 221."
+  "context_for_next_testing_agent": "All 10 UX-overhaul feature groups verified against the preview build at https://secure-passphrase-18.preview.emergentagent.com. If re-testing: inject merchant token on /auth/login origin first, then navigate (don't paste token on an app page - localStorage won't be set in time). Pace navigation ~15-20s between heavy pages (/payouts, /notifications, /wallet have many lazy chunks and Cloudflare 429s them under rapid load). Page-tip server now stores ['payouts','transactions'] for QA user 221."
 }
