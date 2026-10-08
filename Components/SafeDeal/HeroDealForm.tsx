@@ -34,7 +34,7 @@ function Segment<T extends string>({ value, onChange, options, testid }: { value
             aria-checked={on}
             data-testid={`${testid}-${o.v}`}
             onClick={() => onChange(o.v)}
-            sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.9, px: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", color: on ? SD_INK : "rgba(255,255,255,0.72)", backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: on ? SD_INK : "#fff" } }}
+            sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.9, px: 1, minHeight: 36, "@media (pointer: coarse)": { minHeight: 44 }, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", color: on ? SD_INK : "rgba(255,255,255,0.72)", backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: on ? SD_INK : "#fff" } }}
           >
             <Icon icon={o.icon} width={16} aria-hidden />
             {o.label}

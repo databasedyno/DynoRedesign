@@ -83,6 +83,7 @@ export default function CampaignShareTray({ title, url, ariaLabel, accent }: Pro
     border: `1px solid ${isDark ? "rgba(255,255,255,0.10)" : "rgba(18,18,20,0.08)"}`,
     width: 38,
     height: 38,
+    "@media (pointer: coarse)": { width: 44, height: 44 },
     "&:hover": {
       bgcolor: isDark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,1)",
       borderColor: accent || (isDark ? "rgba(255,255,255,0.3)" : "rgba(18,18,20,0.2)"),

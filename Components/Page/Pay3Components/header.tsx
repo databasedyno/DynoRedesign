@@ -40,19 +40,32 @@ const Header = ({
       role='button'
       aria-label='Toggle theme'
       sx={{
-        width: 60,
-        height: 30,
-        backgroundColor: 'rgba(255,255,255,0.2)',
-        borderRadius: 999,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        px: '3px',
+        justifyContent: 'center',
         cursor: 'pointer',
-        transition: 'all 0.3s ease',
         flexShrink: 0,
+        // ≥44px touch target on coarse pointers; stays a compact 60×30 pill on desktop.
+        minWidth: 44,
+        minHeight: 44,
+        '@media (pointer: fine)': { minWidth: 0, minHeight: 0 },
       }}
     >
+      <Box
+        sx={{
+          pointerEvents: 'none',
+          width: 60,
+          height: 30,
+          backgroundColor: 'rgba(255,255,255,0.2)',
+          borderRadius: 999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: '3px',
+          transition: 'all 0.3s ease',
+          flexShrink: 0,
+        }}
+      >
       <Box
         sx={{
           width: 24,
@@ -80,6 +93,7 @@ const Header = ({
         }}
       >
         <BedtimeIcon sx={{ fontSize: 14, color: darkMode ? '#0A0A0A' : 'rgba(255,255,255,0.5)' }} />
+      </Box>
       </Box>
     </Box>
   );
@@ -113,7 +127,7 @@ const Header = ({
               href="/"
               aria-label="Dynopay — back to home"
               data-testid="pay-header-logo-home"
-              style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 0 }}
+              style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 0, padding: '2px 4px', margin: '-2px -4px' }}
             >
               <Logo width={36} height={42} color="#FFFFFF" />
             </Link>
@@ -124,7 +138,7 @@ const Header = ({
             <Stack direction='row' spacing={1} alignItems='center'>
               {/* Clean mobile header: theme + menu only (matches marketing site) */}
               {compactThemeToggle}
-              <IconButton onClick={toggleDrawer} sx={{ color: 'white', p: 1 }} aria-label='Open menu'>
+              <IconButton onClick={toggleDrawer} sx={{ color: 'white', p: 1, '@media (pointer: coarse)': { minWidth: 44, minHeight: 44 } }} aria-label='Open menu'>
                 <MenuIcon />
               </IconButton>
             </Stack>
@@ -159,7 +173,19 @@ const Header = ({
 
           <Box
             onClick={() => { toggleDarkMode(); toggleDrawer(); }}
+            role='button'
+            aria-label='Toggle theme'
             sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+              alignSelf: 'flex-start',
+              '@media (pointer: coarse)': { minHeight: 44, marginTop: '-8px', marginBottom: '-8px' },
+            }}
+          >
+          <Box
+            sx={{
+              pointerEvents: 'none',
               width: 52,
               height: 28,
               backgroundColor: darkMode ? 'rgba(255,255,255,0.1)' : theme.palette.border.main,
@@ -168,7 +194,6 @@ const Header = ({
               alignItems: 'center',
               justifyContent: darkMode ? 'flex-end' : 'flex-start',
               px: '3px',
-              cursor: 'pointer',
               transition: 'all 0.3s ease',
             }}
           >
@@ -187,6 +212,7 @@ const Header = ({
             >
               {darkMode ? <BedtimeIcon sx={{ fontSize: 13 }} /> : <WbSunnyIcon sx={{ fontSize: 13 }} />}
             </Box>
+          </Box>
           </Box>
         </Stack>
       </Drawer>

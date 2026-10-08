@@ -1,3 +1,10 @@
+## 2026-10-08 (late) — Public UX follow-ups: 44px tap targets · docs mobile rebuild · two-column desktop checkout (LIVE)
+- TAP TARGETS (≥44px on coarse pointers): checkout header theme toggle + menu + logo + drawer toggle (Pay3Components/header.tsx); donation share icons 38→44 (CampaignShareTray); creator header-share 36→44 + inline-checkout share 40→44 (CreatorProfile); SafeDeal hero segmented toggle →44 (HeroDealForm); SafeDeal nav already 44.
+- DOCS MOBILE (pages/documentation.tsx): active-section-only rendering on phones → scroll cut from ~49 folds to ~7.8; code blocks hardened (maxWidth:100% + -webkit-overflow-scrolling + overscroll-contain) → right-edge clipping 56→1; controls raised to 44px (Copy btn, cURL/Node/Python lang tabs, "Sections" trigger, bottom-sheet section + endpoint items, prev/next pager); scroll-spy disabled on mobile, scrollTo jumps to top. Desktop docs unchanged.
+- DESKTOP CHECKOUT (pages/pay/demo.tsx): wrapped the demo in the existing PanelShell → ≥1024px two-column (order + trust summary rail 449px | pay panel) at maxWidth 1080, folding into a sticky "Order summary" bar below. (The real checkout CleanCheckoutV2 already used PanelShell.) Added an order/trust summary (merchant, amount, reference, non-custodial/confirms-in-minutes/email-receipt badges).
+- tsc --noEmit clean; ESLint clean; rebuilt .next-prod (BUILD_ID s4dOuTKrAhV-JcJo3sghX) + swapped → LIVE. Verified via Playwright (webkit 393 / chromium 1440).
+
+
 ## 2026-10-08 (eve) — Public UX audit + P0/P1 fixes (landing clipping, type floor, iOS inputs, tap targets)
 - Deep public-pages UX audit (desktop/large/tablet/iOS/Android) → `memory/reports/PUBLIC_UX_AUDIT_2026-10-08.md` + `test_reports/public_ux_audit/` (75 shots + metrics.json). Harness: `scripts/qa/public_ux_audit.mjs`.
 - FIX P0 landing phone horizontal clipping: `#products` bento cards rendered 424px wide inside a 393px viewport (grid `1fr` min-content blowout). `ProductShowcaseV8` → `gridTemplateColumns: minmax(0,1fr)` + `Reveal minWidth:0`. Verified: clipped elements ~70 → 4 (only a decorative SVG peek) on iPhone/Pixel/iPad.

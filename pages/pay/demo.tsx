@@ -19,6 +19,7 @@ import Logo from '@/assets/Icons/Logo'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
 import CheckoutStatusStrip from '@/Components/UI/CheckoutStatusStrip'
 import { ReceiptEmailField, NotifyMeInline } from '@/Components/Page/Pay3Components/checkoutExtras'
+import { PanelShell } from '@/Components/Page/Pay3Components/checkout/checkoutPrimitives'
 import usePaymentNotification from '@/hooks/usePaymentNotification'
 
 /**
@@ -166,6 +167,37 @@ const PaymentDemo = () => {
 
   const stripState = phase === 'confirming' ? 'confirming' : 'pending'
 
+  // Desktop (≥1024px) order + trust summary rail; folds into a sticky "Order
+  // summary" bar below that width — mirrors the real CleanCheckoutV2 layout so
+  // the demo doesn't float as a lone narrow card on big screens.
+  const demoSummary = (
+    <>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+        <Logo width={20} height={24} />
+        <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.02em', color: muted }}>DYNOPAY</Typography>
+      </Box>
+      <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: muted }}>You&apos;re paying</Typography>
+      <Typography sx={{ fontSize: 18, fontWeight: 800, color: theme.palette.text.primary, mt: 0.5, mb: 2 }}>{MERCHANT}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 0.5 }}>
+        <Typography sx={{ fontFamily: MONO, fontVariantNumeric: 'tabular-nums', fontSize: 30, fontWeight: 800, letterSpacing: '-0.02em', color: theme.palette.text.primary }}>{FIAT_SYMBOL}{toFixedStr(FIAT_AMOUNT, 2)}</Typography>
+        <Typography sx={{ fontSize: 13, fontWeight: 600, color: muted }}>{FIAT_CURRENCY}</Typography>
+      </Box>
+      <Typography sx={{ fontFamily: MONO, fontSize: 12, color: muted, mb: 3 }}>REFERENCE · {ORDER_REFERENCE}</Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, mt: { lg: 'auto' } }}>
+        {([
+          ['mdi:shield-check-outline', 'Non-custodial — funds settle straight to the merchant'],
+          ['mdi:lightning-bolt-outline', 'Confirms on-chain in minutes'],
+          ['mdi:email-check-outline', 'Email receipt the moment it clears'],
+        ] as const).map(([icon, label]) => (
+          <Box key={label} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+            <Icon icon={icon} width={16} style={{ color: LIME, flexShrink: 0, marginTop: 2 }} />
+            <Typography sx={{ fontSize: 12.5, color: muted, lineHeight: 1.45 }}>{label}</Typography>
+          </Box>
+        ))}
+      </Box>
+    </>
+  )
+
   return (
     <Pay3Layout embed={isEmbed}>
       <Head>
@@ -173,28 +205,14 @@ const PaymentDemo = () => {
         <meta name="description" content="Try the Dynopay hosted crypto checkout — a sandbox demo. No real payment is created." />
         <meta key="robots" name="robots" content="noindex, nofollow" />
       </Head>
-      <Box
-        sx={{
-          minHeight: '70vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          px: { xs: 2, sm: 3 },
-          py: { xs: 3, sm: 6 },
-        }}
+      <PanelShell
+        isDark={isDark}
+        border={border}
+        muted={muted}
+        summary={demoSummary}
+        summaryBar={{ label: MERCHANT, amount: `${FIAT_SYMBOL}${toFixedStr(FIAT_AMOUNT, 2)} ${FIAT_CURRENCY}`, toggleLabel: 'Order summary' }}
       >
-        <Box
-          data-testid="demo-checkout-panel"
-          sx={{
-            width: '100%',
-            maxWidth: 440,
-            p: { xs: 2.5, sm: 4 },
-            borderRadius: '16px',
-            border: `1px solid ${border}`,
-            backgroundColor: isDark ? '#111114' : '#FFFFFF',
-            boxShadow: isDark ? 'none' : '0 1px 2px rgba(10,10,15,0.04)',
-          }}
-        >
+        <Box data-testid="demo-checkout-panel" sx={{ width: '100%' }}>
           {/* Always-visible sandbox badge — this page is a demo, never a real payment */}
           <Box
             data-testid="demo-sandbox-badge"
@@ -430,7 +448,7 @@ const PaymentDemo = () => {
             </>
           )}
         </Box>
-      </Box>
+      </PanelShell>
     </Pay3Layout>
   )
 }

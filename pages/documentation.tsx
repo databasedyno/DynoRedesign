@@ -269,6 +269,9 @@ const Pre = styled("pre")(({ theme }) => {
     fontSize: "13px",
     lineHeight: 1.65,
     overflowX: "auto" as const,
+    maxWidth: "100%",
+    WebkitOverflowScrolling: "touch" as const,
+    overscrollBehaviorX: "contain" as const,
     fontFamily: "var(--font-tech), monospace",
     margin: 0,
     border: `1px solid ${dk ? "#1E2030" : "rgba(255,255,255,0.06)"}`,
@@ -291,6 +294,8 @@ const CopyBtn = styled("button")(({ theme }) => ({
   alignItems: "center",
   gap: "4px",
   transition: "all 0.15s",
+  minHeight: "28px",
+  "@media (pointer: coarse)": { minHeight: "44px", minWidth: "44px", justifyContent: "center" },
   "&:hover": { background: "rgba(255,255,255,0.15)" },
 }));
 
@@ -1435,13 +1440,23 @@ const DocumentationPage = () => {
 
   const scrollTo = useCallback((id: string) => {
     setActiveSection(id);
+    if (isMobile) {
+      // Active-only mode on phones: the chosen section becomes the visible
+      // content (others are display:none), so jump back to the top instead of
+      // scrolling to an element that is about to mount.
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+      return;
+    }
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  }, [isMobile]);
 
   // Phone nav (Wave 7): bottom-sheet section menu + prev/next pager at the end of every section.
   const [navOpen, setNavOpen] = useState(false);
   const activeMeta = SECTIONS.find((sec) => sec.id === activeSection) || SECTIONS[0];
+  // Phones render ONE section at a time (active-only) so the docs are a short,
+  // scannable scroll instead of a ~50-screen wall; desktop keeps the full page.
+  const showSection = (id: string) => !isMobile || activeSection === id;
   const SectionPager = ({ current }: { current: string }) => {
     if (!isMobile) return null;
     const idx = SECTIONS.findIndex((sec) => sec.id === current);
@@ -1450,12 +1465,12 @@ const DocumentationPage = () => {
     return (
       <Box data-testid={`docs-pager-${current}`} sx={{ display: "flex", justifyContent: "space-between", gap: 1, mt: 3, pt: 2, borderTop: `1px solid ${borderClr}` }}>
         {prev ? (
-          <Button size="small" onClick={() => scrollTo(prev.id)} startIcon={<KeyboardArrowLeftIcon />} data-testid={`docs-pager-prev-${current}`} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, minWidth: 0, maxWidth: "48%", justifyContent: "flex-start", "& .MuiButton-startIcon": { mr: 0.25 } }}>
+          <Button size="small" onClick={() => scrollTo(prev.id)} startIcon={<KeyboardArrowLeftIcon />} data-testid={`docs-pager-prev-${current}`} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, minWidth: 0, maxWidth: "48%", minHeight: 44, justifyContent: "flex-start", "& .MuiButton-startIcon": { mr: 0.25 } }}>
             <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{prev.title}</Box>
           </Button>
         ) : <span />}
         {next ? (
-          <Button size="small" onClick={() => scrollTo(next.id)} endIcon={<KeyboardArrowRightIcon />} data-testid={`docs-pager-next-${current}`} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, minWidth: 0, maxWidth: "48%", justifyContent: "flex-end", "& .MuiButton-endIcon": { ml: 0.25 } }}>
+          <Button size="small" onClick={() => scrollTo(next.id)} endIcon={<KeyboardArrowRightIcon />} data-testid={`docs-pager-next-${current}`} sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, minWidth: 0, maxWidth: "48%", minHeight: 44, justifyContent: "flex-end", "& .MuiButton-endIcon": { ml: 0.25 } }}>
             <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{next.title}</Box>
           </Button>
         ) : <span />}
@@ -1467,6 +1482,7 @@ const DocumentationPage = () => {
   useEffect(() => {
     const handleScroll = () => {
       setShowTop(window.scrollY > 600);
+      if (isMobile) return; // active-only mode drives the active section via the menu/pager
       const sections = SECTIONS.map((s) => document.getElementById(s.id)).filter(Boolean);
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = sections[i];
@@ -1478,7 +1494,7 @@ const DocumentationPage = () => {
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
 
   const borderClr = dk ? "rgba(255,255,255,0.12)" : "rgba(10,10,10,0.10)";
   const headBg = dk ? "rgba(255,209,0,0.04)" : "#F8F9FC";
@@ -1494,7 +1510,7 @@ const DocumentationPage = () => {
     <>
       <PageWrapper>
         {/* ===== HERO (v8) ===== */}
-        <Box component="section" data-testid="docs-hero" sx={{ position: "relative", overflow: "hidden", pt: { xs: 5, md: 8 }, pb: { xs: 6, md: 9 } }}>
+        <Box component="section" data-testid="docs-hero" sx={{ position: "relative", overflow: "hidden", pt: { xs: 5, md: 8 }, pb: { xs: 6, md: 9 }, display: showSection("overview") ? undefined : "none" }}>
           <Box aria-hidden sx={{ position: "absolute", top: -120, right: -100, width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,209,0,0.14), transparent 62%)", pointerEvents: "none" }} />
           <Container sx={{ position: "relative", zIndex: 1 }}>
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "minmax(0,1fr) minmax(0,0.9fr)" }, gap: { xs: 5, lg: 7 }, alignItems: "center" }}>
@@ -1635,7 +1651,7 @@ const DocumentationPage = () => {
                       onClick={() => setNavOpen(true)}
                       startIcon={<MenuBookOutlinedIcon sx={{ fontSize: 17 }} />}
                       data-testid="docs-mobile-sections-btn"
-                      sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, borderRadius: "999px", flexShrink: 0, borderColor: borderClr, color: "text.primary" }}
+                      sx={{ textTransform: "none", fontFamily: "var(--font-sans)", fontWeight: 600, borderRadius: "999px", flexShrink: 0, borderColor: borderClr, color: "text.primary", minHeight: 44 }}
                     >
                       Sections
                     </Button>
@@ -1679,7 +1695,7 @@ const DocumentationPage = () => {
                               data-testid={`docs-sheet-section-${sec.id}`}
                               aria-current={on ? "true" : undefined}
                               sx={{
-                                width: "100%", display: "flex", alignItems: "center", gap: 1.25, px: 1.25, py: 1.1, borderRadius: "10px", border: "none", cursor: "pointer", textAlign: "left",
+                                width: "100%", display: "flex", alignItems: "center", gap: 1.25, px: 1.25, py: 1.1, minHeight: 44, borderRadius: "10px", border: "none", cursor: "pointer", textAlign: "left",
                                 background: on ? (dk ? "rgba(255,209,0,0.16)" : "rgba(139,94,0,0.08)") : "transparent",
                                 color: on ? (dk ? "#FFD100" : "#8B5E00") : theme.palette.text.primary,
                                 fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: on ? 700 : 500,
@@ -1696,7 +1712,7 @@ const DocumentationPage = () => {
                                 type="button"
                                 onClick={() => { scrollTo(epId); setNavOpen(false); }}
                                 data-testid={`docs-sheet-endpoint-${epId}`}
-                                sx={{ width: "100%", display: "block", textAlign: "left", px: 1.25, py: 0.7, pl: 5.25, border: "none", background: "transparent", cursor: "pointer", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", fontSize: 13.5, borderRadius: "8px", "&:hover": { color: theme.palette.text.primary } }}
+                                sx={{ width: "100%", display: "flex", alignItems: "center", textAlign: "left", px: 1.25, py: 0.7, pl: 5.25, minHeight: 44, border: "none", background: "transparent", cursor: "pointer", color: theme.palette.text.secondary, fontFamily: "var(--font-sans)", fontSize: 13.5, borderRadius: "8px", "&:hover": { color: theme.palette.text.primary } }}
                               >
                                 {endpointMap[epId]?.title}
                               </Box>
@@ -1710,7 +1726,7 @@ const DocumentationPage = () => {
               )}
 
               {/* Overview */}
-              <Box id="overview" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="overview" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("overview") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Overview
                 </Typography>
@@ -1792,7 +1808,7 @@ const DocumentationPage = () => {
               </Box>
 
               {/* Getting Started */}
-              <Box id="getting-started" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="getting-started" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("getting-started") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Getting Started
                 </Typography>
@@ -1841,6 +1857,8 @@ const DocumentationPage = () => {
                           fontWeight: 600,
                           px: 1.5,
                           py: 0.6,
+                          minHeight: 30,
+                          "@media (pointer: coarse)": { minHeight: 44 },
                           borderRadius: "8px",
                           transition: "all 0.15s ease",
                         }}
@@ -1858,7 +1876,7 @@ const DocumentationPage = () => {
               </Box>
 
               {/* Try It Live — sandbox playground (no account needed) */}
-              <Box id="try-it" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="try-it" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("try-it") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Try It Live
                 </Typography>
@@ -1878,7 +1896,7 @@ const DocumentationPage = () => {
               </Box>
 
               {/* Authentication */}
-              <Box id="authentication" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="authentication" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("authentication") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Authentication
                 </Typography>
@@ -1922,7 +1940,7 @@ const DocumentationPage = () => {
 
               {/* Endpoint Sections */}
               {SECTIONS.filter((s) => s.endpoints).map((section) => (
-                <Box key={section.id} id={section.id} sx={{ mb: 8, scrollMarginTop: "100px" }}>
+                <Box key={section.id} id={section.id} sx={{ mb: 8, scrollMarginTop: "100px", display: showSection(section.id) ? undefined : "none" }}>
                   <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 2.5 }}>
                     {section.title}
                   </Typography>
@@ -1941,7 +1959,7 @@ const DocumentationPage = () => {
               {/* ═══════════════════════════════════════════════════════
                   PAYMENT STATUSES SECTION
                   ═══════════════════════════════════════════════════════ */}
-              <Box id="payment-statuses" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="payment-statuses" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("payment-statuses") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Payment Statuses
                 </Typography>
@@ -2052,7 +2070,7 @@ const DocumentationPage = () => {
               {/* ═══════════════════════════════════════════════════════
                   BUY BUTTON SECTION
                   ═══════════════════════════════════════════════════════ */}
-              <Box id="buy-button" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="buy-button" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("buy-button") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Buy Button
                 </Typography>
@@ -2122,7 +2140,7 @@ const DocumentationPage = () => {
               {/* ═══════════════════════════════════════════════════════
                   WEBHOOKS SECTION
                   ═══════════════════════════════════════════════════════ */}
-              <Box id="webhooks" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="webhooks" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("webhooks") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Webhooks
                 </Typography>
@@ -2387,7 +2405,7 @@ app.post('/webhooks/dynopay', (req, res) => {
               {/* ═══════════════════════════════════════════════════════
                   RATE LIMITS SECTION
                   ═══════════════════════════════════════════════════════ */}
-              <Box id="rate-limits" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="rate-limits" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("rate-limits") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Rate Limits
                 </Typography>
@@ -2430,7 +2448,7 @@ app.post('/webhooks/dynopay', (req, res) => {
               </Box>
 
               {/* Error Handling */}
-              <Box id="errors" sx={{ mb: 8, scrollMarginTop: "100px" }}>
+              <Box id="errors" sx={{ mb: 8, scrollMarginTop: "100px", display: showSection("errors") ? undefined : "none" }}>
                 <Typography sx={{ fontSize: { xs: 24, md: 30 }, fontWeight: 500, fontFamily: "var(--font-sans)", color: "text.primary", mb: 1.5 }}>
                   Error Handling
                 </Typography>

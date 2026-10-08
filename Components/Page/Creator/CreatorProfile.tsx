@@ -469,7 +469,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
                   title={t('creator.shareLabel', { defaultValue: 'Share' })}
                   onClick={() => (canNativeShare ? handleNativeShare() : handleCopy())}
                   onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); canNativeShare ? handleNativeShare() : handleCopy() } }}
-                  sx={{ ...roundBtnSx(copied, 36), color: copied ? accentText : theme.palette.text.secondary }}
+                  sx={{ ...roundBtnSx(copied, 36), '@media (pointer: coarse)': { width: 44, height: 44 }, color: copied ? accentText : theme.palette.text.secondary }}
                 >
                   <Icon icon={copied ? 'mdi:check' : 'mdi:share-variant-outline'} width={16} />
                 </Box>
@@ -740,7 +740,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
                       data-testid='creator-link-inline-close'
                       onClick={closeInlineCheckout}
                       aria-label='Close inline checkout'
-                      sx={{ ...roundBtnSx(false, 40), color: theme.palette.text.secondary, p: 0 }}
+                      sx={{ ...roundBtnSx(false, 40), '@media (pointer: coarse)': { width: 44, height: 44 }, color: theme.palette.text.secondary, p: 0 }}
                     >
                       <Icon icon='mdi:close' width={16} />
                     </Box>
