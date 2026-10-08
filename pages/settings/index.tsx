@@ -18,7 +18,6 @@ import {
   ArrowOutwardRounded,
   TranslateRounded,
   ChevronLeftRounded,
-  ChevronRightRounded,
 } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import Head from "next/head";

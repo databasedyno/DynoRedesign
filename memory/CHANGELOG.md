@@ -1,3 +1,10 @@
+## 2026-10-08 (late) — CI fix: Preflight "No unused imports (frontend)" red → green
+- ROOT CAUSE: the GitHub "Preflight — type-check + exact Dockerfile build" workflow's `frontend-tsc` job failed at step "No unused imports (frontend)" (`scripts/qa/strip_unused_imports.cjs tsconfig.json --check`). The gate fails only when `bindingsRemoved > 0` (unused *import* bindings; unused locals are tolerated). Exactly 1 offender: `ChevronRightRounded` imported but unused in `pages/settings/index.tsx` (pre-existing, red since commit 235fe73d). `deploy-droplet` itself was SUCCESS — the red X on the commit came from this preflight gate.
+- FIX: removed the unused `ChevronRightRounded` import from pages/settings/index.tsx (ChevronLeftRounded kept — still used).
+- VERIFIED locally by reproducing the exact CI command → EXIT 0 ("0 unused import bindings removed"); `tsc --noEmit` clean. Pure import removal — no runtime change.
+- ACTION: re-trigger CI via "Save to GitHub" on branch Improvement (agent cannot push).
+
+
 ## 2026-10-08 (late) — Public UX follow-ups: 44px tap targets · docs mobile rebuild · two-column desktop checkout (LIVE)
 - TAP TARGETS (≥44px on coarse pointers): checkout header theme toggle + menu + logo + drawer toggle (Pay3Components/header.tsx); donation share icons 38→44 (CampaignShareTray); creator header-share 36→44 + inline-checkout share 40→44 (CreatorProfile); SafeDeal hero segmented toggle →44 (HeroDealForm); SafeDeal nav already 44.
 - DOCS MOBILE (pages/documentation.tsx): active-section-only rendering on phones → scroll cut from ~49 folds to ~7.8; code blocks hardened (maxWidth:100% + -webkit-overflow-scrolling + overscroll-contain) → right-edge clipping 56→1; controls raised to 44px (Copy btn, cURL/Node/Python lang tabs, "Sections" trigger, bottom-sheet section + endpoint items, prev/next pager); scroll-spy disabled on mobile, scrollTo jumps to top. Desktop docs unchanged.
