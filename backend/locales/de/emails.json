@@ -946,17 +946,18 @@
    "preheader": "Ihre aktuelle Dynopay-Rechnung ist verfügbar."
   },
   "apiKey": {
-   "subjectCreated": "Neuer {{keyType}}-API-Schlüssel erstellt",
-   "subjectRegenerated": "{{keyType}}-API-Schlüssel rotiert — alter Schlüssel funktioniert nicht mehr",
+   "subjectCreated": "Neuer {{keyType}}-API-Schlüssel für {{companyName}} erstellt",
+   "subjectRegenerated": "{{keyType}}-API-Schlüssel für {{companyName}} rotiert — alter Schlüssel funktioniert nicht mehr",
    "heading": "API-Schlüssel-Aktualisierung",
-   "introCreated": "Ihr <strong>{{keyType}}</strong>-API-Schlüssel wurde erstellt.",
-   "introRegenerated": "Ihr <strong>{{keyType}}</strong>-API-Schlüssel wurde neu generiert.",
+   "introCreated": "Ihr <strong>{{keyType}}</strong>-API-Schlüssel für <strong>{{companyName}}</strong> wurde erstellt.",
+   "introRegenerated": "Ihr <strong>{{keyType}}</strong>-API-Schlüssel für <strong>{{companyName}}</strong> wurde neu generiert.",
    "oldInvalid": "Ihr alter Schlüssel ist jetzt ungültig",
    "productionWarn": "<strong>Wichtig:</strong> Dies ist ein Produktionsschlüssel. Bewahren Sie ihn sicher auf und geben Sie ihn niemals öffentlich weiter.",
    "didntCreate": "<strong>Nicht Sie?</strong><br />Wenn Sie diesen API-Schlüssel nicht erstellt haben, sichern Sie Ihr Konto umgehend.",
    "didntRegenerate": "<strong>Nicht Sie?</strong><br />Wenn Sie diesen API-Schlüssel nicht neu generiert haben, sichern Sie Ihr Konto umgehend.",
    "cta": "API-Schlüssel ansehen",
-   "preheader": "In Ihrem Konto wurde ein neuer API-Schlüssel erstellt."
+   "preheader": "Für {{companyName}} wurde ein neuer API-Schlüssel erstellt.",
+   "preheaderRegenerated": "Der {{keyType}}-API-Schlüssel für {{companyName}} wurde rotiert."
   },
   "subscriptionCreated": {
    "custSubject": "Du bist bei {{planName}} angemeldet",

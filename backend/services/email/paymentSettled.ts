@@ -125,7 +125,7 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
     : dataRow(
         t("paymentSettled.forwardTx", L),
         mp.forwardTxHash
-          ? `${mono(maskAddress(mp.forwardTxHash))}${mp.explorerUrl ? ` · <a href="${escapeHtml(mp.explorerUrl)}" style="color:#8B5E00;font-weight:600;text-decoration:none;">${t("paymentSettled.viewOnExplorer", L)}</a>` : ""}`
+          ? `${mono(maskAddress(mp.forwardTxHash))}${mp.explorerUrl ? ` · <a href="${escapeHtml(mp.explorerUrl)}" style="color:#0A0A0D;font-weight:600;text-decoration:none;">${t("paymentSettled.viewOnExplorer", L)}</a>` : ""}`
           : `<span style="color:#b45309;">${t("paymentSettled.forwarding", L)}</span>`,
       );
   const rows = [
@@ -138,7 +138,7 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
     mp.reference ? dataRow(t("paymentSettled.reference", L), mono(escapeHtml(mp.reference))) : "",
     mp.detectedAt ? dataRow(t("paymentSettled.detected", L), formatEmailDateTime(mp.detectedAt, L), true) : "",
   ].filter(Boolean);
-  const details = infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`, "#12B76A");
+  const details = infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows.join("")}</table>`);
 
   // Overpayment is folded into this settled email (no separate "a buyer overpaid" email).
   const overpaidNote = mp.overpayment

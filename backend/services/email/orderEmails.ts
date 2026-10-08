@@ -282,7 +282,7 @@ export const sendOrderRefundedEmail = async (
       ${infoBox(`Order reference: <strong style="font-family:monospace;">${esc(order.public_ref)}</strong>`)}
       ${reasonBlock}
       ${itemsTable}
-      ${p(`<a href="${esc(orderPublicUrl)}" style="color:${EMAIL_TOKENS.brand};font-weight:600;">View order status →</a>`)}
+      ${p(`<a href="${esc(orderPublicUrl)}" style="color:${EMAIL_TOKENS.brandDeep};font-weight:600;text-decoration:underline;">View order status →</a>`)}
     `;
 
     const html = dynoPayGreetingTemplate(name, message, `Refund confirmed`, false, undefined, `Your refund for order ${shortRef} has been confirmed.`, 'refund', undefined, 'buyer');

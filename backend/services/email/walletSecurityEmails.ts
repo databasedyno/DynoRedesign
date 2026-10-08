@@ -60,7 +60,7 @@ export const sendWalletChangeAlertEmail = async (
 
     const content = `${greetingLine(L, name)}
     ${p(t(wk(multiple ? "changeAlert.introMulti" : "changeAlert.introSingle"), L, { brand }))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tableRows}</table>`, "#f59e0b")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${tableRows}</table>`)}
     ${p(t(wk("changeAlert.noAction"), L))}
     ${alertBox(t(wk("changeAlert.alert"), L))}`;
 
@@ -99,7 +99,7 @@ export const sendWalletSecuredEmail = async (
     const subject = t(wk("secured.subject"), L);
     const content = `${greetingLine(L, name)}
     ${p(t(wk(multiple ? "secured.introMulti" : "secured.introSingle"), L, { brand }))}
-    ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow(t(wk("secured.networksRestoredLabel"), L), nets, true)}</table>`, "#12B76A") : ""}
+    ${nets ? infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow(t(wk("secured.networksRestoredLabel"), L), nets, true)}</table>`) : ""}
     ${warnText(t(wk("secured.warn"), L))}
     ${p(t(wk("secured.passwordRec"), L))}`;
     const html = dynoPayEmailTemplate(

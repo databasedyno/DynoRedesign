@@ -63,7 +63,7 @@ export const sendPayoutDelayedEmail = async (
       })}
       ${p(name ? t("common.greeting", L, { name }) : t("common.greetingDefault", L))}
       ${p(t(`${K}.intro`, L, { companyName: `<strong>${escapeHtml(companyName)}</strong>`, amount: `<strong>${amountStr}</strong>` }))}
-      ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, "#f59e0b")}
+      ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`)}
       ${p(`<strong>${t("payoutDelayed.whyLabel", L)}</strong> ${reason}`)}
       ${p(t(`${K}.next`, L))}
       ${p(t("payoutDelayed.nothingToDo", L), "font-size:13px;color:#6b7280;")}`;

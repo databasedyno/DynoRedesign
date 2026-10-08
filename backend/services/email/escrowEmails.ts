@@ -42,8 +42,6 @@ interface BrandVoice {
   reviewer: string;
   /** How custody is described in-copy (brand-aware — SafeDeal never says "Dynopay"). */
   held: string;
-  /** Brand accent used for the deal-card left border. */
-  accent: string;
   opts: (hero: EmailHero, cta?: { text: string; link: string }) => SendEmailOptions;
 }
 
@@ -53,19 +51,18 @@ const voice = (deal: DealLike): BrandVoice => {
     name: sd ? "SafeDeal" : "Dynopay",
     reviewer: sd ? "the SafeDeal team" : "a Dynopay admin",
     held: sd ? "held securely in SafeDeal escrow" : "held by Dynopay",
-    accent: sd ? "#FFC61A" : "#FFD100",
     opts: (hero, cta) => ({ brand: sd ? "safedeal" : "dynopay", audience: sd ? "buyer" : "merchant", hero, cta }),
   };
 };
 
 /** Clean deal summary card: title + amount, plus any extra "next step" rows. */
-const dealCard = (deal: DealLike, accent: string, extra: Array<[string, string]> = []): string => {
+const dealCard = (deal: DealLike, extra: Array<[string, string]> = []): string => {
   const rows: Array<[string, string]> = [["Deal", esc(deal.title)], ["Amount", money(deal)], ...extra];
   const body =
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">` +
     rows.map(([k, v], i) => dataRow(k, v, i === rows.length - 1)).join("") +
     `</table>`;
-  return infoBox(body, accent);
+  return infoBox(body);
 };
 
 export async function sendEscrowInviteEmail(
@@ -84,7 +81,7 @@ export async function sendEscrowInviteEmail(
       : "Once you accept, the buyer funds the escrow first — so you only start when the money is already secured.";
   const message =
     `<p>${esc(fromName)} would like to do a deal with you on ${v.name}, with the payment protected by escrow.</p>` +
-    dealCard(deal, v.accent, [["Your role", cap(role)]]) +
+    dealCard(deal, [["Your role", cap(role)]]) +
     `<p>${roleLine} The money is ${v.held} in USDT and is only released when the deal is complete — neither side can walk away with it.</p>`;
   await sendEmail(toEmail, toName || toEmail, `You're invited to a deal: ${deal.title}`, message, false, v.opts("shield", { text: "Review & respond", link: inviteUrl }));
 }
@@ -93,7 +90,7 @@ export async function sendEscrowAcceptedEmail(toEmail: string, toName: string, d
   const v = voice(deal);
   const message =
     `<p>${esc(actorName)} has <b>accepted</b> the terms — you're all set.</p>` +
-    dealCard(deal, v.accent, [["Next step", "The buyer funds the escrow"]]) +
+    dealCard(deal, [["Next step", "The buyer funds the escrow"]]) +
     `<p>We'll email you both the moment the money is ${v.held}, so the seller knows exactly when to start.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Accepted — ${deal.title}`, message, false, v.opts("check"));
 }
@@ -102,7 +99,7 @@ export async function sendEscrowDeclinedEmail(toEmail: string, toName: string, d
   const v = voice(deal);
   const message =
     `<p>${esc(actorName)} has <b>declined</b> this deal.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>No money moved and nothing was charged. You can start a fresh deal on ${v.name} whenever you're ready.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Declined — ${deal.title}`, message, false, v.opts("block"));
 }
@@ -112,7 +109,7 @@ export async function sendEscrowCancelledEmail(toEmail: string, toName: string, 
   const v = voice(deal);
   const message =
     `<p>The <b>${esc(byRole)}</b> has <b>cancelled</b> this deal before it was funded.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>No money moved and nothing was charged. You can start a fresh deal on ${v.name} whenever you're ready.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Cancelled — ${deal.title}`, message, false, v.opts("block"));
 }
@@ -122,7 +119,7 @@ export async function sendEscrowFundedEmail(toEmail: string, toName: string, dea
   const message =
     `<p>Good news — the buyer has funded the escrow. You're clear to start.</p>` +
     amountHero(money(deal), { pill: "FUNDED", pillType: "success", sublabel: cap(v.held) + " (in USDT)" }) +
-    dealCard(deal, v.accent, [["Next step", "Deliver, then mark it delivered"]]) +
+    dealCard(deal, [["Next step", "Deliver, then mark it delivered"]]) +
     `<p>Go ahead and deliver, then mark the deal as delivered on ${v.name} — that starts the buyer's inspection window.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Funded — you're clear to start: ${deal.title}`, message, false, v.opts("lock"));
 }
@@ -147,12 +144,12 @@ export async function sendEscrowFundingReceiptEmail(
     ? `from your ${v.name} balance`
     : `in ${esc(funding.coin || "crypto")}`;
   const txBlock = funding.txHash
-    ? p(`Transaction: ${mono(esc(funding.txHash))}${funding.explorerUrl ? ` &nbsp;<a href="${esc(funding.explorerUrl)}" style="color:${v.accent === "#FFC61A" ? "#B77E00" : v.accent};font-weight:700;text-decoration:underline;">View on explorer</a>` : ""}`)
+    ? p(`Transaction: ${mono(esc(funding.txHash))}${funding.explorerUrl ? ` &nbsp;<a href="${esc(funding.explorerUrl)}" style="color:#0A0A0D;font-weight:600;text-decoration:underline;">View on explorer</a>` : ""}`)
     : "";
   const message =
     `<p>We've received your payment ${how} — it's now ${v.held} until you confirm the deal is complete.</p>` +
     amountHero(paid, { pill: "IN ESCROW", pillType: "success", sublabel: cap(v.held) + " (in USDT)" }) +
-    dealCard(deal, v.accent, [["Next step", "The seller delivers"]]) +
+    dealCard(deal, [["Next step", "The seller delivers"]]) +
     txBlock +
     `<p>Nothing reaches the seller until you release it (or the inspection timer runs out after delivery). Something wrong? You can raise an issue on the deal page at any time.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Payment received — held in escrow: ${deal.title}`, message, false, v.opts("lock", { text: "Open the deal", link: url }));
@@ -162,7 +159,7 @@ export async function sendEscrowDeliveredEmail(toEmail: string, toName: string, 
   const v = voice(deal);
   const message =
     `<p>The seller has marked this deal as <b>delivered</b> — it's over to you to check it.</p>` +
-    dealCard(deal, v.accent, [["Auto-releases in", `${autoReleaseDays} day${autoReleaseDays === 1 ? "" : "s"}`]]) +
+    dealCard(deal, [["Auto-releases in", `${autoReleaseDays} day${autoReleaseDays === 1 ? "" : "s"}`]]) +
     `<p>Happy with everything? Release the payment. If you do nothing, the funds release to the seller automatically when the timer ends. Something not right? Ask for changes or open a dispute on ${v.name} before then.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Please confirm delivery — ${deal.title}`, message, false, v.opts("truck"));
 }
@@ -172,7 +169,7 @@ export async function sendEscrowReleasedEmail(toEmail: string, toName: string, d
   const message =
     `<p>This deal is <b>complete</b> — the payment has been released to the seller.</p>` +
     amountHero(money(deal), { pill: "RELEASED", pillType: "success" }) +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Completed — ${deal.title}`, message, false, v.opts("check"));
 }
@@ -182,7 +179,7 @@ export async function sendEscrowRefundedEmail(toEmail: string, toName: string, d
   const message =
     `<p>This deal has been <b>refunded</b> to the buyer.</p>` +
     amountHero(money(deal), { pill: "REFUNDED", pillType: "info" }) +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Refunded — ${deal.title}`, message, false, v.opts("refund"));
 }
@@ -191,7 +188,7 @@ export async function sendEscrowDisputeOpenedEmail(toEmail: string, toName: stri
   const v = voice(deal);
   const message =
     `<p>A dispute has been opened on this deal by the <b>${esc(raisedBy)}</b>.</p>` +
-    dealCard(deal, v.accent, [["Reason", esc(reason) || "None provided"]]) +
+    dealCard(deal, [["Reason", esc(reason) || "None provided"]]) +
     `<p>The auto-release timer is paused while it's sorted out. ${cap(v.reviewer)} will review and resolve it.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Dispute opened — ${deal.title}`, message, false, v.opts("shield-alert"));
 }
@@ -200,7 +197,7 @@ export async function sendEscrowDisputeResolvedEmail(toEmail: string, toName: st
   const v = voice(deal);
   const message =
     `<p>The dispute on this deal has been resolved by ${v.reviewer}.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Dispute resolved — ${deal.title}`, message, false, v.opts("shield-green"));
 }
@@ -209,7 +206,7 @@ export async function sendEscrowOtpEmail(toEmail: string, deal: DealLike, otp: s
   const v = voice(deal);
   const message =
     `<p>Use this one-time code to verify your email for the deal <b>${esc(deal.title)}</b> (${money(deal)}):</p>` +
-    otpBlock(otp, deal.source === "safedeal" ? "#FFC61A" : undefined) +
+    otpBlock(otp) +
     p("It expires in 10 minutes. If you didn't request it, you can safely ignore this email.");
   await sendEmail(toEmail, toEmail, `${otp} is your ${v.name} verification code`, message, false, { ...v.opts("key"), heading: "Your verification code", lane: "otp", template: "escrow.otp" });
 }
@@ -220,7 +217,7 @@ export async function sendEscrowPayoutPendingEmail(toEmail: string, toName: stri
   const addr = role === "buyer" ? "refund address" : "stablecoin payout address";
   const message =
     `<p>This deal has been decided in your favour — your ${what} is ready to send.</p>` +
-    dealCard(deal, v.accent, [["Waiting on", `Your ${addr}`]]) +
+    dealCard(deal, [["Waiting on", `Your ${addr}`]]) +
     `<p>Add a <b>${addr}</b> and we'll send it straight there. Your funds are held in USDT and won't lose value while you add one.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Add a ${addr} to get paid — ${deal.title}`, message, false, v.opts("wallet", { text: `Add your ${addr}`, link: addUrl }));
 }
@@ -229,7 +226,7 @@ export async function sendEscrowPaidEmail(toEmail: string, toName: string, deal:
   const v = voice(deal);
   const message =
     `<p>Your funds for this deal are on their way.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Funds sent — ${deal.title}`, message, false, v.opts("payout"));
 }
@@ -260,7 +257,7 @@ export async function sendEscrowDisputeProposalEmail(
   if (kind === "cancellation" && !isCounter) {
     const message =
       `<p>The <b>${esc(fromRole)}</b> has asked to <b>cancel</b> this deal.</p>` +
-      dealCard(deal, v.accent, note ? [["Their note", esc(note)]] : []) +
+      dealCard(deal, note ? [["Their note", esc(note)]] : []) +
       `<p>Because it's already funded, cancelling needs your agreement. If you agree, the buyer is refunded the held amount <b>minus the cancellation fee and the real network / exchange costs</b> (those aren't refundable).</p>` +
       `<p>You can <b>agree</b>, make a <b>counter-offer</b>, or <b>escalate to ${v.reviewer}</b>.</p>`;
     await sendEmail(toEmail, toName || toEmail, `Cancellation requested — ${deal.title}`, message, false, v.opts("alert", { text: "Review the request", link: inviteUrl }));
@@ -273,7 +270,7 @@ export async function sendEscrowDisputeProposalEmail(
   if (note) rows.push(["Their note", esc(note)]);
   const message =
     `<p>${lead}</p>` +
-    dealCard(deal, v.accent, rows) +
+    dealCard(deal, rows) +
     `<p>You can <b>accept</b> it, send a <b>counter-offer</b>, or <b>escalate to ${v.reviewer}</b> if you can't reach an agreement.</p>`;
   await sendEmail(toEmail, toName || toEmail, `${isCounter ? "Counter-offer" : "Dispute proposal"} — ${deal.title}`, message, false, v.opts("shield-alert", { text: "Open the dispute", link: inviteUrl }));
 }
@@ -284,7 +281,7 @@ export async function sendEscrowDisputeEscalatedEmail(toEmail: string, toName: s
   const how = byRole && byRole !== "system" ? ` by the <b>${esc(byRole)}</b>` : " automatically, because no agreement was reached in time";
   const message =
     `<p>This dispute has been <b>escalated to ${v.reviewer}</b>${how}.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>We'll review the case — including any messages you've exchanged — and decide the outcome. Your funds stay ${v.held} in USDT in the meantime.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Dispute escalated — ${deal.title}`, message, false, v.opts("shield-alert"));
 }
@@ -294,7 +291,7 @@ export async function sendEscrowDisputeAgreedEmail(toEmail: string, toName: stri
   const v = voice(deal);
   const message =
     `<p>Nice — you've <b>settled this dispute between yourselves</b>, no arbitration needed.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>${summary}</p>`;
   await sendEmail(toEmail, toName || toEmail, `Settled by agreement — ${deal.title}`, message, false, v.opts("shield-green"));
 }
@@ -306,7 +303,7 @@ export async function sendEscrowChangesRequestedEmail(toEmail: string, toName: s
   const v = voice(deal);
   const message =
     `<p>The buyer has asked for <b>changes</b> before releasing payment.</p>` +
-    dealCard(deal, v.accent, [["Revision", `Round ${round} of ${maxRounds}`], ["What they need", esc(request)]]) +
+    dealCard(deal, [["Revision", `Round ${round} of ${maxRounds}`], ["What they need", esc(request)]]) +
     `<p>The inspection timer is paused and the deal is back to <b>Funded</b> — the money stays ${v.held}. Make the changes, then mark it delivered again on ${v.name}.</p>`;
   await sendEmail(toEmail, toName || toEmail, `Changes requested — ${deal.title}`, message, false, v.opts("alert", { text: "See what changed", link: url }));
 }
@@ -316,7 +313,7 @@ export async function sendEscrowAmendedEmail(toEmail: string, toName: string, de
   const v = voice(deal);
   const message =
     `<p>${esc(byName)} has <b>updated the terms</b> of this deal.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p><b>What changed:</b></p><ul>${changes.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` +
     (needsReaccept
       ? `<p>Because you'd already accepted, your acceptance was reset — please review the new terms and accept again before the buyer funds the escrow.</p>`
@@ -330,7 +327,7 @@ export async function sendEscrowInviteReminderEmail(toEmail: string, deal: DealL
   const v = voice(deal);
   const message =
     `<p>Just a nudge — ${esc(fromName)} invited you to a deal on ${v.name} a few days ago, and it's still waiting on you.</p>` +
-    dealCard(deal, v.accent) +
+    dealCard(deal) +
     `<p>Nothing is charged until the buyer funds the escrow. Not for you? You can decline in one click.</p>`;
   await sendEmail(toEmail, toEmail, `Still interested? ${deal.title}`, message, false, v.opts("shield", { text: "Accept or decline", link: url }));
 }
@@ -339,7 +336,7 @@ export async function sendEscrowUnfundedReminderEmail(toEmail: string, deal: Dea
   const v = voice(deal);
   const message =
     `<p>You're both agreed — the only thing left is your payment into escrow.</p>` +
-    dealCard(deal, v.accent, [["You pay", `${fmt(buyerPays)} USD`]]) +
+    dealCard(deal, [["You pay", `${fmt(buyerPays)} USD`]]) +
     `<p>The seller won't start until the deal shows <b>Funded</b>. Your payment is ${v.held} and only released once you confirm delivery.</p>`;
   await sendEmail(toEmail, toEmail, `Ready when you are — fund ${deal.title}`, message, false, v.opts("lock", { text: "Fund the escrow", link: url }));
 }
@@ -349,7 +346,7 @@ export async function sendEscrowInspectionEndingEmail(toEmail: string, deal: Dea
   const when = autoReleaseAt.toUTCString().replace(/:\d\d GMT$/, " UTC");
   const message =
     `<p>Heads up — your inspection window is nearly up.</p>` +
-    dealCard(deal, v.accent, [["Auto-releases", esc(when)]]) +
+    dealCard(deal, [["Auto-releases", esc(when)]]) +
     `<p>Do nothing and the funds release to the seller automatically. Happy with the delivery? Release now. Something wrong? Ask for changes or open a dispute on ${v.name} before the timer ends.</p>`;
   await sendEmail(toEmail, toEmail, `About 24 hours left to check — ${deal.title}`, message, false, v.opts("truck", { text: "Review the delivery", link: url }));
 }
@@ -360,10 +357,10 @@ export async function sendEscrowDeliveryOverdueEmail(toEmail: string, deal: Deal
   const message =
     role === "seller"
       ? `<p>The delivery date you agreed has passed and this deal isn't marked delivered yet.</p>` +
-        dealCard(deal, v.accent, [["Due", esc(due)]]) +
+        dealCard(deal, [["Due", esc(due)]]) +
         `<p>The escrow is funded and waiting. Deliver and mark it delivered on ${v.name}, or message the buyer if you need a little more time.</p>`
       : `<p>The delivery date has passed without the seller marking this deal delivered.</p>` +
-        dealCard(deal, v.accent, [["Due", esc(due)]]) +
+        dealCard(deal, [["Due", esc(due)]]) +
         `<p>Your money is still ${v.held}. You can wait, or request a cancellation or open a dispute on ${v.name}.</p>`;
   await sendEmail(toEmail, toEmail, `Delivery overdue — ${deal.title}`, message, false, v.opts("alert", { text: "Open the deal", link: url }));
 }

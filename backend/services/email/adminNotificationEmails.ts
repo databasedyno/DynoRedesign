@@ -4,7 +4,6 @@ import { apiLogger } from "../../utils/loggers";
 import { t, resolveEmailLang } from "../../utils/emailI18n";
 import { formatCryptoAmount } from "../../utils/currencyUtils";
 import { baseEmailTemplate, infoBox, dataRow, p } from "../../utils/emailTemplate";
-import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate } from "./emailShared";
 import { lookupCountry } from "../../utils/clientContext";
 import { isPlaceholderBuyerEmail } from "../../utils/transactionSource";
@@ -73,7 +72,7 @@ export const sendNewUserAdminNotification = async (userData: {
         ${dataRow(t(ak("newUser.registeredAtLabel"), L), registrationTime)}
         ${dataRow(t(ak("newUser.promoLabel"), L), t(ak("newUser.promoValue"), L), true)}
       </table>
-    `, EMAIL_TOKENS.brand)}
+    `)}
     ${p(t(ak("newUser.active"), L))}
     ${p(t(ak("newUser.reviewHint"), L), `color: #6b7280; font-size: 13px;`)}`;
 
@@ -127,7 +126,7 @@ export const sendOnboardingStuckAdminEmail = async (userData: {
         ${dataRow(t(ak("onboardingStuck.timeSinceLabel"), L), t(ak("onboardingStuck.hoursValue"), L, { hours }))}
         ${dataRow(t(ak("onboardingStuck.stuckAtLabel"), L), `<strong>${escapeHtml(stuckLabel)}</strong>`, true)}
       </table>
-    `, hours >= 48 ? '#ef4444' : hours >= 24 ? '#f59e0b' : '#f97316')}
+    `)}
     ${p(`<strong>${t(ak("onboardingStuck.completedTitle"), L)}</strong><br/>${completedList}`)}
     ${p(`<strong>${t(ak("onboardingStuck.pendingTitle"), L)}</strong><br/>${pendingList}`)}
     ${p(t(ak("onboardingStuck.outro"), L), `color: #6b7280; font-size: 13px;`)}`;
@@ -184,7 +183,7 @@ export const sendOnboardingStuckDigestAdminEmail = async (rows: Array<{
         <tr>${th("Merchant")}${th("User")}${th("Stuck at")}${th("Waiting", "right")}</tr>
         ${rowsHtml}
       </table>
-    `, EMAIL_TOKENS.brand)}
+    `)}
     ${p(`You now receive one digest per day instead of a separate alert for every user and tier.`, `color:#6b7280;font-size:13px;`)}`;
 
     const html = baseEmailTemplate("Onboarding — daily stuck digest", content, { audience: "admin", lang: L });
@@ -231,7 +230,7 @@ export const sendOnboardingCompletedAdminEmail = async (userData: {
         ${dataRow(t(ak("onboardingCompleted.registeredLabel"), L), escapeHtml(userData.registered_at))}
         ${dataRow(t(ak("onboardingCompleted.timeToCompleteLabel"), L), hoursStr, true)}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(t(ak("onboardingCompleted.allDone"), L))}
     ${p(t(ak("onboardingCompleted.outro"), L), `color: #6b7280; font-size: 13px;`)}`;
 
@@ -312,7 +311,7 @@ export const sendFirstPaymentAdminEmail = async (data: {
         ${dataRow(t(ak("firstPayment.activityLabel"), L), escapeHtml(activityValue))}
         ${dataRow(t(ak("firstPayment.timeToFirstLabel"), L), daysStr, true)}
       </table>
-    `, EMAIL_TOKENS.brand)}
+    `)}
     ${p(t(ak("firstPayment.milestone"), L))}
     ${p(t(ak("firstPayment.outro"), L), `color: #6b7280; font-size: 13px;`)}`;
 
@@ -354,7 +353,7 @@ export const sendBrandDeletedAdminEmail = async (info: {
         ${dataRow(t(ak("brandDeleted.deletedAtLabel"), L), escapeHtml(info.deletedAtStr))}
         ${dataRow(t(ak("brandDeleted.autoPurgeLabel"), L), `<strong>${escapeHtml(info.purgeDateStr)}</strong>`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t(ak("brandDeleted.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(ak("brandDeleted.heading"), L), `${p(t(ak("greeting"), L))}\n${content}`, true, t(ak("brandDeleted.cta"), L), `${FRONTEND_BASE_URL}/admin/merchants`, t(ak("brandDeleted.preheader"), L, { brand, purgeDate: escapeHtml(info.purgeDateStr) }), L, 'trash', 'admin');
@@ -397,7 +396,7 @@ export const sendAccountDeletedAdminEmail = async (info: {
         ${dataRow(t(ak("accountDeleted.deletedAtLabel"), L), escapeHtml(info.deletedAtStr))}
         ${dataRow(t(ak("accountDeleted.autoPurgeLabel"), L), `<strong>${escapeHtml(info.purgeDateStr)}</strong>`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t(ak("accountDeleted.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(ak("accountDeleted.heading"), L), `${p(t(ak("greeting"), L))}\n${content}`, true, t(ak("accountDeleted.cta"), L), `${FRONTEND_BASE_URL}/admin/merchants`, t(ak("accountDeleted.preheader"), L, { who: escapeHtml(who), purgeDate: escapeHtml(info.purgeDateStr) }), L, 'person-off', 'admin');

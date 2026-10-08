@@ -392,7 +392,7 @@ async function sendDLQAlert(jobData: WebhookJobData, jobId: string, attempts: nu
         ${dataRow('Status', statusBadge('Dead Letter Queue', 'error'))}
         ${dataRow('Job ID', `<code style="font-size: 12px;">${jobId}</code>`, true)}
       </table>
-    `, '#ef4444')}
+    `)}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 16px 0;">
       <tr>
         <td style="padding: 14px 18px; background: #fef2f2; border-radius: 8px; border-left: 4px solid #dc2626;">

@@ -22,7 +22,7 @@ const shortHash = (h: string) => (h.length > 22 ? `${h.slice(0, 10)}…${h.slice
 
 /** Blockchain transaction line: monospace hash + optional explorer link. */
 export const txHashBlock = (label: string, txHash: string, explorerUrl?: string | null): string => {
-  const link = explorerUrl ? ` &nbsp;<a href="${esc(explorerUrl)}" style="color:#B77E00;font-weight:700;text-decoration:underline;">View on explorer</a>` : "";
+  const link = explorerUrl ? ` &nbsp;<a href="${esc(explorerUrl)}" style="color:#0A0A0D;font-weight:600;text-decoration:underline;">View on explorer</a>` : "";
   return p(`${esc(label)}: ${mono(esc(txHash))}${link}`);
 };
 
@@ -51,7 +51,7 @@ export async function sendSafeDealCodeEmail(
   const what = stepUp ? stepUp.what : "sign in to SafeDeal";
   const message =
     p(`Use this one-time code to ${what}:`) +
-    otpBlock(code, "#FFC61A") +
+    otpBlock(code) +
     p("It expires in <b>10 minutes</b>. If you didn't request it, you can safely ignore this email — nothing happens without the code.") +
     (stepUp ? p("<b>Never share this code.</b> SafeDeal staff will never ask you for it.") : "");
   await sendEmail(

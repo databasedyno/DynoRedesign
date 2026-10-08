@@ -57,7 +57,7 @@ export const sendPaymentReceivedEmail = async (
         ${dataRow(t('labels.date', L), dateTimeStr)}
         ${dataRow(t('labels.transactionId', L), `<span style="font-size: 12px; font-family: monospace;">${transactionId}</span>`, true)}
       </table>
-    `, '#12B76A');
+    `);
 
     const intro = settled
       ? t(moneyPath?.belowMinimum ? 'paymentSettled.introBelowMinimum' : (moneyPath?.forwardTxHash || moneyPath?.autoConvertTarget) ? 'paymentSettled.intro' : 'paymentSettled.introForwarding', L, { companyName: escapeHtml(companyName) })
@@ -149,7 +149,7 @@ export const sendPaymentPendingEmail = async (
         ${dataRow(t('labels.status', L), statusBadge(t('statusLabels.awaitingConfirmation', L), 'pending'))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t('paymentPending.outro', L))}`;
 
     const html = dynoPayEmailTemplate(t('paymentPending.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentPending.preheader', L), L, undefined);
@@ -188,7 +188,7 @@ export const sendPaymentConfirmingEmail = async (
     const htmlContent = `
       ${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
       ${p(t('paymentConfirming.intro', L, { companyName }))}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="hl-box" style="background: #f8f9ff; border-radius: 8px; border-left: 4px solid ${EMAIL_TOKENS.brand}; margin: 24px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="hl-box" style="background: #FFFFFF; border: 1px solid #E6E8EB; border-radius: 10px; border-collapse: separate; margin: 24px 0;">
         <tr><td style="padding: 20px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.amount', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 16px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${amount} ${currency}</td></tr>
@@ -197,7 +197,7 @@ export const sendPaymentConfirmingEmail = async (
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; border-bottom: 1px solid #f3f4f6;">${t('labels.confirmations', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; text-align: right; border-bottom: 1px solid #f3f4f6;">${t('paymentConfirming.confirmationsOf', L, { current: currentConfirmations, required: requiredConfirmations })}</td></tr>
             <tr><td colspan="2" style="padding: 12px 0 4px 0;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="track" style="background: #e5e7eb; border-radius: 4px; height: 8px;">
-                <tr><td style="width: ${progressPct}%; background: ${isComplete ? '#12B76A' : EMAIL_TOKENS.brand}; border-radius: 4px; height: 8px;">&nbsp;</td><td style="height: 8px;">&nbsp;</td></tr>
+                <tr><td style="width: ${progressPct}%; background: ${isComplete ? '#12B76A' : EMAIL_TOKENS.brandDeep}; border-radius: 4px; height: 8px;">&nbsp;</td><td style="height: 8px;">&nbsp;</td></tr>
               </table>
             </td></tr>
             <tr><td style="padding: 8px 0; color: #6b7280; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('labels.transactionId', L)}</td><td style="padding: 8px 0; color: #1a1a2e; font-size: 13px; font-family: 'SF Mono', 'Fira Code', monospace, Arial, sans-serif; text-align: right; word-break: break-all;">${transactionId}</td></tr>
@@ -250,7 +250,7 @@ export const sendPaymentPartialEmail = async (
         ${dataRow(t('labels.network', L), assetNetworkLabel(currency))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t('paymentPartial.windowNote', L, { minutes: gracePeriodMinutes, remaining: remainingAmount, currency: sym }))}`;
 
     const html = dynoPayEmailTemplate(t('paymentPartial.heading', L), content, true, t('paymentReceived.cta', L), `${FRONTEND_BASE_URL}/transactions?search=${encodeURIComponent(transactionId)}`, t('paymentPartial.preheader', L), L, 'alert');
@@ -291,7 +291,7 @@ export const sendBuyerUnderpaidNudgeEmail = async (
         ${dataRow(t('labels.remaining', L), `<strong style="color: #dc2626;">${remainingAmount} ${getCoinSymbol(currency)}</strong>`)}
         ${dataRow(t('labels.network', L), assetNetworkLabel(currency), true)}
       </table>
-    `, '#f97316')}
+    `)}
     ${p(t('buyerUnderpaid.windowNote', L, { minutes: gracePeriodMinutes, remaining: remainingAmount, currency }))}`;
 
     const ctaUrl = checkoutUrl && /^https?:\/\//i.test(checkoutUrl) ? checkoutUrl : `${FRONTEND_BASE_URL}`;
@@ -328,7 +328,6 @@ export const sendPaymentPartialExpiredEmail = async (
       ? t('paymentPartialExpired.subjectCompleted', L)
       : t('paymentPartialExpired.subjectExpired', L);
     const heading = isCompleted ? t('paymentPartialExpired.headingCompleted', L) : t('paymentPartialExpired.headingExpired', L);
-    const borderColor = isCompleted ? '#12B76A' : '#f59e0b';
     const badgeType: 'success' | 'pending' = isCompleted ? 'success' : 'pending';
     const statusLabel = isCompleted ? t('statusLabels.processed', L) : t('statusLabels.expired', L);
 
@@ -344,7 +343,7 @@ export const sendPaymentPartialExpiredEmail = async (
         ${dataRow(t('labels.status', L), statusBadge(statusLabel, badgeType))}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`, true)}
       </table>
-    `, borderColor)}
+    `)}
     ${moneyPath ? renderMoneyPath(L, moneyPath) : ''}
     ${p(isCompleted
       ? t('paymentPartialExpired.outroCompleted', L)
@@ -419,7 +418,7 @@ export const sendMerchantUnderpaidDigestEmail = async (
         ${headerRow}
         ${bodyRows}
       </table>
-    `, '#f97316')}
+    `)}
     ${moreNote}
     ${p(t('underpaidDigest.outro', L))}`;
 

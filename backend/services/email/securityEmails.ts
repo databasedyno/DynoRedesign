@@ -31,7 +31,7 @@ export const send2FAEnabledEmail = async (email: string, name: string, lang?: st
     const content = `${greeting(name, L)}
     ${p(t("security.twoFaEnabled.intro", L))}
     ${successBox(t("security.twoFaEnabled.tip", L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#12B76A")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`)}
     ${warnText(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t("security.twoFaEnabled.heading", L), content, true, t("security.reviewCta", L), SECURITY_URL, t("security.twoFaEnabled.preheader", L), L, "shield-green");
     await send(email, name, t("security.twoFaEnabled.subject", L), html, "2FA enabled");
@@ -51,7 +51,7 @@ export const sendEmailCodesEnabledEmail = async (email: string, name: string, la
     const K = "security.emailCodesEnabled";
     const content = `${greeting(name, L)}
     ${p(t(`${K}.intro`, L))}
-    ${infoBox(`<p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(`${K}.upgrade`, L)}</p>`, "#F0C300")}
+    ${infoBox(`<p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(`${K}.upgrade`, L)}</p>`)}
     ${p(t(`${K}.tip`, L))}
     ${warnText(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t(`${K}.heading`, L), content, true, t(`${K}.cta`, L), SECURITY_URL, t(`${K}.preheader`, L), L, "shield-green");
@@ -66,7 +66,7 @@ export const send2FADisabledEmail = async (email: string, name: string, lang?: s
     const L = await resolveEmailLang(lang, email);
     const content = `${greeting(name, L)}
     ${p(t("security.twoFaDisabled.intro", L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#ef4444")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`)}
     ${alertBox(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t("security.twoFaDisabled.heading", L), content, true, t("security.twoFaDisabled.cta", L), SECURITY_URL, t("security.twoFaDisabled.preheader", L), L, "shield-red");
     await send(email, name, t("security.twoFaDisabled.subject", L), html, "2FA disabled");
@@ -81,7 +81,7 @@ export const send2FABackupCodesRegeneratedEmail = async (email: string, name: st
     const content = `${greeting(name, L)}
     ${p(t("security.backupCodes.intro", L))}
     ${successBox(t("security.backupCodes.tip", L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#8B5E00")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`)}
     ${warnText(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t("security.backupCodes.heading", L), content, true, t("security.reviewCta", L), SECURITY_URL, t("security.backupCodes.preheader", L), L, "key");
     await send(email, name, t("security.backupCodes.subject", L), html, "2FA backup codes regenerated");
@@ -110,7 +110,7 @@ export const sendPhoneChangedEmail = async (
     const rows = `${!isRemoval && data.phone ? dataRow(t("security.phoneLabel", L), maskPhone(data.phone)) : ""}${whenRow(L)}`;
     const content = `${greeting(name, L)}
     ${p(t(`security.${key}.intro`, L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, isRemoval ? "#ef4444" : "#12B76A")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`)}
     ${warnText(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t(`security.${key}.heading`, L), content, true, t("security.profileCta", L), SECURITY_URL, t(`security.${key}.preheader`, L), L, "phone");
     await send(email, name, t(`security.${key}.subject`, L), html, `Phone ${data.action}`);
@@ -124,7 +124,7 @@ export const sendAccountDeletedEmail = async (email: string, name: string, lang?
     const L = normalizeLang(lang);
     const content = `${greeting(name, L)}
     ${p(t("security.accountDeleted.intro", L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#ef4444")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`)}
     ${p(t("security.accountDeleted.outro", L))}
     ${warnText(t("security.accountDeleted.notice", L))}`;
     const html = dynoPayEmailTemplate(t("security.accountDeleted.heading", L), content, true, t("security.supportCta", L), `${FRONTEND_BASE_URL}/help-support`, t("security.accountDeleted.preheader", L), L, "person-off");
@@ -147,7 +147,7 @@ export const sendAccountStatusEmail = async (
     const reasonRow = !positive && data.reason ? dataRow(t("security.reasonLabel", L), escapeHtml(data.reason)) : "";
     const content = `${greeting(name, L)}
     ${p(t(`security.${key}.intro`, L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${reasonRow}${whenRow(L)}</table>`, positive ? "#12B76A" : "#ef4444")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${reasonRow}${whenRow(L)}</table>`)}
     ${positive ? "" : p(t(`security.${key}.outro`, L))}`;
     const html = dynoPayEmailTemplate(
       t(`security.${key}.heading`, L),
@@ -181,7 +181,7 @@ export const sendPaymentRequestEmail = async (
     ].join("");
     const content = `${p(t("common.greetingDefault", L))}
     ${p(t("paymentRequest.intro", L, vars))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, "#8B5E00")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`)}
     ${p(t("paymentRequest.outro", L))}`;
     const html = dynoPayEmailTemplate(t("paymentRequest.heading", L, vars), content, true, t("paymentRequest.cta", L), data.payUrl, t("paymentRequest.preheader", L, vars), L, "link", "buyer");
     await send(email, email.split("@")[0] || "Customer", t("paymentRequest.subject", L, vars), html, "Payment request");
@@ -220,7 +220,7 @@ export const sendAccountSoftDeletedEmail = async (email: string, name: string, _
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow("Status", statusBadge("Account deactivated", "pending"))}
       </table>
-    `, "#f59e0b")}
+    `)}
     ${p(`As a regulated payments platform, we're required to keep certain financial and identity records (for anti-money-laundering / KYC purposes) securely for a retention period. Those records are locked and are no longer accessible from your account.`)}
     ${p(`<strong>Changed your mind?</strong> Contact our support team and, where permitted, we can reactivate your account.`)}
     ${p(`If you didn't request this, contact us immediately so we can secure your account.`)}`;
@@ -237,7 +237,7 @@ export const sendAccountRestoredEmail = async (email: string, name: string) => {
     const who = name ? `Hey ${escapeHtml(name.split(" ")[0])},` : "Hey there,";
     const content = `${p(who)}
     ${p(`Good news — your Dynopay account has been <strong>restored</strong>. Everything (brands, payout addresses, payment links and history) is exactly as you left it.`)}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Status", statusBadge("Restored", "success"), true)}</table>`, "#12B76A")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${dataRow("Status", statusBadge("Restored", "success"), true)}</table>`)}
     ${p(`Sign in again to pick up right where you left off.`)}`;
     const html = dynoPayEmailTemplate("Your account is back", content, true, "Sign in", `${FRONTEND_BASE_URL}/auth/login`, "Your Dynopay account has been restored.", null, "check");
     await send(email, name, "Your Dynopay account has been restored", html, "Account restored");
@@ -270,7 +270,7 @@ export const send2FAResetLinkEmail = async (email: string, name: string, link: s
     const content = `${greeting(name, L)}
     ${p(t("security.twoFaReset.intro", L))}
     ${alertBox(t("security.twoFaReset.consequences", L))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#F79009")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`)}
     ${warnText(t("security.twoFaReset.ignore", L))}`;
     const html = dynoPayEmailTemplate(t("security.twoFaReset.heading", L), content, true, t("security.twoFaReset.cta", L), link, t("security.twoFaReset.preheader", L), L, "shield-red");
     await send(email, name, t("security.twoFaReset.subject", L), html, "2FA reset link", "otp");
@@ -287,7 +287,7 @@ export const send2FAResetDoneEmail = async (email: string, name: string, freezeU
     const content = `${greeting(name, L)}
     ${p(t("security.twoFaResetDone.intro", L))}
     ${alertBox(t("security.twoFaResetDone.freeze", L, { until }))}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`, "#F79009")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${whenRow(L)}</table>`)}
     ${warnText(t("security.didntDoThis", L))}`;
     const html = dynoPayEmailTemplate(t("security.twoFaResetDone.heading", L), content, true, t("security.reviewCta", L), SECURITY_URL, t("security.twoFaResetDone.preheader", L), L, "shield-red");
     await send(email, name, t("security.twoFaResetDone.subject", L), html, "2FA reset done");
@@ -334,7 +334,7 @@ export const sendAdminWalletAdjustmentAlertEmail = async (
     ].join("");
     const content = `${p("Hey there,")}
     ${p(`A customer wallet was <strong>${isCredit ? "credited" : "debited"}</strong> on your platform. Review the details below — if this wasn't you or an authorised team member, secure your admin account immediately.`)}
-    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`, isCredit ? "#8B5E00" : "#ef4444")}
+    ${infoBox(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`)}
     ${warnText("If you didn't authorise this, change your admin password and revoke your API keys right away, then contact support.")}`;
     const html = dynoPayEmailTemplate(
       `Customer wallet ${isCredit ? "credited" : "debited"}`,

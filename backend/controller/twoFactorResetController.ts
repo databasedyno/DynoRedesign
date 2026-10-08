@@ -41,7 +41,7 @@ const notifyOps = async (user: { user_id: number; email: string; name: string },
   </table>`;
   const content = `${p("Hey Dynopay Admin,")}
     ${p("A merchant reset their two-step verification via the email recovery link. All sessions and trusted devices were revoked and payout-wallet changes are locked for 24 hours. Review it under Admin → Security events; you can lift the lock early from there.")}
-    ${infoBox(detail, "#F79009")}`;
+    ${infoBox(detail)}`;
   await mailTransporter({
     to: adminEmail,
     name: "Dynopay Admin",

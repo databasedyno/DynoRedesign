@@ -38,6 +38,8 @@ export default function DealActionsCard({ deal, busy, live, now, stickyOnPhone =
   const isBuyer = me === "buyer";
   const other = isBuyer ? deal.seller_email : deal.buyer_email;
   const b = deal.breakdown;
+  const balAvail = deal.buyer_balance?.available || 0;
+  const balPays = deal.buyer_balance?.pays ?? b.buyerPays;
   const status = deal.status;
   const preFunding = ["invited", "awaiting_payment"].includes(status);
   const settled = ["completed", "refunded", "split"].includes(status);
@@ -114,11 +116,13 @@ export default function DealActionsCard({ deal, busy, live, now, stickyOnPhone =
           </Typography>
           <Box sx={{ mb: 1.8, p: 1.4, borderRadius: 2.5, border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB", display: "flex", alignItems: "center", gap: 1.2, flexWrap: "wrap" }} data-testid="sd-fund-balance-box">
             <Icon icon="mdi:wallet-outline" width={22} color={SD_ACCENT} />
-            <Typography sx={{ fontSize: 13, color: "#374151", flex: 1, minWidth: 160 }}>
-              SafeDeal balance: <b>{money(deal.buyer_balance?.available || 0)}</b>
-              {(deal.buyer_balance?.available || 0) < b.buyerPays ? <> — not enough for this deal. <Link href={walletHref} style={{ color: SD_ACCENT, fontWeight: 700 }} data-testid="sd-fund-topup-link">Top up your balance</Link> to pay in one tap (stablecoin top-ups carry no exchange fee).</> : ""}
+            <Typography sx={{ fontSize: 13, color: "#374151", flex: 1, minWidth: 160 }} data-testid="sd-fund-balance-text">
+              SafeDeal balance: <b>{money(balAvail)}</b>
+              {balAvail < balPays
+                ? <> — {money(balPays)} is due from balance. <Link href={walletHref} style={{ color: SD_ACCENT, fontWeight: 700 }} data-testid="sd-fund-topup-link">Top up your balance</Link> to pay in one tap (stablecoin top-ups carry no exchange fee).</>
+                : balPays < b.buyerPays ? <> — pay <b data-testid="sd-fund-balance-pays">{money(balPays, deal.currency)}</b> from balance (no network fee — it&apos;s already in custody).</> : ""}
             </Typography>
-            <Button size="small" variant="contained" disabled={!!busy || (deal.buyer_balance?.available || 0) < b.buyerPays} onClick={() => act("fund-balance")} data-testid="sd-act-fund-balance" sx={primaryBtn}>Pay from balance</Button>
+            <Button size="small" variant="contained" disabled={!!busy || balAvail < balPays} onClick={() => act("fund-balance")} data-testid="sd-act-fund-balance" sx={primaryBtn}>Pay from balance</Button>
           </Box>
           <FundPanel deal={deal} live={live} busy={busy} now={now} notify={notify} onFunded={reload} onSimulate={(coin) => act("fund", { coin })} />
         </Box>

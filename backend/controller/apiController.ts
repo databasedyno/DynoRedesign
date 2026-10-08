@@ -760,6 +760,9 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
     // Send API key regenerated notification email
     try {
       const { sendApiKeyCreatedEmail } = await import("../services/emailService");
+      const company = existingApi.dataValues.company_id
+        ? await companyModel.findOne({ where: { company_id: existingApi.dataValues.company_id }, attributes: ["company_name"] })
+        : null;
       const now = new Date();
       const { date, time } = emailDateParts(now);
       // Use environment (production/development), NOT status (active/revoked).
@@ -771,7 +774,8 @@ const regenerateApiKey = async (req: express.Request, res: express.Response) => 
         'regenerated',
         keyHint,
         date,
-        time
+        time,
+        company?.dataValues.company_name || "your brand"
       );
       apiLogger.info(`[ApiKey] Regeneration notification sent to ${userData.email}`);
     } catch (emailError) {

@@ -145,7 +145,8 @@ const main = async () => {
 
   // ── billing / API keys / subscriptions ──
   await capture("billing", "invoiceGenerated", "", "M", () => bill.sendInvoiceGeneratedEmail(M, NAME, { invoice_number: "INV-2026-000481", transaction_id: 944, total_usd: 261.37, total_amount: 0.0042, currency: "BTC", invoice_date: new Date("2026-06-05T14:02:00Z"), invoice_url: `${FE}/invoices` }));
-  await capture("billing", "apiKeyCreated", "", "M", () => bill.sendApiKeyCreatedEmail(M, NAME, "production", "created", "dp_live_…4f9a", DATE, TIME));
+  await capture("billing", "apiKeyCreated", "", "M", () => bill.sendApiKeyCreatedEmail(M, NAME, "production", "created", "dp_live_…4f9a", DATE, TIME, BRAND));
+  await capture("billing", "apiKeyRegenerated", "", "M", () => bill.sendApiKeyCreatedEmail(M, NAME, "production", "regenerated", "dpk_live_…4f9a", DATE, TIME, BRAND));
   await capture("billing", "apiKeysHashedNotice", "", "M", () => bill.sendApiKeysHashedNoticeEmail(M, NAME));
   await capture("billing", "apiKeyRevoked", "", "M", () => bill.sendApiKeyRevokedEmail(M, NAME, "production", BRAND, "dp_live_…4f9a", DATE, TIME));
   await capture("billing", "subscriptionCreated", "", "B", () => bill.sendSubscriptionCreatedEmail(B, BUYER, M, NAME, "Pro plan", "29.00", "USD", "month", "05 July 2026", BRAND));

@@ -89,7 +89,7 @@ export const sendCompanyProfileUpdatedEmail = async (
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${fieldsList}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(t('merchant.companyUpdated.outro', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.companyUpdated.heading', L), content, true, t('merchant.companyUpdated.cta', L), `${FRONTEND_BASE_URL}/company`, t('merchant.companyUpdated.preheader', L), L, 'store');
@@ -164,7 +164,7 @@ export const sendTeamMemberJoinedEmail = async (
         ${dataRow('Teammate', escapeHtml(memberEmail), true)}
         ${dataRow('Business', escapeHtml(companyName))}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(`They now have the access you granted. You can review or change their permissions anytime from Settings → Team.`)}`;
 
     const html = dynoPayEmailTemplate(`A teammate joined`, content, true, `Manage your team`, `${FRONTEND_BASE_URL}/settings?section=team`, `${who} now has access to ${escapeHtml(companyName)}.`, undefined, 'team');
@@ -201,7 +201,7 @@ export const sendCompanyDeleteOTPEmail = async (
         ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
         ${dataRow(t('merchant.labels.action', L), statusBadge(t('merchant.badges.permanentDeletion', L), 'error'), true)}
       </table>
-    `, '#ef4444')}
+    `)}
     ${warnText(t('merchant.companyDeleteOtp.expiry', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.companyDeleteOtp.heading', L), content, false, "", "", t('merchant.companyDeleteOtp.preheader', L, { companyName: brand }), L, 'lock-red');
@@ -237,7 +237,7 @@ export const sendCompanyDeletedEmail = async (
         ${li(t('merchant.companyDeleted.removed2', L, { apiKeys: revokedApiKeys }))}
         ${li(t('merchant.companyDeleted.removed3', L))}
       </table>
-    `, '#ef4444')}
+    `)}
     ${p(t('merchant.companyDeleted.note', L))}
     ${p(t('merchant.companyDeleted.didntDoThis', L))}`;
 
@@ -278,7 +278,7 @@ export const sendBrandSoftDeletedEmail = async (
         ${dataRow(t('labels.status', L), statusBadge(t(`${K}.status`, L), 'pending'))}
         ${dataRow(t(`${K}.restoreBefore`, L), `<strong>${date}</strong>`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t(`${K}.changedMind`, L, { date }))}
     ${warnText(t(`${K}.afterDate`, L, { date }))}
     ${p(t(`${K}.didntDoThis`, L))}`;
@@ -312,7 +312,7 @@ export const sendBrandPermanentlyDeletedEmail = async (
         ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
         ${dataRow(t('labels.status', L), statusBadge(t(`${K}.status`, L), 'error'), true)}
       </table>
-    `, '#ef4444')}
+    `)}
     ${p(t(`${K}.createNew`, L))}
     ${p(t(`${K}.didntExpect`, L))}`;
 
@@ -346,7 +346,7 @@ export const sendBrandRestoredEmail = async (
         ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
         ${dataRow(t('labels.status', L), statusBadge(t(`${K}.status`, L), 'success'), true)}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(t(`${K}.pickUp`, L))}`;
 
     const html = dynoPayEmailTemplate(t(`${K}.heading`, L), content, true, t(`${K}.cta`, L), `${FRONTEND_BASE_URL}/dashboard`, t(`${K}.preheader`, L, { companyName: brand }), L, 'store');
@@ -384,7 +384,7 @@ export const sendBrandDeleteReminderEmail = async (
         ${dataRow(t(`${K}.timeLeft`, L), statusBadge(t(`${K}.timeLeftBadge`, L, { daysLabel }), 'pending'))}
         ${dataRow(t(`${K}.deletesOn`, L), `<strong>${date}</strong>`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t(`${K}.wantItBack`, L, { date }))}`;
 
     const html = dynoPayEmailTemplate(t(`${K}.heading`, L), content, true, t(`${K}.cta`, L), `${FRONTEND_BASE_URL}/help-support`, t(`${K}.preheader`, L, { companyName: brand, daysLabel }), L, 'trash');

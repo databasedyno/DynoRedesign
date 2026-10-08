@@ -68,7 +68,7 @@ export const buildOverpaidMerchantEmail = (
     </table>`;
   const content = `${p(ctx.merchantName ? t("common.greeting", L, { name: ctx.merchantName }) : t("common.greetingDefault", L))}
     ${p(t("overpayment.merchantIntro", L, { company: `<strong>${ctx.companyName}</strong>` }))}
-    ${infoBox(detail, "#12B76A")}
+    ${infoBox(detail)}
     ${p(t("overpayment.merchantBody", L, { excess: `<strong>${excessCrypto}</strong>`, excessFiat }))}
     ${info.customerEmail ? p(t("overpayment.merchantKeep", L), "font-size:13px;color:#6b7280;") : ""}`;
   const html = dynoPayEmailTemplate(t("overpayment.merchantHeading", L), content, true, t("overpayment.refundCta", L), txSearch,
@@ -83,7 +83,7 @@ export const buildOverpaidBuyerEmail = (
 ): { subject: string; html: string } => {
   const BL = normalizeLang(info.customerLang);
   const { excessCrypto, excessFiat, receivedCrypto, expectedCrypto, networkLabel } = overpayAmounts(info);
-  const contact = info.merchantContactEmail ? ` (<a href="mailto:${info.merchantContactEmail}" style="color:#8B5E00;">${info.merchantContactEmail}</a>)` : "";
+  const contact = info.merchantContactEmail ? ` (<a href="mailto:${info.merchantContactEmail}" style="color:#0A0A0D;">${info.merchantContactEmail}</a>)` : "";
   const detail = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       ${dataRow(t("overpayment.amountDue", BL), expectedCrypto)}
@@ -94,7 +94,7 @@ export const buildOverpaidBuyerEmail = (
     </table>`;
   const content = `${p(info.customerName ? t("common.greeting", BL, { name: info.customerName }) : t("common.greetingDefault", BL))}
     ${p(t("overpayment.buyerIntro", BL, { company: `<strong>${ctx.companyName}</strong>`, excess: excessCrypto, excessFiat }))}
-    ${infoBox(detail, "#f59e0b")}
+    ${infoBox(detail)}
     ${p(t("overpayment.buyerBody", BL, { company: ctx.companyName, contact }))}`;
   const html = dynoPayEmailTemplate(t("overpayment.buyerHeading", BL), content,
     !!info.merchantContactEmail, t("overpayment.buyerCta", BL, { company: ctx.companyName }), info.merchantContactEmail ? `mailto:${info.merchantContactEmail}` : "",
@@ -185,7 +185,7 @@ export async function notifyOverpayment(info: OverpaymentInfo): Promise<void> {
         </table>`;
       const content = `${p("Hey Dynopay Admin,")}
         ${p(`A customer overpaid a payment to <strong>${companyName}</strong>. The quoted fee was charged once; the excess was credited to the merchant's payout (nothing was retained).`)}
-        ${infoBox(detail, "#12B76A")}`;
+        ${infoBox(detail)}`;
       const html = dynoPayEmailTemplate("Overpayment credited to merchant", content, false, "", "", "", undefined, "alert", "admin");
       await mailTransporter({
         to: adminEmail,

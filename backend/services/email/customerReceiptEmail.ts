@@ -118,16 +118,16 @@ export const sendCustomerPaymentConfirmationEmail = async (
         ${description ? dataRow(t('labels.description', L), description) : ''}
         ${dataRow(t('labels.transactionId', L), `<span style="font-family: monospace; font-size: 13px;">${transactionId}</span>`)}
         ${transactionReference ? dataRow(t('labels.reference', L), explorerUrl
-          ? `<a href="${explorerUrl}" style="font-family: monospace; font-size: 12px; color: #8B5E00; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a> <span style="font-size:12px;color:#6b7280;">&nbsp;${t('customerPaymentConfirmation.viewOnExplorer', L)} &#8599;</span>`
+          ? `<a href="${explorerUrl}" style="font-family: monospace; font-size: 12px; color:#0A0A0D; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a> <span style="font-size:12px;color:#6b7280;">&nbsp;${t('customerPaymentConfirmation.viewOnExplorer', L)} &#8599;</span>`
           : `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${transactionReference}</span>`) : ''}
         ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
-    `, '#12B76A')}
-    ${buyAgain ? `<table role="presentation" class="hl-box" width="100%" cellpadding="0" cellspacing="0" style="background-color:#FFF9E0;border:1px solid #F2E3A6;border-radius:12px;margin:20px 0;">
+    `)}
+    ${buyAgain ? `<table role="presentation" class="hl-box" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F9FAFB;border:1px solid #E6E8EB;border-radius:10px;border-collapse:separate;margin:20px 0;">
       <tr><td style="padding:18px 20px;">
         <p style="font-size:15px;font-weight:700;color:#1f2937;margin:0 0 6px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.titleDonation', L, { brand: companyName }) : t('buyAgainReceipt.title', L, { brand: companyName })}</p>
         <p style="font-size:14px;color:#4b5563;line-height:1.6;margin:0 0 14px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.bodyDonation', L) : t('buyAgainReceipt.body', L)}</p>
-        <a href="${buyAgain.url}" class="btn" style="display:inline-block;background-color:#FFD100;color:#121214;-webkit-text-fill-color:#121214;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:700;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;" target="_blank" rel="noopener"><span style="color:#FFFFFF;-webkit-text-fill-color:#FFFFFF;">${buyAgain.kind === 'donation' ? t('buyAgainReceipt.ctaDonation', L, { brand: companyName }) : t('buyAgainReceipt.cta', L, { brand: companyName })}</span></a>
+        <a href="${buyAgain.url}" class="btn-secondary" style="display:inline-block;background-color:#FFFFFF;border:1px solid #0A0A0D;color:#0A0A0D;-webkit-text-fill-color:#0A0A0D;text-decoration:none;padding:10px 22px;border-radius:8px;font-weight:600;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;" target="_blank" rel="noopener"><span>${buyAgain.kind === 'donation' ? t('buyAgainReceipt.ctaDonation', L, { brand: companyName }) : t('buyAgainReceipt.cta', L, { brand: companyName })}</span></a>
       </td></tr>
     </table>` : ''}
     ${pdfAttachment ? p(t('customerPaymentConfirmation.pdfAttached', L)) : ''}
@@ -180,7 +180,7 @@ export const sendBuyerPaymentExpiredEmail = async (
         ${dataRow(t('buyerPaymentExpired.expected', L), `${formatMoneyForEmail(expectedAmount, currency)} ${currency}`)}
         ${dataRow(t('labels.reference', L), `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${reference}</span>`, true)}
       </table>
-    `, '#F79009')}
+    `)}
     ${p(t('buyerPaymentExpired.whatNext', L, { companyName }))}
     ${p(`<span style="font-size: 13px; color: #6b7280;">${t('common.securedBy', L)}</span>`)}`;
     const html = dynoPayEmailTemplate(t('buyerPaymentExpired.heading', L), content, false, "", "", t('buyerPaymentExpired.preheader', L), L, 'alert', 'buyer');

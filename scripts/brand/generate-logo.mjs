@@ -172,6 +172,22 @@ function ico(pngs) {
 
 /** Espresso tile with the gold mark — favicons, launcher icons, square contexts. */
 const tile = (size, rx = 0) => markSvg(size, YELLOW, { bg: ESPRESSO, rx, inset: 0.15 });
+/** Legacy (ICO/PNG) tab icon — black mark on a white tile, readable on light and dark tabs. */
+const lightTile = (size, rx = 0) => markSvg(size, BLACK, { bg: WHITE, rx, inset: 0.15 });
+/** Browser tab icon — black "D" on light tabs, white "D" on dark tabs (SVG media query). */
+const adaptiveFavicon = () =>
+  markSvg(64, BLACK).replace(
+    'aria-label="Dynopay">',
+    `aria-label="Dynopay"><style>path{fill:${BLACK}}@media (prefers-color-scheme:dark){path{fill:${WHITE}}}</style>`
+  );
+/** Email header logo (396×132 frame, left-aligned): light = black lockup on a white rounded chip, dark = white lockup. */
+const EMAIL_LOGO = { w: 396, h: 132, padX: 18, padY: 14 };
+function emailLogo(palette, chipBg) {
+  const { w, h, padX, padY } = EMAIL_LOGO;
+  const l = lockupAt(Math.min((w - padX * 2) / totalUnits, (h - padY * 2) / totalHUnits), palette.word, palette.mark);
+  const chip = chipBg ? `<rect width="${w}" height="${h}" rx="20" fill="${chipBg}"/>` : "";
+  return svgDoc(w, h, chip + `<g transform="translate(${padX} ${fmt((h - l.h) / 2)})">${l.inner}</g>`);
+}
 
 async function main() {
   /* SVG lockups (134×45 frame) */
@@ -192,8 +208,8 @@ async function main() {
   write("public/press/dynopay-logo-stacked-black.svg", stackedLockup(600, 620, ON_LIGHT));
   write("public/press/dynopay-logo-stacked-white.svg", stackedLockup(600, 620, ON_DARK));
 
-  /* favicon.svg — espresso tile reads on light and dark tabs alike */
-  write("public/favicon.svg", tile(64, 64 * 0.22));
+  /* favicon.svg — adapts to the tab theme (black on light, white on dark) */
+  write("public/favicon.svg", adaptiveFavicon());
 
   /* Mark paths for the React <Logo/> component — square viewBox centred on the mark */
   const side = Math.max(P.bbox.w, P.bbox.h) + 2;
@@ -209,8 +225,9 @@ async function main() {
       `export const LOGO_MARK_ARROW = "${ARROW}";\n`
   );
 
-  /* Favicon PNGs + ICO */
-  for (const size of [16, 32, 48, 192, 512]) await png(`public/favicon-${size}.png`, tile(64, 64 * 0.22), { width: size, height: size });
+  /* Favicon PNGs + ICO (tab sizes use the black-on-white tile; 192/512 stay app tiles) */
+  for (const size of [16, 32, 48]) await png(`public/favicon-${size}.png`, lightTile(64, 64 * 0.22), { width: size, height: size });
+  for (const size of [192, 512]) await png(`public/favicon-${size}.png`, tile(64, 64 * 0.22), { width: size, height: size });
   await png("public/favicon-16-light.png", tile(64, 64 * 0.22), { width: 16, height: 16 });
   await png("public/favicon-32-light.png", tile(64, 64 * 0.22), { width: 32, height: 32 });
   await png("public/press/dynopay-icon-512.png", tile(64, 64 * 0.22), { width: 512, height: 512 });
@@ -227,7 +244,7 @@ async function main() {
   await png("public/dynopay-badge-72.png", markSvg(64, WHITE), { width: 72, height: 72 });
   const icoParts = [];
   for (const size of [16, 32, 48]) {
-    const buf = await sharp(Buffer.from(tile(64, 64 * 0.22)), { density: 600 }).resize(size, size).png().toBuffer();
+    const buf = await sharp(Buffer.from(lightTile(64, 64 * 0.22)), { density: 600 }).resize(size, size).png().toBuffer();
     icoParts.push({ size, buf });
   }
   write("public/favicon.ico", ico(icoParts));
@@ -253,6 +270,9 @@ async function main() {
       `<g transform="translate(${fmt((chipW - chipLock.w) / 2)} ${fmt((chipH - chipLock.h) / 2)})">${chipLock.inner}</g>`
   );
   await png("backend/public/dynopay-email-logo-v5.png", chip, { width: chipW * 2, height: chipH * 2 });
+  // Calm email header (v6): light/dark pair swapped by prefers-color-scheme; versioned to bust mail-proxy caches.
+  await png("backend/public/dynopay-email-logo-light-v6.png", emailLogo(ON_LIGHT, WHITE), { width: EMAIL_LOGO.w * 3, height: EMAIL_LOGO.h * 3 });
+  await png("backend/public/dynopay-email-logo-dark-v6.png", emailLogo(MONO_LIGHT, null), { width: EMAIL_LOGO.w * 3, height: EMAIL_LOGO.h * 3 });
 
   /* Open Graph share card 1200×630 — espresso ground, single gold corner glow, grain, lockup */
   const og = lockupAt(Math.min(640 / totalUnits, 220 / totalHUnits), CREAM, YELLOW);

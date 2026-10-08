@@ -96,7 +96,7 @@ export const buildRefundEmail = (
       ${dataRow("Refund", `<strong>${amountStr}</strong>`)}
       ${origRow}
       ${dataRow("Network", network, true)}
-    </table>`, "#12B76A")}
+    </table>`)}
     ${txBlock(refund)}
     ${footnote(footer)}`;
   return {
@@ -126,7 +126,7 @@ export const buildMerchantRefundEmail = (
       ${String(refund.original_transaction_ref || "").trim() ? dataRow("Original payment", mono(String(refund.original_transaction_ref))) : ""}
       ${customer ? dataRow("Customer", customer, !refund.refund_id) : ""}
       ${refund.refund_id ? dataRow("Refund ID", mono(String(refund.refund_id)), true) : ""}
-    </table>`, "#12B76A")}
+    </table>`)}
     ${txBlock(refund)}
     ${footnote("This is an automated record copy from Dynopay about a refund you issued.")}`;
 

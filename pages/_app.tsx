@@ -738,10 +738,10 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
           </>
         ) : (
           <>
-            <link key="fav-ico" rel="icon" href="/favicon.ico?v=8" sizes="any" />
-            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/favicon.svg?v=8" />
-            <link key="fav-48" rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png?v=8" />
-            <link key="fav-192" rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png?v=8" />
+            {/* Tab icon adapts to the browser theme: favicon.svg is a black "D" on light tabs and a
+                white "D" on dark tabs; the ICO (black D on a white tile) is the legacy fallback. */}
+            <link key="fav-ico" rel="icon" href="/favicon.ico?v=9" sizes="32x32" />
+            <link key="fav-svg" rel="icon" type="image/svg+xml" href="/favicon.svg?v=9" />
             <link key="fav-apple" rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=8" />
             <link key="fav-manifest" rel="manifest" href="/site.webmanifest?v=8" />
           </>

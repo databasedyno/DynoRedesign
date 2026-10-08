@@ -946,17 +946,18 @@
    "preheader": "Uw nieuwste Dynopay-factuur staat klaar."
   },
   "apiKey": {
-   "subjectCreated": "Nieuwe {{keyType}}-API-sleutel aangemaakt",
-   "subjectRegenerated": "{{keyType}}-API-sleutel geroteerd — oude sleutel werkt niet meer",
+   "subjectCreated": "Nieuwe {{keyType}}-API-sleutel aangemaakt voor {{companyName}}",
+   "subjectRegenerated": "{{keyType}}-API-sleutel voor {{companyName}} geroteerd — oude sleutel werkt niet meer",
    "heading": "API-sleutel bijgewerkt",
-   "introCreated": "Uw <strong>{{keyType}}</strong>-API-sleutel is aangemaakt.",
-   "introRegenerated": "Uw <strong>{{keyType}}</strong>-API-sleutel is opnieuw gegenereerd.",
+   "introCreated": "Uw <strong>{{keyType}}</strong>-API-sleutel voor <strong>{{companyName}}</strong> is aangemaakt.",
+   "introRegenerated": "Uw <strong>{{keyType}}</strong>-API-sleutel voor <strong>{{companyName}}</strong> is opnieuw gegenereerd.",
    "oldInvalid": "Uw oude sleutel is nu ongeldig",
    "productionWarn": "<strong>Belangrijk:</strong> dit is een productiesleutel. Houd hem veilig en deel hem nooit openbaar.",
    "didntCreate": "<strong>Niet u?</strong><br />Als u deze API-sleutel niet heeft aangemaakt, beveilig dan onmiddellijk uw account.",
    "didntRegenerate": "<strong>Niet u?</strong><br />Als u deze API-sleutel niet opnieuw heeft gegenereerd, beveilig dan onmiddellijk uw account.",
    "cta": "API-sleutels bekijken",
-   "preheader": "Er is een nieuwe API-sleutel op uw account aangemaakt."
+   "preheader": "Er is een nieuwe API-sleutel aangemaakt voor {{companyName}}.",
+   "preheaderRegenerated": "De {{keyType}}-API-sleutel voor {{companyName}} is geroteerd."
   },
   "subscriptionCreated": {
    "custSubject": "Je bent geabonneerd op {{planName}}",

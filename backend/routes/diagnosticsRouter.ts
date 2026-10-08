@@ -154,7 +154,7 @@ router.get("/email-preview", adminAuthMiddleware, async (req: express.Request, r
           ${dataRow('Date', `14 Feb 2026 at 10:30 AM`)}
           ${dataRow('Transaction ID', `<span style="font-size: 12px; font-family: monospace;">TX-00482</span>`, true)}
         </table>
-      `, '#22c55e')}
+      `)}
       ${p(`The funds have been forwarded to your payout wallet. You can view the full transaction details in your dashboard.`)}`;
       return baseEmailTemplate("Payment Received", content, { showButton: true, buttonText: "View Transaction", buttonLink: "#" });
     },
@@ -175,7 +175,7 @@ router.get("/email-preview", adminAuthMiddleware, async (req: express.Request, r
           ${dataRow('Date', '14 Feb 2026 at 3:45 PM')}
           ${dataRow('IP Address', '192.168.1.100', true)}
         </table>
-      `, '#ef4444')}
+      `)}
       ${p(`<strong>Was this you?</strong><br />If you recognize this activity, you can ignore this message.`)}
       ${p(`<strong>Didn't perform this action?</strong><br />Please change your password immediately and contact support.`)}`;
       return baseEmailTemplate("Security Alert", content, { showButton: true, buttonText: "Secure My Account", buttonLink: "#" });
@@ -206,7 +206,7 @@ router.get("/email-preview", adminAuthMiddleware, async (req: express.Request, r
           ${dataRow('Company', 'Acme Corp')}
           ${dataRow('Transaction ID', `<span style="font-size: 12px; font-family: monospace;">TX-00482</span>`, true)}
         </table>
-      `, '#22c55e')}
+      `)}
       ${p(`The fee has been credited to the admin USDT wallet.`)}`;
       return baseEmailTemplate("Platform Fee Received", content);
     },

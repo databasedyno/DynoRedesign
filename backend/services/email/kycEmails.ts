@@ -54,7 +54,7 @@ export const sendKYCApprovedEmail = async (email: string, name: string, lang?: s
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.approved', L), 'success'), true)}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(t('merchant.kycApproved.outro', L))}`;
 
     const html = dynoPayEmailTemplate(t('merchant.kycApproved.heading', L), content, true, t('merchant.kycApproved.cta', L), `${FRONTEND_BASE_URL}/kyc`, t('merchant.kycApproved.preheader', L), L, 'id-card-green');
@@ -74,7 +74,7 @@ export const sendKYCRejectedEmail = async (email: string, name: string, rejectio
     ${infoBox(`
       <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #991b1b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycRejected.reasonTitle', L)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${rejectionReason}</p>
-    `, '#ef4444')}
+    `)}
     ${p(t('merchant.kycRejected.outro1', L))}
     ${p(t('merchant.kycRejected.outro2', L))}
     ${p(t('merchant.kycRejected.outro3', L))}`;
@@ -120,7 +120,7 @@ export const sendKYCResubmissionRequiredEmail = async (email: string, name: stri
     ${infoBox(`
       <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #92400e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.kycResubmission.reasonTitle', L)}</p>
       <p style="margin: 0; font-size: 14px; color: #374151; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${reason}</p>
-    `, '#f59e0b')}
+    `)}
     ${p(t('merchant.kycResubmission.outro1', L))}
     ${p(t('merchant.kycResubmission.outro2', L))}`;
 

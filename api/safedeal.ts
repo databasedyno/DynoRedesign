@@ -287,7 +287,8 @@ export interface SdDeal extends EscrowDeal {
   funding_method?: string | null;
   funding_link_ref?: string | null;
   checkout_url?: string | null;
-  buyer_balance?: SdBalances;
+  /** `pays` = what paying from the wallet costs (no inbound network/exchange fees). */
+  buyer_balance?: SdBalances & { pays?: number };
   funding_payment?: SdFundingPayment | null;
   funding_settled_at?: string | null;
   custody_realized_usd?: number | null;

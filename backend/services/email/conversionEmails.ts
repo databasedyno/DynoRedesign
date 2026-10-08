@@ -144,7 +144,7 @@ export const sendAutoConversionPayoutEmail = async (
           ${dataRow(acL('marketState'), statusBadge(marketState, isVolatile ? 'pending' : 'success'))}
           ${dataRow(acL('date'), `${dateStr} · ${timeStr}`)}
           ${settlementWallet ? dataRow(acL('sentTo'), `${mono(settlementWallet.length > 12 ? `${settlementWallet.slice(0, 6)}…${settlementWallet.slice(-4)}` : settlementWallet)}${settlementChain ? ` <span style="color:#6b7280;font-size:12px;">· ${assetNetworkLabel(`${targetCurrency}-${settlementChain}`)}</span>` : ''}`) : ''}
-          ${withdrawalTxHash ? dataRow(acL('withdrawalTx'), (() => { const x = explorerTxUrl(`${targetCurrency}-${settlementChain || ''}`, withdrawalTxHash); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #8B5E00; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${withdrawalTxHash.slice(0, 10)}…${withdrawalTxHash.slice(-6)}</a> <span style="font-size:12px;color:#6b7280;">${acL('viewOnExplorer')} &#8599;</span>` : mono(withdrawalTxHash); })()) : dataRow(acL('withdrawalTx'), `<span style="color:#b45309;">${acL('broadcasting')}</span>`)}
+          ${withdrawalTxHash ? dataRow(acL('withdrawalTx'), (() => { const x = explorerTxUrl(`${targetCurrency}-${settlementChain || ''}`, withdrawalTxHash); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color:#0A0A0D; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${withdrawalTxHash.slice(0, 10)}…${withdrawalTxHash.slice(-6)}</a> <span style="font-size:12px;color:#6b7280;">${acL('viewOnExplorer')} &#8599;</span>` : mono(withdrawalTxHash); })()) : dataRow(acL('withdrawalTx'), `<span style="color:#b45309;">${acL('broadcasting')}</span>`)}
           ${dataRow(acL('conversionId'), mono(`#${conversionId}`), true)}
         </table>
       `)}
@@ -219,7 +219,7 @@ export const sendWeeklyConversionSummaryEmail = async (
           <td style="padding: 4px 0; width: 100%;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="track" style="background: #f3f4f6; border-radius: 3px; height: 18px;">
               <tr>
-                <td style="width: ${barWidth}%; background: ${hasActivity ? EMAIL_TOKENS.brand : 'transparent'}; border-radius: 3px; height: 18px;">&nbsp;</td>
+                <td style="width: ${barWidth}%; background: ${hasActivity ? EMAIL_TOKENS.brandDeep : 'transparent'}; border-radius: 3px; height: 18px;">&nbsp;</td>
                 <td style="height: 18px;">&nbsp;</td>
               </tr>
             </table>

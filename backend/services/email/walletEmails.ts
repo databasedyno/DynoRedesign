@@ -2,7 +2,6 @@ import mailTransporter from "../../utils/mailTransporter";
 import { apiLogger } from "../../utils/loggers";
 import { emailDateParts, t, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { infoBox, dataRow, statusBadge, p, warnText } from "../../utils/emailTemplate";
-import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, formatMoneyForEmail, brandSubject } from "./emailShared";
 import { assetNetworkLabel } from "../../utils/networkLabels";
 import { explorerTxUrl } from "../receiptLinkService";
@@ -58,7 +57,7 @@ export const sendWalletDeletedEmail = async (
         ${dataRow(t('merchant.labels.network', L), assetNetworkLabel(network))}
         ${dataRow(t('merchant.labels.removed', L), `${date} · ${time}`, true)}
       </table>
-    `, '#ef4444')}
+    `)}
     ${p(t('merchant.walletDeleted.outro', L))}
     ${p(t('merchant.walletDeleted.didntDoThis', L))}`;
 
@@ -123,7 +122,7 @@ export const sendWalletAddedEmail = async (
         ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.active', L), 'success'), true)}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(t('merchant.walletAdded.outro', L, { network }))}
     ${warnText(t('merchant.walletAdded.didntDoThis', L))}`;
 
@@ -163,7 +162,7 @@ export const sendWalletUpdatedEmail = async (
         ${walletName ? dataRow(t('merchant.labels.walletName', L), walletName) : ''}
         ${dataRow(t('merchant.labels.updated', L), `${dateStr} · ${timeStr}`, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t('merchant.walletUpdated.outro', L, { network }))}
     ${warnText(t('merchant.walletUpdated.didntDoThis', L))}`;
 
@@ -197,11 +196,11 @@ export const sendWithdrawalSuccessEmail = async (
         ${dataRow(t('labels.amount', L), `<strong>${formatMoneyForEmail(amount, currency)} ${currency}</strong>`)}
         ${dataRow(t('labels.status', L), statusBadge(t('merchant.badges.inProgress', L), 'pending'))}
         ${dataRow(t('merchant.labels.toAddress', L), `<span style="font-family: monospace; font-size: 13px;">${destinationAddress}</span>`)}
-        ${dataRow(t('labels.reference', L), (() => { const x = explorerTxUrl(currency, transactionReference); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color: #8B5E00; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a>` : `<span style="font-family: monospace; font-size: 13px; word-break: break-all;">${transactionReference}</span>`; })())}
+        ${dataRow(t('labels.reference', L), (() => { const x = explorerTxUrl(currency, transactionReference); return x ? `<a href="${x}" style="font-family: monospace; font-size: 12px; color:#0A0A0D; word-break: break-all; text-decoration: underline;" target="_blank" rel="noopener">${transactionReference}</a>` : `<span style="font-family: monospace; font-size: 13px; word-break: break-all;">${transactionReference}</span>`; })())}
         ${dataRow(t('labels.network', L), assetNetworkLabel(currency))}
         ${dataRow(t('labels.date', L), `${dateStr} · ${timeStr}`, true)}
       </table>
-    `, EMAIL_TOKENS.brand)}
+    `)}
     ${p(t('merchant.withdrawalSuccess.outro1', L))}
     ${p(t('merchant.withdrawalSuccess.outro2', L))}`;
 

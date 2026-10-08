@@ -37,7 +37,7 @@ export const sendReferralPayoutReadyEmail = async (
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow(t(rk("payoutReady.availableLabel"), L), `<strong style="color:#166534;">${amount}</strong>`, true)}
         </table>
-      `, '#12B76A')}
+      `)}
       ${p(t(rk(isCash ? "payoutReady.cashLine" : "payoutReady.creditLine"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("payoutReady.heading"), L), content, true, t(rk(isCash ? "payoutReady.ctaCash" : "payoutReady.ctaView"), L), REFERRALS_URL, t(rk("payoutReady.preheader"), L, { amount }), L, 'gift');
@@ -68,7 +68,7 @@ export const sendReferralAutoPayEnabledEmail = async (
           ${dataRow(t(rk("autoPayEnabled.autoPayAtLabel"), L), `<strong>${min}</strong>`)}
           ${dataRow(t(rk("autoPayEnabled.addressLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
         </table>
-      `, '#05936A')}
+      `)}
       ${p(t(rk("autoPayEnabled.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("autoPayEnabled.heading"), L), content, true, t(rk("autoPayEnabled.cta"), L), REFERRALS_URL, t(rk("autoPayEnabled.preheader"), L, { min }), L, 'gift');
@@ -101,7 +101,7 @@ export const sendReferralPayoutRequestedEmail = async (
           ${dataRow(t(rk("payoutRequested.amountLabel"), L), `<strong>${amount}</strong>`)}
           ${dataRow(t(rk("payoutRequested.addressLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`, true)}
         </table>
-      `, '#05936A')}
+      `)}
       ${p(t(rk("payoutRequested.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("payoutRequested.heading"), L), content, true, t(rk("payoutRequested.cta"), L), REFERRALS_URL, t(rk("payoutRequested.preheader"), L, { amount }), L, 'payout');
@@ -135,7 +135,7 @@ export const sendReferralPayoutFailedEmail = async (
           ${dataRow(t(rk("payoutFailed.addressLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(addressMasked)}</span>`)}
           ${dataRow(t(rk("payoutFailed.reasonLabel"), L), `<span style="font-family:monospace;font-size:12px;">${escapeHtml(reason)}</span>`, true)}
         </table>
-      `, '#f59e0b')}
+      `)}
       ${p(t(rk("payoutFailed.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("payoutFailed.heading"), L), content, true, t(rk("payoutFailed.cta"), L), REFERRALS_URL, t(rk("payoutFailed.preheader"), L, { amount }), L, 'danger');
@@ -172,7 +172,7 @@ export const sendReferralAccrualEmail = async (
           ${dataRow(t(rk("accrual.fromLabel"), L), `<strong>${merchant}</strong>`)}
           ${dataRow(t(rk("accrual.balanceLabel"), L), `<strong>${balance}</strong>`, true)}
         </table>
-      `, '#12B76A')}
+      `)}
       ${p(t(rk("accrual.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("accrual.heading"), L, { amount: earned }), content, true, t(rk("accrual.cta"), L), REFERRALS_URL, t(rk("accrual.preheader"), L, { amount: earned, merchant }), L);
@@ -203,7 +203,7 @@ export const sendReferralActivatedEmail = async (
           ${dataRow(t(rk("activated.merchantLabel"), L), `<strong>${merchant}</strong>`)}
           ${dataRow(t(rk("activated.rewardLabel"), L), `<strong style="color:#166534;">${t(rk("activated.rewardValue"), L)}</strong>`, true)}
         </table>
-      `, '#12B76A')}
+      `)}
       ${p(t(rk("activated.outro"), L, { merchant }))}`;
 
     const html = dynoPayEmailTemplate(t(rk("activated.heading"), L, { merchant }), content, true, t(rk("activated.cta"), L), REFERRALS_URL, t(rk("activated.preheader"), L, { merchant }), L, 'gift');
@@ -242,12 +242,12 @@ export const sendReferralMonthlyDigestEmail = async (
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow(t(rk("monthlyDigest.earnedLabel"), L, { month }), `<strong style="color:#166534;">${total}</strong>`, true)}
         </table>
-      `, '#12B76A')}
+      `)}
       ${top.length
         ? p(`<strong>${t(rk("monthlyDigest.breakdownTitle"), L)}</strong>`) +
           infoBox(`
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
-      `, '#05936A')
+      `)
         : ''}
       ${p(t(rk(isCash ? "monthlyDigest.cashLine" : "monthlyDigest.creditLine"), L))}
       ${p(t(rk("monthlyDigest.keepSharing"), L))}`;
@@ -286,7 +286,7 @@ export const sendReferralShareNudgeEmail = async (
           ${dataRow(t(rk("shareNudge.codeLabel"), L), `<strong style="font-family:monospace;color:#166534;">${escapeHtml(code)}</strong>`)}
           ${dataRow(t(rk("shareNudge.linkLabel"), L), `<a href="${signupLink}" style="color:#05936A;word-break:break-all;">${escapeHtml(signupLink)}</a>`, true)}
         </table>
-      `, '#12B76A')}
+      `)}
       ${p(t(rk("shareNudge.outro"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("shareNudge.heading"), L), content, true, t(rk("shareNudge.cta"), L), REFERRALS_URL, t(rk("shareNudge.preheader"), L), L, 'gift');
@@ -319,7 +319,7 @@ export const sendReferralCreditLowEmail = async (
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${dataRow(t(rk("creditLow.remainingLabel"), L), `<strong>${amount}</strong>`, true)}
         </table>
-      `, '#f59e0b')}
+      `)}
       ${p(t(rk("creditLow.explain"), L))}`;
 
     const html = dynoPayEmailTemplate(t(rk("creditLow.heading"), L), content, true, t(rk("creditLow.cta"), L), REFERRALS_URL, t(rk("creditLow.preheader"), L, { amount }), L, 'gift');

@@ -58,19 +58,22 @@ export const sendInvoiceGeneratedEmail = async (
 export const sendApiKeyCreatedEmail = async (
   email: string, name: string, keyType: 'development' | 'production',
   action: 'created' | 'regenerated', keyPreview: string, date: string, time: string,
-  lang?: string
+  companyName: string, lang?: string
 ) => {
   try {
     const L = await resolveEmailLang(lang, email);
     const keyTypeWord = keyType === 'production' ? t('merchant.typeProduction', L) : t('merchant.typeDevelopment', L);
-    const subject = action === 'created'
-      ? t('merchant.apiKey.subjectCreated', L, { keyType: keyTypeWord })
-      : t('merchant.apiKey.subjectRegenerated', L, { keyType: keyTypeWord });
+    const brand = escapeHtml(companyName);
+    const rawSubject = action === 'created'
+      ? t('merchant.apiKey.subjectCreated', L, { keyType: keyTypeWord, companyName })
+      : t('merchant.apiKey.subjectRegenerated', L, { keyType: keyTypeWord, companyName });
+    const subject = rawSubject.charAt(0).toUpperCase() + rawSubject.slice(1);
 
     const content = `${p(name ? t('common.greeting', L, { name }) : t('common.greetingDefault', L))}
-    ${p(action === 'created' ? t('merchant.apiKey.introCreated', L, { keyType: keyTypeWord }) : t('merchant.apiKey.introRegenerated', L, { keyType: keyTypeWord }))}
+    ${p(action === 'created' ? t('merchant.apiKey.introCreated', L, { keyType: keyTypeWord, companyName: brand }) : t('merchant.apiKey.introRegenerated', L, { keyType: keyTypeWord, companyName: brand }))}
     ${infoBox(`
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        ${dataRow(t('merchant.labels.brand', L), `<strong>${brand}</strong>`)}
         ${dataRow(t('merchant.labels.environment', L), keyType === 'production' ? statusBadge(t('merchant.badges.production', L), 'error') : statusBadge(t('merchant.badges.development', L), 'pending'))}
         ${dataRow(t('merchant.labels.keyPreview', L), `<span style="font-family: monospace; font-size: 13px;">${keyPreview}</span>`)}
         ${action === 'regenerated' ? dataRow(t('merchant.labels.note', L), t('merchant.apiKey.oldInvalid', L)) : ''}
@@ -80,9 +83,12 @@ export const sendApiKeyCreatedEmail = async (
     ${keyType === 'production' ? warnText(t('merchant.apiKey.productionWarn', L)) : ''}
     ${p(action === 'created' ? t('merchant.apiKey.didntCreate', L) : t('merchant.apiKey.didntRegenerate', L))}`;
 
-    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, t('merchant.apiKey.preheader', L), L, 'key');
+    const preheader = action === 'created'
+      ? t('merchant.apiKey.preheader', L, { companyName: brand })
+      : t('merchant.apiKey.preheaderRegenerated', L, { keyType: keyTypeWord, companyName: brand });
+    const html = dynoPayEmailTemplate(t('merchant.apiKey.heading', L), content, true, t('merchant.apiKey.cta', L), `${FRONTEND_BASE_URL}/developer-keys`, preheader, L, 'key');
     await mailTransporter({ to: email, name, subject, body: html });
-    apiLogger.info(`[Email] API key ${action} notification sent to ${email} for ${keyType} environment`);
+    apiLogger.info(`[Email] API key ${action} notification sent to ${email} for ${keyType} environment (${companyName})`);
   } catch (e) {
     apiLogger.error("API key created email error:", e);
   }
@@ -142,7 +148,7 @@ export const sendApiKeyRevokedEmail = async (
         ${keyPreview ? dataRow(t('merchant.labels.keyPreview', L), `<span style="font-family: monospace; font-size: 13px;">${escapeHtml(keyPreview)}...</span>`) : ''}
         ${dataRow(t('labels.date', L), `${date} · ${time}`, true)}
       </table>
-    `, '#ef4444')}
+    `)}
     ${alertBox(`
       <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #78350f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t('merchant.apiKeyRevoked.nextTitle', L)}</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -178,7 +184,7 @@ export const sendSubscriptionCreatedEmail = async (
         ${dataRow(t('labels.amount', CL), `<strong>${amount} ${currency} / ${interval}</strong>`)}
         ${dataRow(t('merchant.labels.nextBilling', CL), nextBillingDate, true)}
       </table>
-    `, '#12B76A')}
+    `)}
     ${p(t('merchant.subscriptionCreated.custOutro', CL))}`;
 
     const customerHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.custHeading', CL), customerContent, false, "", "", t('merchant.subscriptionCreated.custPreheader', CL), CL, 'receipt', 'buyer');
@@ -194,7 +200,7 @@ export const sendSubscriptionCreatedEmail = async (
         ${dataRow(t('merchant.labels.revenue', ML), `<strong>${amount} ${currency} / ${interval}</strong>`)}
         ${dataRow(t('merchant.labels.nextBilling', ML), nextBillingDate, true)}
       </table>
-    `, '#12B76A')}`;
+    `)}`;
 
     const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCreated.merchHeading', ML), merchantContent, true, t('merchant.subscriptionCreated.cta', ML), `${FRONTEND_BASE_URL}/pay-links`, t('merchant.subscriptionCreated.merchPreheader', ML), ML, 'receipt');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });
@@ -222,7 +228,7 @@ export const sendSubscriptionCancelledEmail = async (
         ${dataRow(t('merchant.labels.effective', CL), effectiveDate)}
         ${dataRow(t('merchant.labels.cancelledBy', CL), cancelledBy === 'customer' ? t('merchant.you', CL) : companyName, true)}
       </table>
-    `, '#f59e0b')}
+    `)}
     ${p(t('merchant.subscriptionCancelled.custOutro1', CL, { effectiveDate }))}
     ${p(t('merchant.subscriptionCancelled.custOutro2', CL))}`;
 
@@ -239,7 +245,7 @@ export const sendSubscriptionCancelledEmail = async (
         ${dataRow(t('merchant.labels.effective', ML), effectiveDate)}
         ${dataRow(t('merchant.labels.cancelledBy', ML), cancelledBy === 'customer' ? t('merchant.customerWord', ML) : t('merchant.you', ML), true)}
       </table>
-    `, '#f59e0b')}`;
+    `)}`;
 
     const merchantHtml = dynoPayEmailTemplate(t('merchant.subscriptionCancelled.heading', ML), merchantContent, true, t('merchant.subscriptionCancelled.cta', ML), `${FRONTEND_BASE_URL}/pay-links`, t('merchant.subscriptionCancelled.merchPreheader', ML), ML, 'expired');
     await mailTransporter({ to: merchantEmail, name: merchantName, subject: merchantSubject, body: merchantHtml });

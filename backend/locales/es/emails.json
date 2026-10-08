@@ -946,17 +946,18 @@
    "preheader": "Tu última factura de Dynopay está lista."
   },
   "apiKey": {
-   "subjectCreated": "Nueva clave API {{keyType}} creada",
-   "subjectRegenerated": "Clave API {{keyType}} rotada: la clave anterior dejó de funcionar",
+   "subjectCreated": "Nueva clave API {{keyType}} creada para {{companyName}}",
+   "subjectRegenerated": "Clave API {{keyType}} de {{companyName}} rotada: la clave anterior dejó de funcionar",
    "heading": "Actualización de la clave de API",
-   "introCreated": "Su clave de API de <strong>{{keyType}}</strong> ha sido creada.",
-   "introRegenerated": "Su clave de API de <strong>{{keyType}}</strong> ha sido regenerada.",
+   "introCreated": "Su clave de API de <strong>{{keyType}}</strong> para <strong>{{companyName}}</strong> ha sido creada.",
+   "introRegenerated": "Su clave de API de <strong>{{keyType}}</strong> para <strong>{{companyName}}</strong> ha sido regenerada.",
    "oldInvalid": "Su clave anterior ya no es válida",
    "productionWarn": "<strong>Importante:</strong> esta es una clave de producción. Manténgala segura y nunca la comparta públicamente.",
    "didntCreate": "<strong>¿No fue usted?</strong><br />Si no creó esta clave de API, proteja su cuenta de inmediato.",
    "didntRegenerate": "<strong>¿No fue usted?</strong><br />Si no regeneró esta clave de API, proteja su cuenta de inmediato.",
    "cta": "Ver claves de API",
-   "preheader": "Se creó una nueva clave API en tu cuenta."
+   "preheader": "Se creó una nueva clave API para {{companyName}}.",
+   "preheaderRegenerated": "Se rotó la clave API {{keyType}} de {{companyName}}."
   },
   "subscriptionCreated": {
    "custSubject": "Te suscribiste a {{planName}}",

@@ -510,7 +510,7 @@ export async function renderPayoutDigestEmail(
         ? p(t("payoutDigest.firstActiveWeek", lang, { delta: deltaChip }))
         : p(
             t("payoutDigest.nothingSettled", lang, {
-              link: `<a href="${FRONTEND_BASE_URL}/create-pay-link" style="color:${EMAIL_TOKENS.brand};font-weight:600;">${t("payoutDigest.createPayLink", lang)}</a>`,
+              link: `<a href="${FRONTEND_BASE_URL}/create-pay-link" style="color:${EMAIL_TOKENS.brandDeep};font-weight:600;text-decoration:underline;">${t("payoutDigest.createPayLink", lang)}</a>`,
             }),
           );
 
@@ -531,7 +531,7 @@ export async function renderPayoutDigestEmail(
       </table>
     `,
     );
-    const statementLink = `<a href="${FRONTEND_BASE_URL}/invoices" style="color:${EMAIL_TOKENS.brand};font-weight:600;">${t("payoutDigest.downloadStatement", lang)}</a>`;
+    const statementLink = `<a href="${FRONTEND_BASE_URL}/invoices" style="color:${EMAIL_TOKENS.brandDeep};font-weight:600;text-decoration:underline;">${t("payoutDigest.downloadStatement", lang)}</a>`;
 
     const heading = d.hasActivity
       ? t("payoutDigest.headingActive", lang)

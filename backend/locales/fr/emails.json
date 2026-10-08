@@ -946,17 +946,18 @@
    "preheader": "Votre dernière facture Dynopay est disponible."
   },
   "apiKey": {
-   "subjectCreated": "Nouvelle clé API {{keyType}} créée",
-   "subjectRegenerated": "Clé API {{keyType}} renouvelée — l'ancienne clé ne fonctionne plus",
+   "subjectCreated": "Nouvelle clé API {{keyType}} créée pour {{companyName}}",
+   "subjectRegenerated": "Clé API {{keyType}} de {{companyName}} renouvelée — l'ancienne clé ne fonctionne plus",
    "heading": "Mise à jour de la clé API",
-   "introCreated": "Votre clé API de <strong>{{keyType}}</strong> a été créée.",
-   "introRegenerated": "Votre clé API de <strong>{{keyType}}</strong> a été régénérée.",
+   "introCreated": "Votre clé API de <strong>{{keyType}}</strong> pour <strong>{{companyName}}</strong> a été créée.",
+   "introRegenerated": "Votre clé API de <strong>{{keyType}}</strong> pour <strong>{{companyName}}</strong> a été régénérée.",
    "oldInvalid": "Votre ancienne clé n'est plus valide",
    "productionWarn": "<strong>Important :</strong> il s'agit d'une clé de production. Gardez-la en sécurité et ne la partagez jamais publiquement.",
    "didntCreate": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas créé cette clé API, sécurisez immédiatement votre compte.",
    "didntRegenerate": "<strong>Ce n'était pas vous ?</strong><br />Si vous n'avez pas régénéré cette clé API, sécurisez immédiatement votre compte.",
    "cta": "Voir les clés API",
-   "preheader": "Une nouvelle clé API a été créée sur votre compte."
+   "preheader": "Une nouvelle clé API a été créée pour {{companyName}}.",
+   "preheaderRegenerated": "La clé API {{keyType}} de {{companyName}} a été renouvelée."
   },
   "subscriptionCreated": {
    "custSubject": "Vous êtes abonné à {{planName}}",

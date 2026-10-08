@@ -246,6 +246,8 @@ export function computeFeeBreakdown(input: {
   cancellationFee?: boolean;
   /** Costs frozen at funding — used instead of the live rate table so quote == charged. */
   lockedCosts?: LockedCosts | null;
+  /** Paid from the SafeDeal wallet — funds already sit in custody (USDT), so no inbound costs. */
+  fromBalance?: boolean;
 }): FeeBreakdown {
   const amount = round2(Number(input.amount) || 0);
   const currency = (input.currency || "USD").toUpperCase();
@@ -279,12 +281,14 @@ export function computeFeeBreakdown(input: {
   const quoteCoin = resolveQuoteCoin(input.fundingCoin || locked?.quotedFundingCoin, input.acceptedCoins);
   const fundedIsUsdt = isUsdtCoin(quoteCoin.coin);
   const fundedIsStable = isStableFundingCoin(quoteCoin.coin);
-  const networkFeeUsd = !includeCosts ? 0 : locked ? round2(locked.networkFeeUsd) : round2(estimateInboundFee(quoteCoin.coin, input.acceptedCoins));
-  const conversionFeeUsd = !includeCosts ? 0 : locked ? round2(locked.conversionFeeUsd) : !fundedIsUsdt ? round2((amount * convPct) / 100) : 0;
-  const exchangeFeeUsd = !includeCosts ? 0 : locked ? round2(locked.exchangeFeeUsd) : !fundedIsStable ? round2((amount * exchangePct) / 100) : 0;
+  // The top-up already paid the inbound sweep, so wallet funding must not charge it twice.
+  const fromBalance = input.fromBalance === true && !locked;
+  const networkFeeUsd = !includeCosts || fromBalance ? 0 : locked ? round2(locked.networkFeeUsd) : round2(estimateInboundFee(quoteCoin.coin, input.acceptedCoins));
+  const conversionFeeUsd = !includeCosts || fromBalance ? 0 : locked ? round2(locked.conversionFeeUsd) : !fundedIsUsdt ? round2((amount * convPct) / 100) : 0;
+  const exchangeFeeUsd = !includeCosts || fromBalance ? 0 : locked ? round2(locked.exchangeFeeUsd) : !fundedIsStable ? round2((amount * exchangePct) / 100) : 0;
   // What a volatile-coin payer would add on top of the stablecoin quote (hint for the UI).
   const nonStableSurchargeUsd =
-    includeCosts && !locked && quoteCoin.assumed && fundedIsStable
+    includeCosts && !locked && !fromBalance && quoteCoin.assumed && fundedIsStable
       ? round2(
           (amount * exchangePct) / 100 +
             (amount * convPct) / 100 +
@@ -354,8 +358,11 @@ export function computeFeeBreakdown(input: {
     },
   ];
   if (includeCosts) {
-    const est = locked ? "" : " (est.)";
-    const stableNote = quoteCoin.assumed
+    const est = locked || fromBalance ? "" : " (est.)";
+    const balanceNote = "None — paid from the SafeDeal balance, which is already held in custody as USDT.";
+    const stableNote = fromBalance
+      ? balanceNote
+      : quoteCoin.assumed
       ? `No exchange fee when paying with a stablecoin (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds SafeDeal's ${exchangePct}% exchange fee at checkout.`
       : "No exchange fee — funded in a stablecoin.";
     costItems.push(
@@ -366,8 +373,8 @@ export function computeFeeBreakdown(input: {
         borneBy: feePayer,
         note: exchangeFeeUsd <= 0 ? stableNote : `SafeDeal's ${exchangePct}% fee for exchanging non-stablecoin funding into USDT (covers spread and slippage).`,
       },
-      { key: "network_fee", label: `Network fee${est}`, amount: networkFeeUsd, borneBy: feePayer, note: locked ? "On-chain fee to move the funded crypto to the exchange (custody) — fixed at funding." : quoteCoin.assumed ? `On-chain fee to move the funded crypto to the exchange (custody) — estimated for ${quoteCoin.coin}; the exact fee depends on the coin the buyer picks.` : "On-chain fee to move the funded crypto to the exchange (custody)." },
-      { key: "conversion_fee", label: `Conversion fee${est}`, amount: conversionFeeUsd, borneBy: feePayer, note: conversionFeeUsd <= 0 ? (quoteCoin.assumed && !locked ? "No conversion when funded in USDT; other coins are converted on the exchange at checkout." : "No conversion — funded directly in USDT.") : "Converting the funded crypto to USDT on the exchange." },
+      { key: "network_fee", label: `Network fee${est}`, amount: networkFeeUsd, borneBy: feePayer, note: fromBalance ? balanceNote : locked ? "On-chain fee to move the funded crypto to the exchange (custody) — fixed at funding." : quoteCoin.assumed ? `On-chain fee to move the funded crypto to the exchange (custody) — estimated for ${quoteCoin.coin}; the exact fee depends on the coin the buyer picks.` : "On-chain fee to move the funded crypto to the exchange (custody)." },
+      { key: "conversion_fee", label: `Conversion fee${est}`, amount: conversionFeeUsd, borneBy: feePayer, note: fromBalance ? balanceNote : conversionFeeUsd <= 0 ? (quoteCoin.assumed && !locked ? "No conversion when funded in USDT; other coins are converted on the exchange at checkout." : "No conversion — funded directly in USDT.") : "Converting the funded crypto to USDT on the exchange." },
       {
         key: "withdrawal_fee",
         label: locked ? `Cashout fee (${payoutKey})` : `Cashout fee (est., ${payoutKey})`,
@@ -465,6 +472,22 @@ export function dealFeeBreakdown(deal: any, outcome?: SettlementOutcome): FeeBre
     lockedCosts: locked ? lockedCostsFrom(locked) : null,
   });
 }
+
+/** Quote for paying a SafeDeal from the buyer's wallet balance (no inbound network/exchange costs). */
+export function balanceFundingBreakdown(deal: any): FeeBreakdown {
+  return computeFeeBreakdown({
+    amount: deal.amount,
+    currency: deal.currency,
+    feePercent: deal.fee_percent,
+    feeMinUsd: deal.fee_min_usd,
+    feePayer: deal.fee_payer,
+    payoutCoin: deal.seller_payout_coin,
+    fundingCoin: CUSTODY_STABLECOIN,
+    acceptedCoins: deal.accepted_coins,
+    fromBalance: true,
+  });
+}
+
 
 export interface ActivityEntry {
   at: string;

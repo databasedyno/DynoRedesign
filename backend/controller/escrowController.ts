@@ -38,6 +38,7 @@ import {
   outcomeToStatus,
   resolveRoles,
   dealFeeBreakdown,
+  balanceFundingBreakdown,
   isCancellationRefund,
   cancellationFeePercent,
 } from "./escrow/escrowShared";
@@ -594,7 +595,7 @@ async function actFundFromBalance(deal: any, actor: ActorInfo): Promise<any> {
   if (deal.status !== "awaiting_payment") fail(409, `Cannot fund from status '${deal.status}'.`);
   if (!deal.creator_customer_id && !deal.counterparty_customer_id) fail(409, "Buyer wallet not found.");
   const buyerCustomerId = deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
-  const breakdown = computeFeeBreakdown({ amount: deal.amount, currency: deal.currency, feePercent: deal.fee_percent, feeMinUsd: deal.fee_min_usd, feePayer: deal.fee_payer, payoutCoin: deal.seller_payout_coin, fundingCoin: CUSTODY_STABLECOIN, acceptedCoins: deal.accepted_coins });
+  const breakdown = balanceFundingBreakdown(deal);
   const bal = buyerCustomerId ? await getBalances(Number(buyerCustomerId)) : { available: 0 };
   if (bal.available < breakdown.buyerPays) {
     fail(400, `Your available balance (${bal.available.toFixed(2)} USD) is below the ${breakdown.buyerPays.toFixed(2)} USD due for this deal.`);

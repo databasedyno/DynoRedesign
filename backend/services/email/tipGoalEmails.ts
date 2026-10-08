@@ -28,7 +28,7 @@ const money = (n: number, currency: string) =>
 /** Filled progress bar + "raised of goal" caption — table-based so it survives every client. */
 const goalBar = (pct: number, raisedStr: string, goalStr: string, pctLabel: string, L: string): string => {
   const width = Math.max(4, Math.min(100, pct));
-  const fill = pct >= 100 ? T.green : T.brand;
+  const fill = pct >= 100 ? T.green : T.brandDeep;
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="hl-box" style="background: #f8f9ff; border-radius: 12px; border-left: 4px solid ${fill}; margin: 24px 0;">
     <tr><td style="padding: 20px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">

@@ -3,7 +3,6 @@ import { apiLogger } from "../../utils/loggers";
 import { captureError } from "../errorMonitoringService";
 import { emailDateParts, t, resolveEmailLang, firstNameOnly } from "../../utils/emailI18n";
 import { infoBox, dataRow, statusBadge, p, mono } from "../../utils/emailTemplate";
-import { EMAIL_TOKENS } from "../../utils/brandTokens";
 import { FRONTEND_BASE_URL, escapeHtml, dynoPayEmailTemplate, dynoPayGreetingTemplate, formatMoneyForEmail } from "./emailShared";
 import { toFixedStr } from "../../utils/money";
 
@@ -35,7 +34,7 @@ export const sendWebhookDisabledEmail = async (
           ${dataRow(t(ak("webhookDisabled.lastErrorLabel"), L), `<span style="font-family:monospace;font-size:12px;">${escapeHtml(lastError)}</span>`)}
           ${dataRow(t(ak("webhookDisabled.failuresLabel"), L), String(failureCount), true)}
         </table>
-      `, '#f59e0b')}
+      `)}
       ${p(t(ak("webhookDisabled.whatToDoTitle"), L))}
       ${p(t(ak("webhookDisabled.steps"), L, { settingsUrl: escapeHtml(WEBHOOK_SETTINGS_URL) }))}
       ${p(t(ak("webhookDisabled.noLost"), L, { settingsUrl: escapeHtml(WEBHOOK_SETTINGS_URL) }))}
@@ -79,7 +78,7 @@ export const sendWebhookRedirectEmail = async (
           ${dataRow(t(ak("webhookRedirect.redirectsToLabel"), L), `<span style="font-family:monospace;font-size:13px;">${escapeHtml(toUrl)}</span>`)}
           ${dataRow(t(ak("webhookRedirect.statusLabel"), L), `HTTP ${status}`, true)}
         </table>
-      `, '#f59e0b')}
+      `)}
       ${p(t(ak("webhookRedirect.recommended"), L, { settingsUrl: escapeHtml(WEBHOOK_SETTINGS_URL) }))}
       ${p(t(ak("webhookRedirect.nothingBroken"), L))}
     `;
@@ -136,7 +135,7 @@ export const sendAdminFeeReceivedEmail = async (
         </table>`;
       noticeBlock = infoBox(`
         <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${t(ak("feeReceived.underThresholdNote"), L, { currency })}</p>
-      `, '#f59e0b');
+      `);
     } else {
       detailContent = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
@@ -152,7 +151,7 @@ export const sendAdminFeeReceivedEmail = async (
 
     const htmlContent = `
       ${p(t(ak("feeReceived.intro"), L, { company: escapeHtml(companyName) }))}
-      ${infoBox(detailContent, '#12B76A')}
+      ${infoBox(detailContent)}
       ${noticeBlock}
       ${p(t(ak("feeReceived.credited"), L, { currency }))}`;
 
@@ -199,7 +198,7 @@ export const sendAdminFeeSweepEmail = async (
           ${dataRow(t(ak("feeSweep.dateLabel"), L), `${dateStr} · ${timeStr}`)}
           ${dataRow(t(ak("feeSweep.sweepTxLabel"), L), `<span style="font-family: monospace; font-size: 12px; word-break: break-all;">${escapeHtml(sweepTxId)}</span>`, true)}
         </table>
-      `, EMAIL_TOKENS.brand)}
+      `)}
       ${p(t(ak("feeSweep.outro"), L, { currency }))}`;
 
     const htmlBody = dynoPayEmailTemplate(t(ak("feeSweep.heading"), L), `${p(t(ak("greeting"), L))}\n${htmlContent}`, false, "", "", "", L, 'payout', 'admin');
@@ -240,7 +239,7 @@ export const sendTreasuryLowAlertEmail = async (
           ${dataRow(t(ak("treasuryLow.shortfallLabel"), L), `<strong style="color:#b91c1c;">${toFixedStr(shortfall, 2)} ${escapeHtml(asset)}</strong>`)}
           ${dataRow(t(ak("treasuryLow.contextLabel"), L), escapeHtml(context), true)}
         </table>
-      `, '#f59e0b')}
+      `)}
       ${p(t(ak("treasuryLow.waiting"), L, { asset: escapeHtml(asset) }))}
       ${p(t(ak("treasuryLow.action"), L, { asset: escapeHtml(asset), need: toFixedStr(need, 2) }))}`;
 
@@ -294,7 +293,7 @@ export const sendConversionFailedAdminEmail = async (recipientEmail: string, d: 
           ${d.transactionId ? dataRow(t(ak("conversionFailed.paymentTxLabel"), L), mono(escapeHtml(d.transactionId))) : ''}
           ${dataRow(t(ak("conversionFailed.conversionLabel"), L), mono(`#${escapeHtml(d.conversionId)}`), true)}
         </table>
-      `, '#f59e0b')}
+      `)}
       ${p(t(ak("conversionFailed.action"), L, { id: escapeHtml(d.conversionId), currency: escapeHtml(d.sourceCurrency) }))}`;
 
     const html = dynoPayEmailTemplate(t(ak("conversionFailed.heading"), L, { id: escapeHtml(d.conversionId) }), `${p(t(ak("greeting"), L))}\n${content}`, false, "", "", "", L, 'danger', 'admin');

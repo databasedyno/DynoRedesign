@@ -946,17 +946,18 @@
    "preheader": "Your latest Dynopay invoice is ready to view."
   },
   "apiKey": {
-   "subjectCreated": "New {{keyType}} API key created",
-   "subjectRegenerated": "{{keyType}} API key rotated — old key stopped working",
+   "subjectCreated": "New {{keyType}} API key created for {{companyName}}",
+   "subjectRegenerated": "{{keyType}} API key rotated for {{companyName}} — old key stopped working",
    "heading": "API Key Update",
-   "introCreated": "Your <strong>{{keyType}}</strong> API key has been created.",
-   "introRegenerated": "Your <strong>{{keyType}}</strong> API key has been regenerated.",
+   "introCreated": "Your <strong>{{keyType}}</strong> API key for <strong>{{companyName}}</strong> has been created.",
+   "introRegenerated": "Your <strong>{{keyType}}</strong> API key for <strong>{{companyName}}</strong> has been regenerated.",
    "oldInvalid": "Your old key is now invalid",
    "productionWarn": "<strong>Important:</strong> This is a production key. Keep it secure and never share it publicly.",
    "didntCreate": "<strong>Didn't do this?</strong><br />If you didn't create this API key, please secure your account immediately.",
    "didntRegenerate": "<strong>Didn't do this?</strong><br />If you didn't regenerate this API key, please secure your account immediately.",
    "cta": "View API Keys",
-   "preheader": "A new API key was created on your account."
+   "preheader": "A new API key was created for {{companyName}}.",
+   "preheaderRegenerated": "The {{keyType}} API key for {{companyName}} was rotated."
   },
   "subscriptionCreated": {
    "custSubject": "You're subscribed to {{planName}}",

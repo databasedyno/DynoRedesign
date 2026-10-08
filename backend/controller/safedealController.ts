@@ -19,7 +19,7 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { PaymentUserJwtPayload } from "../utils/types";
 import escrowDealModel from "../models/escrowDealModel";
 import { escrowEngine, ActorInfo, DEAL_TYPES, normalizeDealType } from "./escrowController";
-import { EscrowRole, appendActivity, computeFeeBreakdown, dealFeeBreakdown, isLiveSettlementEnabled, isSimulationAllowed, resolveRoles } from "./escrow/escrowShared";
+import { EscrowRole, appendActivity, balanceFundingBreakdown, computeFeeBreakdown, dealFeeBreakdown, isLiveSettlementEnabled, isSimulationAllowed, resolveRoles } from "./escrow/escrowShared";
 import { ESCROW_PAYOUT_OPTIONS, refreshEscrowCostRates } from "../services/escrow/escrowCosts";
 import { resolveCustomerForBrand, resolveCustomerByTelegram, CustomerRow, CustomerWalletError } from "../services/customerWalletService";
 import { getBalances, getStatement, statementToCsv, brandWalletTotals, DEAL_STATS_SELECT, toDealStats } from "../services/safedeal/safedealWallet";
@@ -847,7 +847,7 @@ const getDeal = async (req: express.Request, res: express.Response) => {
     const v = await viewFull(deal, actor);
     if (actor.role === "buyer" && deal.status === "awaiting_payment") {
       const cid = deal.creator_role === "buyer" ? deal.creator_customer_id : deal.counterparty_customer_id;
-      if (cid) (v as any).buyer_balance = await getBalances(Number(cid));
+      if (cid) (v as any).buyer_balance = { ...(await getBalances(Number(cid))), pays: balanceFundingBreakdown(deal).buyerPays };
     }
     return successResponseHelper(res, 200, "OK", v);
   } catch (e) {

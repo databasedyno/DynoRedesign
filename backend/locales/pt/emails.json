@@ -946,17 +946,18 @@
    "preheader": "A sua última fatura Dynopay está disponível."
   },
   "apiKey": {
-   "subjectCreated": "Nova chave de API {{keyType}} criada",
-   "subjectRegenerated": "Chave de API {{keyType}} rotacionada — a chave antiga parou de funcionar",
+   "subjectCreated": "Nova chave de API {{keyType}} criada para {{companyName}}",
+   "subjectRegenerated": "Chave de API {{keyType}} de {{companyName}} rotacionada — a chave antiga parou de funcionar",
    "heading": "Atualização da chave de API",
-   "introCreated": "A sua chave de API de <strong>{{keyType}}</strong> foi criada.",
-   "introRegenerated": "A sua chave de API de <strong>{{keyType}}</strong> foi regenerada.",
+   "introCreated": "A sua chave de API de <strong>{{keyType}}</strong> para <strong>{{companyName}}</strong> foi criada.",
+   "introRegenerated": "A sua chave de API de <strong>{{keyType}}</strong> para <strong>{{companyName}}</strong> foi regenerada.",
    "oldInvalid": "A sua chave antiga já não é válida",
    "productionWarn": "<strong>Importante:</strong> esta é uma chave de produção. Mantenha-a segura e nunca a partilhe publicamente.",
    "didntCreate": "<strong>Não foi você?</strong><br />Se não criou esta chave de API, proteja a sua conta imediatamente.",
    "didntRegenerate": "<strong>Não foi você?</strong><br />Se não regenerou esta chave de API, proteja a sua conta imediatamente.",
    "cta": "Ver chaves de API",
-   "preheader": "Foi criada uma nova chave API na sua conta."
+   "preheader": "Foi criada uma nova chave API para {{companyName}}.",
+   "preheaderRegenerated": "A chave de API {{keyType}} de {{companyName}} foi rotacionada."
   },
   "subscriptionCreated": {
    "custSubject": "Você assinou {{planName}}",
