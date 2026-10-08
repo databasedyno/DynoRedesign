@@ -7,35 +7,30 @@
  * - Alert service health
  * - Analytics endpoints (auth guard)
  */
-import supertest from "supertest";
-
-const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:8001";
-const request = supertest(BASE_URL);
-
-const ADMIN_CREDS = {
-  email: "moxxcompany@gmail.com",
-  password: "Katiekendra123@",
-};
+import { BROWSER_UA, adminLogin, itWrites, request } from "./helpers/adminSession";
 
 let adminToken = "";
 
 describe("Admin Login", () => {
-  it("POST /api/admin/login should return a token", async () => {
-    const res = await request
-      .post("/api/admin/login")
-      .send(ADMIN_CREDS);
-
-    expect(res.status).toBe(200);
-    expect(res.body.data?.accessToken).toBeDefined();
-    adminToken = res.body.data.accessToken;
+  it("two-step login (password → TOTP) returns an access token", async () => {
+    adminToken = await adminLogin();
+    expect(adminToken.length).toBeGreaterThan(20);
   });
 
-  it("POST /api/admin/login with wrong password should return 500 (invalid)", async () => {
+  it("POST /api/admin/login/password with an unknown admin is rejected", async () => {
+    // Unknown email on purpose — a wrong password on the real admin would count toward its lockout.
     const res = await request
-      .post("/api/admin/login")
-      .send({ email: ADMIN_CREDS.email, password: "WrongPass!" });
+      .post("/api/admin/login/password")
+      .set("User-Agent", BROWSER_UA)
+      .send({ email: "no-such-admin@example.invalid", password: "WrongPass!" });
 
-    expect([400, 401, 500]).toContain(res.status);
+    expect([400, 401]).toContain(res.status);
+    expect(res.body.data?.accessToken).toBeUndefined();
+  });
+
+  it("the retired single-step POST /api/admin/login never issues a token", async () => {
+    const res = await request.post("/api/admin/login").set("User-Agent", BROWSER_UA).send({ email: "no-such-admin@example.invalid", password: "x" });
+    expect(res.body?.data?.accessToken).toBeUndefined();
   });
 });
 
@@ -86,7 +81,8 @@ describe("Alert Service Endpoints", () => {
     expect([401, 403]).toContain(res.status);
   });
 
-  it("POST /api/admin/alerts/test should send test alert", async () => {
+  // Sends a REAL Slack/Discord alert — opt-in only.
+  itWrites("POST /api/admin/alerts/test should send test alert", async () => {
     if (!adminToken) return;
 
     const res = await request

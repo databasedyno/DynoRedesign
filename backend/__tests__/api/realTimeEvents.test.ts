@@ -8,27 +8,14 @@
  * - Admin push to user (auth guard + functionality)
  * - Admin event (auth guard + functionality)
  */
-import supertest from "supertest";
-
-const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:8001";
-const request = supertest(BASE_URL);
-
-const ADMIN_CREDS = {
-  email: "moxxcompany@gmail.com",
-  password: "Katiekendra123@",
-};
+import { adminLogin, itWrites, request } from "./helpers/adminSession";
 
 let adminToken = "";
 
 describe("Setup: Admin Auth", () => {
-  it("POST /api/admin/login should return a token", async () => {
-    const res = await request
-      .post("/api/admin/login")
-      .send(ADMIN_CREDS);
-
-    expect(res.status).toBe(200);
-    expect(res.body.data?.accessToken).toBeDefined();
-    adminToken = res.body.data.accessToken;
+  it("two-step admin login returns a token", async () => {
+    adminToken = await adminLogin();
+    expect(adminToken.length).toBeGreaterThan(20);
   });
 });
 
@@ -75,7 +62,8 @@ describe("Admin Broadcast Endpoint", () => {
     expect(res.status).toBe(400);
   });
 
-  it("POST /api/events/broadcast with valid data should succeed", async () => {
+  // Shows a banner to every connected client — opt-in only.
+  itWrites("POST /api/events/broadcast with valid data should succeed", async () => {
     if (!adminToken) return;
 
     const res = await request
@@ -114,7 +102,8 @@ describe("Admin Push Notification Endpoint", () => {
     expect(res.status).toBe(400);
   });
 
-  it("POST /api/events/push with valid data should succeed", async () => {
+  // Persists a notification for user 1 in the live DB — opt-in only.
+  itWrites("POST /api/events/push with valid data should succeed", async () => {
     if (!adminToken) return;
 
     const res = await request
@@ -172,16 +161,26 @@ describe("Admin Event Endpoint", () => {
   });
 });
 
-describe("Swagger Documentation — New Endpoints", () => {
-  it("GET /api/docs.json should include new real-time endpoints", async () => {
+describe("Swagger Documentation — real-time endpoints", () => {
+  // /api/docs.json is the MERCHANT spec: only the SSE stream is public; admin event routes
+  // live in the internal spec (/api/docs/internal.json, ENABLE_INTERNAL_API_DOCS=true).
+  it("merchant spec exposes the SSE stream but not the admin event routes", async () => {
     const res = await request.get("/api/docs.json");
 
     expect(res.status).toBe(200);
     expect(res.body.paths["/api/events/stream"]).toBeDefined();
-    expect(res.body.paths["/api/events/stats"]).toBeDefined();
-    expect(res.body.paths["/api/events/push-stats"]).toBeDefined();
-    expect(res.body.paths["/api/events/broadcast"]).toBeDefined();
-    expect(res.body.paths["/api/events/push"]).toBeDefined();
-    expect(res.body.paths["/api/events/admin-event"]).toBeDefined();
+    expect(res.body.paths["/api/events/broadcast"]).toBeUndefined();
+    expect(res.body.paths["/api/events/push"]).toBeUndefined();
+    expect(res.body.paths["/api/events/admin-event"]).toBeUndefined();
+  });
+
+  it("internal spec documents every real-time endpoint (or is disabled)", async () => {
+    const res = await request.get("/api/docs/internal.json");
+    if (res.status === 404) return expect(res.body.message).toMatch(/ENABLE_INTERNAL_API_DOCS/);
+
+    expect(res.status).toBe(200);
+    for (const p of ["/api/events/stream", "/api/events/stats", "/api/events/push-stats", "/api/events/broadcast", "/api/events/push", "/api/events/admin-event"]) {
+      expect(res.body.paths[p]).toBeDefined();
+    }
   });
 });

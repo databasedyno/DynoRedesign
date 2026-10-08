@@ -142,12 +142,11 @@
 ## - SafeDeal customer sign-in: any *@example.com email → one-time code in UI (sd-signin-preview-code) and POST /api/safedeal/auth/send-code → data.preview_code.
 ## - Simulated funding is DISABLED on this pod (SAFEDEAL_ALLOW_SIMULATION unset) — cannot fund deals; test fee math via /api/safedeal/fee-preview and the create-deal quote UI.
 
-## 2026-10-08 — SafeDeal REFERRALS & REWARDS QA identities (throwaway @example.com, sign in via preview_code)
-## - Referrer A: sd_qa_refa_1791457005@example.com (cid 1116) — referral code 55QYKP8, $30 fee credit (3 rewarded friends + $15 milestone; seeded by backend/scripts/safedeal_rewards_selftest.ts on IN-MEMORY deals).
-## - Referee B: sd_qa_refb_1791457005@example.com (cid 1117) — referred by A, welcome credit already spent (balance $0). Open deal SD-353 "QA ref deal" A(seller)→B(buyer) $120, invite_url carries ?ref=55QYKP8.
-## - Referees C/D: sd_qa_refc_/sd_qa_refd_1791457005@example.com (cid 1118/1119).
-## - A NEW referee: open /safedeal?ref=55QYKP8 (banner sd-referral-banner) → sign in with a NEW *@example.com → gets $5 welcome credit (GET /api/safedeal/rewards → credit.balance 5).
+## 2026-10-08 — SafeDeal REFERRALS & REWARDS (iteration_281: BE+FE 100%). QA identities (sd_qa_ref*_1791457005@example.com, code 55QYKP8) were PURGED after QA.
+## - Re-mint: sign in referrer R (new *@example.com) → GET /api/safedeal/rewards → data.code. New referee: POST /auth/verify-code {email,code,ref:<R code>} → data.referral.applied=true ($5 welcome credit). UI: /safedeal?ref=<code> shows sd-referral-banner.
+## - Release-time credit spend + referral reward + milestones (deals can't be funded on preview): DOTENV_CONFIG_PATH=/app/backend/.env node -r dotenv/config node_modules/.bin/ts-node --transpile-only scripts/safedeal_rewards_selftest.ts <referrerCid> <refereeCid> [<referee2> <referee3>]
 ## - Purge after QA: node /app/backend/scripts/purge_test_data.js --apply (customers cascade → referral + credit-ledger rows).
+## - Integration suite (live server, read-mostly): node_modules/.bin/jest --config jest.config.ts --forceExit --selectProjects integration --runTestsByPath __tests__/api/{coreServices,adminFlows,realTimeEvents,paymentWalletFlows}.test.ts — admin login via __tests__/api/helpers/adminSession.ts (password→TOTP using scripts/admin_2fa.cjs). Writes (new users, notifications, Slack/Discord alerts) only with INTEGRATION_ALLOW_WRITES=true.
 
 
 ## 2026-09-25 (fork) — POD PREVIEW URL + QA CENTER PASSCODE (read first)

@@ -73,19 +73,27 @@ describe("SSE Events", () => {
 });
 
 describe("Swagger Documentation", () => {
-  it("GET /api/docs.json should return valid OpenAPI spec", async () => {
+  it("GET /api/docs.json should return the merchant OpenAPI spec", async () => {
     const res = await request.get("/api/docs.json");
 
     expect(res.status).toBe(200);
     expect(res.body.openapi).toBeDefined();
-    expect(res.body.info).toBeDefined();
-    expect(res.body.paths).toBeDefined();
+    expect(res.body.info?.title).toBe("Dynopay Merchant API");
+    expect(res.body.paths["/api/pay/createPaymentLink"]).toBeDefined();
+    expect(res.body.paths["/api/events/stream"]).toBeDefined();
+    // Dashboard-session security routes are internal-only (not part of the merchant contract).
+    expect(res.body.paths["/api/user/2fa/setup"]).toBeUndefined();
+    expect(res.body.paths["/api/user/sessions"]).toBeUndefined();
+  });
 
-    // Verify new security paths are present
+  it("GET /api/docs/internal.json lists the security routes (or is disabled)", async () => {
+    const res = await request.get("/api/docs/internal.json");
+    if (res.status === 404) return expect(res.body.message).toMatch(/ENABLE_INTERNAL_API_DOCS/);
+
+    expect(res.status).toBe(200);
     expect(res.body.paths["/api/csrf-token"]).toBeDefined();
     expect(res.body.paths["/api/user/2fa/setup"]).toBeDefined();
     expect(res.body.paths["/api/user/sessions"]).toBeDefined();
-    expect(res.body.paths["/api/events/stream"]).toBeDefined();
   });
 
   it("GET /api/docs should return HTML page or redirect", async () => {

@@ -7,10 +7,7 @@
  * - Transaction listing
  * - Public payment verification
  */
-import supertest from "supertest";
-
-const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:8001";
-const request = supertest(BASE_URL);
+import { itWrites, request } from "./helpers/adminSession";
 
 // We register and login a test user for auth-required endpoints
 const TEST_USER = {
@@ -22,7 +19,8 @@ const TEST_USER = {
 let accessToken = "";
 
 describe("Setup: User Authentication", () => {
-  it("Register and login test user", async () => {
+  // Creates a real merchant account in the live DB — opt-in only (authed checks below skip without it).
+  itWrites("Register and login test user", async () => {
     // Register (may timeout on slow DB, accept any outcome)
     const regRes = await request.post("/api/user/registerUser").send(TEST_USER).timeout({ response: 10000 });
     // Registration may return 200/201 (new) or 409 (exists) — all acceptable

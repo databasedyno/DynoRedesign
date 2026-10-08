@@ -1,3 +1,31 @@
+# === 2026-10-08 (fork) pt4 — SAFEDEAL REFERRALS & REWARDS + INTEGRATION TESTS GREEN + AUTH TRUST-PANEL i18n — DONE & TESTED (iteration_281 BE/FE 100%) ===
+# USER CHOICES: referrer $5 NON-CASHABLE fee credit after the friend's first COMPLETED+RELEASED deal >= $50; friend $5 off first deal fee
+#   (= $5 welcome credit at sign-up via link); levels Member 5% -> Silver 4.5% (3 deals|$1k) -> Gold 4% (10|$5k) -> Platinum 3.5% (25|$20k), $10 min fee stays;
+#   milestones 3 friends +$15, 10 +$50, 25 +$150; cap 20 rewarded referrals/referrer/month; no self-referral; one referrer per account.
+# DB (0064_safedeal_rewards, additive): tbl_safedeal_profile.{referral_code UNIQUE, referred_by_customer_id, fee_credit_usd};
+#   tbl_safedeal_referral (status joined|rewarded|capped); tbl_safedeal_credit_ledger (kind welcome|referral|milestone|applied, UNIQUE reference = idempotency);
+#   tbl_escrow_deal.{creator_ref_code, fee_level, fee_credit_buyer_usd, fee_credit_seller_usd} (+ escrowDealModel attrs).
+# BACKEND: services/safedeal/safedealRewards.ts (postCredit row-locked ledger, attachReferral, feeTermsFor/levels, applyReleaseFeeCredits,
+#   onDealCompleted -> referral reward + milestones + email sendSafeDealReferralRewardEmail, rewardsSummary). escrowShared.computeFeeBreakdown({feeCredits, rateNote})
+#   -> escrowFee is NET of credits (grossEscrowFee kept), costItems label "… − $X credit"; dealFeeBreakdown passes deal credits + feeLevelNote; never on cancellation.
+#   escrowController.authorizeOutcome: release only -> applyReleaseFeeCredits BEFORE breakdown; settleToWallets leaves the buyer's credit in their available balance (drift excludes it);
+#   attemptPayouts completed -> onDealCompleted; actAccept/amend -> applyLevelFeeTerms (fee_percent from fee payer's level, split = average); inviteLinkFor = dealUrl + ?ref=creator code
+#   (serializeDeal.invite_url, invite/resend/reminder emails). safedealController: verifyCode + telegramAuth attach `ref` (only on a brand-new profile: RETURNING (xmax=0) AS inserted;
+#   telegram strips ref before HMAC check); fee-preview personalised via optional token + my_role (feeLevel, feeCreditPreviewUsd); viewFull v.rewards; createDeal fee terms + creator_ref_code.
+#   Routes: GET /api/safedeal/rewards (auth), GET /api/safedeal/referral/:code (public).
+# FRONTEND: /safedeal/rewards (Components/SafeDeal/Rewards/*: InviteHero link+code+share Telegram/WhatsApp/X, CreditCard, LevelCard ladder, MilestonesCard, InvitesList, CreditHistory, HowItWorks);
+#   nav "Rewards" (icon-only on phones); Overview RewardsTeaser (sd-home-rewards); ReferralBanner captures ?ref= (localStorage sd_ref, 30d) for guests; SignIn/Telegram send ref + welcome toast;
+#   NewDealReview RewardsQuoteNote (sd-quote-loyalty/credit); DealPage sd-amt-credit-preview/applied; ShareInviteButtons gained withX/dark/text props.
+# TESTS: __tests__/safedealFeeCredits.test.ts (math/custody), scripts/safedeal_rewards_selftest.ts (DB paths on in-memory deals, ALL PASS), unit suite 51/817 green.
+# INTEGRATION SUITE FIXED (was failing): admin login is 2-step+TOTP -> __tests__/api/helpers/adminSession.ts; /api/docs.json is the MERCHANT spec (internal at /api/docs/internal.json);
+#   side-effect tests (register user, push notification, broadcast, Slack/Discord alert) gated by INTEGRATION_ALLOW_WRITES=true. core/admin/realTime/paymentWallet = 46 pass, 4 opt-in skipped.
+#   (authFlows.test.ts untouched — it registers real users on the prod DB.)
+# i18n: 12 AuthBrandPanel trust strings added to all 6 auth.json (scripts/i18n/add_auth_brand_panel_i18n.py); DE verified on /auth/login.
+# ENV: backend/.env SAFEDEAL_URL now points at this pod's preview (/safedeal). QA identities purged (purge_test_data.js --apply).
+# BACKLOG: admin view of referrals/credits; referral leaderboard/share card; SafeDeal Logo Phase 2/3; nodemailer >=10.0.2; 2FA re-check before admin money moves; unsigned Tatum webhooks; Chainalysis (parked).
+# ============================================================================================
+
+
 # === 2026-10-08 (fork) pt3 — SAFEDEAL LOGO RE-IMAGINED ("The Hold") — ROLLED OUT EVERYWHERE ===
 # USER: approved plan "SafeDeal Logo Re-imagined" -> 3 concepts on a private comparison page -> owner picked Concept 1 "The Hold", no tweaks.
 # MARK: an "S" of two halves (buyer/seller) holding a small gold square (money in escrow). Ink #0A0A0B / white + SafeDeal gold #FFC61A.

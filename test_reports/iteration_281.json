@@ -1,0 +1,29 @@
+{
+  "summary": "Full QA of SafeDeal Referrals & Rewards. Backend: GET /api/safedeal/rewards returns full shape (code 55QYKP8, link with ?ref, credit $30/$30/$0, level member with next Silver, 4-tier levels, referrals total/rewarded/pending, 3 milestones with 3-reached, next_milestone '7 remaining', 4 history entries, rules exactly as spec). 401 without token confirmed. GET /api/safedeal/referral/55QYKP8 -> valid:true; ZZZZZZZ -> valid:false. verify-code with ref: new user -> applied:true + welcome_credit_usd:5; 2nd signin -> applied:false; self-referral by A -> applied:false; existing user B with ref -> applied:false. Referrer A list grew by one with status 'joined'. fee-preview with token (new user, $5 credit) returns feeCreditAvailableUsd=5, feeCreditPreviewUsd=5, feePercent 5, standardFeePercent 5; anonymous returns feeCreditPreviewUsd 0. POST /deals as A creates deal with invite_url ending ?ref=55QYKP8 and fee_level null + fee_percent 5. Jest unit tests (safedealFeeCredits + safedealBalanceFunding) 10/10 PASS. Frontend: /safedeal/rewards shows all required data-testids (invite hero, link, code 55QYKP8, share-telegram/whatsapp/x/copy, credit $30.00, level Member 5% + ladder, milestones with ms3 data-reached=true + ms10/25 false, next-milestone '7 more to unlock +$50', how-1..3, invites list, history). Copy code shows a 'copied' toast. Loyalty card mentions '$10 minimum fee'. /safedeal/deals Overview shows sd-home-rewards card with credit $30.00 and 'Member · 5%' level; sd-home-rewards-open navigates to /safedeal/rewards and sd-nav-rewards is aria-current='page'. Mobile 390px: no horizontal overflow, Sign out button visible, nav-rewards icon visible. Guest /safedeal?ref=55QYKP8 shows sd-referral-banner with correct copy; invalid ref ZZZZZZZ hides it.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/__tests__/safedealFeeCredits.test.ts",
+    "/app/backend/__tests__/safedealBalanceFunding.test.ts",
+    "/app/test_reports/sd_rewards.png",
+    "/app/test_reports/sd_home.png",
+    "/app/test_reports/sd_mobile_header.png",
+    "/app/test_reports/sd_guest_banner.png"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Share buttons sd-rewards-share-* are <button> elements (no href). Spec said 'opens the right share URL' — this works via window.open but means href-based assertions must be replaced with popup/window.open listening. Not a bug, informational."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "Referrer A: sd_qa_refa_1791457005@example.com (code 55QYKP8). New referee minted during QA: sd_qa_refnew_1791461041@example.com (cid 1120, $5 welcome credit, referral row id 4 pending on A). Rate limits hit on send-code (10/15m per IP+email) — subsequent testing used injected sd_token in localStorage to bypass sign-in.",
+  "seed_data_creation": "Created one new user sd_qa_refnew_1791461041@example.com (cid 1120) via referral link flow and referrer B had a login attempt (no state change). Please purge via node /app/backend/scripts/purge_test_data.js --apply when done.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All spec items pass. Fee-preview and create-deal endpoints behave correctly. Release-time credit application and milestone awards are covered by backend/scripts/safedeal_rewards_selftest.ts (in-memory only — do NOT fund real deals in preview). Beware preview send-code/verify-code rate limit; prefer injecting sd_token into localStorage for repeated runs. Referrer A's referrals.pending is now 1 and total=4 because a new referee was created during this iteration — this is expected drift, not a bug.",
+  "rca of the issue": "n/a — no bugs found"
+}

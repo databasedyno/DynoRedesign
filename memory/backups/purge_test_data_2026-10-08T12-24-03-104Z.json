@@ -1,0 +1,257 @@
+{
+ "at": "2026-10-08T12:24:03.104Z",
+ "company_id": 262,
+ "keep": [
+  "moxxcompany@gmail.com",
+  "gidimeter@gmail.com",
+  "gidineter@gmail.com"
+ ],
+ "testCustomers": [
+  {
+   "customer_id": 1067,
+   "email": "sd-debug-17909482916860554@example.com"
+  },
+  {
+   "customer_id": 1068,
+   "email": "sd-hostspoof-1790949140@example.com"
+  },
+  {
+   "customer_id": 1116,
+   "email": "sd_qa_refa_1791457005@example.com"
+  },
+  {
+   "customer_id": 1117,
+   "email": "sd_qa_refb_1791457005@example.com"
+  },
+  {
+   "customer_id": 1118,
+   "email": "sd_qa_refc_1791457005@example.com"
+  },
+  {
+   "customer_id": 1119,
+   "email": "sd_qa_refd_1791457005@example.com"
+  },
+  {
+   "customer_id": 1120,
+   "email": "sd_qa_refnew_1791461041@example.com"
+  }
+ ],
+ "deals": [
+  {
+   "escrow_id": 353,
+   "source": "safedeal",
+   "company_id": 262,
+   "title": "QA ref deal",
+   "creator_email": "sd_qa_refa_1791457005@example.com",
+   "counterparty_email": "sd_qa_refb_1791457005@example.com",
+   "status": "invited"
+  },
+  {
+   "escrow_id": 354,
+   "source": "safedeal",
+   "company_id": 262,
+   "title": "QA invite deal",
+   "creator_email": "sd_qa_refa_1791457005@example.com",
+   "counterparty_email": "sd_qa_testcp@example.com",
+   "status": "invited"
+  },
+  {
+   "escrow_id": 355,
+   "source": "safedeal",
+   "company_id": 262,
+   "title": "QA credit preview",
+   "creator_email": "sd_qa_refnew_1791461041@example.com",
+   "counterparty_email": "sd_qa_refseller_1791461041@example.com",
+   "status": "invited"
+  }
+ ],
+ "attachments": [],
+ "ledger": [],
+ "topups": [],
+ "withdrawals": [],
+ "addresses": [],
+ "profiles": [
+  {
+   "customer_id": 1067,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:38:13.032Z",
+   "created_at": "2026-10-02T13:38:13.032Z",
+   "updated_at": "2026-10-02T13:38:13.032Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": null,
+   "referred_by_customer_id": null,
+   "fee_credit_usd": "0.00"
+  },
+  {
+   "customer_id": 1118,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-08T10:58:12.812Z",
+   "created_at": "2026-10-08T10:58:12.812Z",
+   "updated_at": "2026-10-08T10:58:13.372Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": null,
+   "referred_by_customer_id": 1116,
+   "fee_credit_usd": "5.00"
+  },
+  {
+   "customer_id": 1119,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-08T10:58:15.360Z",
+   "created_at": "2026-10-08T10:58:15.360Z",
+   "updated_at": "2026-10-08T10:58:15.918Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": null,
+   "referred_by_customer_id": 1116,
+   "fee_credit_usd": "5.00"
+  },
+  {
+   "customer_id": 1117,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-08T12:04:44.768Z",
+   "created_at": "2026-10-08T10:56:49.668Z",
+   "updated_at": "2026-10-08T12:04:44.768Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": "TB5J8SR",
+   "referred_by_customer_id": 1116,
+   "fee_credit_usd": "0.00"
+  },
+  {
+   "customer_id": 1068,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-02T13:52:21.799Z",
+   "created_at": "2026-10-02T13:52:21.799Z",
+   "updated_at": "2026-10-02T13:52:21.799Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": null,
+   "referred_by_customer_id": null,
+   "fee_credit_usd": "0.00"
+  },
+  {
+   "customer_id": 1116,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-08T12:06:29.533Z",
+   "created_at": "2026-10-08T10:56:46.564Z",
+   "updated_at": "2026-10-08T12:06:29.533Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": "55QYKP8",
+   "referred_by_customer_id": null,
+   "fee_credit_usd": "30.00"
+  },
+  {
+   "customer_id": 1120,
+   "company_id": 262,
+   "display_name": null,
+   "auto_withdraw": false,
+   "auto_withdraw_address_id": null,
+   "last_login_at": "2026-10-08T12:09:37.537Z",
+   "created_at": "2026-10-08T12:04:04.397Z",
+   "updated_at": "2026-10-08T12:09:37.537Z",
+   "parked_payout_usd": "0.00",
+   "deposit_reserved_usd": 0,
+   "withdrawal_fee_credit_usd": 0,
+   "tokens_valid_after": null,
+   "cashout_hold_until": null,
+   "referral_code": "KBRUYPJ",
+   "referred_by_customer_id": 1116,
+   "fee_credit_usd": "5.00"
+  }
+ ],
+ "wallets": [],
+ "checkouts": [
+  {
+   "transaction_id": 1425,
+   "id": "4e645c93-2d0b-46cf-ab42-0a681a91ec37",
+   "wallet_id": 341,
+   "user_id": 1,
+   "payment_mode": "CRYPTO",
+   "base_amount": 54.38,
+   "base_currency": "USDT-TRC20",
+   "crypto_amount": 54.38,
+   "crypto_currency": "USDT-TRC20",
+   "usd_value": 0,
+   "transaction_fee": 0,
+   "fixed_fee": 0,
+   "blockchain_buffer_fee": 0,
+   "confirmations": 0,
+   "required_confirmations": 6,
+   "transaction_reference": null,
+   "incoming_tx_hash": null,
+   "outgoing_tx_hash": null,
+   "transaction_details": "Credited funds into wallet",
+   "transaction_type": "CREDIT",
+   "status": "pending",
+   "callback_url": null,
+   "webhook_url": null,
+   "webhook_response": null,
+   "customer_id": 951,
+   "company_id": 262,
+   "createdAt": "2026-10-08T00:21:11.636Z",
+   "updatedAt": "2026-10-08T00:21:11.636Z",
+   "tax_amount": null,
+   "tax_rate": null,
+   "tax_label": null,
+   "tax_country_code": null,
+   "customer_vat_id": null,
+   "reverse_charge": false,
+   "referral_credit_applied_usd": "0.00",
+   "webhook_secret": null,
+   "received_amount": null,
+   "remaining_amount": null,
+   "vies_checked_at": null,
+   "vies_valid": null,
+   "vies_source": null,
+   "attention_resolved_at": null,
+   "attention_resolved_by": null,
+   "attention_resolved_note": null,
+   "environment": "production"
+  }
+ ],
+ "poolAddresses": [],
+ "realCids": [
+  696,
+  847,
+  753
+ ]
+}
