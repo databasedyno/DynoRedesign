@@ -1,3 +1,24 @@
+# === 2026-10-08 (fork, pod 22f1a66e) pt2 — SAFEDEAL #351 PROD RCA + BALANCE-FEE FIX + API-KEY BRAND EMAIL + CALM EMAIL REDESIGN + ADAPTIVE FAVICON — DONE & TESTED ===
+# PROD RCA (read-only DB + droplet logs; new pod SSH key authorized by owner 2026-10-08, pub "emergent-agent-dynopay-prodlogs-2026-10-08"):
+#   Deal #351 "Calling log" ($70, buyer admoff1305@gmail.com cust 951, seller cotylynn111@gmail.com) stays awaiting_payment CORRECTLY:
+#   buyer topped up the WALLET (topup #98, 84.50 USDT-TRC20 tx 6f65a1eb…, credited $80 +$0.12 overpay at 00:30Z) BEFORE creating the deal;
+#   pay-from-balance needed $84 (70 + $10 min fee + $4 network est.) > $80.12 so the button was disabled. Buyer then created deal #352 ($65)
+#   and FUNDED it from balance at 00:54Z ($79.38 = 65 + 10 + 4.38 network). #351 is an abandoned duplicate (owner may cancel it).
+#   Buyer was double-charged the $4.38 inbound network fee on #352 (top-up already paid it) — owner decision pending on a $4.38 goodwill credit.
+# FIX (balance funding): escrowShared.computeFeeBreakdown({fromBalance}) zeroes network/exchange/conversion (ignored when lockedCosts);
+#   balanceFundingBreakdown(deal) used by escrowController.actFundFromBalance + safedealController.getDeal (buyer_balance.pays);
+#   Components/SafeDeal/DealActionsCard.tsx compares balance vs pays and shows "pay $X from balance (no network fee)". Tests: __tests__/safedealBalanceFunding.test.ts.
+# FIX (API key email brand): sendApiKeyCreatedEmail(..., time, companyName, lang?) — subject/intro/preheader + "Brand" row; regenerateApiKey looks up
+#   company_name; 6 locales merchant.apiKey.* (+preheaderRegenerated). Tests: __tests__/apiKeyEmailBrand.test.ts. testing_agent iteration_280 = 100%.
+# EMAIL REDESIGN (utils/emailTemplate.ts + emailButton.ts): white canvas, black logo (dynopay-email-logo-light-v6.png = black lockup on white chip;
+#   -dark-v6.png white, swapped via prefers-color-scheme + [data-ogsc]), thin grey borders, NO gold bar / hero badges, gold ONLY on main CTA
+#   (left-aligned), grey social PNGs backend/public/email/social/*.png, SafeDeal wordmark ink/white. infoBox()/otpBlock() now take ONE arg
+#   (≈90 callers updated); gold content links → ink. Harness: bash /app/memory/tmp/qa/render_emails.sh (151/152; newUser no-output pre-existing).
+# FAVICON: public/favicon.svg adaptive (black D light / white D dark); favicon.ico + favicon-16/32/48 = black D on white tile; _app.tsx links v=9
+#   (ico sizes=32x32 + svg; 48/192 icon links removed). Generator: scripts/brand/generate-logo.mjs. FE prod build swapped.
+# UNCOMMITTED to GitHub -> "Save to GitHub" to deploy (push to Improvement auto-deploys).
+# ============================================================================================
+
 # === 2026-10-08 (fork, pod 22f1a66e) — VAULT SETUP + STATUS AUDIT + HERO COPY "CONVERSION IS OPT-IN" — DONE & VERIFIED ===
 # PREVIEW URL: https://secure-passphrase-18.preview.emergentagent.com (pod-bootstrap.sh --url <that> --pass Katiekendra123@; SAFE MODE, LIVE prod DB).
 # HERO COPY (user: "text too long + must be clear conversion is opt-in only"; user chose a merged option via ask_human):

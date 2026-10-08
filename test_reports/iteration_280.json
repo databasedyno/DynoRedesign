@@ -1,0 +1,32 @@
+{
+  "summary": "Verified brand-name fix in API key regenerate/create emails and SafeDeal pay-from-balance fee fix. All targeted backend checks GREEN. Skipped optional live-prod end-to-end regenerate-and-delete flow (destructive on live DB) — unit tests + email harness render + locale JSON validation provide equivalent coverage.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_results": {
+    "jest_apiKeyEmailBrand_and_safedealBalanceFunding": "PASS — 2 suites / 7 tests / 0 failed in 0.514s. Covered: regenerated email subject = 'Production API key rotated for The Dev Store — old key stopped working'; intro 'API key for <strong>The Dev Store</strong> has been regenerated.'; details row 'Brand | <strong>The Dev Store</strong>'; preheader 'The production API key for The Dev Store was rotated.'; de localization ('für Acme' + 'Marke'); HTML escaping of brand name ('<b>Evil</b>' -> '&lt;b&gt;Evil&lt;/b&gt;'). SafeDeal: balanceFundingBreakdown({amount:70,fee5%,min$10,buyer}) -> networkFee=0, exchange=0, conversion=0, escrowFee=10, buyerPays=80, note matches /SafeDeal balance/; on-chain checkout quote still charges network fee (>80); lockedCosts override fromBalance=true (buyerPays=79.38).",
+    "locale_json_merchant_apiKey": "PASS — all 6 locales (en/de/es/fr/nl/pt) have subjectCreated, subjectRegenerated, introCreated, introRegenerated, preheader, preheaderRegenerated, and every value contains {companyName}. JSON parse clean.",
+    "email_harness_audit_render_all_emails": "PASS — 151/152 rendered (adminNotif.newUser 'no output' is pre-existing/expected). /tmp/email_dump/039_billing_apiKeyCreated.html first-line subject = 'New production API key created for Acme Store'. /tmp/email_dump/040_billing_apiKeyRegenerated.html first-line subject = 'Production API key rotated for Acme Store — old key stopped working'. Exact match to spec.",
+    "typescript_check": "PASS — cd /app/backend && node_modules/.bin/tsc --noEmit -p . exits 0 with no output.",
+    "unused_imports_gate": "PASS — node scripts/qa/strip_unused_imports.cjs backend/tsconfig.json --check -> '[dry] 0 files, 0 unused import bindings removed'. Exit 0.",
+    "backend_health": "PASS — http://localhost:8001/health returns HTTP 200.",
+    "live_e2e_regenerate_email": "SKIPPED (by design) — optional and would touch LIVE production DB (create/regenerate/delete a dev key on company 1). Unit test, harness render, and locale validation already prove the brand name is injected into subject + intro + details row + preheader + log line format."
+  },
+  "test_report_links": [
+    "/app/backend/__tests__/apiKeyEmailBrand.test.ts",
+    "/app/backend/__tests__/safedealBalanceFunding.test.ts",
+    "/tmp/email_dump/039_billing_apiKeyCreated.html",
+    "/tmp/email_dump/040_billing_apiKeyRegenerated.html"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Brand name is HTML-escaped before injection into both subject (sanitized) and body (via escape to '&lt;b&gt;Evil&lt;/b&gt;') — XSS-safe against merchant-controlled company_name.",
+    "sendApiKeyCreatedEmail signature grew to 9 positional args (…, companyName, lang?); any legacy caller that passes only 7 args will now get 'your brand' as the fallback. Grep showed the regenerate controller passes 8 args correctly; worth considering a single options object in a future refactor to avoid positional-arg drift.",
+    "balanceFundingBreakdown correctly zeros network/exchange/conversion fees and tags the costItem note with 'SafeDeal balance' so the UI/receipt can explain the delta vs. a normal checkout; computeFeeBreakdown honors lockedCosts over fromBalance (good: a deal that was already funded on-chain can't be retroactively re-priced if later reopened from balance)."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100%", "frontend": "n/a"},
+  "seed_data_creation": "None. No DB writes performed. Email harness wrote 152 files to /tmp/email_dump (ephemeral).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Brand-name fix for API key regenerate/create emails is fully verified via jest + email harness + locale JSON scan. SafeDeal pay-from-balance no longer charges inbound network/exchange/conversion fees — verified via escrowShared.balanceFundingBreakdown unit test (buyerPays=80 for $70 deal with 5%/$10min fee). TS + unused-imports gates clean. The pre-existing jest failures in __tests__/api/{realTimeEvents,adminFlows,paymentWalletFlows,coreServices}.test.ts are unrelated integration tests hitting removed endpoints and were not re-run (per main-agent note)."
+}

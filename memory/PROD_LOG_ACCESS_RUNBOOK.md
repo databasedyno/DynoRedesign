@@ -18,7 +18,7 @@ and the backup/validate/graceful-reload discipline at the end of this doc.
 | Droplet public IPv4 | `134.209.94.115` |
 | Droplet hostname | `dynopay-prod-ams3` (does NOT resolve via DNS from the pod — use the IP) |
 | SSH user | `root` |
-| SSH private key (secure pod only) | `/root/.ssh/dynopay_prod_ed25519` |
+| SSH private key (secure pod only) | `/root/.ssh/dynopay_prod_ed25519` (wiped on new pods — regenerate + owner authorizes pub key; 2026-10-08 key "emergent-agent-dynopay-prodlogs-2026-10-08" authorized) |
 | App / deploy root | `/opt/dynopay` |
 | Live container | `dynopay` (Docker), published on `127.0.0.1:8001` |
 | Edge | Caddy (systemd service, v2.11.x) → container nginx `:8001` → node backend `:3300` / frontend `:3000` |
