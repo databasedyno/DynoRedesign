@@ -2123,7 +2123,7 @@
       "title2": "vandaag nog."
     },
     "hero": {
-      "body": "De non-custodial gateway voor bedrijven en creators. Word betaald in Bitcoin, stablecoins en {{coins}} coins op {{chains}} blockchains — rechtstreeks naar een wallet die alleen jij beheert.",
+      "body": "Non-custodial cryptobetalingen voor bedrijven en creators. Houd de coin die je ontvangt, of kies zelf voor automatisch omzetten.",
       "emailError": "Voer een geldig e-mailadres in.",
       "emailPlaceholder": "Voer je zakelijke e-mail in",
       "google": "Doorgaan met Google",
@@ -2139,7 +2139,7 @@
       ],
       "flow": [
         "Accepteren",
-        "Omzetten",
+        "Omzetten (optioneel)",
         "Afwikkelen"
       ]
     },

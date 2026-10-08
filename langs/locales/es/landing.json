@@ -2123,7 +2123,7 @@
       "title2": "hoy mismo."
     },
     "hero": {
-      "body": "La pasarela sin custodia para empresas y creadores. Cobra en Bitcoin, stablecoins y {{coins}} criptomonedas en {{chains}} blockchains, directo a una wallet que solo tú controlas.",
+      "body": "Pagos cripto sin custodia para empresas y creadores. Quédate con la moneda que recibes o activa la conversión automática si lo deseas.",
       "emailError": "Introduce una dirección de correo válida.",
       "emailPlaceholder": "Introduce tu correo de trabajo",
       "google": "Continuar con Google",
@@ -2139,7 +2139,7 @@
       ],
       "flow": [
         "Aceptar",
-        "Convertir",
+        "Convertir (opcional)",
         "Liquidar"
       ]
     },

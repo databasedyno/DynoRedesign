@@ -2123,7 +2123,7 @@
       "title2": "dès aujourd'hui."
     },
     "hero": {
-      "body": "La passerelle non-dépositaire pour les entreprises et les créateurs. Soyez payé en Bitcoin, stablecoins et {{coins}} cryptos sur {{chains}} blockchains — directement sur un portefeuille que vous seul contrôlez.",
+      "body": "Des paiements crypto non-dépositaires pour les entreprises et les créateurs. Conservez la crypto reçue, ou activez la conversion automatique si vous le souhaitez.",
       "emailError": "Veuillez saisir une adresse e-mail valide.",
       "emailPlaceholder": "Saisissez votre e-mail professionnel",
       "google": "Continuer avec Google",
@@ -2139,7 +2139,7 @@
       ],
       "flow": [
         "Accepter",
-        "Convertir",
+        "Convertir (facultatif)",
         "Régler"
       ]
     },

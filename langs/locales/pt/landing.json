@@ -2123,7 +2123,7 @@
       "title2": "hoje mesmo."
     },
     "hero": {
-      "body": "O gateway sem custódia para empresas e criadores. Receba em Bitcoin, stablecoins e {{coins}} criptomoedas em {{chains}} blockchains — direto para uma carteira que só você controla.",
+      "body": "Pagamentos em cripto sem custódia para empresas e criadores. Fique com a moeda que você recebe ou ative a conversão automática, se quiser.",
       "emailError": "Insira um endereço de e-mail válido.",
       "emailPlaceholder": "Digite seu e-mail de trabalho",
       "google": "Continuar com o Google",
@@ -2139,7 +2139,7 @@
       ],
       "flow": [
         "Aceitar",
-        "Converter",
+        "Converter (opcional)",
         "Liquidar"
       ]
     },

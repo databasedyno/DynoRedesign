@@ -2123,7 +2123,7 @@
       "title2": "ab heute."
     },
     "hero": {
-      "body": "Das nicht-verwahrende Gateway für Unternehmen und Creator. Lass dich in Bitcoin, Stablecoins und {{coins}} Coins über {{chains}} Blockchains bezahlen – direkt auf ein Wallet, das nur du kontrollierst.",
+      "body": "Nicht-verwahrende Krypto-Zahlungen für Unternehmen und Creator. Behalte den Coin, den du erhältst – oder aktiviere optional die Auto-Umwandlung.",
       "emailError": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "emailPlaceholder": "Geschäftliche E-Mail eingeben",
       "google": "Mit Google fortfahren",
@@ -2139,7 +2139,7 @@
       ],
       "flow": [
         "Annehmen",
-        "Konvertieren",
+        "Konvertieren (optional)",
         "Abwickeln"
       ]
     },

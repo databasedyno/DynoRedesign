@@ -1,3 +1,27 @@
+# === 2026-10-08 (fork, pod 22f1a66e) — VAULT SETUP + STATUS AUDIT + HERO COPY "CONVERSION IS OPT-IN" — DONE & VERIFIED ===
+# PREVIEW URL: https://secure-passphrase-18.preview.emergentagent.com (pod-bootstrap.sh --url <that> --pass Katiekendra123@; SAFE MODE, LIVE prod DB).
+# HERO COPY (user: "text too long + must be clear conversion is opt-in only"; user chose a merged option via ask_human):
+#   - v8.hero.body EN = "Non-custodial crypto payments for businesses and creators. Keep the coin you receive, or opt in to auto-convert."
+#     (was 32 words with {{coins}}/{{chains}}; numbers dropped — the stat band already shows them). Translated de/es/fr/nl/pt in
+#     langs/locales/*/landing.json (tone kept: de du, fr vous, es tú, pt você). Truthful: tbl_company.auto_convert_enabled defaultValue=false.
+#   - Hero flow ribbon step 2 "Convert" -> "Convert (optional)" (FLOW label + v8.hero.flow[1] in all 6 locales: Konvertieren (optional),
+#     Convertir (opcional), Convertir (facultatif), Omzetten (optioneel), Converter (opcional)).
+#   - Components/Page/Home/v8/HeroV8.tsx: removed now-unused CHAINS_COUNT/COINS_COUNT import (CI unused-import guard), ribbon label
+#     xs fontSize 11 / letterSpacing .04em + whiteSpace nowrap so EN fits ONE line at 390px (wraps whole steps at 360px / long locales).
+#   GATES: unused-imports guard 0, eslint 0, next build OK -> .next-prod swapped. VERIFIED (Playwright): EN/DE/FR 1920 + EN 390/360 + DE 390,
+#     new text renders, no horizontal overflow. UNCOMMITTED -> "Save to GitHub" (push to Improvement auto-deploys to prod).
+# STATUS AUDIT this session (verified in code/runtime): dashboard refresh flash fix WORKS (25ms sampling, 4 loads, no warning/purpose/empty flash);
+#   admin POST /api/admin/support/refine WORKS (chat+email, ~2s, facts preserved; UI button not clicked to avoid touching a real conversation);
+#   XRP master funded on-chain (3.52 XRP + RLUSD trust line; DB amount 0 is stale); BTC email optimistic-dedup fixed (inFlight claim);
+#   notification-vs-tx timestamps resolved by design (2026-10-01). STILL OPEN: Chainalysis (no code/key); auth trust-panel i18n (12/15 keys
+#   missing in all locales -> EN on non-EN); SEC leftovers (no step-up on admin credit/debit/recover-payment/binance-sell/SafeDeal approve,
+#   non-atomic admin credit/debit, unsigned Tatum webhooks allowed+flagged, QA_PASSCODE fallback, nodemailer 9.1.1); Platform Settings
+#   Phase 2 (14 editable / 46 read-only); admin console redesign; expired-link Resend + duration; Customers bulk; Buy Buttons tab decision;
+#   tax backlog 11/15; ETH fee wallet 0.0091 ETH + TRX 59.88 low (on-chain); owner to confirm 2026-10-03 0.031 ETH transfer.
+# ============================================================================================
+
+
+
 # === 2026-10-07 (fork) — SESSION WRAP-UP (user paused & asked to wrap up) ===
 # DONE & TESTED earlier this session: vault setup; GitHub deploy fix (scripts/qa/hydration_guard.mjs uses runner's preinstalled
 #   Chrome + timeout in .github/workflows/deploy-droplet.yml) [iteration_279]; "Start free" -> straight to OTP (pages/auth/register.tsx,

@@ -10,7 +10,7 @@ import GoogleIcon from "@/assets/Images/googleIcon.svg";
 import { FONT_BODY, FONT_DISPLAY, FONT_MONO, GradientText, GRID_BG, PANEL, PANEL_GLOW, PrimaryBtn, goStart, useConsole } from "./kit";
 import { useMotionOK } from "../motion/tokens";
 import CheckoutCard from "./CheckoutCard";
-import { CHAINS_COUNT, COINS_COUNT, FEE_FROM } from "./platformFacts";
+import { FEE_FROM } from "./platformFacts";
 
 /* ============================================================================
  * HeroV8 — Bybit-style hero. Left: flow ribbon → two-line headline → one-line
@@ -21,7 +21,7 @@ import { CHAINS_COUNT, COINS_COUNT, FEE_FROM } from "./platformFacts";
 
 const FLOW = [
   { icon: "mdi:qrcode-scan", label: "Accept" },
-  { icon: "mdi:swap-horizontal", label: "Convert" },
+  { icon: "mdi:swap-horizontal", label: "Convert (optional)" },
   { icon: "mdi:wallet-outline", label: "Settle" },
 ];
 
@@ -37,7 +37,8 @@ const FlowRibbon: React.FC = () => {
           {i > 0 ? <Box aria-hidden sx={{ width: 4, height: 4, borderRadius: "50%", background: s.ink3, opacity: 0.6 }} /> : null}
           <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.7 }}>
             <Icon icon={f.icon} width={15} height={15} color={s.accent} />
-            <Typography component="span" sx={{ fontFamily: FONT_MONO, fontSize: 12.5, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: s.ink2 }}>
+            {/* xs is tighter so "Accept · Convert (optional) · Settle" stays on one line on phones. */}
+            <Typography component="span" sx={{ fontFamily: FONT_MONO, fontSize: { xs: 11, sm: 12.5 }, fontWeight: 600, letterSpacing: { xs: "0.04em", sm: "0.08em" }, textTransform: "uppercase", color: s.ink2, whiteSpace: "nowrap" }}>
               {t(`v8.hero.flow.${i}`, { defaultValue: f.label })}
             </Typography>
           </Box>
@@ -208,10 +209,9 @@ const HeroV8: React.FC = () => {
             <GradientText>{t("v8.hero.h2b", { defaultValue: "your wallet." })}</GradientText>
           </Typography>
           <Typography data-testid="hero-subheadline" sx={{ fontFamily: FONT_BODY, color: s.ink2, fontSize: { xs: 16.5, md: 18.5 }, lineHeight: 1.6, mt: 2.5, maxWidth: 560 }}>
+            {/* Conversion is OPT-IN (tbl_company.auto_convert_enabled defaults to false) — copy must say so. */}
             {t("v8.hero.body", {
-              coins: COINS_COUNT,
-              chains: CHAINS_COUNT,
-              defaultValue: `The non-custodial gateway for businesses and creators. Get paid in Bitcoin, stablecoins and {{coins}} coins across {{chains}} blockchains — straight to a wallet only you control.`,
+              defaultValue: "Non-custodial crypto payments for businesses and creators. Keep the coin you receive, or opt in to auto-convert.",
             })}
           </Typography>
           <SignupBlock />

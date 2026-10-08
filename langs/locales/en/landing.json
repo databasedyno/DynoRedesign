@@ -2123,7 +2123,7 @@
       "title2": "today."
     },
     "hero": {
-      "body": "The non-custodial gateway for businesses and creators. Get paid in Bitcoin, stablecoins and {{coins}} coins across {{chains}} blockchains — straight to a wallet only you control.",
+      "body": "Non-custodial crypto payments for businesses and creators. Keep the coin you receive, or opt in to auto-convert.",
       "emailError": "Please enter a valid email address.",
       "emailPlaceholder": "Enter your work email",
       "google": "Continue with Google",
@@ -2139,7 +2139,7 @@
       ],
       "flow": [
         "Accept",
-        "Convert",
+        "Convert (optional)",
         "Settle"
       ]
     },
