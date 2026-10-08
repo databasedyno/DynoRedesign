@@ -318,7 +318,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
   const overlineSx = {
     fontFamily: MONO,
     fontWeight: 700,
-    fontSize: 11,
+    fontSize: 12,
     letterSpacing: '0.14em',
     textTransform: 'uppercase' as const,
     color: theme.palette.text.secondary,
@@ -342,7 +342,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
         <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: { xs: 16, sm: 19 }, lineHeight: 1.1, letterSpacing: '-0.02em', color: theme.palette.text.primary, fontVariantNumeric: 'tabular-nums', overflowWrap: 'anywhere' }}>
           {value}
         </Typography>
-        <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, mt: 0.35, lineHeight: 1.2 }}>{label}</Typography>
+        <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mt: 0.35, lineHeight: 1.2 }}>{label}</Typography>
       </Box>
     </Box>
   )
@@ -493,7 +493,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
         <Box mt={2.25}>
           <Typography component='span' sx={overlineSx}>
             {t('donation.donorDetails', { defaultValue: 'Your details' })}{' '}
-            <Typography component='span' sx={{ fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: theme.palette.text.disabled }}>
+            <Typography component='span' sx={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: theme.palette.text.disabled }}>
               ({t('donation.optional', { defaultValue: 'optional' })})
             </Typography>
           </Typography>
@@ -683,7 +683,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                     data-testid='donation-category-pill'
                     sx={{
                       display: 'inline-flex', alignItems: 'center', gap: 0.6, px: 1.25, minHeight: 30, borderRadius: '999px',
-                      fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+                      fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
                       color: '#FFFFFF', bgcolor: 'rgba(10,10,13,0.62)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
                     }}
                   >
@@ -728,7 +728,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                   <Icon icon='mdi:account-heart-outline' width={18} />
                 </Box>
                 <Box sx={{ minWidth: 0 }}>
-                  <Typography sx={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: theme.palette.text.secondary }}>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: theme.palette.text.secondary }}>
                     {t('donation.beneficiary', { defaultValue: 'Beneficiary' })}
                   </Typography>
                   <Typography fontSize={14.5} fontWeight={700} color={theme.palette.text.primary}>{donation.beneficiary.name}</Typography>
@@ -796,7 +796,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
               {/* Share tray — gated on `mounted` so SSR + first client render match. */}
               {mounted && (
                 <Box mt={2.5} pt={2} display='flex' alignItems='center' gap={1.25} flexWrap='wrap' data-testid='donation-share-row' sx={{ borderTop: `1px solid ${theme.palette.divider}` }}>
-                  <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary }}>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary }}>
                     {t('donation.share', { defaultValue: 'Share' })}
                   </Typography>
                   <CampaignShareTray
@@ -915,7 +915,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                             onError={(e: React.SyntheticEvent<HTMLImageElement>) => { (e.target as HTMLImageElement).style.display = 'none' }}
                           />
                           {photo.caption && (
-                            <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, px: 1.25, py: 0.75, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%)', color: '#FFFFFF', fontSize: 11.5, fontWeight: 600 }}>
+                            <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, px: 1.25, py: 0.75, background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%)', color: '#FFFFFF', fontSize: 12, fontWeight: 600 }}>
                               {photo.caption}
                             </Box>
                           )}
@@ -955,7 +955,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
                           <Typography sx={{ fontFamily: HERO, fontWeight: 800, fontSize: 16, letterSpacing: '-0.01em', color: theme.palette.text.primary }}>
                             {upd.title}
                           </Typography>
-                          <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary, mt: 0.25, mb: 1 }}>
+                          <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, mt: 0.25, mb: 1 }}>
                             {mounted ? rel(upd.created_at) : ''}
                           </Typography>
                           {upd.image_url && (
@@ -1040,7 +1040,7 @@ const DonationCampaign = ({ donation, merchant, submitting, onDonate }: Donation
           }}
         >
           <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, lineHeight: 1.2 }} noWrap>
+            <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, lineHeight: 1.2 }} noWrap>
               {donation.title || t('donation.defaultTitle', { defaultValue: 'Support this campaign' })}
             </Typography>
             <Typography sx={{ fontFamily: MONO, fontWeight: 800, fontSize: 18, lineHeight: 1.2, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }} data-testid='donation-sticky-amount'>

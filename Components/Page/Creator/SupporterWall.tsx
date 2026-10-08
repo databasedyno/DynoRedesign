@@ -34,7 +34,7 @@ const SupporterWall = ({ supporters, accent }: { supporters: RecentSupporter[]; 
   if (!supporters.length) return null
   return (
     <Box data-testid="creator-supporter-wall" sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${theme.palette.divider}`, position: 'relative' }}>
-      <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1.5 }}>
+      <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1.5 }}>
         {t('creator.wall.title', { defaultValue: 'Recent supporters' })}
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -51,7 +51,7 @@ const SupporterWall = ({ supporters, accent }: { supporters: RecentSupporter[]; 
                   <Typography sx={{ fontFamily: MONO, fontSize: 13, fontWeight: 700, color: accentText }}>
                     {getCurrencySymbolFromFormat(s.currency)}{formatWithSeparators(s.amount, s.currency)}
                   </Typography>
-                  <Typography sx={{ fontSize: 11.5, color: theme.palette.text.disabled, ml: 'auto' }}>{relTime(s.at, t)}</Typography>
+                  <Typography sx={{ fontSize: 12, color: theme.palette.text.disabled, ml: 'auto' }}>{relTime(s.at, t)}</Typography>
                 </Box>
                 {s.message && (
                   <Typography sx={{ fontSize: 13.5, color: theme.palette.text.secondary, lineHeight: 1.5, mt: 0.35, overflowWrap: 'anywhere' }}>

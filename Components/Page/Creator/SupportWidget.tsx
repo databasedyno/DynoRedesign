@@ -318,7 +318,7 @@ const SupportWidget = ({
       {phase === 'form' && (
       <>
       {/* Preset amount chips */}
-      <Typography sx={{ mt: 3, mb: 1, fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, position: 'relative' }}>
+      <Typography sx={{ mt: 3, mb: 1, fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.palette.text.secondary, position: 'relative' }}>
         {t('creator.support.chooseAmount', { defaultValue: 'Choose an amount' })}
       </Typography>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.25, position: 'relative' }} data-testid="support-widget-presets">
@@ -413,7 +413,7 @@ const SupportWidget = ({
             sx={{ ...fieldSx, resize: 'vertical', minHeight: 68, display: 'block', lineHeight: 1.5 }}
           />
           {message.length > 0 && (
-            <Typography sx={{ position: 'absolute', right: 12, bottom: 10, fontFamily: MONO, fontSize: 10.5, color: theme.palette.text.disabled, pointerEvents: 'none' }}>
+            <Typography sx={{ position: 'absolute', right: 12, bottom: 10, fontFamily: MONO, fontSize: 12, color: theme.palette.text.disabled, pointerEvents: 'none' }}>
               {message.length}/280
             </Typography>
           )}

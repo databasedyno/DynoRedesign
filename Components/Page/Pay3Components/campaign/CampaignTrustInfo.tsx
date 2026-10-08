@@ -42,7 +42,7 @@ const ACCEPTED_COINS: Array<{ icon: string; label: string; color?: string }> = [
 const overlineSx = (theme: Theme) => ({
   fontFamily: MONO,
   fontWeight: 700,
-  fontSize: 11,
+  fontSize: 12,
   letterSpacing: "0.14em",
   textTransform: "uppercase" as const,
   color: theme.palette.text.secondary,
@@ -60,7 +60,7 @@ export const AcceptedCoinsStrip: React.FC = () => {
         component="span"
         sx={{
           display: "block",
-          fontSize: 11.5,
+          fontSize: 12,
           fontWeight: 600,
           letterSpacing: "0.02em",
           color: theme.palette.text.secondary,
@@ -86,7 +86,7 @@ export const AcceptedCoinsStrip: React.FC = () => {
             }}
           >
             <Icon icon={c.icon} width={15} height={15} color={c.color} />
-            <Typography sx={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, color: theme.palette.text.secondary }}>
+            <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: theme.palette.text.secondary }}>
               {c.label}
             </Typography>
           </Box>
@@ -291,7 +291,7 @@ export const CampaignTrustInfo: React.FC<CampaignTrustInfoProps> = ({ merchantNa
         </Box>
       </Box>
 
-      <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
+      <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
         <Icon icon="mdi:lock-outline" width={12} />
         {t("donation.securedByFooter", { defaultValue: "Payments secured & processed by Dynopay" })}
       </Typography>

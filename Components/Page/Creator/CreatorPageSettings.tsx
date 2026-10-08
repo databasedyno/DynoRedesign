@@ -706,7 +706,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                     width={12}
                     color={theme.palette.mode === "dark" ? "#FFD100" : "#8B5E00"}
                   />
-                  <Typography sx={{ fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
+                  <Typography sx={{ fontSize: 12, fontWeight: 700, color: theme.palette.text.secondary, letterSpacing: 0.2 }}>
                     {t("appliesToThisCompanyOnly", { defaultValue: "Applies to this brand only" })}
                   </Typography>
                 </Box>
@@ -766,7 +766,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
                     variant="contained"
                     data-testid="creator-cover-remove"
                     onClick={(e: React.MouseEvent) => { e.stopPropagation(); void removeCover(); }}
-                    sx={{ textTransform: "none", fontSize: 11.5, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
+                    sx={{ textTransform: "none", fontSize: 12, minWidth: 0, py: 0.4, px: 1, backgroundColor: "rgba(0,0,0,0.65)", color: "#fff", "&:hover": { backgroundColor: "rgba(0,0,0,0.8)" } }}
                   >
                     {t("storefront.form.remove", { defaultValue: "Remove" })}
                   </Button>

@@ -185,7 +185,7 @@ const HandleQrCode: React.FC<Props> = ({ handle, size = "full", accentColor }) =
         </Button>
       </Box>
 
-      <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, textAlign: "center", maxWidth: 280 }}>
+      <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, textAlign: "center", maxWidth: 280 }}>
         {t("creator.qr.printHint")}
       </Typography>
     </Box>

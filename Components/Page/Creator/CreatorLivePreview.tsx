@@ -127,7 +127,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
           <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#FEBC2E" }} />
           <Box sx={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#28C840" }} />
         </Box>
-        <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: theme.palette.text.secondary, ml: 1 }}>
+        <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, ml: 1 }}>
           {prettyCreatorDomain()}/{handle}
         </Typography>
       </Box>
@@ -234,10 +234,10 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
               return (
                 <Box data-testid="preview-tip-goal" sx={{ mt: 1.25 }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.4 }}>
-                    <Typography sx={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, color: theme.palette.text.primary }}>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: theme.palette.text.primary }}>
                       {t("storefront.preview.goalProgress", { raised: `${swSym}${sample.toLocaleString()}`, goal: `${swSym}${goal.toLocaleString()}`, defaultValue: "{{raised}} of {{goal}} this month" })}
                     </Typography>
-                    <Typography sx={{ fontFamily: MONO, fontSize: 10.5, fontWeight: 700, color: accent }}>42%</Typography>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: accent }}>42%</Typography>
                   </Box>
                   <Box sx={{ height: 6, borderRadius: "999px", backgroundColor: border, overflow: "hidden" }}>
                     <Box sx={{ width: "42%", height: "100%", background: accent, borderRadius: "999px" }} />
@@ -270,11 +270,11 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
                 </Typography>
                 {[["A", "Alex", `${swSym}${swPresets[0]}`], ["", "Someone", `${swSym}${swPresets[1] ?? swPresets[0]}`]].map(([ini, nm, amt]) => (
                   <Box key={nm} sx={{ display: "flex", alignItems: "center", gap: 0.75, mt: 0.75 }}>
-                    <Box sx={{ width: 20, height: 20, borderRadius: "6px", backgroundColor: surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, color: theme.palette.text.primary }}>
+                    <Box sx={{ width: 20, height: 20, borderRadius: "6px", backgroundColor: surface, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: theme.palette.text.primary }}>
                       {ini || <Icon icon="mdi:heart" width={11} />}
                     </Box>
                     <Typography fontSize={11.5} fontWeight={700} color={theme.palette.text.primary}>{nm}</Typography>
-                    <Typography sx={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, color: theme.palette.text.secondary }}>{amt}</Typography>
+                    <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: theme.palette.text.secondary }}>{amt}</Typography>
                   </Box>
                 ))}
               </Box>
@@ -290,7 +290,7 @@ const CreatorLivePreview: React.FC<Props> = ({ state }) => {
             backgroundColor: limeTint, textAlign: "left",
           }}
         >
-          <Typography sx={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
+          <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}>
             Support {name.split(" ")[0]}
           </Typography>
           <Typography fontWeight={700} fontSize={14} color={theme.palette.text.primary} mt={0.25}>

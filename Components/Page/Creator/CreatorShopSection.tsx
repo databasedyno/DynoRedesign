@@ -69,7 +69,7 @@ const CreatorShopSection: React.FC<{
         <Typography
           sx={{
             fontFamily: MONO,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: 700,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
@@ -172,7 +172,7 @@ const CreatorShopSection: React.FC<{
                     sx={{
                       position: "absolute", top: 12, left: 12,
                       px: 1.1, py: 0.4, borderRadius: "999px",
-                      fontFamily: MONO, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                      fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
                       color: "#FFFFFF", backgroundColor: "rgba(10,10,13,0.62)",
                       backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
                     }}
@@ -186,7 +186,7 @@ const CreatorShopSection: React.FC<{
                       position: "absolute", bottom: 12, left: 12,
                       display: "inline-flex", alignItems: "center", gap: 0.5,
                       px: 1.1, py: 0.4, borderRadius: "999px",
-                      fontSize: 11, fontWeight: 700, color: "#FFFFFF", backgroundColor: "rgba(10,10,13,0.62)",
+                      fontSize: 12, fontWeight: 700, color: "#FFFFFF", backgroundColor: "rgba(10,10,13,0.62)",
                       backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
                     }}
                   >

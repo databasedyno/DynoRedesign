@@ -234,7 +234,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
               >
                 <Box sx={{ height: 44, background: previewSmall }} />
                 <Box sx={{ px: 1, py: 0.5, display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: theme.palette.background.paper }}>
-                  <Typography sx={{ fontSize: 11.5, fontWeight: 600 }}>{styleLabel(s)}</Typography>
+                  <Typography sx={{ fontSize: 12, fontWeight: 600 }}>{styleLabel(s)}</Typography>
                   {active && <Icon icon="mdi:check-circle" width={14} color={currentAccent} />}
                 </Box>
               </Box>
@@ -242,7 +242,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
           })}
         </Box>
         {currentStyle === "image" && !hasCoverImage && (
-          <Typography sx={{ mt: 0.5, fontSize: 11, color: theme.palette.warning.main }}>
+          <Typography sx={{ mt: 0.5, fontSize: 12, color: theme.palette.warning.main }}>
             {t("storefront.uploadCoverHint", { defaultValue: 'Upload a cover image below to use "Image" style.' })}
           </Typography>
         )}
@@ -294,7 +294,7 @@ const CreatorThemePicker: React.FC<Props> = ({ value, onChange, hasCoverImage })
                     />
                   </Box>
                   <Box sx={{ px: 1, pt: 1.25, pb: 0.75, backgroundColor: theme.palette.background.paper, display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5 }}>
-                    <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>{g.label}</Typography>
+                    <Typography sx={{ fontSize: 12, fontWeight: 700 }}>{g.label}</Typography>
                     {active && <Icon icon="mdi:check-circle" width={13} color={currentAccent} />}
                   </Box>
                 </Box>

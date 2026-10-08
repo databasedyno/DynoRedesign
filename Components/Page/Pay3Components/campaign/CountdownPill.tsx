@@ -128,7 +128,7 @@ export default function CountdownPill({ endsAt, variant = "default" }: Props) {
         py: 0.35,
         minHeight: onCover ? 30 : undefined,
         borderRadius: "999px",
-        fontSize: 11.5,
+        fontSize: 12,
         fontWeight: 700,
         letterSpacing: "0.02em",
         color: p.fg,

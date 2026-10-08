@@ -32,10 +32,10 @@ const TipGoalBar = ({ goal, raised, fmtMoney, accent, compact = false }: Props) 
   return (
     <Box data-testid="tip-goal-bar" data-pct={pct} sx={{ mt: compact ? 1 : 2.25, position: 'relative' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1, mb: 0.75 }}>
-        <Typography sx={{ fontFamily: MONO, fontSize: compact ? 11 : 13, fontWeight: 700, color: theme.palette.text.primary }} data-testid="tip-goal-label">
+        <Typography sx={{ fontFamily: MONO, fontSize: compact ? 12 : 13, fontWeight: 700, color: theme.palette.text.primary }} data-testid="tip-goal-label">
           {t('creator.goal.progress', { raised: fmtMoney(raised), goal: fmtMoney(goal), defaultValue: '{{raised}} of {{goal}} this month' })}
         </Typography>
-        <Typography sx={{ fontFamily: MONO, fontSize: compact ? 11 : 13, fontWeight: 800, color: accentText }} data-testid="tip-goal-pct">{pct}%</Typography>
+        <Typography sx={{ fontFamily: MONO, fontSize: compact ? 12 : 13, fontWeight: 800, color: accentText }} data-testid="tip-goal-pct">{pct}%</Typography>
       </Box>
       <Box role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} sx={{ height: compact ? 6 : 10, borderRadius: '999px', overflow: 'hidden', backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(18,18,20,0.07)' }}>
         <Box

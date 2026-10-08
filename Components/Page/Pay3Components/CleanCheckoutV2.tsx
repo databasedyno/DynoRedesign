@@ -124,7 +124,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
   const warnFg   = '#B45309'
   const errFg    = '#B91C1C'
   // Quiet Money: one overline style for every field label in the card.
-  const labelSx  = { fontSize: 11, fontWeight: 700, color: muted, mb: 0.75, letterSpacing: '0.08em', textTransform: 'uppercase' as const }
+  const labelSx  = { fontSize: 12, fontWeight: 700, color: muted, mb: 0.75, letterSpacing: '0.08em', textTransform: 'uppercase' as const }
 
   // ─── State ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('loading_meta')
@@ -1076,7 +1076,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             data-testid="clean-checkout-expired-ref"
             sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, px: 1.25, py: 0.75, mb: 3, borderRadius: '8px', border: `1px solid ${border}`, backgroundColor: surface }}
           >
-            <Typography sx={{ fontSize: 11, fontWeight: 700, color: muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
               {t('checkout.reference', { defaultValue: 'Reference' })}
             </Typography>
             <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.primary }}>
@@ -1429,11 +1429,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         <Box data-testid="clean-checkout-brand-row" data-variant="merchant" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 3 }}>
           <Box component="img" src={meta_.merchant.company_logo} alt={merchantName || ''} data-testid="clean-checkout-merchant-logo" sx={{ height: 28, maxWidth: 160, objectFit: 'contain', objectPosition: 'left' }} />
           <Box data-testid="clean-checkout-psp-mark" sx={{ display: 'flex', alignItems: 'center', gap: 0.6, flexShrink: 0 }}>
-            <Typography sx={{ fontFamily: MONO, fontSize: 10, letterSpacing: '0.02em', color: muted }}>
+            <Typography sx={{ fontFamily: MONO, fontSize: 12, letterSpacing: '0.02em', color: muted }}>
               {t('checkout.poweredBy', { defaultValue: 'Powered by' })}
             </Typography>
             <Logo width={14} height={17} />
-            <Typography sx={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: '0.02em', color: muted }}>DYNOPAY</Typography>
+            <Typography sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: '0.02em', color: muted }}>DYNOPAY</Typography>
           </Box>
         </Box>
       ) : (
@@ -1503,7 +1503,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             />
             {/* B10: the total moves once from estimate → exact; say so instead of changing silently */}
             {feePayerIsCustomer && feeExact && cryptoInfo && (
-              <Typography data-testid="clean-checkout-fee-updated" sx={{ mt: 0.75, fontSize: 11.5, color: muted, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <Typography data-testid="clean-checkout-fee-updated" sx={{ mt: 0.75, fontSize: 12, color: muted, display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <Icon icon="mdi:check-circle-outline" width={13} />
                 {t('checkout.feeUpdatedExact', { defaultValue: 'Updated with the exact {{coin}} network fee.', coin: cryptoInfo.crypto_base })}
               </Typography>
@@ -1528,7 +1528,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             </Typography>
           )}
           {meta_.order_reference && (
-            <Typography sx={{ fontFamily: MONO, fontSize: 11.5, color: muted, letterSpacing: '0.04em' }}>
+            <Typography sx={{ fontFamily: MONO, fontSize: 12, color: muted, letterSpacing: '0.04em' }}>
               {t('checkout.reference', { defaultValue: 'REFERENCE' })} · {meta_.order_reference}
             </Typography>
           )}
@@ -1542,10 +1542,10 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         <Box sx={{ pt: 2, borderTop: `1px solid ${border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
           <MerchantTrustRow linkRef={d} color={muted} justify="flex-start" />
           <Box data-testid="clean-checkout-legal-links" sx={{ display: 'flex', gap: 1.5, flexShrink: 0 }}>
-            <a href="/pay/terms-of-service" target="_blank" rel="noopener noreferrer" style={{ color: muted, fontSize: 11, textDecoration: 'none' }}>
+            <a href="/pay/terms-of-service" target="_blank" rel="noopener noreferrer" style={{ color: muted, fontSize: 12, textDecoration: 'none' }}>
               {t('checkout.terms', { defaultValue: 'Terms' })}
             </a>
-            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: muted, fontSize: 11, textDecoration: 'none' }}>
+            <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: muted, fontSize: 12, textDecoration: 'none' }}>
               {t('checkout.privacy', { defaultValue: 'Privacy' })}
             </a>
           </Box>
@@ -1702,11 +1702,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                   <span style={{ fontWeight: 700 }}>{g.symbol}</span>
                   <Box component="span" sx={{ color: muted, fontSize: 12.5, fontWeight: 500, display: { xs: 'none', sm: 'inline' } }}>{info.label !== g.symbol ? info.label : ''}</Box>
                   <Box sx={{ ml: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: 1.25, minWidth: 0 }}>
-                    <Box component="span" sx={{ color: theme.palette.text.primary, fontSize: 11.5, fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }} data-testid={`clean-checkout-coin-cost-${g.symbol}`}>
+                    <Box component="span" sx={{ color: theme.palette.text.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }} data-testid={`clean-checkout-coin-cost-${g.symbol}`}>
                       {costText}
                     </Box>
                     {netHint && (
-                      <Box component="span" sx={{ color: muted, fontSize: 11, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }} data-testid={`clean-checkout-coin-net-${g.symbol}`}>
+                      <Box component="span" sx={{ color: muted, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 180 }} data-testid={`clean-checkout-coin-net-${g.symbol}`}>
                         {netHint}
                       </Box>
                     )}
@@ -1749,11 +1749,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
                     }}
                   >
                     {info.networkLabel}
-                    <Box component="span" sx={{ color: muted, fontSize: 11.5, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }} data-testid={`clean-checkout-network-cost-${info.network}`}>
+                    <Box component="span" sx={{ color: muted, fontSize: 12, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }} data-testid={`clean-checkout-network-cost-${info.network}`}>
                       · {fee ? `${fee} · ` : ''}{networkEta(code)}
                     </Box>
                     {cheapest && (
-                      <Box component="span" data-testid="clean-checkout-network-cheapest" sx={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', px: 0.75, py: 0.1, borderRadius: '999px', backgroundColor: isDark ? 'rgba(34,197,94,0.18)' : 'rgba(22,163,74,0.10)', color: isDark ? '#4ade80' : '#14532d' }}>
+                      <Box component="span" data-testid="clean-checkout-network-cheapest" sx={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', px: 0.75, py: 0.1, borderRadius: '999px', backgroundColor: isDark ? 'rgba(34,197,94,0.18)' : 'rgba(22,163,74,0.10)', color: isDark ? '#4ade80' : '#14532d' }}>
                         {t('checkout.cheapest', { defaultValue: 'Cheapest' })}
                       </Box>
                     )}
@@ -1789,11 +1789,11 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
         )}
         {phase === 'currency_select' && meta_ && (
           <Box sx={{ mt: 1.25, display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center' }} data-testid="clean-checkout-trust-lines">
-            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.6, fontSize: 11.5, color: muted }} data-testid="clean-checkout-noncustodial">
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.6, fontSize: 12, color: muted }} data-testid="clean-checkout-noncustodial">
               <Icon icon="mdi:shield-lock-outline" width={13} />
               <span>{t('checkout.nonCustodialLine', { defaultValue: 'Paid straight to {{merchant}} — Dynopay never holds your funds.', merchant: merchantName || t('checkout.theMerchant', { defaultValue: 'the merchant' }) })}</span>
             </Box>
-            <Typography sx={{ fontSize: 11.5, color: muted, textAlign: 'center' }} data-testid="clean-checkout-fee-disclosure">
+            <Typography sx={{ fontSize: 12, color: muted, textAlign: 'center' }} data-testid="clean-checkout-fee-disclosure">
               {(() => {
                 const walletFee = selectedCurrency ? fmtNetworkFee(networkFeeUsd(selectedCurrency, netFees)) : null
                 const tail = walletFee
@@ -1807,7 +1807,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           </Box>
         )}
         {phase === 'currency_select' && selectedCurrency && (
-          <Typography sx={{ mt: 1, fontSize: 11.5, color: muted, textAlign: 'center' }} data-testid="clean-checkout-continue-hint">
+          <Typography sx={{ mt: 1, fontSize: 12, color: muted, textAlign: 'center' }} data-testid="clean-checkout-continue-hint">
             {t('checkout.continueHintEta', { defaultValue: 'Usually confirms in {{eta}} · you get 30 minutes to send.', eta: networkEta(selectedCurrency) })}
           </Typography>
         )}
@@ -1833,7 +1833,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             <Typography sx={{ fontSize: 12.5, color: theme.palette.text.primary, lineHeight: 1.5 }}>
               {t('checkout.detectedLock.body', { defaultValue: 'We can see {{amount}} {{coin}} on its way to the payment address. Please don’t send another payment. You can keep this page open or close it — the receipt arrives the moment the network confirms.', amount: formatCryptoAmount(cryptoInfo.expected_amount, cryptoInfo.crypto_base), coin: cryptoInfo.crypto_base })}
             </Typography>
-            <Typography sx={{ mt: 0.75, fontSize: 11.5, color: muted, fontFamily: MONO }} data-testid="clean-checkout-detected-lock-address">
+            <Typography sx={{ mt: 0.75, fontSize: 12, color: muted, fontFamily: MONO }} data-testid="clean-checkout-detected-lock-address">
               {t('checkout.detectedLock.addressLabel', { defaultValue: 'Address' })} {shortAddr(cryptoInfo.address)}
             </Typography>
           </Box>
@@ -1919,12 +1919,12 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               )}{' '}
               {t('checkout.underpaid.sameAddressTail', { defaultValue: 'more to the same address below to complete your payment.' })}
             </Typography>
-            <Typography data-testid="clean-checkout-underpaid-fee-note" sx={{ fontSize: 11.5, color: theme.palette.text.secondary, mt: 0.5, lineHeight: 1.5 }}>
+            <Typography data-testid="clean-checkout-underpaid-fee-note" sx={{ fontSize: 12, color: theme.palette.text.secondary, mt: 0.5, lineHeight: 1.5 }}>
               {t('checkout.underpaid.secondFeeNote', { defaultValue: "Your wallet will charge a second network fee for this top-up — that's normal and doesn't change the amount above." })}
             </Typography>
             <Typography
               data-testid="clean-checkout-underpaid-timer"
-              sx={{ fontSize: 11.5, color: theme.palette.text.secondary, mt: 0.6, display: 'flex', alignItems: 'center', gap: 0.5 }}
+              sx={{ fontSize: 12, color: theme.palette.text.secondary, mt: 0.6, display: 'flex', alignItems: 'center', gap: 0.5 }}
             >
               <Icon icon="mdi:timer-outline" width={13} />
               {t('checkout.underpaid.graceTimer', { defaultValue: 'Time left to complete' })}:{' '}
@@ -2112,7 +2112,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
       {/* Memo / tag (XRP, XLM) — only if present */}
       {cryptoInfo?.memo && (
         <Box sx={{ mb: 2 }}>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: warnFg, mb: 0.5, letterSpacing: '0.02em' }}>
+          <Typography sx={{ fontSize: 12, fontWeight: 700, color: warnFg, mb: 0.5, letterSpacing: '0.02em' }}>
             {t('checkout.memoRequired.label')}
           </Typography>
           <Box
@@ -2168,7 +2168,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
             <Icon icon="mdi:wallet-outline" width={18} />
             {t('checkout.openInWallet', { defaultValue: 'Open in wallet app' })}
           </Box>
-          <Typography sx={{ mt: 0.75, fontSize: 11.5, color: muted, textAlign: 'center' }}>
+          <Typography sx={{ mt: 0.75, fontSize: 12, color: muted, textAlign: 'center' }}>
             {t('checkout.openInWalletHint', { defaultValue: 'Opens your crypto wallet with the address and amount pre-filled.' })}
           </Typography>
         </Box>
@@ -2266,7 +2266,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
               }}
             />
             {refundSaved && (
-              <Typography data-testid="clean-checkout-refund-saved" sx={{ fontSize: 11.5, color: LIME, mt: 0.5, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.4 }}>
+              <Typography data-testid="clean-checkout-refund-saved" sx={{ fontSize: 12, color: LIME, mt: 0.5, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.4 }}>
                 <Icon icon="mdi:check-circle" width={13} />
                 {t('checkout.refund.saved', { defaultValue: 'Refund address saved' })}
               </Typography>
@@ -2316,7 +2316,7 @@ const CleanCheckoutV2: React.FC<CleanCheckoutV2Props> = ({ d, onSuccess, initial
           }}
         >
           <Box sx={{ minWidth: 0, flexShrink: 1 }}>
-            <Typography sx={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.04em', color: muted, textTransform: 'uppercase', lineHeight: 1 }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', color: muted, textTransform: 'uppercase', lineHeight: 1 }}>
               {t('checkout.sendExactly', { defaultValue: 'Send exactly' })}
             </Typography>
             <Typography sx={{ fontFamily: MONO, fontSize: 15, fontWeight: 700, color: theme.palette.text.primary, lineHeight: 1.25, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

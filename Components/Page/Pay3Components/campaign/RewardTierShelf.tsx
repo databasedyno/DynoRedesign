@@ -90,7 +90,7 @@ export default function RewardTierShelf({
           sx={{
             fontFamily: MONO,
             fontWeight: 600,
-            fontSize: 11,
+            fontSize: 12,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
             color: theme.palette.text.secondary,
@@ -179,7 +179,7 @@ export default function RewardTierShelf({
                     transform: "translateX(-50%)",
                     bgcolor: accent,
                     color: onAccent,
-                    fontSize: 10.5,
+                    fontSize: 12,
                     fontWeight: 800,
                     letterSpacing: 0.6,
                     textTransform: "uppercase",

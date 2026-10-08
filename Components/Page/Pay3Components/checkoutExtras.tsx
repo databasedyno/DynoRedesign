@@ -30,7 +30,7 @@ export const ReceiptEmailField: React.FC<{
       <Typography
         component="label"
         htmlFor="checkout-receipt-email"
-        sx={{ fontSize: 11.5, fontWeight: 700, color: muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}
+        sx={{ fontSize: 12, fontWeight: 700, color: muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}
       >
         {label}
       </Typography>
@@ -56,18 +56,18 @@ export const ReceiptEmailField: React.FC<{
       }}
     />
     {invalid ? (
-      <Typography data-testid="checkout-receipt-email-error" sx={{ fontSize: 11.5, color: ERR, mt: 0.75 }}>
+      <Typography data-testid="checkout-receipt-email-error" sx={{ fontSize: 12, color: ERR, mt: 0.75 }}>
         {invalidLabel}
       </Typography>
     ) : saved ? (
       <Typography
         data-testid="checkout-receipt-email-saved"
-        sx={{ fontSize: 11.5, color: OK, mt: 0.75, display: 'flex', alignItems: 'center', gap: 0.5 }}
+        sx={{ fontSize: 12, color: OK, mt: 0.75, display: 'flex', alignItems: 'center', gap: 0.5 }}
       >
         <Icon icon="mdi:check-circle" width={13} /> {savedLabel}
       </Typography>
     ) : (
-      <Typography sx={{ fontSize: 11.5, color: muted, mt: 0.75 }}>{helper}</Typography>
+      <Typography sx={{ fontSize: 12, color: muted, mt: 0.75 }}>{helper}</Typography>
     )}
   </Box>
 )

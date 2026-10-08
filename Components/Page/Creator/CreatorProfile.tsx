@@ -279,7 +279,7 @@ const CreatorProfile = ({ creator, links, siteUrl, supportWidget, analytics, pro
 
   const sectionLabelSx = {
     fontFamily: MONO,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     letterSpacing: '0.14em',
     textTransform: 'uppercase' as const,

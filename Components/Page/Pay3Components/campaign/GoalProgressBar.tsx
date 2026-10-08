@@ -227,7 +227,7 @@ export default function GoalProgressBar({
             display: "flex",
             justifyContent: "space-between",
             fontFamily: MONO,
-            fontSize: 10.5,
+            fontSize: 12,
             color: theme.palette.text.disabled,
             letterSpacing: "0.03em",
           }}

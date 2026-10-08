@@ -378,7 +378,7 @@ const AnalyticsWidget: React.FC<Props> = ({
                   sx={{
                     width: 26, height: 26, borderRadius: '50%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 11.5, fontWeight: 800,
+                    fontSize: 12, fontWeight: 800,
                     backgroundColor: isDark ? 'rgba(255,209,0,0.16)' : 'rgba(139,94,0,0.10)',
                     color: indigo,
                   }}

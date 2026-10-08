@@ -32,10 +32,10 @@ import { FONT_DISPLAY, FONT_BODY, FONT_MONO, useConsole, PrimaryBtn as BasePrima
 
 /* v8 buttons: same flat gold / hairline recipes as v7, pill geometry (matches the header CTA). */
 export const PrimaryBtn: typeof BasePrimaryBtn = ({ sx, ...rest }) => (
-  <BasePrimaryBtn {...rest} sx={{ borderRadius: "999px", px: 3, ...sx }} />
+  <BasePrimaryBtn {...rest} sx={{ borderRadius: "999px", px: 3, minHeight: 44, ...sx }} />
 );
 export const SecondaryBtn: typeof BaseSecondaryBtn = ({ sx, ...rest }) => (
-  <BaseSecondaryBtn {...rest} sx={{ borderRadius: "999px", px: 3, ...sx }} />
+  <BaseSecondaryBtn {...rest} sx={{ borderRadius: "999px", px: 3, minHeight: 44, ...sx }} />
 );
 
 /* ── Fixed dark-panel palette (used for data/mockup panels in BOTH themes) ─── */

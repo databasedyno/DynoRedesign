@@ -1970,7 +1970,7 @@ const CryptoTransfer = ({
                     alignItems: 'center',
                     gap: 0.5,
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '11.5px',
+                    fontSize: '12px',
                     color: theme.palette.text.secondary,
                   }}
                 >

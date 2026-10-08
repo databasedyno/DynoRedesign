@@ -183,7 +183,7 @@ const TipThankYouCard = ({ creatorName, handle, avatarUrl, accent, amountLabel, 
 
   return (
     <Box data-testid="tip-thankyou-card" sx={{ mt: 2.5, pt: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-      <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>
+      <Typography sx={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: theme.palette.text.secondary, mb: 1 }}>
         {t('creator.card.title', { defaultValue: 'Your thank-you card' })}
       </Typography>
       <canvas ref={canvasRef} width={SIZE} height={SIZE} style={{ display: 'none' }} aria-hidden />

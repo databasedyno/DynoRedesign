@@ -1,3 +1,13 @@
+## 2026-10-08 (eve) — Public UX audit + P0/P1 fixes (landing clipping, type floor, iOS inputs, tap targets)
+- Deep public-pages UX audit (desktop/large/tablet/iOS/Android) → `memory/reports/PUBLIC_UX_AUDIT_2026-10-08.md` + `test_reports/public_ux_audit/` (75 shots + metrics.json). Harness: `scripts/qa/public_ux_audit.mjs`.
+- FIX P0 landing phone horizontal clipping: `#products` bento cards rendered 424px wide inside a 393px viewport (grid `1fr` min-content blowout). `ProductShowcaseV8` → `gridTemplateColumns: minmax(0,1fr)` + `Reveal minWidth:0`. Verified: clipped elements ~70 → 4 (only a decorative SVG peek) on iPhone/Pixel/iPad.
+- FIX P0/P1 type-scale 12px floor on conversion-critical PUBLIC components (checkout, donation campaign, creator) — 85 literal + 2 ternary sub-12 `fontSize` → 12 across `Components/Page/Pay3Components/**` + `Components/Page/Creator/**`. Verified: donation checkout sub-12 text 45 → 14. (Landing decorative dashboard mocks intentionally left — a blanket bump would break the mock imagery.)
+- FIX P1 iOS zoom-on-focus: HeroV8 email `InputBase` 15.5 → 16px.
+- FIX P1 tap targets: v8 `PrimaryBtn`/`SecondaryBtn` (kit) `minHeight:44` → hero + showcase CTAs now 44px.
+- tsc --noEmit clean; ESLint clean; rebuilt .next-prod (BUILD_ID M-1bYab7XOqUOu5KV2YLI) + swapped → LIVE.
+- REMAINING (next pass, scoped in the report roadmap): landing type-scale consolidation (decorative mocks), remaining tap targets (Google btn 41, header search 40, docs 27-31, SafeDeal 32, creator/share 32-36, donation share 38), sticky-bar safe-area padding + creator support-FAB collision, docs mobile restructure (49-fold + clipped code), desktop two-column checkout + header chrome, section-rhythm on long pages.
+
+
 ## 2026-10-08 (evening) — UX shell Part 2 §4 continued: lint/i18n/C12/C13 + rebuilt & live
 - Pod set up from vault (SAFE MODE; backend db+redis+Tatum healthy; UUID preview host).
 - §4.1 `tsc --noEmit` CLEAN; ESLint CLEAN on all touched files.

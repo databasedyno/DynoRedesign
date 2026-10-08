@@ -96,7 +96,7 @@ const SignupBlock: React.FC = () => {
           }}
           placeholder={t("v8.hero.emailPlaceholder", { defaultValue: "Enter your work email" })}
           startAdornment={<Icon icon="mdi:email-outline" width={18} height={18} color={s.ink3} style={{ marginRight: 10, flexShrink: 0 }} />}
-          sx={{ flex: 1, px: 2, py: 0.5, fontFamily: FONT_BODY, fontSize: 15.5, color: s.ink, "& input::placeholder": { color: s.ink3, opacity: 1 } }}
+          sx={{ flex: 1, px: 2, py: 0.5, fontFamily: FONT_BODY, fontSize: 16, color: s.ink, "& input::placeholder": { color: s.ink3, opacity: 1 } }}
         />
         <PrimaryBtn type="submit" data-testid="hero-primary-cta" endIcon={<ArrowForwardIcon sx={{ fontSize: 18 }} />} sx={{ px: 3, py: 1.4, fontSize: 15.5, flexShrink: 0 }}>
           {t("v8.hero.primary", { defaultValue: "Start free" })}

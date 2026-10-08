@@ -92,7 +92,7 @@ export default function DonorWallV2({
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5, flexWrap: "wrap", gap: 1 }}>
         <Typography
           component="span"
-          sx={{ fontFamily: MONO, fontWeight: 700, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}
+          sx={{ fontFamily: MONO, fontWeight: 700, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: theme.palette.text.secondary }}
         >
           {headerLabel}
           <Box component="span" sx={{ ml: 1, color: theme.palette.text.disabled, fontWeight: 700 }}>
@@ -189,7 +189,7 @@ export default function DonorWallV2({
                   >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 0.2 }}>
                       <Icon icon="mdi:account-tie-voice" width={13} color={accentText} />
-                      <Typography component="span" sx={{ fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: accentText }}>
+                      <Typography component="span" sx={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: accentText }}>
                         {t("donorWall.organizerReplied", { defaultValue: "Organizer replied" })}
                       </Typography>
                     </Box>

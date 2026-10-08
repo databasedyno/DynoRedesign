@@ -73,7 +73,7 @@ export const CheckoutStatusTimeline: React.FC<{
             animation: 'pulse 1.5s ease-in-out infinite',
             '@keyframes pulse': { '0%,100%': { opacity: 1 }, '50%': { opacity: 0.4 } },
           }} />
-          <Typography data-testid="checkout-status-text" sx={{ fontSize: 11.5, fontWeight: 700 }}>
+          <Typography data-testid="checkout-status-text" sx={{ fontSize: 12, fontWeight: 700 }}>
             {statusText}
           </Typography>
         </Box>
@@ -145,7 +145,7 @@ export const CheckoutStatusTimeline: React.FC<{
                     ? <Icon icon="mdi:check" width={13} color={ON_BRAND} />
                     : <Box sx={{ width: 7, height: 7, borderRadius: '50%', backgroundColor: stepColor }} />}
                 </Box>
-                <Typography sx={{ fontSize: 10.5, fontWeight: reached ? 700 : 500, color: reached ? theme.palette.text.primary : muted }}>
+                <Typography sx={{ fontSize: 12, fontWeight: reached ? 700 : 500, color: reached ? theme.palette.text.primary : muted }}>
                   {label}
                 </Typography>
               </Box>
@@ -376,7 +376,7 @@ export const AssetNetworkChip: React.FC<{
       px: 1,
       py: '3px',
       borderRadius: '6px',
-      fontSize: 11,
+      fontSize: 12,
       fontWeight: 700,
       lineHeight: 1.2,
       letterSpacing: '0.01em',

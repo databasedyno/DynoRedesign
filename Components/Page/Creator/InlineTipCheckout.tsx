@@ -836,7 +836,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
                   <Typography fontSize={14} fontWeight={800} lineHeight={1.15} noWrap>
                     {info.symbol}
                   </Typography>
-                  <Typography sx={{ fontFamily: MONO, fontSize: 11, color: theme.palette.text.secondary, lineHeight: 1.3 }} noWrap>
+                  <Typography sx={{ fontFamily: MONO, fontSize: 12, color: theme.palette.text.secondary, lineHeight: 1.3 }} noWrap>
                     {netLabel || info.label}
                   </Typography>
                 </Box>
@@ -1021,7 +1021,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
                 border: 'none',
                 px: 1,
                 py: 0.5,
-                fontSize: 11.5,
+                fontSize: 12,
                 color: theme.palette.text.secondary,
                 cursor: 'pointer',
                 display: 'flex',
@@ -1107,7 +1107,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           </Button>
           <Collapse in={showRefundInput}>
             <Box sx={{ mt: 1 }}>
-              <Typography sx={{ fontSize: 11.5, color: theme.palette.text.secondary, mb: 0.75, lineHeight: 1.5 }}>
+              <Typography sx={{ fontSize: 12, color: theme.palette.text.secondary, mb: 0.75, lineHeight: 1.5 }}>
                 {t('checkout.refund.help', { defaultValue: 'If your payment can’t be completed, we’ll refund to this address (minus network fees). Use an address on the same network you’re paying with.' })}
               </Typography>
               <TextField
@@ -1120,7 +1120,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
                 inputProps={{ 'data-testid': 'inline-refund-input', spellCheck: false, style: { fontFamily: MONO, fontSize: 12.5 } }}
               />
               {refundSaved && (
-                <Typography sx={{ fontSize: 11.5, color: LIME, mt: 0.5, fontWeight: 700 }} data-testid="inline-refund-saved">
+                <Typography sx={{ fontSize: 12, color: LIME, mt: 0.5, fontWeight: 700 }} data-testid="inline-refund-saved">
                   <Icon icon="mdi:check-circle" width={13} style={{ verticalAlign: 'middle', marginRight: 3 }} />
                   {t('checkout.refund.saved', { defaultValue: 'Refund address saved' })}
                 </Typography>
@@ -1188,7 +1188,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
               py: 0.4,
               cursor: 'pointer',
               color: theme.palette.text.primary,
-              fontSize: 11.5,
+              fontSize: 12,
               fontWeight: 700,
               flexShrink: 0,
               display: 'flex',
@@ -1224,7 +1224,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
           }}
         >
           <CircularProgress size={10} sx={{ color: INK }} />
-          <Typography sx={{ fontSize: 11.5, fontWeight: 700 }}>{t("creator.inline.monitoringRemainder")}</Typography>
+          <Typography sx={{ fontSize: 12, fontWeight: 700 }}>{t("creator.inline.monitoringRemainder")}</Typography>
         </Box>
 
         {backLink(t('creator.inline.changeAmount', { defaultValue: 'Change amount' }))}

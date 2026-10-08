@@ -83,9 +83,9 @@ const ProductShowcaseV8: React.FC = () => {
         </PrimaryBtn>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: { xs: 2.5, md: 3 } }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "repeat(2, minmax(0, 1fr))" }, gap: { xs: 2.5, md: 3 } }}>
         {cards.map((c, i) => (
-          <Reveal key={c.key} delay={i * 0.08} sx={{ display: "flex" }}>
+          <Reveal key={c.key} delay={i * 0.08} sx={{ display: "flex", minWidth: 0 }}>
             <Box
               data-testid={`product-card-${c.key}`}
               sx={{

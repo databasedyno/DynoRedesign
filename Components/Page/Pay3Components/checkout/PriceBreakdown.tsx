@@ -58,7 +58,7 @@ export const PriceBreakdown = ({
   const inner = (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: compact ? 0.5 : 0.65 }}>
       {title && (
-        <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: muted, letterSpacing: '0.04em', textTransform: 'uppercase', mb: 0.35 }}>
+        <Typography sx={{ fontSize: 12, fontWeight: 700, color: muted, letterSpacing: '0.04em', textTransform: 'uppercase', mb: 0.35 }}>
           {title}
         </Typography>
       )}
@@ -72,7 +72,7 @@ export const PriceBreakdown = ({
             >
               {r.label}
               {r.note && (
-                <Typography component="span" sx={{ fontSize: 11, color: muted, ml: 0.5, opacity: 0.75 }}>
+                <Typography component="span" sx={{ fontSize: 12, color: muted, ml: 0.5, opacity: 0.75 }}>
                   · {r.note}
                 </Typography>
               )}
@@ -93,7 +93,7 @@ export const PriceBreakdown = ({
                 {r.value}
               </Typography>
               {r.sub && (
-                <Typography component="span" sx={{ fontFamily: mono, fontSize: 11, color: muted, opacity: 0.8, display: 'block', fontVariantNumeric: 'tabular-nums' }}>
+                <Typography component="span" sx={{ fontFamily: mono, fontSize: 12, color: muted, opacity: 0.8, display: 'block', fontVariantNumeric: 'tabular-nums' }}>
                   {r.sub}
                 </Typography>
               )}
@@ -111,7 +111,7 @@ export const PriceBreakdown = ({
             alignItems: 'center',
             gap: 0.5,
             color: muted,
-            fontSize: 11,
+            fontSize: 12,
             lineHeight: 1.4,
             '& svg': { flexShrink: 0 },
           }}
