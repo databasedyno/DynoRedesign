@@ -34,12 +34,6 @@ import PageTip, { PageInfoButton } from "@/Components/UX/PageTip";
 import CompactTitleBar from "./CompactTitleBar";
 import { getPageTipKey } from "@/Components/UX/pageTips";
 
-const FOCUS_ROUTES = [
-  "/create-pay-link",
-  "/pay-links/products/new",
-  "/pay-links/products/[productId]/edit",
-];
-
 const ClientLayout = ({
   children,
   pageName,
@@ -130,8 +124,6 @@ const ClientLayout = ({
   // is the single, deliberate exit. Nudge chips + the fee-free banner are also
   // suppressed here (see NewHeader + FeeFreeBanner).
   const isOnboarding = router.pathname === "/get-started";
-  // Create / edit flows on phones run in focus mode: no tab bar over the form.
-  const isFocusMode = FOCUS_ROUTES.includes(router.pathname);
   const hasPageHeader = !!(pageName || pageDescription);
   const pageTitleRef = useRef<HTMLDivElement | null>(null);
   const tipKey = getPageTipKey(router.pathname);
@@ -355,7 +347,11 @@ const ClientLayout = ({
           </Box>
 
           {/* ================= PHONE TAB BAR ================= */}
-          {!isOnboarding && shell.isPhone && <MobileNavigationBar hidden={isFocusMode} />}
+          {/* Always reachable on phones so the merchant can return Home / open
+              More from every in-app page (incl. create/edit forms). It still
+              auto-hides while typing and on scroll-down so it never covers the
+              form field in use, then reappears on blur / scroll-up. */}
+          {!isOnboarding && shell.isPhone && <MobileNavigationBar />}
         </Box>
       </CompanySettingsDialogProvider>
     <ToastHost />

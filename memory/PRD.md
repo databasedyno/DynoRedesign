@@ -1,3 +1,21 @@
+# === 2026-06 (fork, pod a81d8386) — PHONE NAV TRAP FIX ("can't get back home from Create Payment Link") — DONE & VERIFIED ===
+# USER (mobile screenshot of /create-pay-link on dynopay.com): "impossible to return back home from this page as bottom menu hamburger is
+#   not accessible. ensure navigation is easier throughout the platform in various devices."
+# ROOT CAUSE: Containers/Client/index.tsx had FOCUS_ROUTES = ["/create-pay-link","/pay-links/products/new","/pay-links/products/[productId]/edit"]
+#   and rendered <MobileNavigationBar hidden={isFocusMode} /> — on phones these 3 form pages hid the bottom tab bar entirely, while the sidebar
+#   is display:none on phones. Only the (non-obvious) Dynopay brand mark in the header linked home → user was effectively trapped.
+# FIX (minimal): removed FOCUS_ROUTES + isFocusMode and render <MobileNavigationBar /> unconditionally on phones (still gated by !isOnboarding
+#   + shell.isPhone). The tab bar (Home · Sell · + · Money · More) is now reachable on every in-app page incl. create/edit forms. It keeps its
+#   existing scroll-down + on-focus-typing auto-hide so it never permanently covers a field. No mobile sticky action-bar exists on those routes
+#   (ActionButtons is inline; ProductEditor's only sticky is the lg desktop preview) → zero overlap risk. Removing the unused const also avoids a
+#   new CI unused-variable failure.
+# VERIFIED (webkit iPhone 15 Pro, token-injected, localhost:3000): bar present + data-hidden=false + within viewport + Home/More tabs on
+#   /create-pay-link, /pay-links/products/new, /dashboard, /pay-links; tapping Home lands on /dashboard; screenshot shows the bar flush at bottom.
+#   Prod frontend rebuilt (.next-prod, BUILD_ID onV3D-XghlySJ_B8twgiI) + restarted. ONLY file changed: Containers/Client/index.tsx.
+# DEPLOY: UNCOMMITTED on preview → "Save to GitHub" to ship to production (push to Improvement auto-deploys to dynopay.com).
+# ============================================================================================
+
+
 # === 2026-10-08 (fork) pt5 — RESPONSIVE SHELL / UX-AUDIT BLUEPRINT — IN PROGRESS (paused by user; NOT yet testing-agent verified) ===
 # USER CHOICES: implement the whole blueprint (P0+P1+P2) from memory/reports/UX_LAYOUT_AUDIT_2026-10-08.md; phone = bottom tab bar + slide-up "More" list,
 #   hamburger removed; phone Settings = iOS-style grouped index → full-screen section with back arrow; fix small issues found elsewhere;
