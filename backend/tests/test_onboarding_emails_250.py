@@ -9,7 +9,7 @@ import subprocess
 import pytest
 import requests
 
-BASE_URL = os.environ["SERVER_URL"] if os.environ.get("SERVER_URL") else "https://secure-passphrase-18.preview.emergentagent.com"
+BASE_URL = os.environ["SERVER_URL"] if os.environ.get("SERVER_URL") else "https://secure-vault-app-57.preview.emergentagent.com"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 QA_EMAIL = "qa_minorder_p1b@example.com"
 QA_PWD = "QaMinOrder123@"
