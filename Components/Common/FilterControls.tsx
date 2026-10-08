@@ -12,6 +12,7 @@ export const FiltersButton: React.FC<{ label: string; count: number; onClick: ()
       component="button"
       type="button"
       data-testid={testId}
+      data-touch-44=""
       data-active-count={count}
       aria-label={label}
       onClick={onClick}
@@ -61,6 +62,7 @@ export const FilterOptionChip: React.FC<{ selected: boolean; onClick: () => void
       role="option"
       aria-selected={selected}
       data-testid={testId}
+      data-touch-44=""
       data-selected={selected ? "true" : "false"}
       onClick={onClick}
       sx={{

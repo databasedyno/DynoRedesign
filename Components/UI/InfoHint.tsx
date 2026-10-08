@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Tooltip } from "@mui/material";
 import { Icon } from "@/styles/uiKit";
+import { tapXY } from "@/styles/tapTarget";
 
 /** Small ⓘ next to a figure's label — explains exactly what a total counts (gross / net / settled). */
 const InfoHint: React.FC<{ text: string; testId?: string; size?: number }> = ({ text, testId, size = 13 }) => (
@@ -17,17 +18,16 @@ const InfoHint: React.FC<{ text: string; testId?: string; size?: number }> = ({ 
         alignItems: "center",
         justifyContent: "center",
         verticalAlign: "middle",
-        ml: 0.5,
         cursor: "help",
         color: "text.secondary",
         opacity: 0.75,
         borderRadius: "50%",
-        // Invisible hit area: ≥ 24px with a mouse, ≥ 44px on touch (UX audit S18).
-        position: "relative",
-        "&::after": { content: '""', position: "absolute", inset: "-6px" },
-        "@media (pointer: coarse)": { "&::after": { inset: "-16px" } },
+        boxSizing: "border-box",
+        // The button itself is ≥ 24px with a mouse / ≥ 44px on touch (UX audit S18); negative
+        // margins give the space back so the ⓘ still sits 4px after its label.
+        ...tapXY(size, 0, { left: 4 }),
         "&:hover": { opacity: 1 },
-        "&:focus-visible": { outline: "2px solid currentColor", outlineOffset: 2 },
+        "&:focus-visible": { outline: "2px solid currentColor", outlineOffset: "-4px" },
       }}
     >
       <Icon name="info" size={size} />

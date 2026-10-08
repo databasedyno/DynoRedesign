@@ -177,6 +177,38 @@ body {
   }
 }
 
+/* ── Touch targets ≥ 44px (UX audit S18 / blueprint §8.10 "Targets") ─────────────
+   data-touch-44            → the control is ≥ 44px TALL on touch devices (pills, segments,
+                              toolbar buttons, tabs, text buttons)
+   data-touch-44="square"   → also ≥ 44px WIDE (icon buttons)
+   Text fields / selects: the field box is the target, so every single-line MUI field is 44px
+   tall on touch. Mouse sizes are unchanged. Doubled selectors beat a single emotion class. */
+@media (pointer: coarse) {
+  [data-touch-44][data-touch-44] {
+    min-height: 44px;
+  }
+  [data-touch-44="square"][data-touch-44] {
+    min-width: 44px;
+  }
+  .MuiInputBase-root.MuiInputBase-root:not(.MuiInputBase-multiline) {
+    min-height: 44px;
+  }
+}
+
+/* Links inside running text (UX audit S18): vertical padding on an INLINE box grows the
+   target without touching line layout. ≥ 24px with a mouse, ≥ 44px on touch. Only for
+   `display:inline` links; flex/block controls use styles/tapTarget.ts (tapY / tapXY). */
+[data-tap-inline][data-tap-inline] {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+@media (pointer: coarse) {
+  [data-tap-inline][data-tap-inline] {
+    padding-top: 15px;
+    padding-bottom: 15px;
+  }
+}
+
 /* Installed (home-screen) app: no text selection callouts on chrome-like UI, kill pull-to-refresh so
    swipes inside the dashboard never reload the page mid-task. */
 @media (display-mode: standalone) {

@@ -11,6 +11,7 @@ import { formatDisplayAmount } from "@/utils/currencyFormat";
 import { SurfaceCard, Eyebrow, CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { money, relativeTime } from "@/Components/Page/Dashboard/v2026/command/format";
 import type { PayoutsData } from "./useDashboardPayouts";
+import { tapXY } from "@/styles/tapTarget";
 
 interface Props {
   data: PayoutsData | null | undefined;
@@ -113,7 +114,7 @@ const RecentForwards: React.FC<Props> = ({ data, loading, companyId }) => {
                 </Box>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   {explorer ? (
-                    <Box component="a" href={explorer} target="_blank" rel="noopener noreferrer" data-testid="payouts-recent-explorer" aria-label={t("payouts.viewOnExplorer", { defaultValue: "View on explorer" }) as string} sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: muted, textDecoration: "none", "&:hover": { color: ink } }}>
+                    <Box component="a" href={explorer} target="_blank" rel="noopener noreferrer" data-testid="payouts-recent-explorer" aria-label={t("payouts.viewOnExplorer", { defaultValue: "View on explorer" }) as string} sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", ...tapXY(14), borderRadius: "6px", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 600, color: muted, textDecoration: "none", "&:hover": { color: ink } }}>
                       <Icon name="external-link" size={14} />
                     </Box>
                   ) : (

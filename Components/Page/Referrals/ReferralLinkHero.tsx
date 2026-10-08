@@ -3,6 +3,7 @@ import { Box, Collapse, Skeleton, Typography, useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { Icon, MONO } from "@/styles/uiKit";
 import ReferralHowItWorks from "./ReferralHowItWorks";
+import { tapXY } from "@/styles/tapTarget";
 
 type Channel = "whatsapp" | "telegram" | "x";
 
@@ -52,11 +53,11 @@ const ReferralLinkHero: React.FC<Props> = ({ code, link, loading, showHowToggle,
             </Box>
           )}
         </Box>
-        <Box component="button" type="button" data-testid="copy-referral-link-btn" disabled={!link} onClick={() => link && onCopy(link, "Referral link")} sx={{ ...btn, border: `1px solid ${border}`, bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, "&:hover": { bgcolor: theme.palette.action.hover } }}>
+        <Box component="button" type="button" data-testid="copy-referral-link-btn" data-touch-44="" disabled={!link} onClick={() => link && onCopy(link, "Referral link")} sx={{ ...btn, border: `1px solid ${border}`, bgcolor: theme.palette.background.paper, color: theme.palette.text.primary, "&:hover": { bgcolor: theme.palette.action.hover } }}>
           <Icon name="copy" size={16} />
           {t("copyLink")}
         </Box>
-        <Box component="button" type="button" data-testid="share-referral-btn" disabled={!link} aria-label={t("shareLink")} onClick={onShare} sx={{ ...btn, border: 0, bgcolor: theme.palette.primary.main, color: (theme.palette.primary as { contrastText?: string }).contrastText || "#111", "&:hover": { opacity: 0.9 } }}>
+        <Box component="button" type="button" data-testid="share-referral-btn" data-touch-44="" disabled={!link} aria-label={t("shareLink")} onClick={onShare} sx={{ ...btn, border: 0, bgcolor: theme.palette.primary.main, color: (theme.palette.primary as { contrastText?: string }).contrastText || "#111", "&:hover": { opacity: 0.9 } }}>
           <Icon name="share-2" size={16} />
           {t("shareLink")}
         </Box>
@@ -68,14 +69,14 @@ const ReferralLinkHero: React.FC<Props> = ({ code, link, loading, showHowToggle,
           <Box component="span" data-testid="referral-code-value" sx={{ fontFamily: MONO, fontWeight: 700, color: theme.palette.text.primary, letterSpacing: "0.5px" }}>
             {loading ? "…" : code || "—"}
           </Box>
-          <Box component="button" type="button" data-testid="copy-referral-code-btn" data-hit-area="" aria-label={t("copyCode", { defaultValue: "Copy referral code" })} onClick={() => code && onCopy(code, "Referral code")} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", p: 0.5, borderRadius: "6px", "&:hover": { bgcolor: theme.palette.action.hover }, "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}` } }}>
+          <Box component="button" type="button" data-testid="copy-referral-code-btn" aria-label={t("copyCode", { defaultValue: "Copy referral code" })} onClick={() => code && onCopy(code, "Referral code")} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", ...tapXY(22, 4), borderRadius: "6px", "&:hover": { bgcolor: theme.palette.action.hover }, "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}` } }}>
             <Icon name="copy" size={14} />
           </Box>
         </Box>
         <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75 }}>
           {t("hero.shareOn", { defaultValue: "Share on" })}
           {CHANNELS.map((c) => (
-            <Box key={c.key} component="button" type="button" data-testid={`share-${c.key}-btn`} aria-label={`Share on ${c.label}`} disabled={!link} onClick={() => onShareTo(c.key)} sx={{ all: "unset", cursor: "pointer", width: 32, height: 32, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "8px", border: `1px solid ${border}`, color: theme.palette.text.primary, transition: "background-color 150ms ease", "&:hover": { bgcolor: theme.palette.action.hover }, "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}` } }}>
+            <Box key={c.key} component="button" type="button" data-testid={`share-${c.key}-btn`} data-touch-44="square" aria-label={`Share on ${c.label}`} disabled={!link} onClick={() => onShareTo(c.key)} sx={{ all: "unset", cursor: "pointer", width: 32, height: 32, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "8px", border: `1px solid ${border}`, color: theme.palette.text.primary, transition: "background-color 150ms ease", "&:hover": { bgcolor: theme.palette.action.hover }, "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}` } }}>
               <Icon name={c.icon} size={16} />
             </Box>
           ))}

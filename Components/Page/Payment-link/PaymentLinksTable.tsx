@@ -82,6 +82,8 @@ import AutorenewRounded from "@mui/icons-material/AutorenewRounded";
 import CryptoRefundModal from "@/Components/Page/Refund/CryptoRefundModal";
 import { useRefundMap, RefundStatusChip } from "@/Components/Page/Refund/refundStatus";
 import { getRuntimeFlags } from "@/helpers/runtimeFlags";
+import useAutoRowsPerPage, { ROWS_PER_PAGE_OPTIONS } from "@/hooks/useAutoRowsPerPage";
+import useElementWidth from "@/hooks/useElementWidth";
 
 const CRYPTO_REFUNDS_ENABLED = getRuntimeFlags().enableCryptoRefunds;
 const isRefundableLinkStatus = (status?: string) =>
@@ -143,7 +145,8 @@ const PaymentLinksTable = ({
   const router = useRouter();
   const dispatch = useDispatch();
   const [page, setPage] = useState(0);
-  const [rows, setRows] = useState(rowsPerPage);
+  // Page size fills the viewport (≈ 25 rows at ≥ 1080px tall, blueprint §8.4); remembered once chosen.
+  const { rows, setRows } = useAutoRowsPerPage("payment-links", rowsPerPage);
   const { t } = useTranslation("paymentLinks");
   const tCommon = useCallback((key: string) => t(key, { ns: "common" }), [t]);
   const theme = useTheme();
@@ -151,6 +154,11 @@ const PaymentLinksTable = ({
   // get a 2-column card grid instead of a sideways-scrolling table.
   const isMobile = useMediaQuery("(max-width:1199.95px)");
   const isPhone = useMediaQuery("(max-width:767.95px)");
+  // Condensed table when its CONTAINER is < 1100px (blueprint §8.4 — e.g. 1280×800 with the
+  // 240px sidebar = 974px): the coins move under the amount, so the 7-column table no longer
+  // scrolls sideways (audit rerun: 1071/974 at desktop-1280).
+  const { ref: tableBoxRef, width: tableBoxW } = useElementWidth<HTMLDivElement>();
+  const condensed = tableBoxW > 0 && tableBoxW < 1100;
   // §4.2 rulebook: pinned first (ID) column + edge-fade scroll hints ≥768px.
   const { ref: hscrollRef, showLeft: hasScrolledX, showRight: hasMoreRight } = useEdgeFades<HTMLDivElement>();
   const frozenEdgeShadow = hasScrolledX
@@ -590,12 +598,7 @@ const PaymentLinksTable = ({
                 setRows(value);
                 setPage(0);
               }}
-              menuItems={[
-                { value: 5, label: 5 },
-                { value: 10, label: 10 },
-                { value: 15, label: 15 },
-                { value: 20, label: 20 },
-              ]}
+              menuItems={ROWS_PER_PAGE_OPTIONS}
             />
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <FooterText>
@@ -637,7 +640,7 @@ const PaymentLinksTable = ({
           </>
         ) : (
         /* DESKTOP: Table layout */
-        <TransactionsTableContainer sx={{ position: "relative" }}>
+        <TransactionsTableContainer ref={tableBoxRef} sx={{ position: "relative" }} data-condensed={condensed ? "true" : "false"}>
           <TransactionsTableScrollWrapper ref={hscrollRef}>
             <Table sx={{ width: "max-content", minWidth: "100%" }}>
               <TableHead
@@ -660,9 +663,11 @@ const PaymentLinksTable = ({
                   <TableCell>
                     <Header label="usdValueHeader" align="right" />
                   </TableCell>
-                  <TableCell>
-                    <Header label="cryptoValueHeader" />
-                  </TableCell>
+                  {!condensed && (
+                    <TableCell>
+                      <Header label="cryptoValueHeader" />
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Header label="createdHeader" />
                   </TableCell>
@@ -705,7 +710,7 @@ const PaymentLinksTable = ({
                           borderTop: i === 0 ? "none" : `1px solid ${rowDivider(theme)}`,
                         }}
                       >
-                        {Array.from({ length: 7 }).map((__, colIdx) => (
+                        {Array.from({ length: condensed ? 6 : 7 }).map((__, colIdx) => (
                           <TableBodyCell key={colIdx} sx={{ pl: colIdx === 0 ? "15px" : undefined }}>
                             <Skeleton
                               variant="text"
@@ -770,12 +775,17 @@ const PaymentLinksTable = ({
                     <TableBodyCell sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", textAlign: "right", fontWeight: 600 }}>
                       {row.usdValue}
                       {row.linkType === "donation" && (
-                        <Box component="span" sx={{ display: "block", fontFamily: "var(--font-sans)", fontSize: "11.5px", fontWeight: 500, color: theme.palette.text.secondary }}>
+                        <Box component="span" sx={{ display: "block", fontFamily: "var(--font-sans)", fontSize: "12px", fontWeight: 500, color: theme.palette.text.secondary }}>
                           {t("raisedCaption", { defaultValue: "raised" })}
                         </Box>
                       )}
+                      {condensed && (
+                        <Box data-testid={`paylink-coins-inline-${row.id}`} sx={{ display: "flex", justifyContent: "flex-end", mt: "4px", fontWeight: 400 }}>
+                          <LinkCoinsBadge value={row.cryptoValue} short />
+                        </Box>
+                      )}
                     </TableBodyCell>
-                    <TableBodyCell><LinkCoinsBadge value={row.cryptoValue} short /></TableBodyCell>
+                    {!condensed && <TableBodyCell><LinkCoinsBadge value={row.cryptoValue} short /></TableBodyCell>}
                     {/* Created + expiry stacked in ONE column — frees ~150px so
                         Status and Last 30 days fit without a horizontal scroll. */}
                     <TableBodyCell sx={{ whiteSpace: "nowrap" }} data-testid={`paylink-dates-${row.id}`}>
@@ -924,12 +934,7 @@ const PaymentLinksTable = ({
                 setRows(value);
                 setPage(0);
               }}
-              menuItems={[
-                { value: 5, label: 5 },
-                { value: 10, label: 10 },
-                { value: 15, label: 15 },
-                { value: 20, label: 20 },
-              ]}
+              menuItems={ROWS_PER_PAGE_OPTIONS}
             />
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <FooterText>

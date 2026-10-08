@@ -107,7 +107,7 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
           <Box
             component="button"
             type="button"
-            data-testid="crypto-show-all"
+            data-testid="crypto-show-all" data-touch-44=""
             onClick={() => setShowAllCoins(true)}
             sx={{
               width: "100%",
@@ -218,14 +218,16 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
               {`${paymentSettings.acceptedCryptoCurrency.length} ${t("of")} ${allCryptoItems.length} ${t("currenciesSelected")}`}
             </Text>
           </Box>
-          <Box sx={{ display: "flex", gap: "16px" }}>
+          {/* Full-width pair on phones (two fixed 155px buttons overflowed a 360px screen —
+              UX audit C7); fixed 190px each from 600px up. */}
+          <Box sx={{ display: "flex", gap: isMobile ? "8px" : "16px", width: isMobile ? "100%" : "auto" }}>
             {[t("selectAll"), t("clearAll")].map((item) => {
               const first = item === t("selectAll");
               return (
                 <Box
                   component="button"
                   type="button"
-                  data-testid={first ? "crypto-select-all" : "crypto-clear-all"}
+                  data-testid={first ? "crypto-select-all" : "crypto-clear-all"} data-touch-44=""
                   onClick={() => {
                     if (item === t("selectAll")) {
                       // BUGFIX 2026-07-09: select from the FULL currency list, not the
@@ -255,8 +257,10 @@ const CryptoSelection: React.FC<CryptoSelectionProps> = ({
                     background: "none",
                     font: "inherit",
                     p: 0,
-                    width: isMobile ? "155px" : "190px",
-                    height: isMobile ? "32px" : "40px",
+                    flex: isMobile ? "1 1 0" : "0 0 auto",
+                    minWidth: 0,
+                    width: isMobile ? "auto" : "190px",
+                    height: isMobile ? "36px" : "40px",
                     cursor:
                       paymentSettings.acceptedCryptoCurrency.length === 0 &&
                       !first

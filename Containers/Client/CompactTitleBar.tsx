@@ -6,7 +6,13 @@ import { Box, useTheme } from "@mui/material";
  * slim bar with the title slides in at the top of the scroll area. Zero layout
  * height (sticky 0-height anchor), so nothing jumps when it appears.
  */
-const CompactTitleBar: React.FC<{ title: string; watch: React.RefObject<HTMLElement>; root: React.RefObject<HTMLElement> }> = ({ title, watch, root }) => {
+const CompactTitleBar: React.FC<{
+  title: string;
+  watch: React.RefObject<HTMLElement>;
+  root: React.RefObject<HTMLElement>;
+  /** The content column's phone gutter in px (the bar bleeds edge-to-edge by exactly this much). */
+  phoneGutter?: number;
+}> = ({ title, watch, root, phoneGutter = 16 }) => {
   const theme = useTheme();
   const [shown, setShown] = useState(false);
   useEffect(() => {
@@ -25,8 +31,8 @@ const CompactTitleBar: React.FC<{ title: string; watch: React.RefObject<HTMLElem
         sx={{
           position: "absolute",
           top: 0,
-          left: { xs: -16, md: -32 },
-          right: { xs: -16, md: -32 },
+          left: { xs: -phoneGutter, md: -32 },
+          right: { xs: -phoneGutter, md: -32 },
           height: { xs: 44, md: 48 },
           display: "flex",
           alignItems: "center",

@@ -2,7 +2,7 @@
 # Drives the AML velocity/hold/mixer test end-to-end: create throwaway customer via API,
 # run the ts-node integration test, then clean up.
 set -u
-HOST="https://secure-vault-app-57.preview.emergentagent.com"
+HOST="https://ux-handoff-app.preview.emergentagent.com"
 API="$HOST/api/safedeal"
 R=$RANDOM$RANDOM
 EMAIL="sd-amltest-$R@example.com"

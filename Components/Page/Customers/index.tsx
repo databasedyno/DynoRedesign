@@ -84,6 +84,7 @@ import ConsoleSummaryStrip from "@/Components/Console/SummaryStrip";
 import ConsoleFilterBar from "@/Components/Console/FilterBar";
 import ConsoleEmptyState from "@/Components/Console/EmptyState";
 import ConsoleDetailSlideOver from "@/Components/Console/DetailSlideOver";
+import { FilterChoiceGroup, PhoneFilters } from "@/Components/Common/FilterSheet";
 
 /* ------------------------------------------------------------------ types */
 
@@ -606,6 +607,35 @@ const CustomersPage: React.FC = () => {
           data-testid="customers-toolbar-controls"
           sx={{ display: "flex", alignItems: "center", gap: 1.25, flexWrap: "nowrap", minWidth: 0, flex: { xs: "1 1 100%", sm: "0 0 auto" } }}
         >
+        {isMobile ? (
+          // Phones (blueprint §8.4): [search] [Filters] — Sort lives in the shared bottom sheet.
+          <Box sx={{ flex: "1 1 0", minWidth: 0, display: "flex", "& > button": { flex: 1, justifyContent: "center" } }}>
+            <PhoneFilters
+              testIdPrefix="customers"
+              activeCount={sort !== "recent" ? 1 : 0}
+              onClear={() => {
+                setSort("recent");
+                setPage(1);
+              }}
+            >
+              <FilterChoiceGroup
+                label={t("customers.sortLabel", { defaultValue: "Sort customers" })}
+                value={sort as string}
+                onChange={(v) => {
+                  setSort(v);
+                  setPage(1);
+                }}
+                testIdPrefix="customers-sort"
+                options={[
+                  { value: "recent", label: t("customers.sortRecent", { defaultValue: "Most recent" }) },
+                  { value: "ltv", label: t("customers.sortLtv", { defaultValue: "Highest value" }) },
+                  { value: "payments", label: t("customers.sortPayments", { defaultValue: "Most payments" }) },
+                  { value: "name", label: t("customers.sortName", { defaultValue: "Name" }) },
+                ]}
+              />
+            </PhoneFilters>
+          </Box>
+        ) : (
         <Select
           value={sort}
           size="small"
@@ -639,6 +669,7 @@ const CustomersPage: React.FC = () => {
             {t("customers.sortName", { defaultValue: "Name" })}
           </MenuItem>
         </Select>
+        )}
         <CustomButton
           label={t("customers.addCustomer", { defaultValue: "Add customer" })}
           variant="primary"
@@ -694,7 +725,7 @@ const CustomersPage: React.FC = () => {
             <Box
               key={s}
               component="button"
-              data-testid={`customers-segment-${s}`}
+              data-testid={`customers-segment-${s}`} data-touch-44=""
               onClick={() => {
                 setSegment(s);
                 setPage(1);
@@ -710,7 +741,7 @@ const CustomersPage: React.FC = () => {
                 px: 1.5,
                 py: 0.6,
                 minHeight: { xs: 36, md: 0 },
-                fontSize: "12.5px",
+                fontSize: "13px",
                 fontWeight: 600,
                 ...sansSx,
                 cursor: "pointer",

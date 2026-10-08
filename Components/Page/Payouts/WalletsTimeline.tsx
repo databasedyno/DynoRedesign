@@ -79,9 +79,13 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
                 <Box sx={{ minWidth: 0 }}>
                   <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.75, minWidth: 0 }}>
                     <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: ink, whiteSpace: "nowrap" }}>{w.wallet_type}</Box>
-                    <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 11.5, color: muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{getNetworkLabel(w.wallet_type)}</Box>
+                    {/* "USDT-ERC20" already names its network — the "ERC-20" chip only repeated it
+                        and truncated on phones / iPad mini (UX audit C4). Native coins keep the name. */}
+                    {!/[-_]/.test(w.wallet_type) && (
+                      <Box data-testid="payouts-wallet-network" sx={{ fontFamily: "var(--font-sans)", fontSize: 12, color: muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{getNetworkLabel(w.wallet_type)}</Box>
+                    )}
                   </Box>
-                  <Box sx={{ fontFamily: MONO, fontSize: 11.5, color: muted }}>{w.address_masked}</Box>
+                  <Box sx={{ fontFamily: MONO, fontSize: 12, color: muted }}>{w.address_masked}</Box>
                 </Box>
                 <Box sx={{ display: { xs: "none", sm: "block" }, minWidth: 0 }}>
                   <Box data-testid="payouts-wallet-amount" sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontSize: 14, fontWeight: 600, color: w.forwarded_count > 0 ? ink : muted }}>
@@ -122,7 +126,7 @@ const WalletsTimeline: React.FC<Props> = ({ data, loading, rangeLabel }) => {
               <Box
                 component="button"
                 type="button"
-                data-testid="payouts-wallets-toggle-quiet"
+                data-testid="payouts-wallets-toggle-quiet" data-touch-44=""
                 aria-expanded={showQuiet}
                 onClick={() => setShowQuiet((v) => !v)}
                 sx={{ all: "unset", boxSizing: "border-box", width: "100%", display: "flex", alignItems: "center", gap: 0.75, px: { xs: 2, md: 2.5 }, py: 1.25, cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: muted, "&:hover": { color: ink, backgroundColor: isDark ? "rgba(255,255,255,0.025)" : "rgba(10,10,15,0.02)" }, "&:focus-visible": { outline: `2px solid ${ink}`, outlineOffset: -2 } }}

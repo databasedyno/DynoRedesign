@@ -125,7 +125,7 @@ const ExpireSelector: React.FC<ExpireSelectorProps> = ({
           aria-haspopup="listbox"
           aria-expanded={isOpen}
           aria-label={label ? String(label) : undefined}
-          data-testid="expire-selector-trigger"
+          data-testid="expire-selector-trigger" data-touch-44=""
           onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
             if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
               e.preventDefault();

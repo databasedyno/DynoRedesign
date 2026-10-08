@@ -54,6 +54,61 @@ function saveLastCompanyId(companyId: number | null) {
   } catch {}
 }
 
+// ── Cold start (UX audit S5 / blueprint §8.10 "Loading") ────────────────────
+// Stale-while-revalidate brand list: the last /company/getCompany payload is kept in
+// localStorage (scoped to the signed-in user id from the JWT) and handed to SWR as
+// fallbackData, so the brand switcher + brand-aware nav render instantly on a cold load
+// while the real request revalidates. Only non-empty lists are cached, so "no brands yet"
+// flows still wait for the server. `loading` keeps meaning "no server answer yet".
+const BRAND_CACHE_KEY = "dp_brand_list_cache:v1";
+
+function tokenUserId(): string | null {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    const id = payload?.user_id ?? payload?.id ?? payload?.sub;
+    return id != null ? String(id) : null;
+  } catch {
+    return null;
+  }
+}
+
+function readCachedBrands(): any[] | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const raw = localStorage.getItem(BRAND_CACHE_KEY);
+    if (!raw) return undefined;
+    const cached = JSON.parse(raw);
+    const uid = tokenUserId();
+    return uid && cached?.u === uid && Array.isArray(cached?.list) && cached.list.length > 0 ? cached.list : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeCachedBrands(list: any[]) {
+  try {
+    const uid = tokenUserId();
+    if (!uid || !Array.isArray(list) || list.length === 0) {
+      localStorage.removeItem(BRAND_CACHE_KEY);
+      return;
+    }
+    localStorage.setItem(BRAND_CACHE_KEY, JSON.stringify({ u: uid, at: Date.now(), list }));
+  } catch {
+    /* quota / private mode — the cache is an optimisation only */
+  }
+}
+
+/** Called on sign-out so the next account never sees the previous brand names. */
+export function clearCachedBrands() {
+  try {
+    localStorage.removeItem(BRAND_CACHE_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export const companyFetcher = async (url: string) => {
   const res = await axios.get(url);
   return res?.data?.data ?? [];
@@ -131,10 +186,22 @@ export function CompanyDataProvider({ children }: { children: React.ReactNode })
     hasToken &&
     (isProtectedPath(router.pathname) || router.pathname.startsWith("/help-support"));
 
+  // Read right after mount (not in the initializer) so the first client render matches the
+  // server HTML; hasToken flips in the same post-mount pass, so the cached list is in place
+  // before the shell's first data-driven paint.
+  const [cachedBrands, setCachedBrands] = useState<any[] | undefined>(undefined);
+  useEffect(() => {
+    setCachedBrands(readCachedBrands());
+  }, []);
   const { data, error, isLoading, mutate } = useSWR(
     merchantDataEnabled ? COMPANIES_KEY : null,
-    companyFetcher
+    companyFetcher,
+    cachedBrands ? { fallbackData: cachedBrands } : undefined
   );
+  // Persist every real server answer (fallbackData never reaches here as "loaded").
+  useEffect(() => {
+    if (!isLoading && !error && Array.isArray(data) && data !== cachedBrands) writeCachedBrands(data);
+  }, [data, error, isLoading, cachedBrands]);
 
   const companyList: any[] = useMemo(() => (Array.isArray(data) ? data : EMPTY_LIST), [data]);
   const fetched = data !== undefined || !!error;

@@ -39,8 +39,10 @@ const SidebarFooter: React.FC<Props> = ({ collapsed, canToggle, onToggle }) => {
       sx={{ flexShrink: 0, mt: 1, pt: 1, borderTop: `1px solid ${hairline}`, display: "flex", alignItems: "flex-end", justifyContent: collapsed ? "center" : "space-between", gap: 1 }}
     >
       {!collapsed && (
-        <Box sx={{ minWidth: 0, pl: 1.5 }}>
-          <Box component="nav" aria-label={t("footerLinks", { defaultValue: "Utility links" })} sx={{ display: "flex", flexWrap: "wrap", columnGap: "10px", rowGap: "2px" }}>
+        <Box sx={{ minWidth: 0, pl: 1.5, "@media (max-height:940px)": { pl: 0.5 } }}>
+          {/* One line on short screens (the build id moves into the Status link's tooltip) so the
+              nav keeps every row visible at 1280×800 / 1280×720. */}
+          <Box component="nav" aria-label={t("footerLinks", { defaultValue: "Utility links" })} sx={{ display: "flex", flexWrap: "wrap", columnGap: "10px", rowGap: "2px", "@media (max-height:940px)": { columnGap: "8px" } }}>
             {links.map((l) => (
               <Box
                 key={l.id}
@@ -49,6 +51,7 @@ const SidebarFooter: React.FC<Props> = ({ collapsed, canToggle, onToggle }) => {
                 target="_blank"
                 rel="noopener"
                 data-testid={`sidebar-footer-${l.id}`}
+                title={l.id === "status" && build ? `${l.label} · ${t("footerBuild", { defaultValue: "Build" })} ${build}` : undefined}
                 sx={{
                   fontFamily: "var(--font-sans)",
                   fontSize: 12,
@@ -63,7 +66,7 @@ const SidebarFooter: React.FC<Props> = ({ collapsed, canToggle, onToggle }) => {
               </Box>
             ))}
             {build && (
-              <Box component="span" data-testid="sidebar-footer-build" title={`${t("footerBuild", { defaultValue: "Build" })} ${build}`} sx={{ fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: "24px", color: theme.palette.text.disabled }}>
+              <Box component="span" data-testid="sidebar-footer-build" title={`${t("footerBuild", { defaultValue: "Build" })} ${build}`} sx={{ fontFamily: "var(--font-sans)", fontSize: 12, lineHeight: "24px", color: theme.palette.text.disabled, "@media (max-height:940px)": { display: "none" } }}>
                 v·{build}
               </Box>
             )}

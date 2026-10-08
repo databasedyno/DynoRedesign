@@ -232,7 +232,7 @@ export default function CompanySelector() {
             handleOpen(e);
           }
         }}
-        data-testid="company-selector-trigger"
+        data-testid="company-selector-trigger" data-touch-44=""
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, flex: "1 1 auto" }}>
           {!shown && !companyState.fetched ? (

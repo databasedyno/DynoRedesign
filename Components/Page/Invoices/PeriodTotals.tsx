@@ -9,6 +9,8 @@ import { money } from "@/Components/Page/Dashboard/v2026/command/format";
 import { INVOICE_PERIODS, InvoicePeriod, PERIOD_LABEL_KEY } from "./invoicePeriods";
 import type { PeriodSummary } from "./usePeriodSummary";
 import InfoHint from "@/Components/UI/InfoHint";
+import { FilterChoiceGroup, FilterSheet } from "@/Components/Common/FilterSheet";
+import useIsMobile from "@/hooks/useIsMobile";
 
 interface Props {
   period: InvoicePeriod;
@@ -30,10 +32,14 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
   const sym = data?.currency_symbol || "$";
   const cur = data?.currency || "USD";
   const empty = !loading && !!data && data.payments_count === 0 && data.receipts_count === 0;
+  // Phones (< 900): the period is a pill that opens the shared filter bottom sheet (blueprint §8.4)
+  // instead of a native-looking select.
+  const isPhone = useIsMobile("md");
+  const [periodSheet, setPeriodSheet] = React.useState(false);
 
-  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 11, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase" as const, color: muted };
+  const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: 1.1, textTransform: "uppercase" as const, color: muted };
   const valueSx = { fontFamily: MONO, fontVariantNumeric: "tabular-nums" as const, fontSize: { xs: 24, md: 28 }, fontWeight: 600, letterSpacing: "-0.02em", lineHeight: 1.05, color: ink, minHeight: 32 };
-  const captionSx = { fontFamily: "var(--font-sans)", fontSize: 12.5, color: muted, lineHeight: 1.4 };
+  const captionSx = { fontFamily: "var(--font-sans)", fontSize: 13, color: muted, lineHeight: 1.4 };
 
   const tiles = [
     {
@@ -71,6 +77,39 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
       <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5, flexWrap: "wrap" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, flexWrap: "wrap" }}>
           <Box sx={{ ...captionSx, fontWeight: 600 }}>{t("invoices.showingPeriod", { defaultValue: "Showing" })}</Box>
+          {isPhone ? (
+            <>
+              <Box
+                component="button"
+                type="button"
+                data-testid="tax-period-trigger"
+                data-touch-44=""
+                aria-haspopup="dialog"
+                aria-label={t("invoices.period") as string}
+                onClick={() => setPeriodSheet(true)}
+                sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, minHeight: 40, px: 1.5, borderRadius: "10px", border: `1px solid ${theme.palette.border.main}`, backgroundColor: theme.palette.background.paper, color: ink, fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+              >
+                <Icon name="calendar" size={16} />
+                {t(PERIOD_LABEL_KEY[period])}
+                <Icon name="chevron-down" size={16} />
+              </Box>
+              <FilterSheet
+                open={periodSheet}
+                onClose={() => setPeriodSheet(false)}
+                onClear={() => onPeriodChange("all" as InvoicePeriod)}
+                testIdPrefix="invoices-period"
+                title={t("invoices.period", { defaultValue: "Period" })}
+              >
+                <FilterChoiceGroup
+                  label={t("invoices.period", { defaultValue: "Period" })}
+                  value={period}
+                  onChange={(v) => onPeriodChange(v)}
+                  testIdPrefix="tax-period"
+                  options={(INVOICE_PERIODS ?? []).map((p) => ({ value: p, label: t(PERIOD_LABEL_KEY[p]) }))}
+                />
+              </FilterSheet>
+            </>
+          ) : (
           <FormControl size="small">
             <Select
               value={period}
@@ -86,6 +125,7 @@ const PeriodTotals: React.FC<Props> = ({ period, onPeriodChange, data, loading, 
               ))}
             </Select>
           </FormControl>
+          )}
         </Box>
         <CustomButton
           data-testid="invoices-export-period"

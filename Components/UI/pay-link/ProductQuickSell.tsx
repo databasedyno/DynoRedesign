@@ -515,7 +515,7 @@ const ProductQuickSell: React.FC<ProductQuickSellProps> = ({
           fontWeight: 600,
           textTransform: "none",
           borderColor: borderColor,
-          minHeight: { xs: 44, sm: "auto" },
+          minHeight: { xs: 44, sm: 32 },
           flex: { xs: "1 1 100%", sm: "0 0 auto" },
           "&:hover": { borderColor: accent, backgroundColor: `${accent}0D` },
         }}

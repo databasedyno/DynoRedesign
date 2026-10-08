@@ -64,7 +64,7 @@ const PlanRow: React.FC = () => {
         component="button"
         type="button"
         onClick={toggle}
-        data-testid="plan-growth-toggle-btn"
+        data-testid="plan-growth-toggle-btn" data-touch-44=""
         aria-expanded={open}
         sx={{
           width: "100%",
@@ -89,7 +89,9 @@ const PlanRow: React.FC = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0 }}>
           <Icon name="layers" size={15} />
-          <Box component="span" data-testid="plan-growth-summary" title={t("command.planVolumeHint", { defaultValue: "Your fee tier follows lifetime net volume: completed payments after Dynopay fees, all time — the same figure as Net received on Payout addresses." }) as string} sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: MONO, fontVariantNumeric: "tabular-nums", color: ink, fontWeight: 500 }}>
+          <Box component="span" data-testid="plan-growth-summary" title={t("command.planVolumeHint", { defaultValue: "Your fee tier follows lifetime net volume: completed payments after Dynopay fees, all time — the same figure as Net received on Payout addresses." }) as string} sx={{ // Money is never truncated (UX audit S1 / C5): the line wraps on phones & tablets and
+            // only ellipsises on wide screens where it fits anyway.
+            whiteSpace: { xs: "normal", lg: "nowrap" }, overflow: { xs: "visible", lg: "hidden" }, textOverflow: { lg: "ellipsis" }, lineHeight: 1.4, fontFamily: MONO, fontVariantNumeric: "tabular-nums", color: ink, fontWeight: 500 }}>
             {summary}
           </Box>
         </Box>

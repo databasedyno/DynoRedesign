@@ -217,7 +217,7 @@ const CurrencySelector: React.FC<CurrencySelectorProps> = ({
           tabIndex={0}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
-          data-testid="currency-selector-trigger"
+          data-testid="currency-selector-trigger" data-touch-44=""
           onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
             if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
               e.preventDefault();

@@ -22,7 +22,7 @@ import { NotificationItemProps } from "@/utils/types/notification";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { tabPillActive, tabPillHover } from "@/styles/tabPill";
+import { tabPillHover } from "@/styles/tabPill";
 import { useApiSWR } from "@/hooks/useApiSWR";
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 import axiosBaseApi from "@/axiosConfig";
@@ -201,11 +201,16 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Notification inbox state
-  const [activeTab, setActiveTab] = useState<"inbox" | "settings">(initialTab);
-  // Deep link from the dashboard "Needs attention" rows: /notifications?tab=settings
+  // ONE home for notification preferences (blueprint §8.9): Settings → Notifications renders
+  // this component with initialTab="settings" (preferences only, no tabs); /notifications is the
+  // inbox and links there. Old deep links (/notifications?tab=settings) are forwarded.
+  const settingsOnly = initialTab === "settings";
+  const activeTab: "inbox" | "settings" = settingsOnly ? "settings" : "inbox";
   useEffect(() => {
-    if (router.isReady && router.query.tab === "settings") setActiveTab("settings");
-  }, [router.isReady, router.query.tab]);
+    if (!settingsOnly && router.isReady && router.query.tab === "settings") {
+      router.replace("/settings?section=notifications");
+    }
+  }, [settingsOnly, router, router.isReady, router.query.tab]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [markingAllRead, setMarkingAllRead] = useState(false);
 
@@ -637,43 +642,29 @@ const NotificationPage = ({ initialTab = "inbox" }: { initialTab?: "inbox" | "se
 
   return (
     <Box>
-      {/* Tab Switcher */}
-      <Box role="tablist" sx={{ display: "flex", gap: 1, mb: 2.5 }}>
-        {([
-          ["inbox", `${t("inboxTab", { defaultValue: "Inbox" })}${unreadCount > 0 ? ` (${unreadCount})` : ""}`],
-          ["settings", t("settingsTab", { defaultValue: "Settings" })],
-        ] as const).map(([id, label]) => {
-          const active = activeTab === id;
-          return (
-            <Box
-              key={id}
-              component="button"
-              type="button"
-              role="tab"
-              aria-selected={active}
-              data-testid={`notifications-${id}-tab`}
-              onClick={() => setActiveTab(id)}
-              sx={{
-                height: 36,
-                px: "14px",
-                border: "none",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontFamily: "var(--font-sans)",
-                fontSize: 14,
-                fontWeight: active ? 600 : 500,
-                bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.04)" : "#F1F2F5",
-                transition: "background-color 150ms ease, color 150ms ease",
-                ...(active
-                  ? tabPillActive(theme)
-                  : { color: theme.palette.text.secondary, "&:hover": { bgcolor: tabPillHover(theme) } }),
-              }}
-            >
-              {label}
-            </Box>
-          );
-        })}
-      </Box>
+      {/* Inbox header — preferences live in Settings → Notifications (one home, §8.9) */}
+      {!settingsOnly && (
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1, mb: 2.5 }}>
+          <Typography component="h2" data-testid="notifications-inbox-heading" sx={{ m: 0, fontFamily: "var(--font-sans)", fontSize: 16, fontWeight: 700, color: theme.palette.text.primary }}>
+            {t("inboxTab", { defaultValue: "Inbox" })}
+            {unreadCount > 0 ? ` (${unreadCount})` : ""}
+          </Typography>
+          <Box
+            component="a"
+            href="/settings?section=notifications"
+            data-testid="notifications-settings-link"
+            data-touch-44=""
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault();
+              router.push("/settings?section=notifications");
+            }}
+            sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, minHeight: 36, px: 1.25, borderRadius: "10px", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, color: brandFg(theme.palette.mode === "dark"), textDecoration: "none", "&:hover": { bgcolor: tabPillHover(theme) } }}
+          >
+            {t("notificationSettingsLink", { defaultValue: "Notification settings" })}
+            <ArrowOutwardIcon sx={{ fontSize: 16 }} />
+          </Box>
+        </Box>
+      )}
 
       {/* Inbox Tab — grouped by day (plan 3.9) */}
       {activeTab === "inbox" && (

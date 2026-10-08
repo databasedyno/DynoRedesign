@@ -56,6 +56,7 @@ export const SelectModeButton: React.FC<{ active: boolean; onEnter: () => void; 
       component="button"
       type="button"
       data-testid={testId}
+      data-touch-44=""
       aria-pressed={active}
       onClick={active ? onExit : onEnter}
       sx={{

@@ -132,7 +132,7 @@ const PaymentLinksTopBar = ({
         type="button"
         role="tab"
         aria-selected={active}
-        data-testid={`paylinks-kind-${value}`}
+        data-testid={`paylinks-kind-${value}`} data-touch-44=""
         onClick={() => onKindChange(value)}
         sx={{
           border: "none",

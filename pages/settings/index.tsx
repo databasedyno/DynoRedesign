@@ -393,10 +393,10 @@ const SettingsPageInner = ({
         scope: "account" as const,
       },
       {
-        // F11: "Company" is the wrong word for an individual creator — the
-        // section is now "Account details" and the copy switches on account_type.
+        // F11: "Company" is the wrong word for an individual creator. Blueprint §8.9 renamed
+        // "Account details" → "Brand profile" (brand = the app's finalized term for this scope).
         key: "company" as SectionKey,
-        label: t("settingsPage.accountDetails", { defaultValue: "Account details" }),
+        label: t("settingsPage.brandProfile", { defaultValue: "Brand profile" }),
         description: isIndividual
           ? t("settingsPage.accountDetailsDescIndividual", {
               defaultValue: "Your public name, logo, and account information",
@@ -718,7 +718,7 @@ const SettingsPageInner = ({
                     key={s.key}
                     role="button"
                     tabIndex={0}
-                    data-testid={`settings-rail-${s.key}`}
+                    data-testid={`settings-rail-${s.key}`} data-touch-44=""
                     onClick={() => selectSection(s.key)}
                     onKeyDown={(e: React.KeyboardEvent) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -779,13 +779,8 @@ const SettingsPageInner = ({
               mx: "14px",
             }}
           />
+          {/* Developers is NOT repeated here — it has its own sidebar destination (blueprint §8.9). */}
           {[
-            {
-              key: "developers",
-              label: t("settingsPage.developers", { defaultValue: "Developers" }),
-              href: "/developer-keys",
-              icon: <CodeRounded sx={{ fontSize: 19 }} />,
-            },
             {
               key: "referrals",
               label: t("settingsPage.referrals", { defaultValue: "Referrals" }),
@@ -797,7 +792,7 @@ const SettingsPageInner = ({
               key={p.key}
               role="button"
               tabIndex={0}
-              data-testid={`settings-rail-${p.key}`}
+              data-testid={`settings-rail-${p.key}`} data-touch-44=""
               onClick={() => router.push(p.href)}
               onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === "Enter" || e.key === " ") {

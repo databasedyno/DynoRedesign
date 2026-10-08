@@ -158,8 +158,13 @@ const AUDIT = `(() => {
   out.small44 = []; out.small24 = []; let s44 = 0, s24 = 0;
   for (const el of all) {
     if (el.parentElement && el.parentElement.closest(INTER)) continue;
-    const r = el.getBoundingClientRect(); if (r.width < 2 || r.height < 2) continue;
+    // Skip-to-content links sit off-screen until focused — not a resting target.
+    if (el.matches('a[data-testid="skip-to-content"], a[href="#main-content"]')) continue;
     if (el.tagName === 'INPUT' && (el.type === 'checkbox' || el.type === 'radio')) continue;
+    // A text field / select is the whole field box (clicking its padding focuses it), not the
+    // bare <input> / select <div> inside it — measuring the inner node reported 40px fields as 22px.
+    const field = el.closest('.MuiInputBase-root');
+    const r = (field || el).getBoundingClientRect(); if (r.width < 2 || r.height < 2) continue;
     const ex = coarse && hitExempt(el);
     const m = Math.min(ex ? Math.max(r.width, 44) : r.width, ex ? Math.max(r.height, 44) : r.height);
     const label = desc(el).slice(0, 56) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height);

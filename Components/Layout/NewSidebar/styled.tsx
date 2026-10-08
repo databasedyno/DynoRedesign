@@ -21,6 +21,7 @@ export const Menu = styled("div")(({ theme }) => ({
   // 12-row nav fits a 768px-tall laptop without scrolling.
   gap: "12px",
   "@media (max-height:940px)": { gap: "6px" },
+  "@media (max-height:760px)": { gap: "4px" },
   background: "transparent",
   // Fill the free space and become the ONLY scroll region when the nav list is
   // taller than the sidebar. `minHeight: 0` is required for a flex child to
@@ -63,6 +64,7 @@ export const SectionToggle = styled("button")(({ theme }) => ({
   color: theme.palette.text.secondary,
   padding: "4px 10px 4px 14px",
   marginBottom: "2px",
+  "@media (max-height:760px)": { padding: "2px 10px 2px 14px", marginBottom: 0 },
   borderRadius: "8px",
   cursor: "pointer",
   userSelect: "none",
@@ -121,10 +123,16 @@ const menuItemStyles = ({ active, theme }: { active?: boolean; theme: any }) => 
     "&:active": {
       transform: "scale(0.99)",
     },
-    // Height-aware density (§8.1): short laptops (incl. 1440×900) / landscape tablets keep every row visible.
+    // Height-aware density (§8.1): short laptops (incl. 1440×900 / 1280×800) keep every row —
+    // incl. Help & Support — visible without scrolling; ≤ 760 tall (1280×720) tightens once more.
+    // Row height = 26px icon box + vertical padding.
     "@media (max-height:940px)": {
       minHeight: "34px",
-      padding: "6px 12px",
+      padding: "4px 12px",
+    },
+    "@media (max-height:760px)": {
+      minHeight: "32px",
+      padding: "3px 12px",
     },
   };
 };

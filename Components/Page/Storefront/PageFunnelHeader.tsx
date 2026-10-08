@@ -13,6 +13,7 @@ import CreatorLivePreview from "@/Components/Page/Creator/CreatorLivePreview";
 import InfoHint from "@/Components/UI/InfoHint";
 import type { CreatorFormState } from "@/Components/Page/Creator/CreatorPageSettings";
 import type { StorefrontProfile } from "@/hooks/useStorefrontProfile";
+import { tapXY } from "@/styles/tapTarget";
 
 export type FunnelPeriod = "7d" | "30d" | "90d";
 const PERIODS: Array<{ id: FunnelPeriod; label: string }> = [
@@ -155,13 +156,13 @@ const PageFunnelHeader: React.FC<Props> = ({ storefront, formState, mounted, onE
                   {publicUrl.replace(/^https?:\/\//, "")}
                 </Typography>
                 <Tooltip title={t("storefront.funnel.copyUrl", { defaultValue: "Copy link" })} arrow>
-                  <Box component="button" type="button" data-testid="your-page-copy" data-hit-area="" onClick={copy} aria-label={t("storefront.funnel.copyUrl", { defaultValue: "Copy link" }) as string} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", p: 0.5, borderRadius: "8px", color: copied ? tone.dot : theme.palette.text.secondary, "&:hover": { backgroundColor: theme.palette.action.hover } }}>
+                  <Box component="button" type="button" data-testid="your-page-copy" onClick={copy} aria-label={t("storefront.funnel.copyUrl", { defaultValue: "Copy link" }) as string} sx={{ all: "unset", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", ...tapXY(22, 4), borderRadius: "8px", color: copied ? tone.dot : theme.palette.text.secondary, "&:hover": { backgroundColor: theme.palette.action.hover } }}>
                     <Icon name={copied ? "check" : "copy"} size={14} />
                   </Box>
                 </Tooltip>
                 {published && (
                   <Tooltip title={t("storefront.viewMyPage", { defaultValue: "View my page" })} arrow>
-                    <Box component="a" href={publicUrl} target="_blank" rel="noopener" data-testid="your-page-open" aria-label={t("storefront.viewMyPage", { defaultValue: "View my page" }) as string} sx={{ display: "inline-flex", p: 0.5, borderRadius: "8px", color: theme.palette.text.secondary, "&:hover": { backgroundColor: theme.palette.action.hover } }}>
+                    <Box component="a" href={publicUrl} target="_blank" rel="noopener" data-testid="your-page-open" aria-label={t("storefront.viewMyPage", { defaultValue: "View my page" }) as string} sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", ...tapXY(22, 4), borderRadius: "8px", color: theme.palette.text.secondary, "&:hover": { backgroundColor: theme.palette.action.hover } }}>
                       <Icon name="external-link" size={14} />
                     </Box>
                   </Tooltip>

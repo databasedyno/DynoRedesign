@@ -75,6 +75,8 @@ import TransactionDetailsModal from "./TransactionDetailsModal";
 import SelectionBar from "@/Components/Common/SelectionBar";
 import { downloadCsv } from "@/helpers/downloadCsv";
 import { toFixedStr } from "@/utils/money";
+import { tapY } from "@/styles/tapTarget";
+import useAutoRowsPerPage, { ROWS_PER_PAGE_OPTIONS } from "@/hooks/useAutoRowsPerPage";
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
   transactions,
@@ -93,7 +95,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
     [t],
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
+  // Page size fills the viewport (≈ 25 rows at ≥ 1080px tall, blueprint §8.4); remembered once chosen.
+  const { rows: rowsPerPage, setRows: setRowsPerPage } = useAutoRowsPerPage("transactions", initialRowsPerPage);
   const [selectedTransaction, setSelectedTransaction] =
     useState<ExtendedTransaction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -345,7 +348,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   const showVat = transactions.some((tx) => tx.reverseCharge || Number(tx.taxAmount) > 0);
   const noVatGridSx = showVat
     ? {}
-    : { [theme.breakpoints.up("md")]: { gridTemplateColumns: "minmax(0, 1fr) minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.1fr)" } };
+    : { [theme.breakpoints.up("md")]: { gridTemplateColumns: "minmax(0, 1.05fr) minmax(0, 0.95fr) minmax(0, 1.15fr) minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.1fr)" } };
   const SORTABLE_KEYS = new Set<string>(["amount", "usdValue", "dateTime"]);
 
   const HeaderData = [
@@ -770,6 +773,8 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                           cursor: "pointer",
                           userSelect: "none",
                           borderRadius: "6px",
+                          // ≥ 24px sort target with a mouse (UX audit S18), layout unchanged.
+                          ...tapY(18),
                           transition: "color 120ms ease",
                           "& .sort-icon": {
                             fontSize: 16,
@@ -1108,7 +1113,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
           <RowsPerPageSelector
             value={rowsPerPage}
             onChange={handleRowsPerPageChange}
-            menuItems={[5, 10, 15, 20].map((v) => ({ value: v, label: v }))}
+            menuItems={ROWS_PER_PAGE_OPTIONS}
           />
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>

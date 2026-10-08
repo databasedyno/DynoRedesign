@@ -296,7 +296,7 @@ const OverflowTabs = ({
               role="tab"
               aria-selected={isActive}
               tabIndex={0}
-              data-testid={`${itemTestIdPrefix}-${id}`}
+              data-testid={`${itemTestIdPrefix}-${id}`} data-touch-44=""
               onClick={() => onChange(id)}
               onKeyDown={(e: React.KeyboardEvent) => {
                 if (e.key === "Enter" || e.key === " ") {

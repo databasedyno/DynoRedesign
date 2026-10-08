@@ -196,7 +196,7 @@ const WalletList: React.FC<Props> = ({
             onClick={() => onToggleReveal(w.id)}
             aria-pressed={isRevealed(w.id)}
             aria-label={(isRevealed(w.id) ? t("hideAddress", { defaultValue: "Hide address" }) : t("revealAddress", { defaultValue: "Show full address" })) as string}
-            data-testid={`wallet-address-reveal-${w.id}`}
+            data-testid={`wallet-address-reveal-${w.id}`} data-touch-44="square"
             sx={iconBtnSx}
           >
             <Icon name={isRevealed(w.id) ? "eye-off" : "eye"} size={15} />
@@ -245,7 +245,7 @@ const WalletList: React.FC<Props> = ({
         type="button"
         aria-haspopup="menu"
         aria-label={t("moreActions", { defaultValue: "More actions" }) as string}
-        data-testid={`wallet-more-${w.id}`}
+        data-testid={`wallet-more-${w.id}`} data-touch-44="square"
         onClick={(e: React.MouseEvent<HTMLElement>) => setMenu({ anchor: e.currentTarget, wallet: w })}
         sx={iconBtnSx}
       >

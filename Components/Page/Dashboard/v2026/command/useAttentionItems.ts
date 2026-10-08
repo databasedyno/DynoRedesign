@@ -282,7 +282,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
                 defaultValue: "Emails to {{email}} are bouncing — update your brand notification email so payment alerts reach you",
               }),
           actionLabel: t("command.updateEmail", { defaultValue: "Update email" }),
-          href: "/notifications?tab=settings",
+          href: "/settings?section=notifications",
           fingerprint: `cemail:${bounced.email}:${bounced.since || ""}`,
           testId: "attention-company-email-unreachable",
         });

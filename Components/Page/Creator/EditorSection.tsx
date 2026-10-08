@@ -45,16 +45,20 @@ const EditorSection: React.FC<Props> = ({ id, title, summary, open, onToggle, ch
           "&:focus-visible": { outline: `2px solid ${theme.palette.primary.main}`, outlineOffset: -2 },
         }}
       >
-        <Typography component="h3" sx={{ m: 0, flexShrink: 0, fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: theme.palette.text.primary }}>
-          {title}
-        </Typography>
-        <Typography
-          component="span"
-          data-testid={`editor-section-${id}-summary`}
-          sx={{ flex: 1, minWidth: 0, textAlign: "right", fontFamily: "var(--font-sans)", fontSize: 13, color: theme.palette.text.secondary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-        >
-          {summary}
-        </Typography>
+        {/* Phones: the summary sits UNDER the title and may wrap (it was ellipsised to
+            "Custom theme · cov…" at 360–393px — UX audit C6). ≥ 600: one row, right-aligned. */}
+        <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, gap: { xs: 0.25, sm: 1.5 } }}>
+          <Typography component="h3" sx={{ m: 0, flexShrink: 0, fontFamily: "var(--font-sans)", fontSize: 15, fontWeight: 700, color: theme.palette.text.primary }}>
+            {title}
+          </Typography>
+          <Typography
+            component="span"
+            data-testid={`editor-section-${id}-summary`}
+            sx={{ flex: 1, minWidth: 0, maxWidth: "100%", textAlign: { xs: "left", sm: "right" }, fontFamily: "var(--font-sans)", fontSize: 13, color: theme.palette.text.secondary, whiteSpace: { xs: "normal", sm: "nowrap" }, overflow: "hidden", textOverflow: "ellipsis" }}
+          >
+            {summary}
+          </Typography>
+        </Box>
         <Box sx={{ display: "inline-flex", color: theme.palette.text.secondary, transition: "transform 200ms ease", transform: open ? "rotate(180deg)" : "none" }}>
           <Icon name="chevron-down" size={18} />
         </Box>

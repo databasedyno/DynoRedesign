@@ -185,6 +185,7 @@ const WalletSecurityPage: NextPageWithLayout = () => {
                 onClick={() => router.push("/auth/login")}
                 style={{
                   padding: "12px 20px",
+                  minHeight: 44,
                   borderRadius: 10,
                   background: "transparent",
                   color: brand.sub,

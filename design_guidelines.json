@@ -210,5 +210,61 @@
     "Maintain root data-testid=\"auth-brand-panel\" and assign data-testids to grid cards.",
     "Apply exact color rules for light and dark modes according to the existing brand palette.",
     "Keep single entrance animation (authRise) and respect prefers-reduced-motion."
-  ]
+  ],
+  "selected_state_system": {
+    "_source": "UX layout audit 2026-10-08 S22 / blueprint §8.10 — exactly THREE selected looks, never mixed on one control type.",
+    "tabs_and_filter_chips": {
+      "use_for": "page tabs (OverflowTabs), status/segment chips (customers segments, notifications), filter-sheet options (FilterOptionChip), view toggles (products grid/list)",
+      "implementation": "styles/tabPill.ts → tabPillActive(theme) / tabPillHover(theme)",
+      "light": {
+        "background": "#111214",
+        "text": "#FFFFFF",
+        "border": "transparent",
+        "idle_hover": "#E7E8EE"
+      },
+      "dark": {
+        "background": "rgba(255,255,255,0.12)",
+        "text": "theme.palette.text.primary (#F2F2F0)",
+        "border": "transparent",
+        "idle_hover": "rgba(255,255,255,0.08)"
+      },
+      "a11y": "role=tab + aria-selected, or role=option + aria-selected inside a listbox"
+    },
+    "segmented_control": {
+      "use_for": "time-range presets (Today · 7D · 30D · 90D · 1Y · Custom), chart metric switch (Volume · Payments · Avg ticket)",
+      "look": "track = muted surface pill; selected segment = solid brand yellow #FFD100 with #0A0A0B text (BRAND_ACCENT / BRAND_ON_ACCENT); same in light and dark",
+      "rule": "yellow fill is reserved for the ONE active segment and primary CTAs — never for tabs or nav"
+    },
+    "navigation": {
+      "use_for": "sidebar rows, labelled rail, phone tab bar, More sheet rows",
+      "sidebar_row": "gold text/icon (theme.palette.primary.main) + 3px gold left bar + rgba(255,209,0,0.12) tint; weight 600",
+      "rail_and_tab_bar": "52×28 pill behind the icon — light rgba(255,209,0,0.32), dark rgba(255,209,0,0.18); label weight 700 + text.primary",
+      "a11y": "aria-current=page on the active destination"
+    },
+    "never": [
+      "a gold/yellow pill for a list tab",
+      "a dark pill for the active nav row",
+      "colour-only selection without weight/shape change"
+    ]
+  },
+  "shell_dark_mode": {
+    "_source": "UX layout audit S23 — warm-black palette for every shell surface (no blue-grey).",
+    "tokens": "constants/theme.ts DARK.{canvas #131312, surface #1A1A19, raised #222221, active #2A2A28, border #2B2B29}",
+    "phone_tab_bar": "background DARK.surface, top hairline rgba(255,255,255,0.08), create (+) ring = DARK.surface",
+    "bottom_sheets_and_more_sheet": "paper = DARK.surface, drag handle rgba(255,255,255,0.22), row dividers rgba(255,255,255,0.06)",
+    "sidebar_and_rail": "background.paper of sidebarTheme (warm black); hover rgba(255,255,255,0.07)",
+    "avatar": "same filled-circle treatment in light and dark (no outline swap)"
+  },
+  "touch_and_pointer_targets": {
+    "_source": "UX audit S18 / blueprint §8.10",
+    "fine_pointer_min": "24×24 px (WCAG 2.5.8)",
+    "coarse_pointer_min": "44×44 px outside running text",
+    "how": [
+      "styles/tapTarget.ts tapY(h)/tapXY(size) — grow the element's own box, cancel with negative margin (layout-neutral)",
+      "data-touch-44 / data-touch-44=\"square\" attribute → min 44px on (pointer: coarse) (globals.css)",
+      "data-tap-inline on links inside running text",
+      "every single-line MUI field is 44px tall on touch (globals.css)",
+      "MUI Button size=small has minHeight 24 (appTheme)"
+    ]
+  }
 }

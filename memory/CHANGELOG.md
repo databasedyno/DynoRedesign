@@ -1,3 +1,12 @@
+## 2026-10-08 — UX shell blueprint Part 2 (working tree, unbuilt, not testing-agent verified)
+- Tap targets (desktop ≥24 / touch ≥44) via styles/tapTarget.ts + [data-touch-44]; MuiButton small minHeight 24.
+- hooks/useAutoRowsPerPage (Transactions, Payment links, Receipts), hooks/useElementWidth (paylinks condensed <1100px).
+- Components/Common/FilterSheet phone filters (Customers sort, Products status, Receipts period).
+- Settings rail: Developers row removed, "Brand profile" label, notification prefs single home (/settings?section=notifications).
+- CompanyDataContext brand-list stale-while-revalidate cache (post-mount read, cleared on sign-out). tsc clean.
+- Remaining: see memory/HANDOFF_UX_SHELL_2026-10-08_PART2.md §4.
+
+
 # === 2026-10-06 (fork, pod 33379795) — PROD 36h LOG AUDIT (read-only SSH) + 3 FIXES (admin SSE 403 storm, Telnyx SMS key, vapid-key 503) ===
 # USER: "check production logs past 36h, list anomalies/bugs" + "some API responses show a warning/maintenance icon". Then approved fixing all 3.
 # AUDIT (logs in /opt/dynopay/logs/*.log + Caddy journal): the apiLogger tags responses ✅=2xx ⚠️=4xx ❌=5xx. The "warning icon" = 4xx (nearly all 403). Findings over 36h — production is CLEAN: no crashes/OOM (RestartCount=0, 3GB free), DB/Redis/Tatum connected, webhook queue 0-failed; only 9 true error-level events total.
@@ -81,7 +90,7 @@
 
 # === 2026-10-05 (fork, pod 33379795) — STALE `secure-passphrase-13` URL CLEANUP → console CORS errors resolved — DONE & VERIFIED (self-test) ===
 # USER: "Clean up stale hardcoded secure-passphrase-13 URLs to resolve console errors." (The errors were flagged by testing_agent iteration_268 as a cross-pod artifact.)
-# ROOT CAUSE: The ticker components (Components/Page/Home/v7/{mock/payments.ts,CoinsStripV7.tsx}, v5/demoCoins.ts) fetch GET /api/public/tickers from `NEXT_PUBLIC_BASE_URL || NEXT_PUBLIC_SERVER_URL`. In the PREVIEW build NEXT_PUBLIC_BASE_URL is intentionally empty (most components fetch same-origin/relative), so these fell back to NEXT_PUBLIC_SERVER_URL which was baked to the STALE prior-pod origin https://secure-vault-app-57.preview.emergentagent.com → cross-origin → CORS error in the browser console. PREVIEW-ONLY: production injects NEXT_PUBLIC_* from GitHub secrets (dynopay.com), so prod was never affected.
+# ROOT CAUSE: The ticker components (Components/Page/Home/v7/{mock/payments.ts,CoinsStripV7.tsx}, v5/demoCoins.ts) fetch GET /api/public/tickers from `NEXT_PUBLIC_BASE_URL || NEXT_PUBLIC_SERVER_URL`. In the PREVIEW build NEXT_PUBLIC_BASE_URL is intentionally empty (most components fetch same-origin/relative), so these fell back to NEXT_PUBLIC_SERVER_URL which was baked to the STALE prior-pod origin https://ux-handoff-app.preview.emergentagent.com → cross-origin → CORS error in the browser console. PREVIEW-ONLY: production injects NEXT_PUBLIC_* from GitHub secrets (dynopay.com), so prod was never affected.
 # FIX (preview-scoped; both env files are git-IGNORED so no prod/commit impact):
 #   .env.local: repointed NEXT_PUBLIC_SERVER_URL, NEXT_PUBLIC_CREATOR_BASE_URL, NEXTAUTH_URL from secure-passphrase-13 → current pod origin 33379795-ca26-4d7f-b11a-6a703a8da2ac.preview.emergentagent.com (left NEXT_PUBLIC_BASE_URL empty, the robust same-origin default).
 #   backend/.env: repointed CHECKOUT_URL, FRONTEND_URL, NEXT_PUBLIC_BASE_URL, SERVER_URL, NEXTAUTH_URL → current origin; removed the stale entry from CORS_ALLOWED_ORIGINS (current pod already listed).

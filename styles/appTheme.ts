@@ -149,6 +149,10 @@ const sharedComponents = (isDark: boolean) => {
           "&.MuiButton-contained:hover, &.MuiButton-outlined:hover": { transform: "translateY(-1px)" },
           "&.Mui-disabled:hover": { transform: "none" },
         },
+        // The base theme sets lineHeight: 1, which left small text/outlined buttons at 21–23px —
+        // under the 24px pointer-target minimum (WCAG 2.5.8, UX audit S18). Touch gets 44px via the
+        // global ButtonBase hit area in globals.css.
+        sizeSmall: { minHeight: 24 },
         containedPrimary: {
           color: BRAND_ON_ACCENT,
           backgroundColor: YELLOW,

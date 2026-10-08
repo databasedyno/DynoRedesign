@@ -60,7 +60,7 @@ const StatusPill: FC<{ label: string }> = ({ label }) => (
   <Box
     component={Link}
     href="/system-status"
-    data-testid="footer-status-link"
+    data-testid="footer-status-link" data-touch-44=""
     sx={{
       display: "inline-flex",
       alignItems: "center",
@@ -99,7 +99,9 @@ const FooterCol: FC<{ col: FooterColumn }> = ({ col }) => (
     <Typography component="h2" sx={{ color: PANEL.ink3, fontSize: 11.5, fontWeight: 600, fontFamily: FONT_MONO, letterSpacing: "0.16em", textTransform: "uppercase", mb: 2.5 }}>
       {col.heading}
     </Typography>
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+    {/* Links are ≥ 24px boxes with a mouse / 44px on touch (UX audit S18); the gap shrinks to
+        match so the column keeps its rhythm on desktop. */}
+    <Box sx={{ display: "flex", flexDirection: "column", gap: "9px", "@media (pointer: coarse)": { gap: 0 } }}>
       {col.links.map((l) => (
         <Box
           key={`${l.label}-${l.link}`}
@@ -112,6 +114,10 @@ const FooterCol: FC<{ col: FooterColumn }> = ({ col }) => (
             fontFamily: FONT_BODY,
             textDecoration: "none",
             width: "fit-content",
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 24,
+            "@media (pointer: coarse)": { minHeight: 44 },
             transition: "color 160ms ease, transform 160ms ease",
             "&:hover": { color: PANEL.gold, transform: "translateX(2px)" },
           }}
@@ -236,7 +242,7 @@ const HomeFooter: FC = () => {
             {showSocialLinks && (
               <SocialsWrapper sx={{ mt: 3 }}>
                 {SOCIALS.map((item) => (
-                  <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label} data-testid={`footer-social-${slugOf(item.label)}`}>
+                  <Link key={item.label} href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.label} data-testid={`footer-social-${slugOf(item.label)}`} data-touch-44="square" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
                     <SocialItem>
                       <Image src={item.icon} alt={item.label} width={18} height={18} />
                     </SocialItem>

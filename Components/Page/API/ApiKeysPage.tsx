@@ -812,6 +812,8 @@ Content-Type: application/json
                 borderRadius: "6px",
                 px: 1,
                 py: 0.4,
+                minHeight: 28,
+                "@media (pointer: coarse)": { minHeight: 44 },
                 cursor: "pointer",
                 fontSize: 12,
                 fontWeight: 600,

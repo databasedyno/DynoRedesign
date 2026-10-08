@@ -24,6 +24,9 @@ import ProductRowMenu from "./ProductRowMenu";
 import ConsoleFilterBar from "@/Components/Console/FilterBar";
 import { tabPillActive } from "@/styles/tabPill";
 import { ProductRow, ProductsView, PRODUCTS_VIEW_KEY, readProductsView } from "./productTypes";
+import { tapY } from "@/styles/tapTarget";
+import { FilterChoiceGroup, PhoneFilters } from "@/Components/Common/FilterSheet";
+import useIsMobile from "@/hooks/useIsMobile";
 
 
 /**
@@ -48,6 +51,8 @@ const ProductsTab = () => {
     try { window.localStorage.setItem(PRODUCTS_VIEW_KEY, v); } catch { /* private mode */ }
   };
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  // Phones (< 900): [search] [Filters] + view toggle — Status moves into the shared bottom sheet.
+  const isPhoneToolbar = useIsMobile("md");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
   const [merchantHandle, setMerchantHandle] = useState<string | null>(null);
@@ -137,7 +142,7 @@ const ProductsTab = () => {
                 router.push("/transactions?source=product");
               }}
               data-testid="products-view-orders-link"
-              sx={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: theme.palette.text.secondary, textDecoration: "none", cursor: "pointer", display: { xs: "none", md: "inline" }, whiteSpace: "nowrap", "&:hover": { color: theme.palette.text.primary, textDecoration: "underline" } }}
+              sx={{ ...tapY(21), fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 600, color: theme.palette.text.secondary, textDecoration: "none", cursor: "pointer", display: { xs: "none", md: "inline" }, whiteSpace: "nowrap", "&:hover": { color: theme.palette.text.primary, textDecoration: "underline" } }}
             >
               {t("products.viewOrders", { defaultValue: "View product orders" })}
             </Typography>
@@ -162,6 +167,22 @@ const ProductsTab = () => {
           </>
         }
       >
+        {isPhoneToolbar ? (
+          <PhoneFilters testIdPrefix="products" activeCount={statusFilter !== "all" ? 1 : 0} onClear={() => setStatusFilter("all")}>
+            <FilterChoiceGroup
+              label={t("products.statusLabel", { defaultValue: "Status" })}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              testIdPrefix="products-status"
+              options={[
+                { value: "all", label: t("products.statusAllLong", { defaultValue: "All statuses" }) },
+                { value: "draft", label: t("products.status.draft") },
+                { value: "live", label: t("products.status.live") },
+                { value: "archived", label: t("products.status.archived") },
+              ]}
+            />
+          </PhoneFilters>
+        ) : (
         <Select
           size="small"
           value={statusFilter}
@@ -174,11 +195,12 @@ const ProductsTab = () => {
           <MenuItem value="live">{t("products.status.live")}</MenuItem>
           <MenuItem value="archived">{t("products.status.archived")}</MenuItem>
         </Select>
-        <Box role="radiogroup" aria-label={t("products.viewLabel", { defaultValue: "View" })} data-testid="products-view-toggle" sx={{ display: "inline-flex", height: 38, boxSizing: "border-box", p: 0.4, gap: 0.4, borderRadius: "8px", border: `1px solid ${theme.palette.border.main}`, bgcolor: theme.palette.background.paper }}>
+        )}
+        <Box role="radiogroup" aria-label={t("products.viewLabel", { defaultValue: "View" })} data-testid="products-view-toggle" sx={{ display: "inline-flex", height: 38, boxSizing: "border-box", p: 0.4, gap: 0.4, "@media (pointer: coarse)": { height: 46, p: 0, gap: 0 }, borderRadius: "8px", border: `1px solid ${theme.palette.border.main}`, bgcolor: theme.palette.background.paper }}>
           {(["grid", "list"] as ProductsView[]).map((v) => {
             const active = view === v;
             return (
-              <Box key={v} component="button" type="button" role="radio" aria-checked={active} aria-label={t(`products.view.${v}`, { defaultValue: v })} data-testid={`products-view-${v}`} onClick={() => changeView(v)} sx={{ width: 32, height: "100%", borderRadius: "6px", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: active ? "default" : "pointer", transition: "background-color 150ms ease, color 150ms ease", ...(active ? tabPillActive(theme) : { color: theme.palette.text.secondary, backgroundColor: "transparent", "&:hover": { backgroundColor: theme.palette.action.hover } }) }}>
+              <Box key={v} component="button" type="button" role="radio" aria-checked={active} aria-label={t(`products.view.${v}`, { defaultValue: v })} data-testid={`products-view-${v}`} onClick={() => changeView(v)} sx={{ width: 32, height: "100%", "@media (pointer: coarse)": { width: 44 }, borderRadius: "6px", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: active ? "default" : "pointer", transition: "background-color 150ms ease, color 150ms ease", ...(active ? tabPillActive(theme) : { color: theme.palette.text.secondary, backgroundColor: "transparent", "&:hover": { backgroundColor: theme.palette.action.hover } }) }}>
                 <Icon name={v === "grid" ? "lucide:layout-grid" : "lucide:list"} size={16} />
               </Box>
             );

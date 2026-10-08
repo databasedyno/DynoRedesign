@@ -48,6 +48,8 @@ import { formatWithSymbol } from "@/utils/locale";
 import { toFixedStr } from "@/utils/money";
 import ConsoleSummaryStrip from "@/Components/Console/SummaryStrip";
 import ConsoleFilterBar from "@/Components/Console/FilterBar";
+import useAutoRowsPerPage, { ROWS_PER_PAGE_OPTIONS } from "@/hooks/useAutoRowsPerPage";
+import RowsPerPageSelector from "@/Components/UI/RowsPerPageSelector";
 
 interface Invoice {
   invoice_id: number;
@@ -224,22 +226,27 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
     }
   }, [setPageName, setPageDescription]);
 
+  // Page size fills the viewport (≈ 25 rows at ≥ 1080px tall, blueprint §8.4); remembered once
+  // chosen. Fetching waits for it (ready) so the list isn't requested twice on mount.
+  const { rows: invLimit, setRows: setInvLimit, ready: invLimitReady } = useAutoRowsPerPage("receipts", 20);
+  const invPages = (total: number) => Math.max(1, Math.ceil(total / invLimit));
+
   // Fetch invoices (SWR — cached per page/company/period, deduped across remounts)
   const invoicesParams = new URLSearchParams(periodParams(taxPeriod));
   invoicesParams.set("page", String(page));
-  invoicesParams.set("limit", "20");
+  invoicesParams.set("limit", String(invLimit));
   if (selectedCompanyId) invoicesParams.set("company_id", String(selectedCompanyId));
   if (search) invoicesParams.set("search", search);
   const { data: invoicesResp, isLoading: invoicesSwrLoading, mutate: mutateInvoices } = useApiSWR<any>(
     [`${API_ENDPOINTS.invoices.list}?${invoicesParams.toString()}`, selectedCompanyId],
-    { unwrap: true, keepPreviousData: true }
+    { unwrap: true, keepPreviousData: true, enabled: invLimitReady }
   );
   const invoices: Invoice[] = invoicesResp?.invoices || [];
   // Hide the VAT column when nothing on this page carries VAT (it was "—" on every row).
   const showVatCol = invoices.some((inv) => parseFloat(String(inv.vat_amount)) > 0);
   const colCount = showVatCol ? 6 : 5;
   const totalInvoices: number = invoicesResp?.pagination?.total || 0;
-  const invoiceLoading = invoicesSwrLoading && invoicesResp === undefined;
+  const invoiceLoading = (!invLimitReady || invoicesSwrLoading) && invoicesResp === undefined;
   const fetchInvoices = useCallback(() => {
     mutateInvoices();
   }, [mutateInvoices]);
@@ -373,7 +380,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               </Box>
               {/* Invoices — card list (<768) / table (>=768). §4.2 shared breakpoint. */}
               {cardView ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: 2 }} data-testid="invoices-card-list">
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1, p: { xs: 1.5, sm: 2 } }} data-testid="invoices-card-list">
                   {invoiceLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
                       <Box key={i} sx={{ p: 2, borderRadius: "12px", border: `1px solid ${muiTheme.palette.divider}` }}>
@@ -410,22 +417,25 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                           gap: 1,
                         }}
                       >
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
-                            <Typography sx={{ fontWeight: 600, fontFamily: "var(--font-sans)", color: muiTheme.palette.text.primary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {inv.invoice_number}
-                            </Typography>
-                            <StatusPill tone="settled">{t("invoices.preview.paid")}</StatusPill>
-                          </Box>
-                          <Typography sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: muiTheme.palette.text.primary, flexShrink: 0 }}>
+                        {/* Row 1 = the two things people scan for: the receipt number (whole — its
+                            unique suffix is the end of the string) and the amount. Status moved to
+                            row 2 so neither is cut on 320–375px phones (UX audit rerun2). */}
+                        <Box sx={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 1 }}>
+                          <Typography data-testid="invoice-card-number" sx={{ fontWeight: 600, fontFamily: "var(--font-sans)", fontSize: 15, color: muiTheme.palette.text.primary, minWidth: 0, overflowWrap: "anywhere" }}>
+                            {inv.invoice_number}
+                          </Typography>
+                          <Typography sx={{ fontFamily: MONO, fontVariantNumeric: "tabular-nums", fontWeight: 600, color: muiTheme.palette.text.primary, flexShrink: 0, whiteSpace: "nowrap" }}>
                             {formatUsdInDisplay(inv.total_usd)}
                           </Typography>
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
                           <Box sx={{ minWidth: 0 }}>
-                            <Typography sx={{ fontSize: 13, color: muiTheme.palette.text.primary, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                              {inv.customer_name}
-                            </Typography>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+                              <Typography sx={{ fontSize: 13, color: muiTheme.palette.text.primary, fontFamily: "var(--font-sans)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
+                                {inv.customer_name}
+                              </Typography>
+                              <StatusPill tone="settled">{t("invoices.preview.paid")}</StatusPill>
+                            </Box>
                             <Typography sx={{ fontSize: 12, color: muiTheme.palette.text.secondary, fontFamily: "var(--font-sans)" }}>
                               {formatDate(inv.invoice_date)}
                               {parseFloat(String(inv.vat_amount)) > 0 ? ` · VAT ${inv.vat_rate}%` : ""}
@@ -747,16 +757,29 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
               </Box>
               )}
 
-              {/* Pagination */}
-              {totalInvoices > 20 && (
+              {/* Pagination + page size (shared RowsPerPageSelector, same options as Transactions) */}
+              {totalInvoices > ROWS_PER_PAGE_OPTIONS[0].value && (
                 <Box
+                  data-testid="invoices-pagination"
                   sx={{
                     display: "flex",
-                    justifyContent: "center",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
                     gap: 1,
+                    px: 2,
                     py: 2,
                   }}
                 >
+                  <RowsPerPageSelector
+                    value={invLimit}
+                    onChange={(v) => {
+                      setInvLimit(v);
+                      setPage(1);
+                    }}
+                    menuItems={ROWS_PER_PAGE_OPTIONS}
+                  />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <CustomButton
                     label={t("invoices.previous")}
                     variant="secondary"
@@ -773,21 +796,22 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
                       px: 1,
                     }}
                   >
-                    {t("invoices.pageOf", { page, total: Math.ceil(totalInvoices / 20) })}
+                    {t("invoices.pageOf", { page, total: invPages(totalInvoices) })}
                   </Typography>
                   <CustomButton
                     label={t("invoices.next")}
                     variant="secondary"
                     size="small"
-                    disabled={page >= Math.ceil(totalInvoices / 20)}
+                    disabled={page >= invPages(totalInvoices)}
                     onClick={() => setPage((p) => p + 1)}
                   />
+                  </Box>
                 </Box>
               )}
             </PanelCard>
             {/* Mobile-only bottom clearance (session 72) so the pager clears the
                 fixed support-chat FAB + bottom nav pill on mobile. */}
-            {cardView && totalInvoices > 20 && (
+            {cardView && totalInvoices > ROWS_PER_PAGE_OPTIONS[0].value && (
               <Box sx={{ height: "96px", flexShrink: 0 }} />
             )}
           </Box>

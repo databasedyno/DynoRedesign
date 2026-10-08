@@ -12,6 +12,7 @@ import { formatDate, getTime } from "@/helpers/dateTimeFormatter";
 import { stringShorten } from "@/helpers";
 import { Icon, MONO } from "@/styles/uiKit";
 import { IApi } from "@/utils/types";
+import { tapY } from "@/styles/tapTarget";
 
 const SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "NGN", "BRL", "INR", "JPY", "CNY", "AUD", "CAD", "CHF", "ZAR", "MXN", "AED", "SGD", "HKD", "SEK", "NZD", "BTC"];
 const COLS = "minmax(150px, 1fr) minmax(220px, 1.6fr) 110px minmax(120px, 0.9fr) minmax(150px, 1fr) 44px";
@@ -177,7 +178,7 @@ const KeyRowView: React.FC<{ row: KeyRow; revealedKey?: string } & Handlers> = (
             </Box>
             {isSandbox && (
               <Tooltip arrow enterTouchDelay={0} title={t("keys.autoCreatedTooltip", { max: sandbox?.max_amount ?? 100, defaultValue: "Created automatically when your account was set up — no action needed. Use it to try the API safely: test payments are simulated and capped at ${{max}}." })}>
-                <Box component="span" data-testid="sandbox-badge" tabIndex={0} sx={{ cursor: "help", textDecoration: "underline dotted", textUnderlineOffset: 3 }}>
+                <Box component="span" data-testid="sandbox-badge" tabIndex={0} sx={{ ...tapY(19), cursor: "help", textDecoration: "underline dotted", textUnderlineOffset: 3 }}>
                   · {t("keys.sandboxShort", { defaultValue: "Sandbox" })}
                 </Box>
               </Tooltip>

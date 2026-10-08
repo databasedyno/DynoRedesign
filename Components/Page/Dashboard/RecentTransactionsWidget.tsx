@@ -650,17 +650,20 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                         letterSpacing: "-0.01em",
                         color: theme.palette.text.primary,
                         lineHeight: 1.2,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        // Money is never truncated (UX audit S1): amount, coin and fiat are whole
+                        // segments that wrap onto a second line on narrow phones instead of "…".
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "baseline",
+                        columnGap: 1,
+                        "& > span": { whiteSpace: "nowrap" },
                       }}
                     >
-                      {getCurrencySymbol(fiat, formatDisplayAmount(Number(amount), fiat))}
+                      <span data-testid="recent-txn-amount">{getCurrencySymbol(fiat, formatDisplayAmount(Number(amount), fiat))}</span>
                       {crypto && (
                         <Box
                           component="span"
                           sx={{
-                            ml: 1,
                             color: theme.palette.text.secondary,
                             fontFamily: "var(--font-sans)",
                             fontSize: "12px",
@@ -688,7 +691,6 @@ const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
                             data-testid="recent-txn-fiat"
                             data-fiat-exact={fiatIsExact ? "1" : "0"}
                             sx={{
-                              ml: 1,
                               color: theme.palette.text.secondary,
                               fontFamily: "var(--font-sans)",
                               fontWeight: 500,

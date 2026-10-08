@@ -44,7 +44,9 @@ export const SHELL_SIZE = {
   tabBar: 56,
   contentMax: 1440,
   contentMaxWide: 1720,
-  contentMaxUltra: 2040,
+  // Blueprint §8.1: content stays ≤ 1720 even at ≥ 2400 (was 2040 — tables stretched to 2040px
+  // at 2560 and line lengths got unreadable). Kept as its own token for a future right panel.
+  contentMaxUltra: 1720,
 } as const;
 
 /** Type scale (px) — 7 steps, nothing under 12. */

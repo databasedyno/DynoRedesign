@@ -307,7 +307,7 @@ const ClientLayout = ({
                 }}
               >
                 <InstallAppPrompt brand="dynopay" wrapSx={{ px: 2, pt: 1.5 }} />
-                {hasPageHeader && pageName && <CompactTitleBar title={pageName} watch={pageTitleRef} root={mainScrollRef} />}
+                {hasPageHeader && pageName && <CompactTitleBar title={pageName} watch={pageTitleRef} root={mainScrollRef} phoneGutter={isDashboard ? 0 : 16} />}
                 {hasPageHeader && (
                   <MainPageHeader
                     data-testid="main-page-header"

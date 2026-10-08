@@ -106,7 +106,6 @@ const RowsPerPageSelector: React.FC<RowsPerPageSelectorProps> = ({
           aria-expanded={open}
           aria-label={tRowsPerPageSelector("rowsPerPage")}
           data-testid="rows-per-page-trigger"
-          data-hit-area=""
           onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
             if (e.key === "Enter" || e.key === " " || e.key === "ArrowDown") {
               e.preventDefault();

@@ -26,14 +26,31 @@ export const VerticalSeparator = styled(Box)(({ theme }) => ({
   },
 }));
 
+// Trigger is ≥ 32px with a mouse / ≥ 44px on touch (UX audit S18) while the pill keeps its
+// height: the extra box is given back with negative margins (natural content height ≈ 18px).
 export const CustomSelect = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: "2px",
   cursor: "pointer",
-  padding: "0",
+  boxSizing: "border-box",
+  minHeight: "32px",
+  padding: "0 4px",
+  margin: "-7px -4px",
+  borderRadius: "6px",
   "&:hover": {
     opacity: 0.8,
+    backgroundColor: theme.palette.action.hover,
+  },
+  "&:focus-visible": {
+    outline: `2px solid ${theme.palette.primary.main}`,
+    outlineOffset: "-2px",
+  },
+  "@media (pointer: coarse)": {
+    minHeight: "44px",
+    minWidth: "44px",
+    justifyContent: "center",
+    margin: "-13px -4px",
   },
 }));
 

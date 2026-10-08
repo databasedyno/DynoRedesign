@@ -272,7 +272,7 @@ const AccountSetting = ({ tokenData }: { tokenData: TokenData }) => {
           <Link
             href="/settings?section=company"
             data-testid="profile-brand-logo-link"
-            data-hit-area=""
+            data-tap-inline=""
             style={{ color: brandFg(theme.palette.mode === "dark"), fontWeight: 600, textDecoration: "none" }}
           >
             {t("brandLogoLink", { ns: "profile", defaultValue: "manage brand logos" })}

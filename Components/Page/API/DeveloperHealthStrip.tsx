@@ -10,6 +10,7 @@ import { API_ENDPOINTS } from "@/api/endpoints";
 import axiosBaseApi from "@/axiosConfig";
 import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { relativeTime } from "@/Components/Page/Dashboard/v2026/command/format";
+import { tapY } from "@/styles/tapTarget";
 
 export interface DeveloperHealth {
   webhooks: {
@@ -65,7 +66,7 @@ const LinkBtn: React.FC<{ testId: string; onClick: () => void; children: React.R
   const isDark = theme.palette.mode === "dark";
   const indigo = isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light;
   return (
-    <Box component="button" type="button" data-testid={testId} onClick={onClick} disabled={busy} sx={{ all: "unset", cursor: busy ? "progress" : "pointer", display: "inline-flex", alignItems: "center", gap: 0.5, minHeight: { xs: 36, md: 0 }, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: indigo, opacity: busy ? 0.6 : 1, "&:hover": { textDecoration: "underline" } }}>
+    <Box component="button" type="button" data-testid={testId} onClick={onClick} disabled={busy} sx={{ all: "unset", cursor: busy ? "progress" : "pointer", display: "inline-flex", alignItems: "center", gap: 0.5, minHeight: { xs: 36, md: 24 }, my: { xs: 0, md: "-2px" }, "@media (pointer: coarse)": { minHeight: 44, my: "-4px" }, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: indigo, opacity: busy ? 0.6 : 1, "&:hover": { textDecoration: "underline" } }}>
       {icon && <Icon name={icon} size={13} />}
       {children}
     </Box>
@@ -188,7 +189,7 @@ const DeveloperHealthStrip: React.FC<Props> = ({ onGoTab }) => {
           <>
             <LinkBtn testId="dev-health-open-docs" onClick={() => onGoTab("docs")} icon="lucide:book-open">{tr("tabs.docs", { defaultValue: "Docs" })}</LinkBtn>
             <Tooltip title={tr("health.apiReferenceTip", { defaultValue: "Full API reference (opens in a new tab)" })} arrow>
-              <Box component="a" href="/documentation" target="_blank" rel="noopener" data-testid="dev-health-open-reference" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
+              <Box component="a" href="/documentation" target="_blank" rel="noopener" data-testid="dev-health-open-reference" sx={{ display: "inline-flex", alignItems: "center", gap: 0.5, ...tapY(20), fontFamily: "var(--font-sans)", fontSize: 12.5, fontWeight: 700, color: isDark ? CB_TOKENS.indigo.dark : CB_TOKENS.indigo.light, textDecoration: "none", "&:hover": { textDecoration: "underline" } }}>
                 <Icon name="external-link" size={13} />
                 {tr("health.apiReference", { defaultValue: "API reference" })}
               </Box>

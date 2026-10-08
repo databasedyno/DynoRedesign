@@ -159,6 +159,14 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
       sx={{
         mb: { xs: 2, md: 2.5 },
         maxWidth: "72ch",
+        // Left-aligned with the content column (blueprint §8.7): the shell centres every direct
+        // child of <main> (mx:auto), which floated this 72ch card in the middle of a left-aligned
+        // page at ≥ 1024px. Align to the column's left edge instead (the column itself is centred
+        // only once <main> is wider than --dp-content-max).
+        "&&": {
+          marginLeft: "max(0px, calc((100% - var(--dp-content-max, 100%)) / 2))",
+          marginRight: "auto",
+        },
         display: "flex",
         alignItems: "flex-start",
         gap: { xs: "10px", md: "12px" },
@@ -240,7 +248,7 @@ const PageTip: React.FC<PageTipProps> = ({ tipKey }) => {
         component="button"
         type="button"
         onClick={handleDismiss}
-        data-testid={`page-tip-dismiss-${tipKey}`}
+        data-testid={`page-tip-dismiss-${tipKey}`} data-touch-44=""
         aria-label={dismissLabel}
         sx={{
           display: { xs: "none", sm: "inline-flex" },

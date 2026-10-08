@@ -33,6 +33,7 @@ import { TOAST_SHOW } from "@/Redux/Actions/ToastAction";
 import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { Icon } from "@/styles/uiKit";
 import { markTestPaymentDone } from "@/Components/Page/GetStarted/useSetupProgress";
+import { tapXY, tapY } from "@/styles/tapTarget";
 
 interface WebhookResult {
   event: string;
@@ -435,10 +436,12 @@ const SandboxSimulatorCard = () => {
               border: "none",
               background: "transparent",
               cursor: "pointer",
-              p: 0.5,
+              ...tapXY(23, 4),
               borderRadius: "6px",
               color: theme.palette.text.secondary,
               display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
               "&:hover": { color: theme.palette.text.primary },
             }}
           >
@@ -491,6 +494,7 @@ const SandboxSimulatorCard = () => {
                     background: "transparent",
                     cursor: "pointer",
                     p: 0,
+                    ...tapY(19),
                     textAlign: "left",
                     "&:hover": { textDecoration: "underline" },
                   }}
