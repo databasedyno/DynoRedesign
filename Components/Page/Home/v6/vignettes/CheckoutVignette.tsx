@@ -29,7 +29,7 @@ const CheckoutVignette: React.FC = () => {
             <Label>{t("v6.vig.sendExactly")}</Label>
             <Strong size={14.5} sx={{ mt: 0.4, fontFamily: "var(--font-tech)" }}>49.00 USDT</Strong>
           </Box>
-          <Box sx={{ p: 0.5, borderRadius: "10px", background: "#fff", lineHeight: 0 }}><QRCodeSVG value="https://dynopay.com/pay/demo" size={46} level="L" fgColor="#0A0A0A" /></Box>
+          <Box sx={{ p: 0.5, borderRadius: "10px", background: "#fff", lineHeight: 0 }}><QRCodeSVG value="https://dynopay.com/pay/demo" size={46} level="L" fgColor="#0A0A0A" title="Example payment QR code" /></Box>
         </Box>
         <Box sx={{ mt: 1.75, py: 1.1, borderRadius: 999, textAlign: "center", background: "#FFD100", color: "#121214", fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 13.5 }}>{t("v6.vig.pay")} $49.00</Box>
       </Panel>

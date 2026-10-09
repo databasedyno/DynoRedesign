@@ -69,7 +69,7 @@ function DealCardMock() {
             <Typography sx={{ fontSize: 32, fontWeight: 900, letterSpacing: -1 }}>$2,400.00</Typography>
             <Typography sx={{ fontSize: 13, color: SD_GOLD, fontWeight: 800 }}>USDT</Typography>
           </Stack>
-          <LinearProgress variant="determinate" value={62} sx={{ mt: 1.4, height: 7, borderRadius: 99, backgroundColor: "rgba(255,255,255,0.1)", "& .MuiLinearProgress-bar": { backgroundColor: SD_GOLD, borderRadius: 99 } }} />
+          <LinearProgress variant="determinate" value={62} aria-label="Deal escrow funding progress: 62%" sx={{ mt: 1.4, height: 7, borderRadius: 99, backgroundColor: "rgba(255,255,255,0.1)", "& .MuiLinearProgress-bar": { backgroundColor: SD_GOLD, borderRadius: 99 } }} />
         </Box>
 
         <Stack spacing={1.6}>

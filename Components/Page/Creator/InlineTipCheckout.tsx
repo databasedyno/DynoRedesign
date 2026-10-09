@@ -996,7 +996,7 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
                 }}
               >
                 {uri ? (
-                  <QRCodeSVG value={uri.uri} size={176} level="M" bgColor="#FFFFFF" fgColor="#000000" data-testid="inline-tip-qr-svg" />
+                  <QRCodeSVG value={uri.uri} size={176} level="M" bgColor="#FFFFFF" fgColor="#000000" title="Payment QR code" data-testid="inline-tip-qr-svg" />
                 ) : (
                   <Box
                     component="img"

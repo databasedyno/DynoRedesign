@@ -33,7 +33,7 @@ const PaymentLinkVignette: React.FC = () => {
         </Box>
       </Panel>
       <Box sx={{ position: "absolute", right: 22, top: 30, p: 1.25, borderRadius: "14px", background: "#fff", boxShadow: "0 20px 40px -24px rgba(30,27,75,0.4)", transition: "transform 600ms cubic-bezier(0.16,1,0.3,1)", ".bento:hover &": { transform: "translateY(-10px) rotate(2deg)" } }}>
-        <QRCodeSVG value="https://dynopay.com/rNtQRX" size={84} level="M" fgColor="#0A0A0A" />
+        <QRCodeSVG value="https://dynopay.com/rNtQRX" size={84} level="M" fgColor="#0A0A0A" title="Example payment QR code" />
       </Box>
       <Panel lift={false} sx={{ left: 22, right: 22, bottom: 20, display: "flex", alignItems: "center", gap: 1.25, px: 1.75, py: 1.25, borderRadius: "14px" }}>
         <Box sx={{ width: 26, height: 26, borderRadius: "50%", background: "#10B981", display: "grid", placeItems: "center", color: "#fff", flexShrink: 0 }}><CheckRoundedIcon sx={{ fontSize: 16 }} /></Box>

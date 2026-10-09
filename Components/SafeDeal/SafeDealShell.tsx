@@ -80,7 +80,7 @@ export default function SafeDealShell({
   const sdMuiTheme = React.useMemo(
     () =>
       createTheme(parentTheme, {
-        palette: { primary: { main: SD_GOLD_DEEP, light: SD_GOLD, dark: SD_GOLD_DARK, contrastText: "#fff" } },
+        palette: { primary: { main: SD_GOLD_DEEP, light: SD_GOLD, dark: SD_GOLD_DARK, contrastText: "#fff" }, error: { main: "#CE1A41" } },
         components: {
           // Dynopay's theme hardcodes an indigo focus border + legacy navy select text; SafeDeal is gold/ink.
           MuiOutlinedInput: { styleOverrides: { root: { "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: SD_GOLD_DEEP } } } },
@@ -307,7 +307,7 @@ export default function SafeDealShell({
               ))}
             </Stack>
           </Stack>
-          <Typography sx={{ fontSize: 12, color: dark ? "rgba(255,255,255,0.6)" : "#9C9AA3", mt: 3 }} data-testid="sd-footer-legal">
+          <Typography sx={{ fontSize: 12, color: dark ? "rgba(255,255,255,0.6)" : "#6B6B72", mt: 3 }} data-testid="sd-footer-legal">
             © {new Date().getFullYear()} SafeDeal · safedeal.sh{legalName && legalName !== "SafeDeal" ? ` · Operated by ${legalName.replace(/\.$/, "")}` : ""}. Not a bank; funds are held as USDT in SafeDeal escrow.
           </Typography>
         </Container>

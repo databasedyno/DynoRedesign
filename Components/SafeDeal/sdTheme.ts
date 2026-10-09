@@ -12,7 +12,7 @@
 /* ---- Gold accent ---- */
 export const SD_GOLD = "#FFC61A"; // primary golden-yellow accent
 export const SD_GOLD_DARK = "#E5A500"; // hover / pressed
-export const SD_GOLD_DEEP = "#B77E00"; // strong border / gold text on light (AA)
+export const SD_GOLD_DEEP = "#8C6200"; // strong border / gold text on light — WCAG AA (>=5:1 on #fff/#F5F7FA)
 export const SD_GOLD_SOFT = "#FFF3CE"; // soft tint background on light surfaces
 export const SD_GOLD_GLOW = "rgba(255,198,26,0.30)";
 

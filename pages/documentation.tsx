@@ -1901,18 +1901,18 @@ const DocumentationPage = () => {
                   Authentication
                 </Typography>
                 <Typography sx={{ fontSize: 15, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.8, mb: 3 }}>
-                  Your API key is all you need. Every server-side endpoint authenticates with a single <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header — no customer login and no token exchange. Two other key types exist only for specific cases:
+                  Your API key is all you need. Every server-side endpoint authenticates with a single <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12, color: dk ? "#F3F4F6" : "#111827" }}>x-api-key</code> header — no customer login and no token exchange. Two other key types exist only for specific cases:
                 </Typography>
                 <Grid container spacing={2.5} sx={{ mb: 3 }}>
                   <Grid item xs={12} md={4}>
                     <AuthCard variant="blue">
                       <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#60A5FA" : "#1D4ED8", mb: 1 }}>API Key — all you need</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                        Send your secret <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>x-api-key</code> header with every request. It powers everything — payments, checkout, wallets and transactions. Keep it server-side; never expose it in a browser.
+                        Send your secret <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12, color: dk ? "#F3F4F6" : "#111827" }}>x-api-key</code> header with every request. It powers everything — payments, checkout, wallets and transactions. Keep it server-side; never expose it in a browser.
                       </Typography>
                       <CodeBlock code="x-api-key: dpk_live_Ab3k…" />
                       <Typography sx={{ fontSize: 12.5, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mt: 1.5 }}>
-                        Keys look like <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>dpk_live_…</code> / <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>dpk_test_…</code> and are <strong>shown once</strong> when created or regenerated — Dynopay stores only a one-way hash, so a key can never be recovered from our systems. Lost it? Regenerate from Developer › API keys; the old key stops working immediately.
+                        Keys look like <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12, color: dk ? "#F3F4F6" : "#111827" }}>dpk_live_…</code> / <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12, color: dk ? "#F3F4F6" : "#111827" }}>dpk_test_…</code> and are <strong>shown once</strong> when created or regenerated — Dynopay stores only a one-way hash, so a key can never be recovered from our systems. Lost it? Regenerate from Developer › API keys; the old key stops working immediately.
                       </Typography>
                     </AuthCard>
                   </Grid>
@@ -1920,7 +1920,7 @@ const DocumentationPage = () => {
                     <AuthCard variant="purple">
                       <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? GOLD : GOLD_DEEP, mb: 1 }}>Publishable Key (browser)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                        Only for Embedded Checkout and Elements, which run in your customer&apos;s browser. Use your domain-restricted publishable key (<code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>pk_live_…</code>) there — never your secret API key.
+                        Only for Embedded Checkout and Elements, which run in your customer&apos;s browser. Use your domain-restricted publishable key (<code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12, color: dk ? "#F3F4F6" : "#111827" }}>pk_live_…</code>) there — never your secret API key.
                       </Typography>
                       <CodeBlock code={`# Browser only\npk_live_xxxxxxxxxxxx`} />
                     </AuthCard>
@@ -1929,7 +1929,7 @@ const DocumentationPage = () => {
                     <AuthCard variant="green">
                       <Typography sx={{ fontWeight: 500, fontFamily: "var(--font-sans)", fontSize: 15, color: dk ? "#10B981" : "#047857", mb: 1 }}>Customer Token (optional)</Typography>
                       <Typography sx={{ fontSize: 13, fontFamily: "var(--font-sans)", color: "text.secondary", lineHeight: 1.7, mb: 2 }}>
-                        Advanced and rarely needed. A few endpoints accept an optional customer Bearer token to scope wallet balances and history to one customer. You obtain it from <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12 }}>POST /createUser</code>. Omit it and the API runs in userless mode.
+                        Advanced and rarely needed. A few endpoints accept an optional customer Bearer token to scope wallet balances and history to one customer. You obtain it from <code style={{ background: dk ? "#1E2030" : "#E5E7EB", padding: "1px 5px", borderRadius: 4, fontSize: 12, color: dk ? "#F3F4F6" : "#111827" }}>POST /createUser</code>. Omit it and the API runs in userless mode.
                       </Typography>
                       <CodeBlock code={`x-api-key: your_api_key\n# Optional (advanced):\nAuthorization: Bearer {token_from_createUser}`} />
                     </AuthCard>

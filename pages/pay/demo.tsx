@@ -417,6 +417,7 @@ const PaymentDemo = () => {
                     level="M"
                     bgColor="#FFFFFF"
                     fgColor="#000000"
+                    title="Payment QR code"
                     style={{ width: '100%', maxWidth: 220, height: 'auto', display: 'block' }}
                   />
                 </Box>

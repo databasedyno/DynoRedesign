@@ -161,7 +161,7 @@ const HeroCheckoutDemo: React.FC = () => {
               </Typography>
             </Box>
             <Box aria-hidden sx={{ p: 1, borderRadius: "12px", background: "#fff", border: `1px solid ${s.line}`, lineHeight: 0 }}>
-              <QRCodeSVG value={`${coin.scheme}:${coin.address}?amount=${amount}`} size={96} level="M" bgColor="#FFFFFF" fgColor="#0A0A0A" />
+              <QRCodeSVG value={`${coin.scheme}:${coin.address}?amount=${amount}`} size={96} level="M" bgColor="#FFFFFF" fgColor="#0A0A0A" title="Payment QR code" />
             </Box>
           </Box>
 

@@ -187,7 +187,7 @@ export const CheckoutVisual: React.FC = () => (
         </Tile>
       </Box>
       <Box sx={{ p: 1, background: "#FFFFFF", borderRadius: "12px", lineHeight: 0, alignSelf: "center" }}>
-        <QRCodeSVG value="https://dynopay.com/pay/demo" size={96} bgColor="#FFFFFF" fgColor="#0B0B0A" level="M" />
+        <QRCodeSVG value="https://dynopay.com/pay/demo" size={96} bgColor="#FFFFFF" fgColor="#0B0B0A" level="M" title="Example payment QR code" />
       </Box>
     </Box>
     <Box>

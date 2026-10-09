@@ -29,7 +29,7 @@ export const PaymentLinkMock: React.FC = () => (
     </Tile>
     <Box sx={{ display: "flex", gap: 2, mt: 2, alignItems: "center" }}>
       <Box sx={{ p: 1, background: "#fff", borderRadius: "12px", lineHeight: 0 }}>
-        <QRCodeSVG value="https://dynopay.com/pay/aurora" size={92} bgColor="#FFFFFF" fgColor="#0B0B0A" level="M" />
+        <QRCodeSVG value="https://dynopay.com/pay/aurora" size={92} bgColor="#FFFFFF" fgColor="#0B0B0A" level="M" title="Example payment QR code" />
       </Box>
       <Box sx={{ flex: 1 }}>
         <Label>Amount due</Label>

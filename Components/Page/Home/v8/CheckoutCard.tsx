@@ -145,7 +145,7 @@ const CheckoutCard: React.FC<Props> = ({
         {/* Right — QR + send exactly */}
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
           <Box sx={{ p: 1, background: "#FFFFFF", borderRadius: "12px", lineHeight: 0 }}>
-            <QRCodeSVG value={qrValue} size={92} bgColor="#FFFFFF" fgColor="#0B0B0A" level="M" />
+            <QRCodeSVG value={qrValue} size={92} bgColor="#FFFFFF" fgColor="#0B0B0A" level="M" title="Payment QR code" />
           </Box>
           <Typography sx={{ fontFamily: FONT_MONO, fontSize: 8.5, letterSpacing: "0.1em", color: PANEL.ink3, textTransform: "uppercase", mt: 1.5 }}>
             Send exactly

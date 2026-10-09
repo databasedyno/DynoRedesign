@@ -101,7 +101,7 @@ export const useAurora = (): AuroraTokens => {
     surfaceElev: "#FFFFFF",
     ink: "#1A1A19",
     ink2: "#666664",
-    ink3: "#999996",
+    ink3: "#6B6B72",
     line: "rgba(0,0,0,0.08)",
     lineStrong: "rgba(0,0,0,0.14)",
     accent: GOLD_DEEP,

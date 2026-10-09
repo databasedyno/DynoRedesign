@@ -152,6 +152,7 @@ export default function DonorWallV2({
                       <Tooltip title={rankLabels[medal] ?? ""}>
                         <Box
                           component="span"
+                          role="img"
                           aria-label={rankLabels[medal] ?? ""}
                           data-testid={`donation-supporter-medal-${i}`}
                           sx={{

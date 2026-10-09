@@ -295,7 +295,7 @@ const PaymentLinkSuccessModal: React.FC<PaymentLinkSuccessModalProps> = ({
                         // eslint-disable-next-line @next/next/no-img-element -- backend-generated QR (remote/data URL)
                         <img src={directPayQrCode} alt="Direct Pay QR Code" style={{ width: isMobile ? 140 : 160, height: isMobile ? 140 : 160 }} />
                       ) : (
-                        <QRCodeSVG value={singleCryptoWallet.address} size={isMobile ? 140 : 160} level="M" includeMargin={false} />
+                        <QRCodeSVG value={singleCryptoWallet.address} size={isMobile ? 140 : 160} level="M" includeMargin={false} title="Wallet address QR code" />
                       )}
                     </Box>
                     <Typography sx={{ fontSize: 12, color: muted, textAlign: "center", lineHeight: 1.4 }}>

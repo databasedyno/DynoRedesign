@@ -142,7 +142,7 @@ export const LIGHT = {
   borderStrong: "#DCDCD8",
   text: "#1A1A19",
   textSecondary: "#666664",
-  textMuted: "#999996",
+  textMuted: "#6B6B72",
   accent: BRAND_ACCENT,
   accentHover: BRAND_ACCENT_HOVER,
   accentSoft: "#FFF6CC",

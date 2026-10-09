@@ -233,6 +233,7 @@ export default function CompanySelector() {
           }
         }}
         data-testid="company-selector-trigger" data-touch-44=""
+        aria-label={`Current workspace${(selected?.company_name || companies[0]?.company_name) ? ": " + sanitizeBrandName(selected?.company_name || companies[0]?.company_name || "") : ""}. Activate to switch workspace.`}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0, flex: "1 1 auto" }}>
           {!shown && !companyState.fetched ? (

@@ -1,3 +1,26 @@
+# === 2026-06 (fork, pod a81d8386) — END-TO-END WCAG 2.1 AA ACCESSIBILITY AUDIT + FIXES (SafeDeal + full Dynopay) — DONE & VERIFIED ===
+# METHOD: axe-core 4.10 (wcag2a/2aa/21a/21aa) via Playwright on the live prod build; SafeDeal (5 pages) + Dynopay PUBLIC (10) + Dynopay
+#   AUTHED/in-app (12, merchant token injected). Reusable approach (temp scripts removed after).
+# FINDINGS -> FIXES (all now 0 violations):
+#   SafeDeal: color-contrast gold text + muted + rose error, and an unnamed progress bar. Fixes:
+#     - sdTheme.ts SD_GOLD_DEEP #B77E00 -> #8C6200 (was only 3.5:1; now >=5:1 on #fff/#F5F7FA) — fixes all gold links/eyebrows/active-nav/help-link.
+#     - SafeDealShell footer-legal #9C9AA3 -> #6B6B72; SafeDeal MUI theme palette.error.main -> #CE1A41 (fixes <Typography color="error"> rose text 4.37->5+).
+#     - MockC LinearProgress + aria-label.
+#   Dynopay PUBLIC: svg-img-alt (decorative <QRCodeSVG> had no name) + color-contrast (muted #999996) + aria-prohibited-attr (donor medal <span aria-label> w/o role).
+#   Dynopay AUTHED: aria-command-name (the shared header company-selector-trigger had NO accessible name -> hit ALL 12 pages) + color-contrast (#999996 on #F2F2F0 tiles).
+#   Fixes:
+#     - constants/theme.ts LIGHT.textMuted #999996 -> #6B6B72 (THE app-wide muted/disabled label token; was 2.5-2.85:1). Home theme.v3 ink3 same.
+#     - CompanySelector trigger: added dynamic aria-label ("Current workspace: <name>. Activate to switch workspace.") — fixes aria-command-name on every authed page.
+#     - Added title="…QR code" to ALL <QRCodeSVG> (ProductVisuals, CheckoutCard, Product/mocks, v5 HeroCheckoutDemo, v6 vignettes x2, InlineTipCheckout, PaymentLinkSuccessModal, pay/demo).
+#     - DonorWallV2 medal <span>: added role="img" (so its aria-label is permitted).
+#     - documentation.tsx <code> chips: added explicit color (dk?#F3F4F6:#111827) so code text passes on the #E5E7EB/#1E2030 chip.
+# RESULT: 0 WCAG 2.1 AA violations across all 27 audited pages. Prod FE rebuilt (BUILD_ID pYY54Oh3xiwzLxVya56EB) + restarted; /about smoke-screenshot
+#   confirms darker muted text is legible and layout/aesthetic intact. CI unused-var gate still 0. NOTE: muted-grey darken is app-wide (light mode only; DARK.textMuted untouched).
+# REMAINING (not a violation): authed deal/rewards DATA 404s in the headless QA harness (purged audit fixtures) — unrelated to a11y; shell/nav/forms all audited fine.
+# DEPLOY: UNCOMMITTED on preview -> "Save to GitHub".
+# ============================================================================================
+
+
 # === 2026-06 (fork, pod a81d8386) — 3 TASKS: READABLE LABELS + INVITE HYDRATION FIX + CI UNUSED-VAR CLEANUP — ALL DONE & VERIFIED ===
 # TASK 1 — Readable labels (sub-12px -> 12px) across SafeDeal:
 #   Bumped 55 fontSize values (10/10.5/11/11.5 -> 12) across 26 SafeDeal CONTENT files (Home/*, Rewards/*, DealPage, DealCards,
