@@ -19,7 +19,6 @@ import { issueLoginChallenge } from "../../services/twoFactorChallenge";
 import { isTrustedDevice } from "../../services/session/trustedDevices";
 import { ensureMfaDeadline } from "../../services/mfaEnforcement";
 import { ACCESS_TOKEN_EXPIRY_SECONDS } from "../../services/session/tokens";
-import { emailDateParts } from "../../utils/emailI18n";
 import { generateOtpCode } from "../../helper/otpGuard";
 import { isUserSoftDeleted, ACCOUNT_DELETED_LOGIN_MESSAGE } from "../../helper/accountDeletion";
 import { sendPurposeOTPEmail, type OtpPurpose } from "../../services/email/otpEmails";
@@ -253,7 +252,6 @@ export const finalizeLogin = async (
             const seenKey = `login-notif-seen:${userData.dataValues.user_id}:${fpHash}`;
             const alreadySeen = await getRedisItem(seenKey);
             const now = new Date();
-            const { date, time } = emailDateParts(now);
 
             if (!alreadySeen) {
               // ── Brand-new device ──────────────────────────────────────────

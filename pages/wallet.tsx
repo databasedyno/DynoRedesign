@@ -179,10 +179,8 @@ const WalletPage = ({
   setPageHeaderSx,
   setPageWarning,
 }: pageProps) => {
-  const router = useRouter();
   const muiTheme = useTheme();
   const namespaces = ["walletScreen", "common"];
-  const isMobile = useIsMobile("md");
   const { t } = useTranslation(namespaces);
   const tDashboard = useCallback(
     (key: string, defaultValue?: string) =>

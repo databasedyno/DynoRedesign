@@ -18,14 +18,14 @@ export const authOptions = {
   ],
   callbacks: {
     async session(response: any) {
-      const { session, token, user, ...rest } = response;
+      const { session, token } = response;
       const tempSession: any = session;
       tempSession["token"] = token;
 
       return tempSession;
     },
     async jwt(response: any) {
-      const { token, user, account, profile, isNewUser, ...rest } = response;
+      const { token, account } = response;
       if (account?.provider) {
         token["provider"] = account?.provider;
       }

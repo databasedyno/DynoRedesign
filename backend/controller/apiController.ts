@@ -64,16 +64,6 @@ const addApi = async (req: express.Request, res: express.Response) => {
     const devKeyUpdated = false;
 
     // Check existing keys for this company
-    const existingKeys = await apiModel.findAll({
-      where: {
-        company_id,
-        status: 'active',
-      },
-    });
-
-    const existingProdKey = existingKeys.find(k => k.dataValues.environment === 'production');
-    const existingDevKey = existingKeys.find(k => k.dataValues.environment === 'development');
-
     // Default permissions if not provided
     const defaultPermissions = ["payments", "transactions", "webhooks", "wallets"];
     const apiPermissions = permissions || defaultPermissions;

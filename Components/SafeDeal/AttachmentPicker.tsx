@@ -102,7 +102,7 @@ export default function AttachmentPicker({ upload, value, onChange, onError, max
           )
         )}
       </Stack>
-      {!compact && <Typography sx={{ fontSize: 11.5, color: "#9CA3AF", mt: 0.6 }}>PNG, JPG, WEBP, GIF or PDF · up to {max} files · 10 MB each</Typography>}
+      {!compact && <Typography sx={{ fontSize: 12, color: "#9CA3AF", mt: 0.6 }}>PNG, JPG, WEBP, GIF or PDF · up to {max} files · 10 MB each</Typography>}
     </Box>
   );
 }

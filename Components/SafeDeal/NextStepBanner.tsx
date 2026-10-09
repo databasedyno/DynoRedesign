@@ -35,7 +35,7 @@ export default function NextStepBanner({ deal }: { deal: SdDeal }) {
       <Box sx={{ minWidth: 0, flex: 1 }}>
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
           {s.who !== "nobody" && (
-            <Typography component="span" sx={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: t.accent }} data-testid="sd-next-step-who">
+            <Typography component="span" sx={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: t.accent }} data-testid="sd-next-step-who">
               {s.who === "you" ? "Your move" : "Their move"}
             </Typography>
           )}

@@ -1,4 +1,3 @@
-import { raw as envRaw } from "../utils/config";
 import express from "express";
 import crypto from "crypto";
 import { hmacSha256Hex, timingSafeCompare } from "../utils/hmac";
@@ -7,7 +6,6 @@ import { ITatumWebHook } from "../utils/types";
 import { getRedisItem, setRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
 import { QueryTypes } from "sequelize";
 import { getCompanyBaseCurrency, convertToFiat } from "../utils/currencyUtils";
-import { ADMIN_WALLETS, FEE_WALLETS } from "../services/merchantPool/merchantPoolConfig";
 import { enqueueWebhook } from "../services/webhookQueue";
 import { toRedisStatus, PaymentState } from "../services/paymentStateMachine";
 import { isEventSubscribed, isOptInWebhookEvent } from "../services/webhookEvents";
@@ -16,21 +14,11 @@ import { assertSafeOutboundUrl } from "../utils/outboundUrlGuard";
 import { postWithSafeRedirects } from "../utils/webhookRedirect";
 import { toNumber } from "../utils/money";
 
-// Build a set of all admin/fee wallet addresses for fast lookup (lowercase for case-insensitive match)
-const INTERNAL_WALLETS = new Set(
-  [...Object.values(ADMIN_WALLETS), ...Object.values(FEE_WALLETS)]
-    .filter(Boolean)
-    .map(addr => addr.toLowerCase())
-);
 
 // Maximum consecutive 404 failures before auto-disabling a webhook URL
 const MAX_CONSECUTIVE_404_FAILURES = 5;
 // TTL for the disabled-URL Redis key (24 hours)
 const WEBHOOK_DISABLE_TTL_SECONDS = 86400;
-// Per-attempt HTTP timeout (ms) for outbound merchant webhook delivery.
-// Configurable via env so a slow-but-healthy merchant endpoint doesn't
-// spuriously time out (default bumped 15s -> 20s; floor 5s).
-const WEBHOOK_DELIVERY_TIMEOUT_MS = Math.max(5000, Number(envRaw("WEBHOOK_DELIVERY_TIMEOUT_MS")) || 20000);
 
 /**
  * Generate HMAC-SHA256 signature for webhook payload

@@ -61,7 +61,6 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
 
   useEffect(() => {
     companyState.refetchCompanies();
-    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     walletState.refetchWallets();
   }, [dispatch, selectedCompanyId]);
 
@@ -169,7 +168,6 @@ const CreatePaymentLink = ({ setPageName, setPageDescription }: pageProps) => {
 
   const handleWalletAdded = () => {
     setWalletModalOpen(false);
-    const payload = selectedCompanyId ? { company_id: selectedCompanyId } : undefined;
     walletState.refetchWallets();
   };
 

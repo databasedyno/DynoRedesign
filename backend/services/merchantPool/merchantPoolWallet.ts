@@ -498,7 +498,6 @@ export const retryPendingTrustLines = async (): Promise<{
     if (pendingAddresses.length === 0) return result;
 
     // FIX: Backoff for unactivated XRP fee wallet — avoid retrying every 3 min when wallet has 0 XRP
-    const xrpFeeWallet = envRaw("XRP_FEE_WALLET") || envRaw("XRP");
     const backoffKey = `trustline-backoff:fee-wallet-not-activated`;
     const backoffEntry = await getRedisItem(backoffKey);
     if (backoffEntry && Object.keys(backoffEntry).length > 0) {

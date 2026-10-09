@@ -20,7 +20,6 @@ import { extractPayRef, toShortPayLink } from "@/helpers/payLinkUrl";
 import { formatWithSeparators } from "@/utils/currencyFormat";
 import { toFixedStr, trimZeros } from "@/utils/money";
 import { formatWithSymbol, localizeDecimal } from "@/utils/locale";
-import useIsMobile from "@/hooks/useIsMobile";
 import type { PaymentLinkData } from "@/utils/types/paymentLink";
 import EmbedSnippet from "./EmbedSnippet";
 import DetailSlideOver from "@/Components/Console/DetailSlideOver";
@@ -57,7 +56,6 @@ const displayDate = (raw: string): string => {
 const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, onDelete, onRefund, refundStatus, onExtend, extending }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const isMobile = useIsMobile("sm");
   useBackToClose(open, onClose, "paylink-detail");
   const router = useRouter();
   const dispatch = useDispatch();
@@ -71,7 +69,6 @@ const PaymentLinkDetailPanel: React.FC<Props> = ({ open, link, onClose, onEdit, 
 
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const muted = isDark ? CB_TOKENS.ink.mutedDark : CB_TOKENS.ink.mutedLight;
-  const secondary = isDark ? CB_TOKENS.ink.secondaryDark : CB_TOKENS.ink.secondaryLight;
   const ink = isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight;
   const surface = isDark ? "rgba(255,255,255,0.03)" : "rgba(10,10,15,0.02)";
   const eyebrowSx = { fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: muted };

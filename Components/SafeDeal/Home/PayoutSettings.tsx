@@ -40,7 +40,7 @@ export default function PayoutSettings({ wallet: w, onAdd, onRemove, onToggleAut
                   <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, fontFamily: "monospace" }} noWrap>{shortAddr(a.address)} · {a.network}</Typography>
                 </Box>
                 <AddressVerifyChip address={a} />
-                {w.profile.auto_withdraw && w.profile.auto_withdraw_address_id === a.address_id && <Chip size="small" label="Auto" sx={{ fontWeight: 800, fontSize: 10.5, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
+                {w.profile.auto_withdraw && w.profile.auto_withdraw_address_id === a.address_id && <Chip size="small" label="Auto" sx={{ fontWeight: 800, fontSize: 12, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
                 <Tooltip title="Remove">
                   <IconButton size="small" onClick={() => onRemove(a)} data-testid={`sd-address-remove-${a.address_id}`} aria-label={`Remove address ${a.label || a.coin}`}><Icon icon="mdi:trash-can-outline" width={18} /></IconButton>
                 </Tooltip>

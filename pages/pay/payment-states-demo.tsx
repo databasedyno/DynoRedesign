@@ -3,7 +3,6 @@ import { Box, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import OverPayment from '@/Components/UI/OverPayment/Index'
 import UnderPayment from '@/Components/UI/UnderPayment/Index'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
-import { useTranslation } from 'react-i18next'
 
 type DemoState = 
   | 'overpay-redirect-email' 
@@ -13,7 +12,6 @@ type DemoState =
   | 'underpayment'
 
 const PaymentStatesDemo = () => {
-  const { t } = useTranslation('common')
   const [currentState, setCurrentState] = useState<DemoState>('overpay-redirect-email')
 
   const handleStateChange = (

@@ -1,0 +1,700 @@
+{
+  "Components/Layout/HomeHeader/HeaderLangMenu.tsx -> @/helpers/setAppLanguage": {
+    "id": "Components/Layout/HomeHeader/HeaderLangMenu.tsx -> @/helpers/setAppLanguage",
+    "files": []
+  },
+  "Components/Layout/MobileNavigationBar/MoreSheet.tsx -> @/helpers/setAppLanguage": {
+    "id": "Components/Layout/MobileNavigationBar/MoreSheet.tsx -> @/helpers/setAppLanguage",
+    "files": []
+  },
+  "Components/UI/LanguageSwitcher/index.tsx -> @/helpers/setAppLanguage": {
+    "id": "Components/UI/LanguageSwitcher/index.tsx -> @/helpers/setAppLanguage",
+    "files": []
+  },
+  "helpers/setAppLanguage.ts -> @/axiosConfig": {
+    "id": "helpers/setAppLanguage.ts -> @/axiosConfig",
+    "files": []
+  },
+  "hooks/useCountryStateCity.ts -> country-state-city": {
+    "id": "hooks/useCountryStateCity.ts -> country-state-city",
+    "files": [
+      "static/chunks/_pages-dir-browser_node_modules_country-state-city_lib_index_js.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/amlPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/de/amlPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_amlPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/apiScreen.json": {
+    "id": "i18n.js -> ./langs/locales/de/apiScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_apiScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/apiStatus.json": {
+    "id": "i18n.js -> ./langs/locales/de/apiStatus.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_apiStatus_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/auth.json": {
+    "id": "i18n.js -> ./langs/locales/de/auth.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_auth_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/common.json": {
+    "id": "i18n.js -> ./langs/locales/de/common.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_common_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/companyDialog.json": {
+    "id": "i18n.js -> ./langs/locales/de/companyDialog.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_companyDialog_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/companySettings.json": {
+    "id": "i18n.js -> ./langs/locales/de/companySettings.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_companySettings_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/createPaymentLinkScreen.json": {
+    "id": "i18n.js -> ./langs/locales/de/createPaymentLinkScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_createPaymentLinkScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/dashboardLayout.json": {
+    "id": "i18n.js -> ./langs/locales/de/dashboardLayout.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_dashboardLayout_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/fees.json": {
+    "id": "i18n.js -> ./langs/locales/de/fees.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_fees_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/helpAndSupport.json": {
+    "id": "i18n.js -> ./langs/locales/de/helpAndSupport.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_helpAndSupport_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/landing.json": {
+    "id": "i18n.js -> ./langs/locales/de/landing.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_landing_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/notifications.json": {
+    "id": "i18n.js -> ./langs/locales/de/notifications.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_notifications_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/pageTitles.json": {
+    "id": "i18n.js -> ./langs/locales/de/pageTitles.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_pageTitles_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/paymentLinks.json": {
+    "id": "i18n.js -> ./langs/locales/de/paymentLinks.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_paymentLinks_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/privacyPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/de/privacyPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_privacyPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/profile.json": {
+    "id": "i18n.js -> ./langs/locales/de/profile.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_profile_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/referrals.json": {
+    "id": "i18n.js -> ./langs/locales/de/referrals.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_referrals_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/termsConditions.json": {
+    "id": "i18n.js -> ./langs/locales/de/termsConditions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_termsConditions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/transactions.json": {
+    "id": "i18n.js -> ./langs/locales/de/transactions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_transactions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/de/walletScreen.json": {
+    "id": "i18n.js -> ./langs/locales/de/walletScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_de_walletScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/amlPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/es/amlPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_amlPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/apiScreen.json": {
+    "id": "i18n.js -> ./langs/locales/es/apiScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_apiScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/apiStatus.json": {
+    "id": "i18n.js -> ./langs/locales/es/apiStatus.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_apiStatus_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/auth.json": {
+    "id": "i18n.js -> ./langs/locales/es/auth.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_auth_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/common.json": {
+    "id": "i18n.js -> ./langs/locales/es/common.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_common_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/companyDialog.json": {
+    "id": "i18n.js -> ./langs/locales/es/companyDialog.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_companyDialog_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/companySettings.json": {
+    "id": "i18n.js -> ./langs/locales/es/companySettings.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_companySettings_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/createPaymentLinkScreen.json": {
+    "id": "i18n.js -> ./langs/locales/es/createPaymentLinkScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_createPaymentLinkScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/dashboardLayout.json": {
+    "id": "i18n.js -> ./langs/locales/es/dashboardLayout.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_dashboardLayout_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/fees.json": {
+    "id": "i18n.js -> ./langs/locales/es/fees.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_fees_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/helpAndSupport.json": {
+    "id": "i18n.js -> ./langs/locales/es/helpAndSupport.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_helpAndSupport_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/landing.json": {
+    "id": "i18n.js -> ./langs/locales/es/landing.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_landing_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/notifications.json": {
+    "id": "i18n.js -> ./langs/locales/es/notifications.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_notifications_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/pageTitles.json": {
+    "id": "i18n.js -> ./langs/locales/es/pageTitles.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_pageTitles_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/paymentLinks.json": {
+    "id": "i18n.js -> ./langs/locales/es/paymentLinks.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_paymentLinks_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/privacyPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/es/privacyPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_privacyPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/profile.json": {
+    "id": "i18n.js -> ./langs/locales/es/profile.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_profile_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/referrals.json": {
+    "id": "i18n.js -> ./langs/locales/es/referrals.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_referrals_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/termsConditions.json": {
+    "id": "i18n.js -> ./langs/locales/es/termsConditions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_termsConditions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/transactions.json": {
+    "id": "i18n.js -> ./langs/locales/es/transactions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_transactions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/es/walletScreen.json": {
+    "id": "i18n.js -> ./langs/locales/es/walletScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_es_walletScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/amlPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/fr/amlPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_amlPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/apiScreen.json": {
+    "id": "i18n.js -> ./langs/locales/fr/apiScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_apiScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/apiStatus.json": {
+    "id": "i18n.js -> ./langs/locales/fr/apiStatus.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_apiStatus_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/auth.json": {
+    "id": "i18n.js -> ./langs/locales/fr/auth.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_auth_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/common.json": {
+    "id": "i18n.js -> ./langs/locales/fr/common.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_common_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/companyDialog.json": {
+    "id": "i18n.js -> ./langs/locales/fr/companyDialog.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_companyDialog_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/companySettings.json": {
+    "id": "i18n.js -> ./langs/locales/fr/companySettings.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_companySettings_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/createPaymentLinkScreen.json": {
+    "id": "i18n.js -> ./langs/locales/fr/createPaymentLinkScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_createPaymentLinkScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/dashboardLayout.json": {
+    "id": "i18n.js -> ./langs/locales/fr/dashboardLayout.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_dashboardLayout_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/fees.json": {
+    "id": "i18n.js -> ./langs/locales/fr/fees.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_fees_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/helpAndSupport.json": {
+    "id": "i18n.js -> ./langs/locales/fr/helpAndSupport.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_helpAndSupport_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/landing.json": {
+    "id": "i18n.js -> ./langs/locales/fr/landing.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_landing_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/notifications.json": {
+    "id": "i18n.js -> ./langs/locales/fr/notifications.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_notifications_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/pageTitles.json": {
+    "id": "i18n.js -> ./langs/locales/fr/pageTitles.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_pageTitles_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/paymentLinks.json": {
+    "id": "i18n.js -> ./langs/locales/fr/paymentLinks.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_paymentLinks_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/privacyPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/fr/privacyPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_privacyPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/profile.json": {
+    "id": "i18n.js -> ./langs/locales/fr/profile.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_profile_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/referrals.json": {
+    "id": "i18n.js -> ./langs/locales/fr/referrals.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_referrals_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/termsConditions.json": {
+    "id": "i18n.js -> ./langs/locales/fr/termsConditions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_termsConditions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/transactions.json": {
+    "id": "i18n.js -> ./langs/locales/fr/transactions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_transactions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/fr/walletScreen.json": {
+    "id": "i18n.js -> ./langs/locales/fr/walletScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_fr_walletScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/amlPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/nl/amlPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_amlPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/apiScreen.json": {
+    "id": "i18n.js -> ./langs/locales/nl/apiScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_apiScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/apiStatus.json": {
+    "id": "i18n.js -> ./langs/locales/nl/apiStatus.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_apiStatus_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/auth.json": {
+    "id": "i18n.js -> ./langs/locales/nl/auth.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_auth_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/common.json": {
+    "id": "i18n.js -> ./langs/locales/nl/common.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_common_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/companyDialog.json": {
+    "id": "i18n.js -> ./langs/locales/nl/companyDialog.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_companyDialog_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/companySettings.json": {
+    "id": "i18n.js -> ./langs/locales/nl/companySettings.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_companySettings_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/createPaymentLinkScreen.json": {
+    "id": "i18n.js -> ./langs/locales/nl/createPaymentLinkScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_createPaymentLinkScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/dashboardLayout.json": {
+    "id": "i18n.js -> ./langs/locales/nl/dashboardLayout.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_dashboardLayout_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/fees.json": {
+    "id": "i18n.js -> ./langs/locales/nl/fees.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_fees_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/helpAndSupport.json": {
+    "id": "i18n.js -> ./langs/locales/nl/helpAndSupport.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_helpAndSupport_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/landing.json": {
+    "id": "i18n.js -> ./langs/locales/nl/landing.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_landing_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/notifications.json": {
+    "id": "i18n.js -> ./langs/locales/nl/notifications.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_notifications_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/pageTitles.json": {
+    "id": "i18n.js -> ./langs/locales/nl/pageTitles.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_pageTitles_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/paymentLinks.json": {
+    "id": "i18n.js -> ./langs/locales/nl/paymentLinks.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_paymentLinks_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/privacyPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/nl/privacyPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_privacyPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/profile.json": {
+    "id": "i18n.js -> ./langs/locales/nl/profile.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_profile_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/referrals.json": {
+    "id": "i18n.js -> ./langs/locales/nl/referrals.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_referrals_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/termsConditions.json": {
+    "id": "i18n.js -> ./langs/locales/nl/termsConditions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_termsConditions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/transactions.json": {
+    "id": "i18n.js -> ./langs/locales/nl/transactions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_transactions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/nl/walletScreen.json": {
+    "id": "i18n.js -> ./langs/locales/nl/walletScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_nl_walletScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/amlPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/pt/amlPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_amlPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/apiScreen.json": {
+    "id": "i18n.js -> ./langs/locales/pt/apiScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_apiScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/apiStatus.json": {
+    "id": "i18n.js -> ./langs/locales/pt/apiStatus.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_apiStatus_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/auth.json": {
+    "id": "i18n.js -> ./langs/locales/pt/auth.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_auth_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/common.json": {
+    "id": "i18n.js -> ./langs/locales/pt/common.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_common_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/companyDialog.json": {
+    "id": "i18n.js -> ./langs/locales/pt/companyDialog.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_companyDialog_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/companySettings.json": {
+    "id": "i18n.js -> ./langs/locales/pt/companySettings.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_companySettings_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/createPaymentLinkScreen.json": {
+    "id": "i18n.js -> ./langs/locales/pt/createPaymentLinkScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_createPaymentLinkScreen_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/dashboardLayout.json": {
+    "id": "i18n.js -> ./langs/locales/pt/dashboardLayout.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_dashboardLayout_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/fees.json": {
+    "id": "i18n.js -> ./langs/locales/pt/fees.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_fees_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/helpAndSupport.json": {
+    "id": "i18n.js -> ./langs/locales/pt/helpAndSupport.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_helpAndSupport_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/landing.json": {
+    "id": "i18n.js -> ./langs/locales/pt/landing.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_landing_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/notifications.json": {
+    "id": "i18n.js -> ./langs/locales/pt/notifications.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_notifications_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/pageTitles.json": {
+    "id": "i18n.js -> ./langs/locales/pt/pageTitles.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_pageTitles_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/paymentLinks.json": {
+    "id": "i18n.js -> ./langs/locales/pt/paymentLinks.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_paymentLinks_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/privacyPolicy.json": {
+    "id": "i18n.js -> ./langs/locales/pt/privacyPolicy.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_privacyPolicy_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/profile.json": {
+    "id": "i18n.js -> ./langs/locales/pt/profile.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_profile_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/referrals.json": {
+    "id": "i18n.js -> ./langs/locales/pt/referrals.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_referrals_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/termsConditions.json": {
+    "id": "i18n.js -> ./langs/locales/pt/termsConditions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_termsConditions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/transactions.json": {
+    "id": "i18n.js -> ./langs/locales/pt/transactions.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_transactions_json.js"
+    ]
+  },
+  "i18n.js -> ./langs/locales/pt/walletScreen.json": {
+    "id": "i18n.js -> ./langs/locales/pt/walletScreen.json",
+    "files": [
+      "static/chunks/_pages-dir-browser_langs_locales_pt_walletScreen_json.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Components/Common/SupportChatWidget": {
+    "id": "pages/_app.tsx -> @/Components/Common/SupportChatWidget",
+    "files": [
+      "static/chunks/_pages-dir-browser_Components_Common_SupportChatWidget_index_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Components/UI/StepUp/StepUpHost": {
+    "id": "pages/_app.tsx -> @/Components/UI/StepUp/StepUpHost",
+    "files": [
+      "static/chunks/_pages-dir-browser_Components_UI_StepUp_StepUpHost_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Containers/Admin": {
+    "id": "pages/_app.tsx -> @/Containers/Admin",
+    "files": [
+      "static/chunks/_pages-dir-browser_Containers_Admin_index_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Containers/Client": {
+    "id": "pages/_app.tsx -> @/Containers/Client",
+    "files": [
+      "static/chunks/_pages-dir-browser_Containers_Client_index_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Containers/Home": {
+    "id": "pages/_app.tsx -> @/Containers/Home",
+    "files": [
+      "static/chunks/_pages-dir-browser_Containers_Home_index_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Containers/Login": {
+    "id": "pages/_app.tsx -> @/Containers/Login",
+    "files": [
+      "static/chunks/_pages-dir-browser_Containers_Login_index_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/Containers/Payment": {
+    "id": "pages/_app.tsx -> @/Containers/Payment",
+    "files": [
+      "static/chunks/_pages-dir-browser_Containers_Payment_index_tsx.js"
+    ]
+  },
+  "pages/_app.tsx -> @/utils/theme/routeContext": {
+    "id": "pages/_app.tsx -> @/utils/theme/routeContext",
+    "files": []
+  }
+}

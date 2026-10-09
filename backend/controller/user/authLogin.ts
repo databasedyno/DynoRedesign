@@ -35,7 +35,6 @@ export const login = async (req: express.Request, res: express.Response) => {
       return errorResponseHelper(res, 429, `Account temporarily locked due to too many failed attempts. Try again in ${minutes} minutes.`);
     }
     
-    const newPassword_unused = null; // Legacy sha256 removed — bcrypt used via verifyPassword
     
     // Step 1: Find user by email only (bcrypt hashes can't be queried directly)
     const userData = await userModel.findOne({

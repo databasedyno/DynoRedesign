@@ -64,7 +64,7 @@ const ConversionBanner = () => {
 
   const [enabled, setEnabled] = useState(false);
   const [stablecoin, setStablecoin] = useState("");
-  const [stablecoinChain, setStablecoinChain] = useState("");
+  const [, setStablecoinChain] = useState("");
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState(false);
   const [availableOptions, setAvailableOptions] = useState<SettlementOption[]>([]);

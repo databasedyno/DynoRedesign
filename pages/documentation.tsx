@@ -1416,7 +1416,7 @@ const DocumentationPage = () => {
   const router = useRouter();
   const [activeSection, setActiveSection] = useState("overview");
   const [search, setSearch] = useState("");
-  const [showTop, setShowTop] = useState(false);
+  const [, setShowTop] = useState(false);
   const [gsLang, setGsLang] = useState<"curl" | "node" | "python">("curl");
 
   // Sections filtered by the search box (matches section title, endpoint title or path)

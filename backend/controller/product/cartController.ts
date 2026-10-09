@@ -469,7 +469,6 @@ export const startCheckout = async (
 
     // ---------- Atomic order + stock decrement + payment link ----------
     // ── Resolve merchant tax settings (per-company since 2026-08-23) ──
-    const mv = merchant.dataValues;
     const taxDefaults = await resolveTaxSettings(merchantUserId, merchantCompanyId);
     const merchantCountry: string | null = taxDefaults.merchant_country_code;
     const merchantDefaultApplyTax: boolean = taxDefaults.default_apply_tax;
@@ -846,7 +845,6 @@ export const quoteTax = async (
       return errorResponseHelper(res, 400, `Cart validation failed: ${validated.warnings.join("; ")}`);
     }
 
-    const mv = merchant.dataValues;
     // Per-company tax: quote with the owning company's rules (the product's
     // company when storefronts are per-company; primary company otherwise).
     let quoteCompanyId: number | null = null;

@@ -70,7 +70,7 @@ export default function DealCostLine({ amount, buyerPays, sellerReceives, totalC
             <Typography sx={{ fontSize: 12.5, fontWeight: 800 }}>Total SafeDeal costs</Typography>
             <Typography sx={{ fontSize: 12.5, fontWeight: 900, ...TABULAR }}>{money(totalCost, currency)}</Typography>
           </Stack>
-          <Typography sx={{ fontSize: 11.5, color: SD_TEXT_MUTED }}>
+          <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED }}>
             {estimated ? "Estimates until the buyer funds — the exact costs are fixed at funding and never change afterwards." : "Fixed when the deal was funded — exactly what is charged."}{" "}
             Nothing is charged until the buyer funds the escrow.
           </Typography>

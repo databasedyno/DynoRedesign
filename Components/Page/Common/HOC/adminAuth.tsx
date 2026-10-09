@@ -12,7 +12,6 @@ const adminAuth = (WrappedComponent: any) => {
       if (localStorage.getItem("admin_token")) {
         const token = localStorage.getItem("admin_token");
         const tokenData = decodeJwt<TokenData>(token ?? "");
-        const pathname = Router.pathname.split("/");
         if (tokenData?.role && tokenData?.role === "ADMIN") {
           setAccessToken(token);
         } else {

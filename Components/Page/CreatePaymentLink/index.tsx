@@ -653,9 +653,6 @@ const CreatePaymentLinkPage = ({
     }
   }, [paymentLinkData]);
 
-  const handleTabChange = (tab: number) => {
-    setActiveTab(tab);
-  };
 
   const handleBlockchainFeesChange = (value: string) => {
     setBlockchainFees(value);

@@ -48,10 +48,10 @@ export const sendAutoConversionPayoutEmail = async (
       sourceCurrency, sourceAmount, sourceAmountUsd,
       targetCurrency, payoutAmount, conversionRate,
       priceAtConversion, currentPrice, priceMovementPct,
-      marketState, feeTierUsed, transactionId, conversionId,
+      marketState, feeTierUsed, conversionId,
       withdrawalTxHash, settlementChain, settlementWallet,
       platformFeeUsd = 0, sweepGasFeeUsd = 0, tradeFeeUsd = 0,
-      binanceWithdrawalFeeUsd = 0, grossSaleUsd = 0, totalReceivedUsd = 0,
+      binanceWithdrawalFeeUsd = 0, grossSaleUsd = 0,
     } = data;
 
     const totalFeesUsd = platformFeeUsd + sweepGasFeeUsd + tradeFeeUsd + binanceWithdrawalFeeUsd;
@@ -200,7 +200,7 @@ export const sendWeeklyConversionSummaryEmail = async (
     const L = await resolveEmailLang(lang, recipientEmail);
     const {
       periodStart, periodEnd, totalConversions,
-      totalSourceUsd, totalPayoutUsd, totalSavedUsd,
+      totalPayoutUsd, totalSavedUsd,
       totalVolatileConversions, avgPriceMovementPct,
       cryptoBreakdown, dailyVolume,
     } = data;

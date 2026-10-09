@@ -346,7 +346,7 @@ export function* generateResetLink(payload: any): unknown {
       throw new Error(errorMessage);
     }
 
-    const { data, message } = responseData;
+    const { message } = responseData;
 
     yield put({
       type: TOAST_SHOW,
@@ -388,7 +388,7 @@ export function* generateOTP(payload: any): unknown {
       throw new Error(errorMessage);
     }
 
-    const { data, message } = responseData;
+    const { message } = responseData;
 
     yield put({
       type: TOAST_SHOW,
@@ -544,7 +544,6 @@ function* resetPassword(payload: any): unknown {
       throw new Error(errorMessage);
     }
 
-    const { message, data } = responseData;
 
     yield put({
       type: TOAST_SHOW,
@@ -591,7 +590,7 @@ function* changePassword(payload: any): unknown {
       throw new Error(errorMessage);
     }
 
-    const { message, data } = responseData;
+    const { message } = responseData;
 
     yield put({
       type: TOAST_SHOW,

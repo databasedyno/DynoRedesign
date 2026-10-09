@@ -245,15 +245,14 @@ const CryptoTransfer = ({
   // the landing page and donation checkout. Green (#10B981/#12B76A) is kept
   // ONLY for payment-detected/confirmed states (universal "success" signal).
   const ACCENT = BRAND_ACCENT;
-  const ON_ACCENT = '#FFFFFF';
   const ACCENT_SOFT = isDark ? 'rgba(139,94,0,0.12)' : 'rgba(139,94,0,0.16)';
   const [selectedCrypto, setSelectedCrypto] = useState("");
   const [selectedNetwork, setSelectedNetwork] = useState<
     "" | "TRC20" | "ERC20" | "POLYGON" | "XRPL"
   >("");
 
-  const [copied, setCopied] = useState(false);
-  const [currencyRates, setCurrencyRates] = useState<currencyData[]>();
+  const [, setCopied] = useState(false);
+  const [, setCurrencyRates] = useState<currencyData[]>();
   const [selectedCurrency, setSelectedCurrency] = useState<currencyData>();
   const [cryptoDetails, setCryptoDetails] = useState<CryptoDetails>({
     qr_code: "",
@@ -270,7 +269,6 @@ const CryptoTransfer = ({
   // Calculate converted values for display
   const convertedSubtotal = Number(walletState?.amount || 0) * transferRate;
   const convertedTaxAmount = Number(taxInfo?.amount || 0) * transferRate;
-  const convertedProcessingFee = Number(feeInfo?.processing_fee || 0) * transferRate;
 
   const [isRecived, setIsReceived] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null); // Will be set from backend API
@@ -287,7 +285,7 @@ const CryptoTransfer = ({
   const [overpaymentData, setOverpaymentData] = useState<OverpaymentData | null>(null);
   
   // Track if we've seen a final status to prevent flicker
-  const [hasCompletedPayment, setHasCompletedPayment] = useState(false);
+  const [, setHasCompletedPayment] = useState(false);
   const hasCompletedPaymentRef = useRef(false);
   
   // Merchant settings from backend (with defaults)
@@ -303,7 +301,7 @@ const CryptoTransfer = ({
   const [isPolling, setIsPolling] = useState(false);
   
   // Copy feedback state
-  const [showCopyToast, setShowCopyToast] = useState(false);
+  const [, setShowCopyToast] = useState(false);
 
   // State for configured currencies
   const [availableCryptos, setAvailableCryptos] = useState<string[]>([]);
@@ -316,7 +314,7 @@ const CryptoTransfer = ({
   const [availableUSDTNetworks, setAvailableUSDTNetworks] = useState<('TRC20' | 'ERC20' | 'POLYGON')[]>([]);
   const [availableRLUSDNetworks, setAvailableRLUSDNetworks] = useState<('XRPL' | 'ERC20')[]>([]);
   const [loadingCurrencies, setLoadingCurrencies] = useState(true);
-  const [skipSelection, setSkipSelection] = useState(false);
+  const [, setSkipSelection] = useState(false);
   const [currencyError, setCurrencyError] = useState<string | null>(null);
 
   // Rate caching state
@@ -341,8 +339,8 @@ const CryptoTransfer = ({
   } | null>(null);
 
   // Track if this is a continuation of an existing payment
-  const [isContinuation, setIsContinuation] = useState(false);
-  const [continuationMessage, setContinuationMessage] = useState<string | null>(null);
+  const [, setIsContinuation] = useState(false);
+  const [, setContinuationMessage] = useState<string | null>(null);
 
   // Storage key for persisting payment state across language changes
   const PAYMENT_STATE_KEY = `payment_state_${transactionId || 'default'}`;
@@ -593,13 +591,6 @@ const CryptoTransfer = ({
     return orderUsd >= networkMinFor(base, net);
   };
 
-  const getApiCurrency = () => {
-    if (selectedCrypto === "USDT") return `USDT-${selectedNetwork}`;
-    if (selectedCrypto === "RLUSD") return `RLUSD-${selectedNetwork}`;
-    return (
-      cryptoOptions.find((opt) => opt.value === selectedCrypto)?.currency || ""
-    );
-  };
 
   const handleCopyAddress = () => {
     copyToClipboard(cryptoDetails?.address);

@@ -22,7 +22,7 @@ function InviteCard({ p }: { p: SdDealPreview }) {
     <Box sx={{ p: 1.8, mb: 2.5, borderRadius: 3, backgroundColor: SD_NOTE_BG, border: `1px solid ${SD_NOTE_BORDER}` }} data-testid="sd-signin-invite-card">
       <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.6 }}>
         <Icon icon="mdi:email-open-outline" width={18} color={SD_ACCENT} aria-hidden />
-        <Typography sx={{ fontSize: 11.5, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: SD_ACCENT }}>You&apos;re invited as the {invitedRole}</Typography>
+        <Typography sx={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: SD_ACCENT }}>You&apos;re invited as the {invitedRole}</Typography>
       </Stack>
       <Stack direction="row" justifyContent="space-between" alignItems="baseline" spacing={1}>
         <Typography sx={{ fontSize: 16, fontWeight: 800, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} data-testid="sd-signin-invite-title">{p.title}</Typography>
@@ -51,6 +51,14 @@ export default function SignIn() {
   const [sentAt, setSentAt] = useState<number | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [tgBot, setTgBot] = useState<string | null>(null);
+  // Guards against a hydration mismatch (#418/#423): on SSR the query string is
+  // present ("Open your invite"), but the client's first paint has an empty
+  // router.query, so query-derived copy must stay neutral until after mount.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     safedealApi.config().then((c) => setTgBot(c.telegram_bot || null)).catch(() => undefined);
@@ -58,7 +66,7 @@ export default function SignIn() {
 
   const nextParam = typeof router.query.next === "string" ? router.query.next : "";
   const hintEmail = typeof router.query.email === "string" ? router.query.email : "";
-  const invitedFlag = router.query.invited === "1";
+  const invitedFlag = mounted && router.query.invited === "1";
   const cleanNext = nextParam.replace(/^\/safedeal(?=\/|$)/, "");
   const target = nextParam && nextParam.startsWith("/") ? href(cleanNext) : href("/deals");
   const dealToken = /^\/deal\/([A-Za-z0-9_-]+)/.exec(cleanNext)?.[1] || null;

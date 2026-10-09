@@ -24,26 +24,6 @@ import { add, mul, toNumber } from "../utils/money";
  * Each row must have { base_currency: string, volume: string|number }.
  * Returns the sum in targetCurrency.
  */
-async function convertVolumesToFiat(
-  rows: Array<Record<string, unknown>>,
-  volumeField: string,
-  targetCurrency: string,
-): Promise<number> {
-  let total = 0;
-  for (const row of rows) {
-    const currency = String(row.base_currency || "USD");
-    const rawVolume = parseFloat(String(row[volumeField] || "0"));
-    if (rawVolume === 0) continue;
-    try {
-      const { amount } = await convertToFiat(currency, targetCurrency, rawVolume);
-      total += amount;
-    } catch {
-      // If conversion fails for a currency, skip it (e.g. delisted coins)
-      apiLogger.warn(`[Dashboard] convertToFiat failed for ${currency} -> ${targetCurrency}, skipping ${rawVolume}`);
-    }
-  }
-  return toNumber(total, 2);
-}
 
 // Cache TTL for dashboard data (30 seconds)
 const DASHBOARD_CACHE_TTL = 120;  // 2 minutes — stats don't change rapidly

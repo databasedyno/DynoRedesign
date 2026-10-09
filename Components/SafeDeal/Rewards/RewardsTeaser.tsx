@@ -27,11 +27,11 @@ export default function RewardsTeaser({ href }: { href: (p: string) => string })
       </Stack>
       <Stack direction="row" spacing={3} sx={{ position: "relative", mt: 2 }}>
         <Box>
-          <Typography sx={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_INK_MUTED }}>Fee credit</Typography>
+          <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_INK_MUTED }}>Fee credit</Typography>
           <Typography sx={{ fontSize: 22, fontWeight: 900, ...TABULAR }} data-testid="sd-home-rewards-credit">{money(r.credit.balance)}</Typography>
         </Box>
         <Box>
-          <Typography sx={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_INK_MUTED }}>Level</Typography>
+          <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_INK_MUTED }}>Level</Typography>
           <Stack direction="row" spacing={0.6} alignItems="center">
             <Icon icon={LEVEL_ICON[r.level.key] || LEVEL_ICON.member} width={18} color={SD_GOLD} aria-hidden />
             <Typography sx={{ fontSize: 22, fontWeight: 900 }} data-testid="sd-home-rewards-level">{r.level.label} · {r.level.fee_percent}%</Typography>

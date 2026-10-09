@@ -7,7 +7,6 @@ import {
   InfoRounded,
   SettingsRounded,
 } from "@mui/icons-material";
-import useTokenData from "@/hooks/useTokenData";
 import Menus from "../Menus";
 import BrandLogo from "../BrandLogo";
 
@@ -18,7 +17,6 @@ interface SideBarProps {
 
 const SideBar = ({ handleDrawerToggle, type = "user" }: SideBarProps) => {
   const router = useRouter();
-  const tokenData = useTokenData();
 
   return (
     <Box

@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Box, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material'
 import TransferExpectedCard from '@/Components/UI/TransferExpectedCard/Index'
 import Pay3Layout from '@/Components/Layout/Pay3Layout'
-import { useTranslation } from 'react-i18next'
 
 // Demo scenarios - Crypto payments with crypto + fiat display
 const scenarios = {
@@ -61,7 +60,6 @@ const scenarios = {
 type ScenarioKey = keyof typeof scenarios
 
 const SuccessDemo = () => {
-  const { t } = useTranslation('common')
   const [currentScenario, setCurrentScenario] = useState<ScenarioKey>('noRedirectWithEmail')
 
   const handleScenarioChange = (

@@ -1144,7 +1144,6 @@ export const createPaymentLink = async (
           const directPayCryptoRedisKey = getCryptoRedisKey(directPayAddress!, dpDestTag);
 
           // Calculate fee structure for the Direct Pay crypto Redis entry
-          const fallbackFeePercent = parseFloat(envRaw("TRANSACTION_FEE_PERCENT") || '2.0') / 100;
           // We don't have crypto_amount yet (customer hasn't selected), but store base info
           // The webhook processor + cryptoVerification will handle the actual conversion
           await setRedisItem(directPayCryptoRedisKey, {

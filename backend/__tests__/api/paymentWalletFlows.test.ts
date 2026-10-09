@@ -22,7 +22,7 @@ describe("Setup: User Authentication", () => {
   // Creates a real merchant account in the live DB — opt-in only (authed checks below skip without it).
   itWrites("Register and login test user", async () => {
     // Register (may timeout on slow DB, accept any outcome)
-    const regRes = await request.post("/api/user/registerUser").send(TEST_USER).timeout({ response: 10000 });
+    await request.post("/api/user/registerUser").send(TEST_USER).timeout({ response: 10000 });
     // Registration may return 200/201 (new) or 409 (exists) — all acceptable
 
     // Login

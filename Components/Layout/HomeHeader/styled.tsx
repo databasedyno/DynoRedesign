@@ -17,7 +17,6 @@ import {
 // the header — one source of truth is theme.v3.ts, we duplicate 4 constants).
 const CORAL = "#A67C00"; // brand-tinted text / icons on light surfaces
 const accent = (dark: boolean) => (dark ? YELLOW : CORAL);
-const CORAL_DEEP = "#8A6600";
 const VIOLET = "#FFD100";
 const VOLT = "#22C55E";
 const YELLOW = "#FFD100";

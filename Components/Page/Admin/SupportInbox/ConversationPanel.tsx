@@ -343,7 +343,6 @@ const ConversationPanel: React.FC<Props> = ({
           </Box>
         )}
         {messages.map((m) => {
-          const mine = m.role === "agent";
           const ai = m.role === "assistant";
           const align = m.role === "user" ? "flex-start" : "flex-end";
           const bg = m.role === "user"

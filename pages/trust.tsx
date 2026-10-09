@@ -1,7 +1,6 @@
 import React, { memo } from "react";
 import Head from "next/head";
 import { Box, Typography } from "@mui/material";
-import { useRouter } from "next/router";
 import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import VerifiedUserRoundedIcon from "@mui/icons-material/VerifiedUserRounded";
 import KeyRoundedIcon from "@mui/icons-material/KeyRounded";
@@ -51,7 +50,6 @@ const openSupportChat = () => {
 
 const TrustCentre: React.FC = () => {
   const s = useAurora();
-  const router = useRouter();
 
   return (
     <Box sx={{ width: "100%" }}>

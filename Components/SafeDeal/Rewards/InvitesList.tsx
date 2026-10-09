@@ -41,7 +41,7 @@ export default function InvitesList({ r }: { r: SdRewards }) {
                   <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED }}>Joined {absTime(f.joined_at)}</Typography>
                 </Box>
                 {f.status === "rewarded" && <Typography sx={{ fontSize: 14, fontWeight: 900, color: "#047857" }}>+{money(f.reward_usd)}</Typography>}
-                <Chip size="small" label={st.label} data-testid={`sd-rewards-invite-status-${f.referral_id}`} sx={{ fontWeight: 800, fontSize: 11, backgroundColor: st.bg, color: st.fg }} />
+                <Chip size="small" label={st.label} data-testid={`sd-rewards-invite-status-${f.referral_id}`} sx={{ fontWeight: 800, fontSize: 12, backgroundColor: st.bg, color: st.fg }} />
               </Stack>
             );
           })}

@@ -2515,7 +2515,6 @@ const getAddressBalance = async (address: string, currency: string, skipCache: b
     try {
       const xrpRes = await tatumSdk.blockchain.xrp.xrpGetAccountBalance(address);
       // Find RLUSD trust line balance from obligations
-      const rlusdIssuer = (process.env.RLUSD_ISSUER || "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De").toLowerCase();
       let rlusdBalance = '0';
       const xrpResAny = xrpRes as any;
       if (xrpResAny?.obligations) {

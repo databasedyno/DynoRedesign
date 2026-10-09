@@ -33,7 +33,6 @@ import {
   USER_EMAIL_CHECK,
   USER_LOGIN,
   USER_SEND_OTP,
-  USER_SEND_RESET_LINK,
   USER_VERIFY_LOGIN_OTP,
   USER_RESEND_LOGIN_OTP,
   USER_LOGIN_OTP_RESET,
@@ -167,8 +166,8 @@ export default function Login() {
   // SMS state
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [mobile, setMobile] = useState("");
-  const [mobileError, setMobileError] = useState("");
-  const [mobileTouched, setMobileTouched] = useState(false);
+  const [, setMobileError] = useState("");
+  const [, setMobileTouched] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
   const [otpTouched, setOtpTouched] = useState(false);
@@ -193,8 +192,8 @@ export default function Login() {
   const [phoneCheckLoading, setPhoneCheckLoading] = useState(false);
   const [verifiedPhone, setVerifiedPhone] = useState("");
   const [showPhoneLoginOtp, setShowPhoneLoginOtp] = useState(false);
-  const [phoneLoginOtpSent, setPhoneLoginOtpSent] = useState(false);
-  const [phoneLoginOtpDialogOpen, setPhoneLoginOtpDialogOpen] = useState(false);
+  const [, setPhoneLoginOtpSent] = useState(false);
+  const [, setPhoneLoginOtpDialogOpen] = useState(false);
   const [phoneLoginOtpCountdown, setPhoneLoginOtpCountdown] = useState(0);
   const [phoneLoginOtpError, setPhoneLoginOtpError] = useState("");
   const [phoneLoginOtpTouched, setPhoneLoginOtpTouched] = useState(false);
@@ -206,10 +205,10 @@ export default function Login() {
   // Forgot password state
   const [forgotPasswordDialogOpen, setForgotPasswordDialogOpen] =
     useState(false);
-  const [forgotPasswordEmailError, setForgotPasswordEmailError] = useState("");
+  const [, setForgotPasswordEmailError] = useState("");
   const [forgotPasswordOtpCountdown, setForgotPasswordOtpCountdown] =
     useState(0);
-  const [forgotPasswordOtpError, setForgotPasswordOtpError] = useState("");
+  const [, setForgotPasswordOtpError] = useState("");
   const [isPasswordRecoveryMode, setIsPasswordRecoveryMode] = useState(false);
 
   // Validation schemas - use translation keys instead of translated strings
@@ -943,18 +942,6 @@ export default function Login() {
     setSmsOtpDialogOpen(false);
   };
 
-  // Handle login method change - clear errors when switching
-  const handleLoginMethodChange = (value: string) => {
-    setLoginMethod(value);
-    setPasswordError("");
-    setPasswordTouched(false);
-    setEmailOtpError("");
-    setEmailOtpTouched(false);
-    setOtpError("");
-    setOtpTouched(false);
-    setMobileError("");
-    setMobileTouched(false);
-  };
 
   // Handle Google social login — stays on the SAME page via the Google Identity
   // Services popup token flow (no full-page redirect). The GIS script is loaded
@@ -1054,40 +1041,6 @@ export default function Login() {
     }
   }, [forgotPasswordOtpCountdown]);
 
-  const handleForgotPasswordEmailSubmit = async (email: string) => {
-    setForgotPasswordEmailError("");
-    setForgotPasswordDialogOpen(false);
-
-    try {
-      const {
-        data: { data },
-      } = await axiosBaseApi.get(API_ENDPOINTS.user.checkEmail + encodeURIComponent(email));
-
-      if (data.validEmail) {
-        dispatch(
-          UserAction(USER_SEND_RESET_LINK, {
-            email: email,
-          }),
-        );
-        setForgotPasswordEmailError("");
-      } else {
-        setForgotPasswordEmailError("emailNotFound");
-        setIsPasswordRecoveryMode(false);
-      }
-    } catch (e: any) {
-      const message =
-        e.response?.data?.message ?? e.message ?? "An error occurred";
-      setForgotPasswordEmailError(message);
-      setIsPasswordRecoveryMode(false);
-      dispatch({
-        type: TOAST_SHOW,
-        payload: {
-          message: message,
-          severity: "error",
-        },
-      });
-    }
-  };
 
   return (
     <AuthPageBackground>

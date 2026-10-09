@@ -6,7 +6,7 @@ import { money } from "@/Components/Page/Escrow/escrowUtils";
 import { TABULAR } from "../sdFormat";
 import { SD_BORDER, SD_GOLD_DEEP, SD_TEXT_MUTED, goldAlpha } from "../sdTheme";
 
-const label = { fontSize: 11.5, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase" } as const;
+const label = { fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase" } as const;
 
 /** Fee-credit balance (non-cashable) with earned / used totals. */
 export default function CreditCard({ credit }: { credit: SdRewards["credit"] }) {
@@ -24,11 +24,11 @@ export default function CreditCard({ credit }: { credit: SdRewards["credit"] }) 
       </Box>
       <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, pt: 2, borderTop: `1px dashed ${SD_BORDER}` }}>
         <Box>
-          <Typography sx={{ fontSize: 11.5, color: SD_TEXT_MUTED, fontWeight: 700 }}>Earned</Typography>
+          <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, fontWeight: 700 }}>Earned</Typography>
           <Typography sx={{ fontSize: 17, fontWeight: 900, ...TABULAR }} data-testid="sd-rewards-credit-earned">{money(credit.earned_total)}</Typography>
         </Box>
         <Box>
-          <Typography sx={{ fontSize: 11.5, color: SD_TEXT_MUTED, fontWeight: 700 }}>Saved on fees</Typography>
+          <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, fontWeight: 700 }}>Saved on fees</Typography>
           <Typography sx={{ fontSize: 17, fontWeight: 900, color: "#047857", ...TABULAR }} data-testid="sd-rewards-credit-used">{money(credit.used_total)}</Typography>
         </Box>
       </Box>

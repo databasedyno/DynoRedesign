@@ -11,7 +11,7 @@ import {
   sendWalletDeletedEmail,
 } from "../../services/emailService";
 import { handleControllerErrorReturn } from "../../helper/controllerErrorHandler";
-import { userWalletModel, companyModel } from "../../models";
+import { userWalletModel } from "../../models";
 import { walletLogger } from "../../utils/loggers";
 import {
   userWalletAddressModel,
@@ -81,11 +81,6 @@ export const deletePaymentWalletWithOTP = async (
     await invalidateWalletCache(userData.user_id);
 
     // Send confirmation email
-    const companyData = await companyModel.findOne({
-      where: { company_id }
-    });
-    
-    const companyName = companyData?.dataValues.company_name || "Your Company";
     const maskAddress = (addr: string) => `${addr.substring(0, 8)}...${addr.substring(addr.length - 6)}`;
     
     await sendWalletDeletedEmail(

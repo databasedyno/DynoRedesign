@@ -1843,7 +1843,7 @@ const processIncompletePayments = async () => {
             
             // Process via cryptoVerification
             cronLogger.info(`[processIncompletePayments] 🚀 Processing pool ${walletAddress} via cryptoVerification...`);
-            const verificationResult = await cryptoVerification(walletAddress, true, poolRedisKey);
+            await cryptoVerification(walletAddress, true, poolRedisKey);
             cronLogger.info(`[processIncompletePayments] ✅ Pool ${walletAddress} processed successfully`);
 
             // F3b: tell the BUYER their payment window closed and the partial was

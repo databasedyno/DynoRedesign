@@ -67,7 +67,6 @@ const QuickActionsPanel: React.FC = () => {
   const [amount, setAmount] = useState<string>("");
   const [coin, setCoin] = useState<string>("USDT");
 
-  const currencySymbol = stats?.currencySymbol || "$";
   const currencyCode = stats?.currency || "USD";
 
   const handleSubmit = useCallback(() => {

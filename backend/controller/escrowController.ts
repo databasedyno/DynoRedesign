@@ -118,7 +118,6 @@ const isSafeDeal = (deal: any): boolean => deal?.source === "safedeal";
 /** Invite link for the counterparty — SafeDeal links carry the creator's referral code. */
 const inviteLinkFor = (deal: any): string =>
   isSafeDeal(deal) && deal?.creator_ref_code ? `${dealUrl(deal)}?ref=${encodeURIComponent(String(deal.creator_ref_code))}` : dealUrl(deal);
-const norm = (s: unknown): string => String(s ?? "").trim().toLowerCase();
 
 interface ActorInfo {
   isCreator: boolean;
@@ -767,7 +766,6 @@ async function actRequestChanges(deal: any, actor: ActorInfo, message?: string):
   const round = Number(deal.revision_round || 0);
   if (round >= MAX_REVISION_ROUNDS) fail(409, `You've already asked for changes ${MAX_REVISION_ROUNDS} times. Release the funds or open a dispute.`);
   assertTransition(deal.status, "funded");
-  const now = new Date();
   deal.status = "funded";
   deal.auto_release_at = null;
   deal.revision_round = round + 1;
@@ -970,33 +968,6 @@ async function actEscalateDispute(deal: any, actor: ActorInfo): Promise<any> {
  * try to pay any pending leg. `signedIn` marks that an authenticated account set
  * it (allowed to reuse a saved wallet); OTP-only actors must paste an address.
  */
-async function actSetDestination(
-  deal: any,
-  actor: ActorInfo,
-  body: { payout_address?: string; payout_coin?: string; refund_address?: string; refund_coin?: string }
-): Promise<any> {
-  if (actor.role === "seller") {
-    if (body.payout_address) deal.seller_payout_address = String(body.payout_address).trim();
-    if (body.payout_coin) deal.seller_payout_coin = String(body.payout_coin).trim();
-    if (!deal.seller_payout_coin) deal.seller_payout_coin = deal.custody_stablecoin || DEFAULT_ESCROW_STABLECOIN;
-    if (actor.signedIn) deal.seller_signed_in = true;
-  }
-  if (actor.role === "buyer") {
-    if (body.refund_address) deal.buyer_refund_address = String(body.refund_address).trim();
-    if (body.refund_coin) deal.buyer_refund_coin = String(body.refund_coin).trim();
-    if (!deal.buyer_refund_coin) deal.buyer_refund_coin = deal.custody_stablecoin || DEFAULT_ESCROW_STABLECOIN;
-    if (actor.signedIn) deal.buyer_signed_in = true;
-  }
-  deal.activity_log = appendActivity(deal.activity_log, { type: "destination_set", actor: actor.label, role: actor.role, note: "Settlement destination updated." });
-  await deal.save();
-  // Trigger pending payout for this actor's leg if the outcome is already authorized.
-  const { sellerPaid, buyerPaid } = await attemptPayouts(deal, actor.label);
-  if (sellerPaid || buyerPaid) {
-    const summary = deal.settlement_note || "Payout executed.";
-    await notifyOutcome(deal, summary);
-  }
-  return deal;
-}
 
 // ── request wrappers ─────────────────────────────────────────────────────────
 

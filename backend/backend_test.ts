@@ -439,7 +439,7 @@ async function runTests() {
         addResult('T4-FindPending', 'PASS', `Found pending withdrawal #${t1Withdrawal.withdrawal_id}`);
         
         // Approve it
-        const approved = await approveWithdrawal(adminToken, t1Withdrawal.withdrawal_id);
+        await approveWithdrawal(adminToken, t1Withdrawal.withdrawal_id);
         
         // Check that it left pending_approval
         await sleep(1000);

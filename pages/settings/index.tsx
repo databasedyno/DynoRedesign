@@ -175,7 +175,6 @@ const CompanyConfigSection = ({
   showDisplayCurrency?: boolean;
   dirtySection?: SettingsSectionKey;
 }) => {
-  const dispatch = useDispatch();
   const theme = useTheme();
   const { t } = useTranslation("common");
   const companyState = useCompanyStore();

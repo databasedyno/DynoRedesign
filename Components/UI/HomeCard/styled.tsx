@@ -3,10 +3,6 @@ import { Box, Card, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { BRAND_ACCENT, brandFg } from "@/constants/theme";
 
-interface StyledCardProps {
-  height?: number | string;
-  width?: number | string;
-}
 
 // HomeCard
 export const StyledCard = styled(Card)(({ theme }) => {

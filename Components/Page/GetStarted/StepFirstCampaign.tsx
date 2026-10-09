@@ -61,7 +61,7 @@ const StepFirstCampaign: React.FC<Props> = ({ progress, onBack, onCreated, onUse
   const router = useRouter();
   const { t } = useTranslation("dashboardLayout");
   const dispatch = useDispatch();
-  const { account, companyId, hasWallet, hasCampaign, newestCampaign } = progress;
+  const { account, companyId, hasWallet, newestCampaign } = progress;
   const walletState = useWalletStore();
 
   const draft = useMemo(readDraft, []);

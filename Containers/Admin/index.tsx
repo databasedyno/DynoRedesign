@@ -1,8 +1,7 @@
 import { drawerWidth, toolbarHeight } from "@/styles/theme";
 import { LayoutProps } from "@/utils/types";
-import { Box, Drawer, useTheme } from "@mui/material";
+import { Box, Drawer } from "@mui/material";
 import React from "react";
-import useTokenData from "@/hooks/useTokenData";
 import SideBar from "@/Components/Layout/Sidebar";
 import ToastHost from "@/Components/UI/Toast/ToastHost";
 import adminAuth from "@/Components/Page/Common/HOC/adminAuth";
@@ -10,8 +9,6 @@ import AdminHeader from "@/Components/Layout/AdminHeader";
 import { AdminSupportAlertProvider } from "@/contexts/AdminSupportAlertContext";
 
 const AdminLayout = ({ children, pageName, pageDescription, }: LayoutProps) => {
-  const theme = useTheme();
-  const tokenData = useTokenData();
   return (
     <AdminSupportAlertProvider>
       <ToastHost />

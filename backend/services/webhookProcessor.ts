@@ -196,7 +196,7 @@ function validateWebhookAsset(
 
   // 3. Reverse lookup: asset might be an internal Dynopay currency name (e.g., "USDT-TRC20")
   //    This happens when reconciliation re-queues using the internal currency format.
-  for (const [tatumAsset, currencies] of Object.entries(TATUM_ASSET_TO_CURRENCY)) {
+  for (const [, currencies] of Object.entries(TATUM_ASSET_TO_CURRENCY)) {
     if (currencies.includes(assetUpper) || currencies.includes(webhookAsset)) {
       if (assetUpper === expectedCurrency.toUpperCase() || currencies.includes(expectedCurrency)) {
         return { valid: true, isGasFunding: false };
@@ -352,7 +352,6 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
   const payload = data.payload;
   const queryCompanyId = data.queryParams.company_id || null;
   const queryUserId = data.queryParams.user_id || null;
-  const queryAddressId = data.queryParams.address_id || null;
 
   webhookLogs.info("[WebhookProcessor] Processing webhook:", {
     address: payload.address,
@@ -628,8 +627,6 @@ export async function processWebhookJob(data: WebhookJobData): Promise<void> {
     }
 
     // ── 6. Status checks (using state machine for terminal detection) ─────────
-    const isFirstTransaction = !items.txId;
-    const isCompletionPayment = String(items.incomplete) === "true" && items.txId !== payload.txId;
     const currentParsedState = parseState(items.status);
     const isAlreadySuccessful = currentParsedState === PaymentState.PAYOUT_COMPLETE;
 

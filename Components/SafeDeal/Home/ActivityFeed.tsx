@@ -108,11 +108,11 @@ function Row({ r, i, reduce }: { r: SdStatementRow; i: number; reduce: boolean }
         <Typography sx={{ fontWeight: 900, fontSize: 14.5, ...TABULAR, color: positive ? "#047857" : transfer ? SD_GOLD_DEEP : SD_INK }}>
           {transfer ? (r.type === "HOLD" ? `→ held ${money(r.amount)}` : `→ available ${money(r.amount)}`) : `${positive ? "+" : "−"}${money(Math.abs(r.signed))}`}
         </Typography>
-        <Typography sx={{ fontSize: 11.5, color: fee > 0 ? SD_TEXT_MUTED : "#C9C6BC", ...TABULAR, display: { xs: "block", md: "none" } }} data-testid={`sd-statement-fee-${r.kind}`}>{fee > 0 ? `fee ${money(fee)}` : ""}</Typography>
+        <Typography sx={{ fontSize: 12, color: fee > 0 ? SD_TEXT_MUTED : "#C9C6BC", ...TABULAR, display: { xs: "block", md: "none" } }} data-testid={`sd-statement-fee-${r.kind}`}>{fee > 0 ? `fee ${money(fee)}` : ""}</Typography>
       </Box>
       <Box sx={{ textAlign: "right", display: { xs: "none", md: "block" } }}>
         <Typography sx={{ fontSize: 12.5, color: SD_TEXT_MUTED, ...TABULAR }}>bal. {money(r.running_balance)}</Typography>
-        <Typography sx={{ fontSize: 11.5, color: fee > 0 ? SD_TEXT_MUTED : "#C9C6BC", ...TABULAR }} data-testid={`sd-statement-fee-${r.kind}-md`}>{fee > 0 ? `fee ${money(fee)}` : ""}</Typography>
+        <Typography sx={{ fontSize: 12, color: fee > 0 ? SD_TEXT_MUTED : "#C9C6BC", ...TABULAR }} data-testid={`sd-statement-fee-${r.kind}-md`}>{fee > 0 ? `fee ${money(fee)}` : ""}</Typography>
       </Box>
     </Box>
   );
@@ -199,7 +199,7 @@ export default function ActivityFeed({ rows, from, to, onRange, onCsv, compact, 
           {months.map((m) => (
             <Box key={m.key} data-testid={`sd-activity-month-${m.key}`}>
               <Stack direction="row" alignItems="center" spacing={1.5} sx={{ px: { xs: 1, md: 1.5 }, py: 0.6, position: "sticky", top: 0, backgroundColor: "#fff", zIndex: 1 }}>
-                <Typography sx={{ fontSize: 11.5, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>{monthLabel(m.key)}</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>{monthLabel(m.key)}</Typography>
                 <Box sx={{ flex: 1, height: "1px", backgroundColor: SD_BORDER }} />
                 <Typography sx={{ fontSize: 12, fontWeight: 800, ...TABULAR, color: m.net >= 0 ? "#047857" : SD_TEXT_MUTED }}>{m.net >= 0 ? "+" : "−"}{money(Math.abs(m.net))} net</Typography>
               </Stack>

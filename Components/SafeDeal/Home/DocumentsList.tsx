@@ -95,8 +95,8 @@ export default function DocumentsList({ dealHref, notify }: Props) {
                 <Box sx={{ minWidth: 0 }}>
                   <Stack direction="row" spacing={0.8} alignItems="center" flexWrap="wrap" useFlexGap>
                     <Typography sx={{ fontSize: 14, fontWeight: 900, ...TABULAR }}>{inv.invoice_no}</Typography>
-                    <Chip size="small" label={inv.state_label} sx={{ height: 20, fontSize: 10.5, fontWeight: 800, backgroundColor: c.bg, color: c.fg }} />
-                    {!deposit && <Chip size="small" label={inv.funding_label} data-testid={`sd-invoice-funding-${inv.id}`} sx={{ height: 20, fontSize: 10.5, fontWeight: 700, backgroundColor: "#F3F5F7", color: "#4B4B52" }} />}
+                    <Chip size="small" label={inv.state_label} sx={{ height: 20, fontSize: 12, fontWeight: 800, backgroundColor: c.bg, color: c.fg }} />
+                    {!deposit && <Chip size="small" label={inv.funding_label} data-testid={`sd-invoice-funding-${inv.id}`} sx={{ height: 20, fontSize: 12, fontWeight: 700, backgroundColor: "#F3F5F7", color: "#4B4B52" }} />}
                   </Stack>
                   <Typography sx={{ fontSize: 13, color: SD_INK, mt: 0.2 }} noWrap>{deposit ? `Deposit · ${inv.coin_label} on ${inv.network}` : `${inv.title} · you were the ${inv.my_role}`}</Typography>
                   <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, ...TABULAR }} noWrap>

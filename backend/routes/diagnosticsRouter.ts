@@ -536,7 +536,6 @@ router.get("/conversion-email-preview", adminAuthMiddleware, async (req: express
   const currentPrice = sampleData.currentPrice;
   const priceMovementPct = sampleData.priceMovementPct;
   const marketState = sampleData.marketState;
-  const feeTierUsed = sampleData.feeTierUsed;
   const priceDiffSinceConversion = ((currentPrice - priceAtConversion) / priceAtConversion) * 100;
   const priceDroppedSinceConversion = priceDiffSinceConversion < -0.1;
   const savedAmount = priceDroppedSinceConversion
@@ -1760,7 +1759,6 @@ router.get("/reliability/health", adminAuthMiddleware, async (_req: express.Requ
 router.get("/reliability/journal", adminAuthMiddleware, async (req: express.Request, res: express.Response) => {
   try {
     const PaymentJournal = require("../models/paymentJournalModel").default;
-    const { Op } = require("sequelize");
 
     const paymentId = req.query.payment_id as string;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);

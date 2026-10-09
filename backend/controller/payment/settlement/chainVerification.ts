@@ -655,7 +655,6 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         let autoConvertTargetCurrency = "";
         let autoConvertSettlementAddress = "";
         let autoConvertSettlementChain = "";
-        let originalUserAddress = walletData.dataValues.wallet_address;
         let originalUserAmount = userAmountToSend;
         
         // Capture platform fee in crypto BEFORE auto-convert merges it with merchant amount
@@ -754,7 +753,6 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             const requiredTRX = dynamicFee.fast * 1.5; // 50% safety buffer
             
             // Check pool address TRX balance (from TronGrid)
-            const poolTRXBalance = poolResources.availableBandwidth >= 0 ? 0 : 0; // fallback
             
             // Check fee wallet TRX balance via Tatum (advisory only)
             // FIX (2026-04-02): Use envRaw("TRX_FEE_WALLET") (the actual gas fee wallet),

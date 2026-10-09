@@ -119,7 +119,7 @@ function CoinPicker({ coins, current, creating, onPick, onCancel, expired }: { c
       </Box>
       <Box sx={{ textAlign: "right", flexShrink: 0 }}>
         <Typography sx={{ fontSize: 14, fontWeight: 900, ...TABULAR }}>{creating === c.coin ? "…" : money(c.buyer_pays)}</Typography>
-        <Typography sx={{ fontSize: 11, color: (c.surcharge || 0) > 0 ? "#B45309" : "#9CA3AF" }} data-testid={`sd-fund-coin-surcharge-${c.coin}`}>{(c.surcharge || 0) > 0 ? `+${money(c.surcharge || 0)} vs quote` : "you pay"}</Typography>
+        <Typography sx={{ fontSize: 12, color: (c.surcharge || 0) > 0 ? "#B45309" : "#9CA3AF" }} data-testid={`sd-fund-coin-surcharge-${c.coin}`}>{(c.surcharge || 0) > 0 ? `+${money(c.surcharge || 0)} vs quote` : "you pay"}</Typography>
       </Box>
     </Box>
   );
@@ -131,7 +131,7 @@ function CoinPicker({ coins, current, creating, onPick, onCancel, expired }: { c
       <Stack spacing={1}>{stable.map(tile)}</Stack>
       {other.length > 0 && (
         <>
-          <Divider sx={{ my: 1.5 }}><Typography sx={{ fontSize: 11.5, color: "#9CA3AF" }}>other coins · converted to USDT the moment they arrive</Typography></Divider>
+          <Divider sx={{ my: 1.5 }}><Typography sx={{ fontSize: 12, color: "#9CA3AF" }}>other coins · converted to USDT the moment they arrive</Typography></Divider>
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 1 }}>{other.map(tile)}</Box>
         </>
       )}

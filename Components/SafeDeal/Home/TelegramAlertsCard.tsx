@@ -37,7 +37,7 @@ export default function TelegramAlertsCard({ notify }: { notify: (m: string, s?:
           <Typography sx={{ fontWeight: 900, fontSize: 16, letterSpacing: -0.2 }}>Telegram alerts</Typography>
           <Typography sx={{ fontSize: 12.5, color: SD_TEXT_MUTED }}>A message the moment a cashout or deal payout is confirmed on-chain, with the transaction link.</Typography>
         </Box>
-        {status && <Chip size="small" label={status.linked ? "On" : "Off"} data-testid="sd-telegram-state" sx={{ fontWeight: 800, fontSize: 11, backgroundColor: status.linked ? "#ECFDF5" : SD_PAGE, color: status.linked ? "#047857" : SD_TEXT_MUTED }} />}
+        {status && <Chip size="small" label={status.linked ? "On" : "Off"} data-testid="sd-telegram-state" sx={{ fontWeight: 800, fontSize: 12, backgroundColor: status.linked ? "#ECFDF5" : SD_PAGE, color: status.linked ? "#047857" : SD_TEXT_MUTED }} />}
       </Stack>
       {!status ? (
         <Skeleton variant="rounded" height={48} />

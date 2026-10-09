@@ -138,7 +138,7 @@ const AdminProfilePage = () => {
   const handlePasswordSubmit = async (values: any) => {
     try {
       const {
-        data: { data, message },
+        data: { message },
       } = await adminBaseApi.put("admin/changePassword", { ...values });
 
       dispatch({

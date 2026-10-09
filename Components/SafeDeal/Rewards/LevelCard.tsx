@@ -22,12 +22,12 @@ export default function LevelCard({ level, minFeeUsd }: { level: SdRewards["leve
           <Icon icon={LEVEL_ICON[level.key] || LEVEL_ICON.member} width={24} />
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontSize: 11.5, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>Loyalty level</Typography>
+          <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>Loyalty level</Typography>
           <Typography sx={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, color: LEVEL_TINT[level.key] }} data-testid="sd-rewards-level-label">{level.label}</Typography>
         </Box>
         <Box sx={{ textAlign: "right" }}>
           <Typography sx={{ fontSize: 26, fontWeight: 900, letterSpacing: -0.8, ...TABULAR }} data-testid="sd-rewards-level-rate">{level.fee_percent}%</Typography>
-          <Typography sx={{ fontSize: 11.5, color: SD_TEXT_MUTED }}>escrow fee{level.fee_percent < level.base_fee_percent ? ` · standard ${level.base_fee_percent}%` : ""}</Typography>
+          <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED }}>escrow fee{level.fee_percent < level.base_fee_percent ? ` · standard ${level.base_fee_percent}%` : ""}</Typography>
         </Box>
       </Stack>
 
@@ -53,12 +53,12 @@ export default function LevelCard({ level, minFeeUsd }: { level: SdRewards["leve
             <Box key={l.key} data-testid={`sd-rewards-ladder-${l.key}`} sx={{ p: 1.1, borderRadius: 2.5, border: `1px solid ${i === idx ? SD_GOLD : SD_BORDER}`, backgroundColor: i === idx ? "#FFFBEB" : "#fff", opacity: on ? 1 : 0.75 }}>
               <Typography sx={{ fontSize: 12, fontWeight: 900, color: on ? SD_INK : SD_TEXT_MUTED }}>{l.label}</Typography>
               <Typography sx={{ fontSize: 15, fontWeight: 900, ...TABULAR }}>{l.fee_percent}%</Typography>
-              <Typography sx={{ fontSize: 10.5, color: SD_TEXT_MUTED, lineHeight: 1.3 }}>{l.min_deals === 0 ? "Everyone" : `${l.min_deals} deals or ${money(l.min_volume_usd).replace(/\.00$/, "")}`}</Typography>
+              <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, lineHeight: 1.3 }}>{l.min_deals === 0 ? "Everyone" : `${l.min_deals} deals or ${money(l.min_volume_usd).replace(/\.00$/, "")}`}</Typography>
             </Box>
           );
         })}
       </Box>
-      <Typography sx={{ fontSize: 11.5, color: SD_TEXT_MUTED, mt: 1.4 }}>
+      <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, mt: 1.4 }}>
         Counted on your completed deals: <b style={{ ...TABULAR }} data-testid="sd-rewards-level-stats">{level.completed_deals} · {money(level.completed_volume_usd)}</b>. The {money(minFeeUsd).replace(/\.00$/, "")} minimum fee still applies.
       </Typography>
     </Box>

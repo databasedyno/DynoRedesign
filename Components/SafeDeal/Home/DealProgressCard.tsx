@@ -38,7 +38,7 @@ function Tracker({ deal }: { deal: SdDeal }) {
             <Box sx={{ height: 5, borderRadius: 99, backgroundColor: color, position: "relative", overflow: "hidden" }}>
               {current && !closedEarly && <Box aria-hidden sx={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent)`, animation: "sdShimmer 1.8s linear infinite", "@keyframes sdShimmer": { from: { transform: "translateX(-100%)" }, to: { transform: "translateX(100%)" } } }} />}
             </Box>
-            <Typography sx={{ fontSize: 10.5, fontWeight: current ? 900 : 700, color: current ? (disputed ? "#B45309" : SD_GOLD_DEEP) : done ? SD_INK : "#A8A49A", mt: 0.5, letterSpacing: 0.2, display: { xs: i === reached ? "block" : "none", sm: "block" } }}>{s}</Typography>
+            <Typography sx={{ fontSize: 12, fontWeight: current ? 900 : 700, color: current ? (disputed ? "#B45309" : SD_GOLD_DEEP) : done ? SD_INK : "#A8A49A", mt: 0.5, letterSpacing: 0.2, display: { xs: i === reached ? "block" : "none", sm: "block" } }}>{s}</Typography>
           </Box>
         );
       })}
@@ -70,7 +70,7 @@ export default function DealProgressCard({ deal, href, now }: { deal: SdDeal; hr
           </Box>
           <Box sx={{ textAlign: "right", flexShrink: 0 }}>
             <Typography sx={{ fontWeight: 900, fontSize: 16.5, letterSpacing: -0.3, ...TABULAR }}>{money(deal.amount, deal.currency)}</Typography>
-            <Typography sx={{ fontSize: 11, color: SD_TEXT_MUTED, ...TABULAR }}>{isBuyer ? `you pay ${money(deal.breakdown?.buyerPays, deal.currency)}` : `you get ${money(deal.breakdown?.sellerReceives, deal.currency)}`}</Typography>
+            <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, ...TABULAR }}>{isBuyer ? `you pay ${money(deal.breakdown?.buyerPays, deal.currency)}` : `you get ${money(deal.breakdown?.sellerReceives, deal.currency)}`}</Typography>
           </Box>
         </Stack>
 
@@ -79,10 +79,10 @@ export default function DealProgressCard({ deal, href, now }: { deal: SdDeal; hr
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap sx={{ mt: 1.6 }}>
           <SdStatusChip deal={deal} size="sm" testId={`sd-deal-status-${deal.escrow_id}`} />
           <DeadlinePill deal={deal} testId={`sd-deal-deadline-${deal.escrow_id}`} />
-          {yourMove && <Chip size="small" icon={<Icon icon="mdi:hand-pointing-right" width={14} />} label={step.text} data-testid={`sd-deal-todo-${deal.escrow_id}`} sx={{ fontWeight: 800, fontSize: 11, height: 24, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG, "& .MuiChip-icon": { color: SD_NOTE_FG }, maxWidth: "100%" }} />}
+          {yourMove && <Chip size="small" icon={<Icon icon="mdi:hand-pointing-right" width={14} />} label={step.text} data-testid={`sd-deal-todo-${deal.escrow_id}`} sx={{ fontWeight: 800, fontSize: 12, height: 24, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG, "& .MuiChip-icon": { color: SD_NOTE_FG }, maxWidth: "100%" }} />}
           <Box sx={{ flex: 1 }} />
           <Tooltip title={absTime(updated)} arrow>
-            <Typography component="time" dateTime={updated || undefined} sx={{ fontSize: 11.5, color: "#A8A49A" }}>{relTime(updated, now)}</Typography>
+            <Typography component="time" dateTime={updated || undefined} sx={{ fontSize: 12, color: "#A8A49A" }}>{relTime(updated, now)}</Typography>
           </Tooltip>
         </Stack>
       </Box>

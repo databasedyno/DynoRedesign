@@ -42,7 +42,7 @@ export default function CashoutsList({ withdrawals, now }: { withdrawals: SdWith
                 <Stack direction="row" spacing={0.8} alignItems="center" flexWrap="wrap" useFlexGap>
                   <Typography sx={{ fontSize: 14, fontWeight: 800, ...TABULAR }}>{money(Number(x.amount_usd))} → {shortAddr(x.address)}</Typography>
                   <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED }}>{x.payout_key}</Typography>
-                  {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ fontSize: 10.5, fontWeight: 800, height: 20, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
+                  {x.source === "settlement" && <Chip size="small" label={x.escrow_id ? `Deal #${x.escrow_id} payout` : "Deal payout"} sx={{ fontSize: 12, fontWeight: 800, height: 20, backgroundColor: SD_NOTE_BG, color: SD_NOTE_FG }} />}
                 </Stack>
                 <Typography component="div" sx={{ fontSize: 12, color: SD_TEXT_MUTED, ...TABULAR }}>
                   <Tooltip title={absTime(x.created_at)}><time dateTime={x.created_at}>{relTime(x.created_at, now)}</time></Tooltip>
@@ -54,7 +54,7 @@ export default function CashoutsList({ withdrawals, now }: { withdrawals: SdWith
                   ))}
                 </Typography>
               </Box>
-              <Chip size="small" label={withdrawalStatusLabel(x.status)} data-testid={`sd-withdrawal-status-${x.withdrawal_id}`} data-status={x.status} sx={{ fontWeight: 800, fontSize: 11, backgroundColor: st.bg, color: st.fg, flexShrink: 0 }} />
+              <Chip size="small" label={withdrawalStatusLabel(x.status)} data-testid={`sd-withdrawal-status-${x.withdrawal_id}`} data-status={x.status} sx={{ fontWeight: 800, fontSize: 12, backgroundColor: st.bg, color: st.fg, flexShrink: 0 }} />
             </Stack>
           );
         })}

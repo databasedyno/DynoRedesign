@@ -1,3 +1,29 @@
+# === 2026-06 (fork, pod a81d8386) — 3 TASKS: READABLE LABELS + INVITE HYDRATION FIX + CI UNUSED-VAR CLEANUP — ALL DONE & VERIFIED ===
+# TASK 1 — Readable labels (sub-12px -> 12px) across SafeDeal:
+#   Bumped 55 fontSize values (10/10.5/11/11.5 -> 12) across 26 SafeDeal CONTENT files (Home/*, Rewards/*, DealPage, DealCards,
+#   DealCostLine, FundPanel, TopUpDialog, NewDealReview, SignIn, DeadlinePill, NextStepBanner, AttachmentPicker). Decorative landing
+#   mocks (redesign/MockA|B|C.tsx, EscrowScene.tsx) intentionally LEFT (scaled mini-previews). Pure numeric sx change; tsc clean.
+# TASK 2 — SafeDeal invite sign-in hydration errors (React #418 x2 + #423):
+#   ROOT CAUSE: /safedeal/signin is SSR'd WITH the query string (confirmed: SSR HTML rendered "Open your invite" + invite sub-text),
+#   but the client's first hydration paint has an empty router.query -> rendered the neutral default -> 2 text-node mismatches (#418)
+#   + #423 recovery. FIX (Components/SafeDeal/SignIn.tsx): added a `mounted` state (useEffect sets true) and gated the only
+#   query-derived RENDERED value `invitedFlag = mounted && router.query.invited === "1"`. Now SSR + first client paint both render the
+#   neutral copy (match), then the invited copy appears after mount. VERIFIED 6/6 clean runs on the exact combined URL
+#   (?next=/deal/<token>&invited=1); SSR heading now neutral; post-mount heading correctly "Open your invite". (Note: the earlier
+#   single dirty reading was a cold-server first-hit artifact.)
+# TASK 3 — CI unused-var gate (preflight.yml: strip_unused_imports.cjs --check runs tsc w/ noUnusedLocals => TS6133/6192/6196/6198):
+#   Cleared ALL unused locals: FRONTEND 89 -> 0 (47 files) + BACKEND 45 -> 0 (30 files). Method: assertion-checked line-based codemod
+#   (single-line const/let deletes; useState tuples -> [, setter] or [getter]; destructure-key removals; whole-function removals),
+#   then auto-stripped now-orphaned imports (strip_unused_imports WITHOUT --check), iterated on cascades (nextauth user/profile/isNewUser,
+#   how-to theme, invoices mutate, apiController existingKeys, walletDeleteFlow companyData). CRITICAL: for side-effect lines kept the call
+#   and dropped only the binding (`const x = await fn()` -> `await fn()`; `const p = (async()=>{...})()` -> `void (async()=>{...})()`).
+#   VERIFIED GREEN: FE tsc --noEmit=0, FE strip --check=0, `yarn lint:eslint`=0; BE tsc --noEmit=0, BE strip --check=0.
+# BUILD: prod FE rebuilt (.next-prod BUILD_ID LBztKC2-uMVAeoNCCU3wE) + restarted. QA note: authed deal/rewards API fixtures 404 in the
+#   headless harness (audit test data purged) — pre-existing, unrelated to these changes; shell/headings/footer render fine.
+# DEPLOY: all changes UNCOMMITTED on preview -> "Save to GitHub" (push to Improvement auto-deploys; this unblocks the red preflight CI).
+# ============================================================================================
+
+
 # === 2026-06 (fork, pod a81d8386) — SAFEDEAL UX AUDIT RESULT + P0 TAP-TARGET/OVERFLOW FIXES — DONE & VERIFIED ===
 # AUDIT (already run, test_reports/safedeal_ux_audit/: 82 entries, metrics.json + full screenshot matrix across 9 device profiles
 #   desktop 1440/1920/2560, iPad portrait/landscape, iPhone 15 Pro, iPhone SE3, Pixel 8, Android-360; guest+buyer+seller, light+dark).

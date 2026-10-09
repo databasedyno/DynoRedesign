@@ -53,18 +53,6 @@ function createClient(token?: string): AxiosInstance {
   });
 }
 
-async function queryDatabase(sql: string): Promise<any[]> {
-  try {
-    const result = execSync(`node /app/backend/scripts/ro_query.js "${sql.replace(/"/g, '\\"')}"`, {
-      encoding: 'utf-8',
-      maxBuffer: 10 * 1024 * 1024,
-    });
-    return JSON.parse(result);
-  } catch (error: any) {
-    log(`Database query error: ${error.message}`);
-    return [];
-  }
-}
 
 async function runTests() {
   log('='.repeat(80));
@@ -113,7 +101,6 @@ async function runTests() {
   try {
     // Check via code inspection of migration files
     const fs = require('fs');
-    const migrationFiles = fs.readdirSync('/app/backend/migrations');
     const bootMigration = fs.readFileSync('/app/backend/migrations/bootMigrations.ts', 'utf-8');
     
     const hasRequiresApproval = bootMigration.includes('requires_approval');

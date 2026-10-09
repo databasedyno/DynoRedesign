@@ -99,7 +99,7 @@ export function QuoteBody({ preview, role = "seller", showFees = true }: { previ
           <Row l={`Priced in ${preview.price.currency}`} v={`${fiatMoney(preview.price.amount, preview.price.currency)} ≈ ${money(preview.price.usd)}`} soft testid="sd-quote-fiat" />
         )}
         <Row l="Deal amount (USD)" v={money(preview.amount, "USD")} strong />
-        <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }} data-testid="sd-quote-fees-hint">
+        <Typography sx={{ fontSize: 12, color: SD_INK_MUTED, mt: 0.5 }} data-testid="sd-quote-fees-hint">
           Escrow, network & cashout fees are shown on the next step, once you choose who covers them.
         </Typography>
       </Stack>
@@ -143,7 +143,7 @@ export function QuoteBody({ preview, role = "seller", showFees = true }: { previ
         <Row l={otherLabel} v={money(otherValue, "USD")} soft testid={otherTestid} />
       </Box>
       <RewardsQuoteNote preview={preview} />
-      <Typography sx={{ fontSize: 11.5, color: SD_INK_MUTED, mt: 0.5 }}>
+      <Typography sx={{ fontSize: 12, color: SD_INK_MUTED, mt: 0.5 }}>
         {isSeller
           ? "The cashout fee is your cost to withdraw — it's deducted from your payout, not added to what the buyer pays. "
           : "You never pay the seller's cashout fee. "}

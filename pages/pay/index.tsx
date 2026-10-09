@@ -19,10 +19,9 @@ import {
   Skeleton,
   Tooltip,
   Typography,
-  useMediaQuery,
   useTheme,
   Alert,
-  AlertTitle
+  AlertTitle,
 } from '@mui/material'
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useDispatch } from 'react-redux'
@@ -204,17 +203,16 @@ const fireCheckoutBeacon = (
 const Payment = () => {
   const theme = useTheme()
   const isDark = theme.palette.mode === 'dark'
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const router = useRouter()
   const dispatch = useDispatch()
   const { t, i18n } = useTranslation('common')
   
-  const [paymentMode, setPaymentMode] = useState('payment')
-  const [allowedModes, setAllowedModes] = useState<any[]>([])
+  const [, setPaymentMode] = useState('payment')
+  const [, setAllowedModes] = useState<any[]>([])
   // Raw pay/getData response cache (keyed by ref) — handed to CleanCheckoutV2
   // as initialMeta so the checkout doesn't re-fetch the same payload again.
   const [prefetchedMeta, setPrefetchedMeta] = useState<{ ref: string; data: any } | null>(null)
-  const [selectedCurrency, setSelectedCurrency] = useState('USD')
+  const [, setSelectedCurrency] = useState('USD')
   const [currencyRates, setCurrencyRates] = useState<currencyData>()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [activeStep, setActiveStep] = useState<number>(() => {
@@ -864,37 +862,6 @@ const Payment = () => {
     }
   }, [orderReference])
 
-  const handleCopyTransactionId = useCallback(async () => {
-    if (linkId) {
-      try {
-        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
-          await copyToClipboard(linkId)
-        } else {
-          const textArea = document.createElement('textarea')
-          textArea.value = linkId
-          textArea.style.position = 'fixed'
-          textArea.style.left = '-999999px'
-          document.body.appendChild(textArea)
-          textArea.focus()
-          textArea.select()
-          document.execCommand('copy')
-          document.body.removeChild(textArea)
-        }
-        dispatch({ type: TOAST_SHOW, payload: { message: t('checkout.copied'), severity: 'success' } })
-      } catch (_e) {
-        const textArea = document.createElement('textarea')
-        textArea.value = linkId
-        textArea.style.position = 'fixed'
-        textArea.style.left = '-999999px'
-        document.body.appendChild(textArea)
-        textArea.focus()
-        textArea.select()
-        document.execCommand('copy')
-        document.body.removeChild(textArea)
-        dispatch({ type: TOAST_SHOW, payload: { message: t('checkout.copied'), severity: 'success' } })
-      }
-    }
-  }, [linkId])
 
   // Calculate display values - convert all values using transfer rate when currency changed
   const transferRate = Number(currencyRates?.transferRate ?? 1)

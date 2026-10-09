@@ -24,7 +24,6 @@
  * Multi-instance safe: guarded by Redis lock `cron:expireCartOrders`.
  */
 import { raw as envRaw } from "../utils/config";
-import { Op } from "sequelize";
 import {
   productOrderModel,
   productOrderItemModel,
@@ -103,7 +102,6 @@ export async function sweepExpiredCartOrders(): Promise<{
 
   // ── 2. Send "download expires soon" reminders ───────────────────────
   try {
-    const nudgeAgo = new Date(Date.now() - DOWNLOAD_REMINDER_LEAD_MS);
     // Paid orders whose paid_at is within (24h - 6h) = 18h ago, i.e. their
     // signed URLs have < 6h left. We track `reminder_sent_at` per-item to
     // avoid re-sending.
@@ -262,5 +260,3 @@ async function expireOneOrder(orderId: number): Promise<void> {
 
 // Type-only export to silence "no unused import" if Op is not used in future.
 export type { };
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const _keepOp = Op;

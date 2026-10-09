@@ -17,7 +17,7 @@ export default function Pay3Layout({
      */
     embed?: boolean;
 }) {
-    const { mode, toggleTheme, isDark } = useThemeMode();
+    const { toggleTheme, isDark } = useThemeMode();
 
     return (
         <Box

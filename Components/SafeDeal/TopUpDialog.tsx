@@ -83,13 +83,13 @@ function CoinQuotes({ quotes, creating, onPick }: { quotes: SdTopupQuote[]; crea
         <Icon icon={COIN_ICON[q.coin] || "mdi:circle-multiple-outline"} width={28} />
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography sx={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.2 }}>{q.label} <Typography component="span" sx={{ fontSize: 12, color: "#6B7280", fontWeight: 600 }}>· {q.network}</Typography></Typography>
-          <Typography sx={{ fontSize: 11.5, color: "#6B7280", mt: 0.2 }}>
+          <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 0.2 }}>
             {q.stable ? "No exchange fee" : `Exchange fee ${q.exchange_fee_percent}% (${money(q.exchange_fee)})`} · network {money(q.network_fee)}{q.conversion_fee > 0 ? ` · conversion ${money(q.conversion_fee)}` : ""}
           </Typography>
         </Box>
         <Box sx={{ textAlign: "right", flexShrink: 0 }}>
           <Typography sx={{ fontSize: 14, fontWeight: 900, ...TABULAR }} data-testid={`sd-topup-pays-${q.coin}`}>{creating === q.coin ? "…" : money(q.pays)}</Typography>
-          <Typography sx={{ fontSize: 11, color: "#9CA3AF" }}>you send · fees {money(fees)}</Typography>
+          <Typography sx={{ fontSize: 12, color: "#9CA3AF" }}>you send · fees {money(fees)}</Typography>
         </Box>
       </Box>
     );
@@ -102,7 +102,7 @@ function CoinQuotes({ quotes, creating, onPick }: { quotes: SdTopupQuote[]; crea
       <Stack spacing={1}>{stable.map(tile)}</Stack>
       {other.length > 0 && (
         <>
-          <Divider sx={{ my: 1.5 }}><Typography sx={{ fontSize: 11.5, color: "#9CA3AF" }}>other coins · converted to USDT on arrival</Typography></Divider>
+          <Divider sx={{ my: 1.5 }}><Typography sx={{ fontSize: 12, color: "#9CA3AF" }}>other coins · converted to USDT on arrival</Typography></Divider>
           <Stack spacing={1}>{other.map(tile)}</Stack>
         </>
       )}

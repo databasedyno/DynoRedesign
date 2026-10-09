@@ -343,7 +343,7 @@ export default function DealPage({ token }: { token: string }) {
               <Box sx={card} data-testid="sd-deal-terms">
                 <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.6 }}>
                   <Typography sx={{ fontWeight: 800, fontSize: 14 }}>Terms</Typography>
-                  {deal.amended_at && <Tooltip title={absTime(deal.amended_at)}><Chip size="small" label={`Updated ${relTime(deal.amended_at, now)}`} sx={{ fontSize: 11, fontWeight: 700 }} data-testid="sd-terms-amended" /></Tooltip>}
+                  {deal.amended_at && <Tooltip title={absTime(deal.amended_at)}><Chip size="small" label={`Updated ${relTime(deal.amended_at, now)}`} sx={{ fontSize: 12, fontWeight: 700 }} data-testid="sd-terms-amended" /></Tooltip>}
                 </Stack>
                 <Typography sx={{ fontSize: 13.5, color: "#374151", whiteSpace: "pre-wrap" }}>{deal.terms}</Typography>
               </Box>
@@ -357,7 +357,7 @@ export default function DealPage({ token }: { token: string }) {
                     <Box sx={{ width: 8, height: 8, mt: 0.7, borderRadius: "50%", flexShrink: 0, backgroundColor: a.type.includes("dispute") || a.type.includes("cancel") || a.type === "changes_requested" ? SD_AMBER : SD_ACCENT }} />
                     <Box>
                       <Typography sx={{ fontSize: 13, color: "#111827" }}>{a.note || a.type}</Typography>
-                      <Tooltip title={absTime(a.at)} arrow><Typography component="time" dateTime={a.at} sx={{ fontSize: 11.5, color: "#6B7280", cursor: "help" }}>{relTime(a.at, now)} · {a.role || a.actor}</Typography></Tooltip>
+                      <Tooltip title={absTime(a.at)} arrow><Typography component="time" dateTime={a.at} sx={{ fontSize: 12, color: "#6B7280", cursor: "help" }}>{relTime(a.at, now)} · {a.role || a.actor}</Typography></Tooltip>
                     </Box>
                   </Stack>
                 ))}
@@ -388,11 +388,11 @@ export default function DealPage({ token }: { token: string }) {
                 </Typography>
               ) : null}
               {b.fundingCoinAssumed && (b.nonStableSurchargeUsd || 0) > 0 && (
-                <Typography sx={{ fontSize: 11.5, color: "#92400E", mt: 1, p: 1, borderRadius: 1.5, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }} data-testid="sd-amt-surcharge-note">
+                <Typography sx={{ fontSize: 12, color: "#92400E", mt: 1, p: 1, borderRadius: 1.5, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }} data-testid="sd-amt-surcharge-note">
                   Priced for a stablecoin payment (USDT/USDC). Paying with BTC, ETH or another non-stablecoin adds ≈ {money(b.nonStableSurchargeUsd || 0, deal.currency)} ({b.exchangeFeePercent ?? 2}% exchange fee, conversion and network costs){deal.fee_payer === "buyer" ? " to what the buyer pays" : deal.fee_payer === "seller" ? " to the costs deducted from the seller" : ", shared per the fee split"} — the exact total is shown per coin at checkout.
                 </Typography>
               )}
-              <Typography sx={{ fontSize: 11.5, color: "#6B7280", mt: 1.2 }}>
+              <Typography sx={{ fontSize: 12, color: "#6B7280", mt: 1.2 }}>
                 Fee payer: <b>{deal.fee_payer}</b>. {cancellationInBreakdown
                   ? `This mutually-agreed cancellation is charged a ${cancelFeePct}% cancellation fee — the buyer is refunded the held amount minus that fee and the real network and exchange costs.`
                   : cancellationProposed
@@ -427,7 +427,7 @@ export default function DealPage({ token }: { token: string }) {
           <Box sx={{ display: { xs: "block", md: "none" }, position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 30, p: 1.4, pb: "calc(11.2px + env(safe-area-inset-bottom, 0px))", backgroundColor: "rgba(255,255,255,0.96)", backdropFilter: "blur(10px)", borderTop: "1px solid #E5E7EB", boxShadow: "0 -8px 24px rgba(15,23,42,0.08)" }} data-testid="sd-sticky-bar">
             <Stack direction="row" spacing={1.2} alignItems="center">
               <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography sx={{ fontSize: 11, fontWeight: 900, letterSpacing: 0.6, textTransform: "uppercase", color: SD_ACCENT }}>Your move</Typography>
+                <Typography sx={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.6, textTransform: "uppercase", color: SD_ACCENT }}>Your move</Typography>
                 <Typography sx={{ fontSize: 12.5, color: "#4B5563", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nextStep(deal).text}</Typography>
               </Box>
               <Button variant={primary.variant || "contained"} disabled={!!busy} onClick={primary.onClick} data-testid={primary.testid} sx={primary.variant === "outlined" ? { ...ghostBtn, flexShrink: 0 } : { ...primaryBtn, flexShrink: 0 }}>

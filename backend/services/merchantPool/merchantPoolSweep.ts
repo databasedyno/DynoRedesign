@@ -202,10 +202,6 @@ export const fundGasIfNeeded = async (
     cronLogger.info(`[SmartGas] Required gas with ${toFixedStr(((POOL_CONFIG.GAS_SAFETY_BUFFER - 1) * 100), 0)}% buffer: ${toFixedStr(requiredGas, 6)} ${gasToken}`);
 
     const deficit = sub(requiredGas, currentBalance).toNumber();
-    const minDeficit = gasToken === "TRX" ? POOL_CONFIG.TRX_MIN_DEFICIT 
-      : gasToken === "XRP" ? POOL_CONFIG.XRP_MIN_DEFICIT
-      : gasToken === "POLYGON" ? POOL_CONFIG.POLYGON_MIN_DEFICIT
-      : POOL_CONFIG.ETH_MIN_DEFICIT;
 
     // Primary check: does the address actually have enough gas?
     // FIX (2026-04-10): Removed the minDeficit bypass that could skip funding when

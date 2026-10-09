@@ -65,7 +65,6 @@ export const renderMoneyPath = (L: string, mp: PaymentMoneyPath): string => {
   const gas = num(mp.networkFeeCrypto);
   const sameWallet = !!mp.sameWallet && fee > 0 && !mp.autoConvertTarget && !mp.belowMinimum;
   const net = mp.netCrypto != null ? num(mp.netCrypto) : Math.max(0, num(mp.grossCrypto) - (sameWallet ? 0 : fee) - gas);
-  const gross = num(mp.grossCrypto);
   // The platform fee is priced as "tier% + a flat $1 per payment". Rendering it as
   // a single effective % (fee ÷ amount) made small payments look like 5–6% and made
   // the same merchant appear to have a different rate on every transaction. Show a

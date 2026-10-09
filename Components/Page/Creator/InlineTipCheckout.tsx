@@ -140,11 +140,6 @@ const CRYPTO_INFO: Record<string, { label: string; icon: string; iconColor?: str
   'RLUSD-ERC20': { label: 'RLUSD (Ethereum)', icon: 'mdi:currency-usd', iconColor: '#22c55e', symbol: 'RLUSD', network: 'ERC20' },
 }
 
-function shortenAddr(a: string): string {
-  if (!a) return ''
-  if (a.length <= 20) return a
-  return `${a.slice(0, 10)}…${a.slice(-8)}`
-}
 
 interface InlineTipCheckoutProps {
   d: string
@@ -1136,7 +1131,6 @@ const InlineTipCheckout: React.FC<InlineTipCheckoutProps> = ({
 
   // ─── UNDERPAID ───────────────────────────────────────────────────────
   if (phase === 'underpaid' && cryptoInfo && partial && meta_) {
-    const info = CRYPTO_INFO[cryptoInfo.crypto_display]
     return (
       <Box
         data-testid="inline-tip-underpaid"

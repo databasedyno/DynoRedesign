@@ -34,7 +34,7 @@ export default function CreditHistory({ history }: { history: SdRewards["history
                 </Box>
                 <Box sx={{ textAlign: "right" }}>
                   <Typography sx={{ fontSize: 14, fontWeight: 900, color: plus ? "#047857" : "#111", ...TABULAR }}>{plus ? "+" : "−"}{money(Math.abs(h.amount_usd))}</Typography>
-                  <Typography sx={{ fontSize: 11, color: SD_TEXT_MUTED, ...TABULAR }}>bal {money(h.balance_after_usd)}</Typography>
+                  <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, ...TABULAR }}>bal {money(h.balance_after_usd)}</Typography>
                 </Box>
               </Stack>
             );

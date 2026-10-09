@@ -35,7 +35,6 @@ import { formatDateTimeI18n } from "@/utils/formatDate";
  *   POST support/chat/upload   multipart "file" → { data: { url, name, type, size } }
  */
 
-const LIME = "#8B5E00";
 const INK = "#0A0A0B";
 const GREEN = "#22C55E";
 const SESSION_KEY = "support_chat_sid";

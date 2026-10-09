@@ -47,7 +47,6 @@ const PAYOUT_INFLIGHT_STATUSES = ["PENDING_DEPOSIT", "DEPOSIT_CREDITED", "CONVER
 
 // Guard to prevent cascading fast-poll re-checks
 let fastPollScheduled = false;
-const MAX_API_ERROR_RETRIES = 60; // Transient Binance API failures — much higher since these aren't the deposit's fault
 const MAX_PENDING_AGE_HOURS = parseInt(envRaw("MAX_PENDING_AGE_HOURS") || "6", 10); // FIX BUG-1: Reduced from 24h to 6h for faster stuck conversion detection
 const LOG_PREFIX = "[StablecoinConvert]";
 
@@ -697,7 +696,6 @@ const sendConversionPayoutNotification = async (data: any, withdrawalTxHash: str
   });
 
   // Calculate total received in crypto (merchant + platform fee)
-  const sourceAmountCrypto = parseFloat(data.source_amount || "0");
   const platformFeeUsd = parseFloat(fullRecord?.conversion_fee || "0");
   const sweepGasFeeUsd = parseFloat(fullRecord?.sweep_fee_usd || "0");
   const tradeFeeUsd = parseFloat(fullRecord?.trade_fee_usd || "0");

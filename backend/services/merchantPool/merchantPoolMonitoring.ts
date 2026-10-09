@@ -223,7 +223,6 @@ export const checkMissedPayments = async (): Promise<{
     cronLogger.info(`[MerchantPool] 📋 Found ${reservedAddresses.length} reserved addresses to check (concurrency: ${CONCURRENCY_LIMIT}, timeout: ${PER_ADDRESS_TIMEOUT_MS}ms)`);
 
     // Process addresses in batches with concurrency limit
-    let consecutiveErrors = 0;
     const totalAddresses = reservedAddresses.length;
 
     for (let batchStart = 0; batchStart < totalAddresses; batchStart += CONCURRENCY_LIMIT) {

@@ -26,7 +26,6 @@ import { toFixedStr, toNumber } from "../utils/money";
 
 // SOCKS5 proxy for bypassing geo-blocks — uses smart detection from binanceService
 // getEffectiveProxyAgent() returns the agent ONLY when proxy is actually needed (US deployment)
-const BINANCE_PROXY_URL = envRaw("BINANCE_PROXY_URL") || "";
 
 const LOG_PREFIX = "[BinanceWS]";
 const log = (msg: string) => cronLogger.info(`${LOG_PREFIX} ${msg}`);

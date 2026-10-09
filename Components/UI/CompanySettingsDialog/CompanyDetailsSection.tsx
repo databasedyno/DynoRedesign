@@ -23,7 +23,6 @@ import { useCountryStateCity } from "@/hooks/useCountryStateCity";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 
 import DownloadIcon from "@/assets/Icons/download-icon.svg";
 import { Text } from "@/Components/Page/CreatePaymentLink/styled";
@@ -216,7 +215,6 @@ export default function CompanyDetailsSection({
   onAccountTypeChange,
 }: CompanyDetailsSectionProps) {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const { t } = useTranslation("companyDialog");
   const { t: tSettings } = useTranslation("companySettings");
   const companyState = useCompanyStore();

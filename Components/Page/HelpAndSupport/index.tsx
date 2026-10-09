@@ -58,7 +58,7 @@ const HelpAndSupport = ({ searchBg }: { searchBg?: string }) => {
     );
     const [searchTerm, setSearchTerm] = useState("");
     const [articles, setArticles] = useState<KBArticle[]>(buildStatic);
-    const [loading, setLoading] = useState(false);
+    const [loading] = useState(false);
     const [searching, setSearching] = useState(false);
 
     // Full localized search text for one article: title + description + intro +

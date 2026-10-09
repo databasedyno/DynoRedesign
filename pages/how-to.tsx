@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Head from "next/head";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
-import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Scene } from "@/Components/Page/HowTo/HowToScene";
@@ -41,9 +41,7 @@ const PageWrapper = styled(Box)({ width: "100%" });
 const HowToPage = () => {
   const { t } = useTranslation(["landing", "pageTitles"]);
   const s = useAurora();
-  const theme = useTheme();
   const router = useRouter();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const reduce = useReducedMotion();
 
   const [step, setStep] = useState(0);

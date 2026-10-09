@@ -236,7 +236,6 @@ describe('Settlement Math — Merchant Blockchain Fee Deductions', () => {
       // Step 3: Convert to BTC at current price
       const btcPrice = 100000;
       const adminTotalBTC = adminTotal / btcPrice;  // 0.01 BTC
-      const merchantPortionBTC = merchantPortion / btcPrice; // 0.00984 BTC (tracked for conversion)
 
       expect(adminTotalBTC).toBeCloseTo(0.01, 5);
 

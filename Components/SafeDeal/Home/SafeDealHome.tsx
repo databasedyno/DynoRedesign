@@ -45,7 +45,7 @@ function TabBar({ tab, onChange, badge }: { tab: HomeTab; onChange: (t: HomeTab)
             sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.85, px: { xs: 1.3, sm: 1.8 }, minHeight: { xs: 44, sm: 36 }, display: "flex", alignItems: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", whiteSpace: "nowrap", flexShrink: 0, "& svg": { display: { xs: "none", sm: "block" } }, color: on ? SD_INK : SD_TEXT_MUTED, backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: SD_INK, backgroundColor: on ? SD_GOLD : SD_PAGE } }}>
             <Icon icon={t.icon} width={16} aria-hidden />
             {t.label}
-            {t.key === "deals" && badge > 0 && <Box component="span" data-testid="sd-home-your-move-count" sx={{ ml: 0.3, minWidth: 18, height: 18, px: 0.5, borderRadius: 99, fontSize: 10.5, fontWeight: 900, display: "grid", placeItems: "center", backgroundColor: on ? SD_INK : SD_GOLD, color: on ? SD_GOLD : SD_INK }}>{badge}</Box>}
+            {t.key === "deals" && badge > 0 && <Box component="span" data-testid="sd-home-your-move-count" sx={{ ml: 0.3, minWidth: 18, height: 18, px: 0.5, borderRadius: 99, fontSize: 12, fontWeight: 900, display: "grid", placeItems: "center", backgroundColor: on ? SD_INK : SD_GOLD, color: on ? SD_GOLD : SD_INK }}>{badge}</Box>}
           </Box>
         );
       })}

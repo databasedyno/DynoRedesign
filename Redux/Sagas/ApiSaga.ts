@@ -87,7 +87,7 @@ export function* getApi(payload?: any): unknown {
     const params: Record<string, string> = {};
     if (payload?.company_id) params.company_id = String(payload.company_id);
     const {
-      data: { data, message },
+      data: { data },
     } = yield call(axios.get, "userApi/getApi", { params });
 
     yield put({
@@ -112,7 +112,7 @@ export function* deleteApi(payload: any): unknown {
   try {
     const { id } = payload;
     const {
-      data: { data, message },
+      data: { message },
     } = yield call(axios.delete, "userApi/deleteApi/" + id);
 
     yield put({

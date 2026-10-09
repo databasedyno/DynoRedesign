@@ -1,5 +1,4 @@
 import InfoIcon from "@/assets/Icons/info-icon.svg";
-import useIsMobile from "@/hooks/useIsMobile";
 import { Box, Typography, useTheme } from "@mui/material";
 import Image from "next/image";
 import React from "react";
@@ -20,7 +19,6 @@ export type InfoBannerProps = {
  * Use for prerequisites or informational callouts.
  */
 export default function InfoBanner({ message, children, sx }: InfoBannerProps) {
-  const isMobile = useIsMobile("md");
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   return (

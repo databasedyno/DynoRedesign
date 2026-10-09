@@ -181,7 +181,7 @@ export const reserveAddress = async (
       // The base subscription already exists (from pre-warming or initial creation)
       // so webhooks will still be delivered even if this update is delayed
       // The checkMissedPayments cron (5 min) acts as safety net
-      const subscriptionUpdatePromise = (async () => {
+      void (async () => {
         try {
           cronLogger.info(`[MerchantPool] 🔄 Updating subscription with company info for ${addressToSubscribe} (async)`);
           const subResult = await tatumApi.createSubscriptionBlockBeeStyle(

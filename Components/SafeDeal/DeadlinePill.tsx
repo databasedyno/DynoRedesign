@@ -19,7 +19,7 @@ export default function DeadlinePill({ deal, testId }: { deal: SdDeal; testId?: 
         data-urgent={p.urgent ? "1" : "0"}
         sx={{
           fontWeight: 700,
-          fontSize: 11,
+          fontSize: 12,
           height: 22,
           backgroundColor: p.urgent ? "#FEF3C7" : "#F3F4F6",
           color: p.urgent ? "#92400E" : "#4B5563",

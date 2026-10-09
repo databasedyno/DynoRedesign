@@ -653,7 +653,6 @@ export const settleCryptoTransaction = async ({
         const actualMerchantSats = Number(toBaseUnits(merchantSendAmount));
         const actualAdminSats = Number(toBaseUnits(adminAmount));
         const actualFeeSats = totalInputSats - actualMerchantSats - actualAdminSats;
-        const exactFee = fromBaseUnits(actualFeeSats).toNumber();
 
         cronLogger.info(`[settleCryptoTransaction] UTXO multi-output math (satoshi): totalInput=${totalInputSats}, admin=${actualAdminSats}, merchant=${actualMerchantSats}, fee=${actualFeeSats}, change=${totalInputSats - actualAdminSats - actualMerchantSats - actualFeeSats}`);
 

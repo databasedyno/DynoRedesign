@@ -104,7 +104,6 @@ const Referrals = ({ setPageName, setPageDescription }: pageProps) => {
   const theme = useTheme();
   const isMobile = useIsMobile("md");
   const { t } = useTranslation("referrals");
-  const { t: tCommon } = useTranslation("common");
 
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
 

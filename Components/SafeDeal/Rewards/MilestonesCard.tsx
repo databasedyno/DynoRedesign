@@ -10,7 +10,7 @@ export default function MilestonesCard({ r }: { r: SdRewards }) {
   const max = r.milestones[r.milestones.length - 1]?.friends || 1;
   return (
     <Box data-testid="sd-rewards-milestones" sx={{ p: { xs: 2.4, md: 2.8 }, borderRadius: 4, backgroundColor: "#fff", border: `1px solid ${SD_BORDER}` }}>
-      <Typography sx={{ fontSize: 11.5, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>Milestone bonuses</Typography>
+      <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase", color: SD_TEXT_MUTED }}>Milestone bonuses</Typography>
       <Typography sx={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, mt: 0.3 }} data-testid="sd-rewards-milestone-count">
         {done} {done === 1 ? "friend" : "friends"} rewarded
       </Typography>
@@ -32,7 +32,7 @@ export default function MilestonesCard({ r }: { r: SdRewards }) {
           </Stack>
         ))}
       </Stack>
-      <Typography sx={{ fontSize: 11.5, color: SD_TEXT_MUTED, mt: 2 }}>Up to {r.rules.monthly_reward_cap} rewarded friends per month.</Typography>
+      <Typography sx={{ fontSize: 12, color: SD_TEXT_MUTED, mt: 2 }}>Up to {r.rules.monthly_reward_cap} rewarded friends per month.</Typography>
     </Box>
   );
 }

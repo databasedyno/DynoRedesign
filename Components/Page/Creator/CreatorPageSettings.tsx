@@ -137,7 +137,7 @@ const CreatorPageSettings: React.FC<Props> = ({ onChange }) => {
   const [storeEnabled, setStoreEnabled] = useState(true);
   const [showProductsOnPage, setShowProductsOnPage] = useState(true);
   // analyticsData / analyticsLoading are SWR-derived below (keyed by handle).
-  const [analyticsTogglingBusy, setAnalyticsTogglingBusy] = useState(false);
+  const [analyticsTogglingBusy] = useState(false);
   const [seeded, setSeeded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [availability, setAvailability] = useState<{ available: boolean; reason: string | null } | null>(null);

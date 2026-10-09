@@ -53,7 +53,7 @@ const ProductsTab = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   // Phones (< 900): [search] [Filters] + view toggle — Status moves into the shared bottom sheet.
   const isPhoneToolbar = useIsMobile("md");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [categoryFilter] = useState<string>("all");
   const [q, setQ] = useState<string>("");
   const [merchantHandle, setMerchantHandle] = useState<string | null>(null);
   // Storefront-per-company: scope the catalog to the active company so

@@ -736,13 +736,6 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
 
   const isLive = product?.status === "live";
   const isArchived = product?.status === "archived";
-  const publicPreviewHref = product
-    ? `/${(typeof window !== "undefined" ? "" : "")}` +
-      // The public preview URL uses the merchant's handle, which we don't
-      // fetch here. Route through /pay-links/products so the merchant can
-      // click through from the list.
-      `pay-links/products/${product.product_id}/edit`
-    : "#";
 
   // Effective tax behavior for THIS product at checkout — mirrors the backend
   // cartController resolution (exempt always wins; else per-product override

@@ -1,4 +1,3 @@
-import { useCompanyStore } from "@/contexts/CompanyDataContext";
 import { useWalletStore } from "@/contexts/WalletDataContext";
 import { useEffect, useMemo, useState } from "react";
 
@@ -82,10 +81,6 @@ const WALLET_NAMES: Record<WalletType, string> = {
   "RLUSD-ERC20": "RLUSD-ERC20",
 };
 
-/* Dashboard display currencies - only show these 5 on dashboard Active Wallets */
-const DASHBOARD_DISPLAY_CURRENCIES: readonly string[] = [
-  "BTC", "LTC", "ETH", "USDT-TRC20", "USDT-ERC20",
-];
 
 export const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
   { code: "BTC", name: "Bitcoin", icon: BitcoinIcon },
@@ -105,18 +100,12 @@ export const ALLCRYPTOCURRENCIES: readonly Cryptocurrency[] = [
   { code: "RLUSD-ERC20", name: "RLUSD-ERC20", icon: RLUSDIcon },
 ];
 
-const requestedWalletFetchByToken = new Set<string>();
 
 /* ------------------------------- Main Hook -------------------------------- */
 
 export const useWalletData = () => {
   const walletState = useWalletStore();
-  const selectedCompanyId = useCompanyStore().selectedCompanyId;
-  const companyFetched = useCompanyStore().fetched;
   const walletLoading = Boolean(walletState?.loading);
-  const walletListLength = Array.isArray(walletState?.walletList)
-    ? walletState.walletList.length
-    : 0;
   const [walletWarning, setWalletWarning] = useState(false);
 
   // Wallet fetching is now owned by WalletDataContext (SWR keyed on the

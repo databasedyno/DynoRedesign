@@ -22,7 +22,6 @@ const TEST_USER = {
 
 let accessToken = "";
 let refreshToken = "";
-let userId = 0;
 
 describe("Auth Flow Integration Tests", () => {
   // Health check
@@ -51,7 +50,6 @@ describe("Auth Flow Integration Tests", () => {
         refreshToken = res.body.data.refreshToken;
       }
       if (res.body.data?.userData?.user_id) {
-        userId = res.body.data.userData.user_id;
       }
     }
   });
@@ -72,7 +70,6 @@ describe("Auth Flow Integration Tests", () => {
       refreshToken = res.body.data.refreshToken;
     }
     if (res.body.data?.userData?.user_id) {
-      userId = res.body.data.userData.user_id;
     }
   });
 

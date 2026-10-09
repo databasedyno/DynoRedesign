@@ -5,7 +5,7 @@ import type { SdRewards } from "@/api/safedeal";
 import ShareInviteButtons from "../ShareInviteButtons";
 import { SD_GOLD, SD_INK_LINE, SD_INK_MUTED, SD_INK, goldAlpha } from "../sdTheme";
 
-const label = { fontSize: 11.5, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase" } as const;
+const label = { fontSize: 12, fontWeight: 800, letterSpacing: 0.8, textTransform: "uppercase" } as const;
 
 function CopyField({ value, testid, onCopy, mono = false }: { value: string; testid: string; onCopy: () => void; mono?: boolean }) {
   return (
@@ -36,11 +36,11 @@ export default function InviteHero({ r, onCopy }: { r: SdRewards; onCopy: (text:
 
         <Box sx={{ display: "grid", gap: 1.2, gridTemplateColumns: { xs: "1fr", sm: "1fr 190px" }, mt: 2.6 }}>
           <Box sx={{ minWidth: 0 }}>
-            <Typography sx={{ ...label, fontSize: 10.5, color: SD_INK_MUTED, mb: 0.6 }}>Your link</Typography>
+            <Typography sx={{ ...label, fontSize: 12, color: SD_INK_MUTED, mb: 0.6 }}>Your link</Typography>
             <CopyField value={r.link} testid="sd-rewards-link" onCopy={() => onCopy(r.link, "Link")} />
           </Box>
           <Box>
-            <Typography sx={{ ...label, fontSize: 10.5, color: SD_INK_MUTED, mb: 0.6 }}>Your code</Typography>
+            <Typography sx={{ ...label, fontSize: 12, color: SD_INK_MUTED, mb: 0.6 }}>Your code</Typography>
             <CopyField value={r.code} testid="sd-rewards-code" onCopy={() => onCopy(r.code, "Code")} mono />
           </Box>
         </Box>

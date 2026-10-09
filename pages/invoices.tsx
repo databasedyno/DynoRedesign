@@ -191,10 +191,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   // those revenue/tax_collected numbers).
   const fx = useDisplayFx();
 
-  // Backend now pre-converts Tax Report numbers on the server. Prefer the
-  // display currency + symbol returned in `summary`, fall back to useDisplayFx.
-  const taxCurrency =
-    taxReport?.summary?.display_currency || fx.currency || "USD";
   const taxSymbol =
     taxReport?.summary?.currency_symbol || fx.symbol || "$";
 
@@ -237,7 +233,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   invoicesParams.set("limit", String(invLimit));
   if (selectedCompanyId) invoicesParams.set("company_id", String(selectedCompanyId));
   if (search) invoicesParams.set("search", search);
-  const { data: invoicesResp, isLoading: invoicesSwrLoading, mutate: mutateInvoices } = useApiSWR<any>(
+  const { data: invoicesResp, isLoading: invoicesSwrLoading } = useApiSWR<any>(
     [`${API_ENDPOINTS.invoices.list}?${invoicesParams.toString()}`, selectedCompanyId],
     { unwrap: true, keepPreviousData: true, enabled: invLimitReady }
   );
@@ -247,9 +243,6 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
   const colCount = showVatCol ? 6 : 5;
   const totalInvoices: number = invoicesResp?.pagination?.total || 0;
   const invoiceLoading = (!invLimitReady || invoicesSwrLoading) && invoicesResp === undefined;
-  const fetchInvoices = useCallback(() => {
-    mutateInvoices();
-  }, [mutateInvoices]);
 
   // Fetch tax report
   const fetchTaxReport = useCallback(async () => {

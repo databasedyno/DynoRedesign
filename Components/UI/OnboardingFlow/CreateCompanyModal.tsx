@@ -31,7 +31,7 @@ import StepIndicator from "./StepIndicator";
 import { TransitionProps } from "@mui/material/transitions";
 import { MuiTelInput } from "mui-tel-input";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import ImageDropTarget from "@/Components/UI/ImageDropTarget";
 
@@ -66,7 +66,6 @@ const CreateCompanyModal: React.FC<CreateCompanyModalProps> = ({
   subtitle,
 }) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const isMobile = useIsMobile("sm");
   const { t } = useTranslation("companyDialog");
   const companyState = useCompanyStore();

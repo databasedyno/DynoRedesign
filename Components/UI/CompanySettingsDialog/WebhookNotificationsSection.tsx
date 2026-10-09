@@ -95,8 +95,6 @@ export default function WebhookNotificationsSection({
   }, [secretKey, dispatch]);
 
   const sizeSx = isMobile ? iconButtonSizeMobile : iconButtonSize;
-  const primaryBorder = theme.palette.primary.main;
-  const outlineBorder = "1px solid rgba(0, 0, 0, 0.23)";
 
   return (
     <SettingsAccordion

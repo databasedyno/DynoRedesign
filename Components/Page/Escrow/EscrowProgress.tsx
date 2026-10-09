@@ -12,7 +12,6 @@ interface Step {
 }
 
 const AMBER = "#B45309";
-const RED = "#DC2626";
 const NEUTRAL = "#98A2B3";
 
 /** Build the ordered milestone ladder for a deal (or a terminal banner). */

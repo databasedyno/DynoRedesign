@@ -81,8 +81,8 @@ export function CounterpartyCard({ deal, isBuyer }: { deal: SdDeal; isBuyer: boo
         <Stat label="Completed deals" value={String(c.completed_deals)} testid="sd-counterparty-completed" />
         <Stat label="Member since" value={since ? since.toLocaleDateString(undefined, { month: "short", year: "numeric" }) : "—"} testid="sd-counterparty-since" />
       </Stack>
-      {isNew && <Chip size="small" label="New to SafeDeal" sx={{ mt: 1.2, fontWeight: 700, fontSize: 11, backgroundColor: "#F3F4F6", color: "#374151" }} data-testid="sd-counterparty-new" />}
-      <Typography sx={{ fontSize: 11.5, color: "#9CA3AF", mt: 1 }}>Counts come from completed SafeDeal escrows. Money is only ever held by SafeDeal in escrow, never by the other party.</Typography>
+      {isNew && <Chip size="small" label="New to SafeDeal" sx={{ mt: 1.2, fontWeight: 700, fontSize: 12, backgroundColor: "#F3F4F6", color: "#374151" }} data-testid="sd-counterparty-new" />}
+      <Typography sx={{ fontSize: 12, color: "#9CA3AF", mt: 1 }}>Counts come from completed SafeDeal escrows. Money is only ever held by SafeDeal in escrow, never by the other party.</Typography>
     </Box>
   );
 }
@@ -91,7 +91,7 @@ function Stat({ label, value, testid }: { label: string; value: string; testid: 
   return (
     <Box sx={{ flex: 1, p: 1.2, borderRadius: 2, backgroundColor: "#F9FAFB", border: "1px solid #F3F4F6" }} data-testid={testid}>
       <Typography sx={{ fontSize: 18, fontWeight: 900, letterSpacing: -0.4 }}>{value}</Typography>
-      <Typography sx={{ fontSize: 11.5, color: "#6B7280" }}>{label}</Typography>
+      <Typography sx={{ fontSize: 12, color: "#6B7280" }}>{label}</Typography>
     </Box>
   );
 }
@@ -103,9 +103,9 @@ export function DealFacts({ deal }: { deal: SdDeal }) {
   const overdue = !!deal.delivery_due_at && ["funded"].includes(deal.status) && new Date(deal.delivery_due_at).getTime() < Date.now();
   return (
     <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 0.8 }} data-testid="sd-deal-facts">
-      {t && <Chip size="small" icon={<Icon icon={t.icon} width={14} />} label={t.label} sx={{ fontWeight: 700, fontSize: 11.5 }} data-testid="sd-deal-type" />}
+      {t && <Chip size="small" icon={<Icon icon={t.icon} width={14} />} label={t.label} sx={{ fontWeight: 700, fontSize: 12 }} data-testid="sd-deal-type" />}
       {deal.delivery_due_at && (
-        <Chip size="small" icon={<Icon icon="mdi:calendar-clock" width={14} />} label={`${overdue ? "Was due" : "Due"} ${fmtDate(deal.delivery_due_at)}`} data-testid="sd-deal-due" sx={{ fontWeight: 700, fontSize: 11.5, backgroundColor: overdue ? "#FEF2F2" : undefined, color: overdue ? "#B91C1C" : undefined }} />
+        <Chip size="small" icon={<Icon icon="mdi:calendar-clock" width={14} />} label={`${overdue ? "Was due" : "Due"} ${fmtDate(deal.delivery_due_at)}`} data-testid="sd-deal-due" sx={{ fontWeight: 700, fontSize: 12, backgroundColor: overdue ? "#FEF2F2" : undefined, color: overdue ? "#B91C1C" : undefined }} />
       )}
     </Stack>
   );

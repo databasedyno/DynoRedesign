@@ -31,7 +31,6 @@ import usePublishableKeys from "@/hooks/usePublishableKeys";
 import { useTheme } from "@mui/material";
 import { ApiKeysPageProps } from "@/utils/types/apis";
 import Image from "next/image";
-import * as yup from "yup";
 import copyToClipboard from "@/helpers/copyToClipboard";
 import {
   ApiDocumentationCardDescription,
@@ -982,15 +981,6 @@ const ApiKeysPage = ({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number>(0);
 
-  const apiSchema = yup.object().shape({
-    company_id: yup
-      .string()
-      .test(
-        "company_id",
-        t("validation.selectCompany"),
-        (value: any) => value != 0,
-      ),
-  });
 
   useEffect(() => {
     refetchCompanies();
