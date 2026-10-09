@@ -5844,3 +5844,9 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 - **429s during agent testing** = Emergent preview-domain Cloudflare edge (not app/prod). Documented in `test_result.md`: brief testing-agent with ≥2.5s between navs + one browser context; do NOT touch the app rate limiter.
 - **New:** `/app/memory/PROD_LOG_ACCESS_RUNBOOK.md` (SSH/IP access pattern, log locations, grep recipes, status-icon legend, scanner-502 caveat, Caddy write-safety — no secrets).
 
+
+## 2026-10-09 (fork, pod a81d8386) — Account menu "View my creator page" now brand-scoped — DONE (verified)
+- **Bug:** The Account menu CTA "View my creator page" (`Components/UI/UserMenu/index.tsx`) opened the stale account-level handle (`userReducer.profile.handle` = `hostbay`) instead of the active brand's current creator page (`devhub`). Root cause: the creator page is per-brand/company, but UserMenu read the account-level profile handle.
+- **Fix (1 file):** `UserMenu/index.tsx` now resolves the handle via `useStorefrontProfile()` (keyed by the selected company), mirroring `CreatorPageCard.tsx` resolution: `handle || (storefront_pending ? account_handle : "")`, gated on `creator_page_enabled`. Removed now-unused `useSelector`/`rootReducer` imports (keeps CI `noUnusedLocals` clean). CTA now opens `/<brand-handle>` and reloads when the user switches companies.
+- **Verified:** GET /api/user/creator/profile?company_id=1 → handle=devhub, creator_page_enabled=true. UI smoke (390px, company 1): CTA label "View my creator page", window.open target = `.../devhub` (was `.../hostbay`). Shipped via prod Next rebuild + `.next-prod` swap + frontend restart (preview is FRONTEND_MODE=production, no hot reload).
+- Sidebar/MobileNav `hasClaimedCreator` only toggles an internal `/storefront` nav badge — no stale public URL there; left unchanged.

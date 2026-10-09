@@ -12,8 +12,7 @@ import useTokenData from "@/hooks/useTokenData";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import useShellMode from "@/hooks/useShellMode";
 import useBackToClose from "@/hooks/useBackToClose";
-import { useSelector } from "react-redux";
-import { rootReducer } from "@/utils/types";
+import useStorefrontProfile from "@/hooks/useStorefrontProfile";
 import { brandFg } from "@/constants/theme";
 import AutoAwesomeRounded from "@mui/icons-material/AutoAwesomeRounded";
 import TranslateRounded from "@mui/icons-material/TranslateRounded";
@@ -44,8 +43,12 @@ export default function UserMenu({ onboarding = false }: { onboarding?: boolean 
   const { name: userName, photo: userPhoto } = useDisplayIdentity();
   const tokenData = useTokenData() as any;
   const { account, hasAccount, profileComplete, isIndividual, fetched } = useAccountProfile();
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer.profile) as any;
-  const creatorHandle = profile?.handle && profile?.creator_page_enabled ? String(profile.handle) : "";
+  const { profile: storefront } = useStorefrontProfile();
+  const sfHandle =
+    (storefront?.handle as string) ||
+    (storefront?.storefront_pending ? (storefront?.account_handle as string) : "") ||
+    "";
+  const creatorHandle = sfHandle && storefront?.creator_page_enabled ? sfHandle : "";
   const creatorPublicUrl = buildCreatorUrl(creatorHandle);
   const showSetupWarning = !onboarding && fetched && (!hasAccount || !profileComplete);
   const setupHref = hasAccount ? "/settings?section=company" : "/create-pay-link";
