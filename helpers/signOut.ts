@@ -9,5 +9,5 @@ export const signOut = () => {
   clearCachedBrands();
   window.localStorage.removeItem("token");
   window.localStorage.removeItem("refreshToken");
-  window.location.replace("/auth/login");
+  window.location.replace("/");
 };

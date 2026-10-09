@@ -5857,3 +5857,8 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 - **Wiring:** `pages/_app.tsx` — dynamic import (ssr:false) + `showCookieBanner` memo: shows on `resolvedLayout` home/pay/payment OR `pathname.startsWith('/safedeal')`; hidden on client(dashboard)/admin/login/misc. Rendered inside MuiThemeProvider next to SupportChatWidget.
 - **Verified (prod rebuild + swap):** /fees & /trust → visible, link `/privacy-policy`, accept persists + stays hidden on reload; /safedeal → visible, link `/safedeal/privacy`; /dashboard → hidden even with ack cleared. tsc clean.
 - Per user: no dedicated /cookie-policy page and privacy-policy left unedited (the banner text itself discloses usage). If PostHog/Clarity analytics are added later, upgrade this to a true consent manager (accept/reject + category gating).
+
+## 2026-10-09 (fork, pod a81d8386) — Logout → landing page (not auth) — DONE (verified)
+- **Dynopay:** `helpers/signOut.ts` now `window.location.replace("/")` (was `/auth/login`) — used by Account menu (`UserMenu`) + mobile `MoreSheet`. Also updated stale `Components/Layout/Header/index.tsx` handleLogout (dead code; NewHeader is live) for consistency.
+- **SafeDeal:** already correct — `SafeDealShell.tsx` sign-out does `signOut(); router.push(href("/"))` → `/safedeal` landing. No change needed.
+- **Verified:** Dynopay dashboard → Logout → URL `/`, token cleared, landing nav shows Log in/Start free. SafeDeal `/safedeal/deals` → Sign out → URL `/safedeal`, sd_token cleared, nav shows Sign in (no signin-redirect race). Shipped via prod rebuild + `.next-prod` swap.
