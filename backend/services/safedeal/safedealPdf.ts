@@ -13,10 +13,12 @@ import type { AttachmentPublic } from "./safedealAttachments";
 // SafeDeal brand — gold + near-black (matches the app's sdTheme).
 const SD_GOLD = "#F0A500";
 const SD_INK = "#0A0A0B";
-// Source tree (ts-node) and compiled dist/ both resolve to backend/assets.
+// Same email light logo (gold-free black lockup on a white chip) so the invoice
+// mark matches the SafeDeal emails and reads on white and dark surfaces.
 const SD_LOGO_PATH = [
-  path.join(__dirname, "../../assets/safedeal-logo.png"),
-  path.join(__dirname, "../../../assets/safedeal-logo.png"),
+  path.join(__dirname, "../../public/safedeal-email-logo-light-v1.png"),
+  path.join(__dirname, "../../../public/safedeal-email-logo-light-v1.png"),
+  path.resolve("/app/backend/public/safedeal-email-logo-light-v1.png"),
 ].find((p) => fs.existsSync(p));
 
 /** Draw the SafeDeal brand header (gold top rule + full logo + subtitle). */

@@ -27,6 +27,8 @@ import { ProductRow, ProductsView, PRODUCTS_VIEW_KEY, readProductsView } from ".
 import { tapY } from "@/styles/tapTarget";
 import { FilterChoiceGroup, PhoneFilters } from "@/Components/Common/FilterSheet";
 import useIsMobile from "@/hooks/useIsMobile";
+import useToast from "@/hooks/useToast";
+import { useConfirm } from "@/Components/UI/ConfirmDialog/useConfirm";
 
 
 /**
@@ -41,6 +43,8 @@ const ProductsTab = () => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const { t } = useTranslation("common");
+  const { showToast } = useToast();
+  const { confirm, confirmDialog } = useConfirm();
   // Plan 2.4 — grid ⇄ list (remembered per device) + slide-in detail panel.
   const [view, setView] = useState<ProductsView>("list");
   const [selected, setSelected] = useState<ProductRow | null>(null);
@@ -94,7 +98,13 @@ const ProductsTab = () => {
   }, [selectedCompanyId]);
 
   const softDelete = async (id: number) => {
-    if (!window.confirm("Archive this product?")) return;
+    if (!(await confirm({
+      title: t("productsTab.archiveTitle", { defaultValue: "Archive product" }),
+      message: t("productsTab.archiveConfirm", { defaultValue: "Archive this product? Buyers won't be able to see it. You can restore it later." }),
+      confirmLabel: t("productsTab.archiveAction", { defaultValue: "Archive" }),
+      tone: "primary",
+      testIdPrefix: "archive-product",
+    }))) return;
     try {
       await axiosBaseApi.delete(`products/${id}`);
       mutateProducts(
@@ -102,7 +112,10 @@ const ProductsTab = () => {
         { revalidate: false }
       );
     } catch (e: any) {
-      alert(e?.response?.data?.message || "Delete failed");
+      showToast({
+        message: e?.response?.data?.message || t("productsTab.deleteFailed", { defaultValue: "Delete failed" }),
+        severity: "error",
+      });
     }
   };
 
@@ -332,6 +345,7 @@ const ProductsTab = () => {
         onSaved={applySaved}
         onError={setPanelError}
       />
+      {confirmDialog}
     </Box>
   );
 };

@@ -23,6 +23,7 @@ import type { ProductDraft } from "./ProductLivePreview";
 import { useTranslation } from "react-i18next";
 import PanelCard from "@/Components/UI/PanelCard";
 import useToast from "@/hooks/useToast";
+import { useConfirm } from "@/Components/UI/ConfirmDialog/useConfirm";
 import CustomButton from "@/Components/UI/Buttons";
 import ImageCropperDialog from "@/Components/UI/ImageCropperDialog";
 import { isCroppableImage } from "@/Components/UI/ImageCropperDialog/cropImage";
@@ -121,6 +122,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
   const [saving, setSaving] = useState<boolean>(false);
   const [publishing, setPublishing] = useState<boolean>(false);
   const { showToast } = useToast();
+  const { confirm, confirmDialog } = useConfirm();
   // Shim kept so existing setToast({ text, kind }) call-sites route to the
   // single global toast surface (ToastHost) instead of a local MUI Snackbar.
   const setToast = (v: { text: string; kind: "ok" | "err" } | null) => {
@@ -406,7 +408,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
 
   const archive = async () => {
     if (!product) return;
-    if (!window.confirm(t("productEditor.confirm.archiveProduct", { defaultValue: "Archive this product? Buyers won't be able to see it." }))) return;
+    if (!(await confirm({
+      title: t("productEditor.confirm.archiveTitle", { defaultValue: "Archive product" }),
+      message: t("productEditor.confirm.archiveProduct", { defaultValue: "Archive this product? Buyers won't be able to see it." }),
+      confirmLabel: t("productEditor.confirm.archiveAction", { defaultValue: "Archive" }),
+      tone: "primary",
+      testIdPrefix: "archive-product",
+    }))) return;
     try {
       await axiosBaseApi.post(`products/${product.product_id}/archive`);
       setProduct({ ...product, status: "archived" });
@@ -662,7 +670,13 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
 
   const removeAsset = async (assetId: number) => {
     if (!product) return;
-    if (!window.confirm(t("productEditor.confirm.removeFile", { defaultValue: "Remove this file?" }))) return;
+    if (!(await confirm({
+      title: t("productEditor.confirm.removeFileTitle", { defaultValue: "Remove file" }),
+      message: t("productEditor.confirm.removeFile", { defaultValue: "Remove this file? This can't be undone." }),
+      confirmLabel: t("productEditor.confirm.removeAction", { defaultValue: "Remove" }),
+      tone: "danger",
+      testIdPrefix: "remove-asset",
+    }))) return;
     try {
       await axiosBaseApi.delete(`products/${product.product_id}/assets/${assetId}`);
       setAssets((prev) => prev.filter((a) => a.asset_id !== assetId));
@@ -1595,6 +1609,7 @@ const ProductEditor: React.FC<ProductEditorProps> = ({ mode, productId, onDraftC
           onApply={(file) => handleCropApply(file)}
         />
       )}
+      {confirmDialog}
     </Stack>
   );
 };

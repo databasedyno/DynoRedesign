@@ -76,6 +76,11 @@ const Header = ({ pageName, component }: HeaderProps) => {
 
   const handleLogout = () => {
     if (customWindow) {
+      try {
+        customWindow.sessionStorage.setItem("dp_signed_out", "1");
+      } catch {
+        /* storage unavailable */
+      }
       customWindow.localStorage.removeItem("token");
       customWindow.localStorage.removeItem("refreshToken");
       customWindow.location.replace("/");

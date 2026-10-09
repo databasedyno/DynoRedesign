@@ -26,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import axiosBaseApi from "@/axiosConfig";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import OverflowTabs from "@/Components/UI/OverflowTabs";
+import { useConfirm } from "@/Components/UI/ConfirmDialog/useConfirm";
 
 interface Tier {
   tier_id: number;
@@ -70,6 +71,7 @@ interface CampaignManagerProps {
 const CampaignManager = ({ linkId, currency, onTiersChange }: CampaignManagerProps) => {
   const theme = useTheme();
   const { t } = useTranslation("createPaymentLinkScreen");
+  const { confirm, confirmDialog } = useConfirm();
   const green = "#10B981";
   const [tab, setTab] = useState<"tiers" | "updates" | "supporters">("tiers");
   const [tiers, setTiers] = useState<Tier[]>([]);
@@ -181,7 +183,13 @@ const CampaignManager = ({ linkId, currency, onTiersChange }: CampaignManagerPro
 
   const deleteTier = async (tier_id: number) => {
     if (busy) return;
-    if (!window.confirm("Delete this tier?")) return;
+    if (!(await confirm({
+      title: "Delete tier",
+      message: "Delete this tier? This can't be undone.",
+      confirmLabel: "Delete",
+      tone: "danger",
+      testIdPrefix: "delete-tier",
+    }))) return;
     setBusy(true);
     try {
       await axiosBaseApi.delete(API_ENDPOINTS.pay.tier(tier_id));
@@ -242,7 +250,13 @@ const CampaignManager = ({ linkId, currency, onTiersChange }: CampaignManagerPro
 
   const deleteUpdate = async (update_id: number) => {
     if (busy) return;
-    if (!window.confirm("Delete this update?")) return;
+    if (!(await confirm({
+      title: "Delete update",
+      message: "Delete this update? This can't be undone.",
+      confirmLabel: "Delete",
+      tone: "danger",
+      testIdPrefix: "delete-update",
+    }))) return;
     setBusy(true);
     try {
       await axiosBaseApi.delete(API_ENDPOINTS.pay.update(update_id));
@@ -800,6 +814,7 @@ const CampaignManager = ({ linkId, currency, onTiersChange }: CampaignManagerPro
           )}
         </Box>
       )}
+      {confirmDialog}
     </Box>
   );
 };

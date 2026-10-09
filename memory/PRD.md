@@ -5862,3 +5862,16 @@ Plan: /app/plan/emails_pages_audit_plan.md (§7 order). Report: /app/plan/audit_
 - **Dynopay:** `helpers/signOut.ts` now `window.location.replace("/")` (was `/auth/login`) — used by Account menu (`UserMenu`) + mobile `MoreSheet`. Also updated stale `Components/Layout/Header/index.tsx` handleLogout (dead code; NewHeader is live) for consistency.
 - **SafeDeal:** already correct — `SafeDealShell.tsx` sign-out does `signOut(); router.push(href("/"))` → `/safedeal` landing. No change needed.
 - **Verified:** Dynopay dashboard → Logout → URL `/`, token cleared, landing nav shows Log in/Start free. SafeDeal `/safedeal/deals` → Sign out → URL `/safedeal`, sd_token cleared, nav shows Sign in (no signin-redirect race). Shipped via prod rebuild + `.next-prod` swap.
+
+## 2026-10-09 (fork, pod a81d8386) — Modern confirm dialogs + invoice logos — DONE (verified)
+### Native confirms → styled in-app dialogs (no more browser confirm/alert)
+- New reusable `Components/UI/ConfirmDialog/index.tsx` + `useConfirm.tsx` (promise-based: `if (!(await confirm({title,message,tone}))) return;`, renders `{confirmDialog}`). Built on existing PopupModal/PanelCard/CustomButton (same proven primitives as DeleteModel). tones: danger (red) / primary (gold). data-testids `<prefix>-confirm/-cancel/-message`.
+- New SafeDeal-styled `Components/SafeDeal/SdConfirmDialog.tsx` (matches RequestChangesDialog: MUI Dialog + gold CTA) for the SafeDeal shell.
+- Migrated 6 native confirms: CampaignManager (delete tier, delete update — danger), ProductsTab (archive — primary), ProductEditor (archive — primary, remove file — danger), NewDeal (replace terms — SafeDeal dialog). Also fixed ProductsTab native `alert()` on delete-failure → error toast.
+- Verified in UI: Dynopay archive-product dialog ("Archive product" / gold Archive + Cancel) and SafeDeal "Replace terms?" (gold Replace / Keep mine) both open, confirm and close correctly.
+
+### Invoice logos now match the email logos (per user request)
+- Dynopay invoice PDF (`backend/services/pdf/invoiceChrome.ts` resolveDynopayLogoPath) now uses `backend/public/dynopay-email-logo-light-v6.png` (was `assets/dynopay-logo.png`).
+- SafeDeal invoice PDF (`backend/services/safedeal/safedealPdf.ts` SD_LOGO_PATH) now uses `backend/public/safedeal-email-logo-light-v1.png` (was `assets/safedeal-logo.png`) — the gold-free, un-clipped mark matching SafeDeal emails.
+- Both keep an absolute `/app/backend/public/...` fallback. Rendered both invoice PDFs (ghostscript) → logos crisp, correct, matching emails. Backend runs from source (ts-node, no dist) so change is live on reload; deploy build compiles it.
+- Note: email "light" logos are transparent black lockups (email handles dark bg via CSS logo-swap, not a baked chip); invoices are white-bg so the black lockup reads correctly.

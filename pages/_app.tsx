@@ -172,6 +172,12 @@ const CookieConsentBanner = dynamic(
   { ssr: false }
 );
 
+// One-time "You're signed out" toast on the landing page after logout.
+const SignedOutToast = dynamic(
+  () => import("@/Components/UI/SignedOutToast"),
+  { ssr: false }
+);
+
 // Unified step-up ("Verify it's you") dialog host — serves the axios
 // interceptor + explicit callers for every sensitive action. Client-only.
 const StepUpHost = dynamic(() => import("@/Components/UI/StepUp/StepUpHost"), {
@@ -831,6 +837,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
         <SupportChatWidget layout={resolvedLayout} />
       )}
       {showCookieBanner && <CookieConsentBanner />}
+      <SignedOutToast />
     </MuiThemeProvider>
   );
 }

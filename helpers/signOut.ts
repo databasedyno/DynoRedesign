@@ -7,6 +7,11 @@ export const signOut = () => {
   // A fresh login in this tab must be able to resume the setup wizard.
   clearOnboardingSessionFlags();
   clearCachedBrands();
+  try {
+    window.sessionStorage.setItem("dp_signed_out", "1");
+  } catch {
+    /* storage unavailable */
+  }
   window.localStorage.removeItem("token");
   window.localStorage.removeItem("refreshToken");
   window.location.replace("/");

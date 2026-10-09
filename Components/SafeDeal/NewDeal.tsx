@@ -11,6 +11,7 @@ import { SD_INK_MUTED } from "./SafeDealShell";
 import SdChoice from "./SdChoice";
 import { DEAL_TYPES, TERMS_TEMPLATES } from "./sdDealTypes";
 import { NewDealDraft, NewDealReview, QuoteBody, stepDot } from "./NewDealReview";
+import SdConfirmDialog from "./SdConfirmDialog";
 
 type Role = "buyer" | "seller";
 type FeePayer = "buyer" | "seller" | "split";
@@ -37,6 +38,7 @@ export default function NewDeal() {
   const [terms, setTerms] = useState("");
   const [preview, setPreview] = useState<SdFeePreview | null>(null);
   const [busy, setBusy] = useState(false);
+  const [replaceTermsOpen, setReplaceTermsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [resumed, setResumed] = useState(false);
@@ -76,9 +78,15 @@ export default function NewDeal() {
   const draft = useMemo<NewDealDraft>(() => ({ title: title.trim(), amount: amountNum, currency, role, email: byLink ? "" : email.trim(), inviteByLink: byLink, feePayer, days, dealType, due, terms }), [title, amountNum, currency, role, email, byLink, feePayer, days, dealType, due, terms]);
 
   const applyTemplate = () => {
-    const tpl = TERMS_TEMPLATES[dealType || "other"];
-    if (terms.trim() && !window.confirm("Replace your current terms with the template?")) return;
-    setTerms(tpl);
+    if (terms.trim()) {
+      setReplaceTermsOpen(true);
+      return;
+    }
+    setTerms(TERMS_TEMPLATES[dealType || "other"]);
+  };
+  const confirmReplaceTerms = () => {
+    setTerms(TERMS_TEMPLATES[dealType || "other"]);
+    setReplaceTermsOpen(false);
   };
 
   const doCreate = async (d: NewDealDraft) => {
@@ -286,6 +294,16 @@ export default function NewDeal() {
           </Box>
         </Grid>
       </Grid>
+      <SdConfirmDialog
+        open={replaceTermsOpen}
+        title="Replace terms?"
+        message="Replace your current terms with the template? Your existing text will be overwritten."
+        confirmLabel="Replace"
+        cancelLabel="Keep mine"
+        onConfirm={confirmReplaceTerms}
+        onClose={() => setReplaceTermsOpen(false)}
+        testId="sd-replace-terms"
+      />
     </Container>
   );
 }

@@ -25,12 +25,14 @@ export const INK = {
 /** Uppercase, letter-spaced eyebrow options shared by the table header. */
 export const EYEBROW = { characterSpacing: 0.7, lineBreak: false } as const;
 
-/** First existing Dynopay logo path (bundled asset), or "" when none is found. */
+/** First existing Dynopay logo path (bundled asset), or "" when none is found.
+ *  Uses the same email light logo (black lockup on a white chip) so the invoice
+ *  brand mark matches the emails and stays readable on white and dark surfaces. */
 export const resolveDynopayLogoPath = (): string => {
   const candidates = [
-    path.join(__dirname, "../../assets/dynopay-logo.png"),
-    path.join(__dirname, "../../../assets/dynopay-logo.png"),
-    path.resolve("/app/backend/assets/dynopay-logo.png"),
+    path.join(__dirname, "../../public/dynopay-email-logo-light-v6.png"),
+    path.join(__dirname, "../../../public/dynopay-email-logo-light-v6.png"),
+    path.resolve("/app/backend/public/dynopay-email-logo-light-v6.png"),
   ];
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;

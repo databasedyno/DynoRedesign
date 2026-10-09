@@ -254,6 +254,11 @@ export default function SafeDealShell({
                   size="small"
                   variant="outlined"
                   onClick={() => {
+                    try {
+                      sessionStorage.setItem("dp_signed_out", "1");
+                    } catch {
+                      /* storage unavailable */
+                    }
                     signOut();
                     void router.push(href("/"));
                   }}
