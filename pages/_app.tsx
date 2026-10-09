@@ -166,6 +166,12 @@ const SupportChatWidget = dynamic(
   { ssr: false, loading: lazyLoading(null, { silent: true, autoReload: false }) }
 );
 
+// Cookie notice — public/marketing + checkout + SafeDeal only (gated below).
+const CookieConsentBanner = dynamic(
+  () => import("@/Components/UI/CookieConsentBanner"),
+  { ssr: false }
+);
+
 // Unified step-up ("Verify it's you") dialog host — serves the axios
 // interceptor + explicit callers for every sensitive action. Client-only.
 const StepUpHost = dynamic(() => import("@/Components/UI/StepUp/StepUpHost"), {
@@ -352,6 +358,17 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
 
     return "client";
   }, [Component.layout, pathname, isAuthed]);
+
+  // Cookie notice surfaces: public/marketing + checkout (+ SafeDeal product),
+  // never the authenticated dashboard, admin, login or misc utility pages.
+  const showCookieBanner = useMemo(
+    () =>
+      pathname.startsWith("/safedeal") ||
+      resolvedLayout === "home" ||
+      resolvedLayout === "pay" ||
+      resolvedLayout === "payment",
+    [pathname, resolvedLayout],
+  );
 
   // -----------------------------
   // Page Titles & Meta
@@ -813,6 +830,7 @@ function AppInner({ Component, pageProps }: AppPropsWithLayout) {
       {(resolvedLayout === "home" || resolvedLayout === "client") && (
         <SupportChatWidget layout={resolvedLayout} />
       )}
+      {showCookieBanner && <CookieConsentBanner />}
     </MuiThemeProvider>
   );
 }
