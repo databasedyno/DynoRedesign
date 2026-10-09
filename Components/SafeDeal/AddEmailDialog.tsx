@@ -5,7 +5,7 @@ import { SD_GOLD, SD_GOLD_DARK, SD_INK, SD_NOTE_BG, SD_NOTE_BORDER } from "./sdT
 import safedealApi, { sdError, sdSession, isPlaceholderSdEmail } from "@/api/safedeal";
 import CodeInput from "./CodeInput";
 
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, py: 1.15, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, py: 1.15, minHeight: 44, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 type Mode = "add" | "change";
 type Stage = "verify_current" | "email" | "code";

@@ -5,7 +5,7 @@ import safedealApi, { SdAttachment, SdDeal } from "@/api/safedeal";
 import { money } from "@/Components/Page/Escrow/escrowUtils";
 import AttachmentPicker from "./AttachmentPicker";
 
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, minHeight: 44, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 export interface DeliverPayload {
   delivery_note: string;

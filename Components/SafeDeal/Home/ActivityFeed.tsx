@@ -164,7 +164,7 @@ export default function ActivityFeed({ rows, from, to, onRange, onCsv, compact, 
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
             <TextField type="date" size="small" label="From" InputLabelProps={{ shrink: true }} value={from} onChange={(e) => onRange(e.target.value, to)} inputProps={{ "data-testid": "sd-statement-from" }} sx={{ width: 150 }} />
             <TextField type="date" size="small" label="To" InputLabelProps={{ shrink: true }} value={to} onChange={(e) => onRange(from, e.target.value)} inputProps={{ "data-testid": "sd-statement-to" }} sx={{ width: 150 }} />
-            <Button size="small" variant="outlined" onClick={onCsv} data-testid="sd-statement-csv" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, borderColor: SD_BORDER, color: SD_INK, whiteSpace: "nowrap", "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_NOTE_BG } }} startIcon={<Icon icon="mdi:download" />}>CSV</Button>
+            <Button size="small" variant="outlined" onClick={onCsv} data-testid="sd-statement-csv" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, minHeight: 44, borderColor: SD_BORDER, color: SD_INK, whiteSpace: "nowrap", "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_NOTE_BG } }} startIcon={<Icon icon="mdi:download" />}>CSV</Button>
           </Stack>
         )}
       </Stack>
@@ -173,7 +173,7 @@ export default function ActivityFeed({ rows, from, to, onRange, onCsv, compact, 
         <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems={{ sm: "center" }} sx={{ mb: 1.5 }}>
           <Stack direction="row" spacing={0.8} flexWrap="wrap" useFlexGap role="tablist" aria-label="Filter activity">
             {GROUPS.map((g) => (
-              <Chip key={g.key} role="tab" aria-selected={group === g.key} label={g.label} onClick={() => { setGroup(g.key); setShown(PAGE); }} data-testid={`sd-activity-filter-${g.key}`} sx={{ fontWeight: 800, fontSize: 12.5, backgroundColor: group === g.key ? SD_GOLD : "#fff", color: SD_INK, border: `1px solid ${group === g.key ? SD_GOLD : SD_BORDER}`, "&:hover": { backgroundColor: group === g.key ? SD_GOLD : SD_PAGE } }} />
+              <Chip key={g.key} role="tab" aria-selected={group === g.key} label={g.label} onClick={() => { setGroup(g.key); setShown(PAGE); }} data-testid={`sd-activity-filter-${g.key}`} sx={{ height: 40, fontWeight: 800, fontSize: 12.5, backgroundColor: group === g.key ? SD_GOLD : "#fff", color: SD_INK, border: `1px solid ${group === g.key ? SD_GOLD : SD_BORDER}`, "&:hover": { backgroundColor: group === g.key ? SD_GOLD : SD_PAGE } }} />
             ))}
           </Stack>
           <Box sx={{ flex: 1 }} />

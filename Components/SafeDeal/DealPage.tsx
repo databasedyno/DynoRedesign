@@ -283,7 +283,7 @@ export default function DealPage({ token }: { token: string }) {
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 5 } }} data-testid="sd-deal-page" data-status={status}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1.5 }}>
         <Link href={href("/deals")} style={{ textDecoration: "none" }} data-testid="sd-deal-back">
-          <Typography sx={{ fontSize: 13, color: "#6B7280", display: "inline-flex", alignItems: "center", gap: 0.4, "&:hover": { color: SD_ACCENT } }}>
+          <Typography sx={{ fontSize: 13, color: "#6B7280", display: "inline-flex", alignItems: "center", minHeight: 44, gap: 0.4, "&:hover": { color: SD_ACCENT } }}>
             <Icon icon="mdi:arrow-left" width={16} /> My deals
           </Typography>
         </Link>

@@ -5,7 +5,7 @@ import type { SdAmendBody, SdConfig, SdDeal, SdDealType } from "@/api/safedeal";
 import SdChoice from "./SdChoice";
 import { DEAL_TYPES, toDateInput } from "./sdDealTypes";
 
-const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 800, borderRadius: 99, minHeight: 44, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 
 /** Creator edits the terms before funding; only changed fields are sent. */
 export default function AmendDialog({ open, deal, cfg, busy, onClose, onSubmit }: {

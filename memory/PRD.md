@@ -1,3 +1,29 @@
+# === 2026-06 (fork, pod a81d8386) — SAFEDEAL UX AUDIT RESULT + P0 TAP-TARGET/OVERFLOW FIXES — DONE & VERIFIED ===
+# AUDIT (already run, test_reports/safedeal_ux_audit/: 82 entries, metrics.json + full screenshot matrix across 9 device profiles
+#   desktop 1440/1920/2560, iPad portrait/landscape, iPhone 15 Pro, iPhone SE3, Pixel 8, Android-360; guest+buyer+seller, light+dark).
+# RESULT SUMMARY (measured): NO horizontal PAGE overflow anywhere (docOverflowX never fired). Recurring issues:
+#   (1) HEADER NAV CLIPPED off the right edge on 360px phones — EVERY page flagged CLIP-R, all the SAME SafeDealShell header
+#       (guest "How it works·Fees·Sign in" r=370 / signed-in "Home·Wallet·Sign out" r=374, ~10-14px past a 360 viewport).
+#   (2) TAP TARGETS < 44px across the board on touch: sticky deal CTA "Fund" 28px, nav buttons (signin/signout/add-email) 36px,
+#       home tabs 40px, top-up/cash-out 32px, activity filter chips 32px, footer links 26px, CSV 26px, send-code 41px, new-deal continue 39px.
+#   (3) tiny text <12px (10.5-11.5px stat labels/metadata) — ~24-25 on the deal page, ~13-17 home, 16 rewards (P1, not fixed this pass).
+#   (4) signin-invite (?next=/deal/..) throws React hydration errors #418/#423 (recovers via client render) (P1, not fixed).
+#   (5) long email/deal-title ellipsis in cards (expected), decorative mock buttons <44 (non-functional, ignored).
+# P0 FIXES SHIPPED (styling only, no logic):
+#   - SafeDealShell.tsx: header Container px {xs:1}/gap{xs:.75} (kills the 360px nav overflow on ALL pages); signin/signout/add-email
+#     buttons minHeight 36->44; footer links -> inline-flex minHeight 44 (was 26).
+#   - sdStyles.ts primaryBtn/ghostBtn + sdTheme.ts sdPrimaryBtn/sdGhostBtnDark/sdGhostBtnLight: + minHeight 44 (covers all deal
+#     action buttons, sticky CTA, share buttons, payout/pdf buttons, landing CTAs).
+#   - Local primaryBtn copies patched (these DON'T use sdStyles): SignIn, NewDeal, AddEmailDialog, DeliverDialog, RequestChangesDialog, AmendDialog -> +minHeight 44.
+#   - SafeDealHome.tsx home tabs {xs:40->44}, seeAllBtn +44, "New deal" +44; BalanceStrip top-up/cash-out +44; ActivityFeed filter chips height 40 + CSV +44; DealPage "My deals" back link +44.
+# VERIFIED (chromium Android-360 + webkit, token-injected via sd_audit identities): landing/signin/home/deal @360 all scrollWidth==360,
+#   overflowPx=0, clippedHeader=[]; sd-signin-send/sd-nav-signin/sd-nav-signout/sd-home-tab/sd-new-deal/footer links all == 44px; screenshots clean on guest+authed.
+#   Prod frontend rebuilt (.next-prod BUILD_ID deCxcQgUf3ZF_76sRy-kd) + restarted.
+# P1 BACKLOG (next): sub-12px text sweep across SafeDeal (mirror Dynopay C13), signin-invite hydration #418/#423 RCA, dark-mode contrast spot-check.
+# DEPLOY: UNCOMMITTED on preview -> "Save to GitHub" (push to Improvement auto-deploys to safedeal.sh/dynopay.com).
+# ============================================================================================
+
+
 # === 2026-06 (fork, pod a81d8386) — PHONE NAV TRAP FIX ("can't get back home from Create Payment Link") — DONE & VERIFIED ===
 # USER (mobile screenshot of /create-pay-link on dynopay.com): "impossible to return back home from this page as bottom menu hamburger is
 #   not accessible. ensure navigation is easier throughout the platform in various devices."

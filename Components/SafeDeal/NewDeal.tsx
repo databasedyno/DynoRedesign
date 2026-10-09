@@ -15,7 +15,7 @@ import { NewDealDraft, NewDealReview, QuoteBody, stepDot } from "./NewDealReview
 type Role = "buyer" | "seller";
 type FeePayer = "buyer" | "seller" | "split";
 const STEPS = ["The basics", "Terms (optional)"];
-const primaryBtn = { textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.2, px: 3, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
+const primaryBtn = { textTransform: "none", fontWeight: 900, borderRadius: 99, py: 1.2, px: 3, minHeight: 44, color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } } as const;
 const DRAFT_KEY = "sd_deal_draft";
 
 export default function NewDeal() {

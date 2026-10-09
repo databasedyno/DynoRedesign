@@ -42,7 +42,7 @@ function TabBar({ tab, onChange, badge }: { tab: HomeTab; onChange: (t: HomeTab)
         const on = t.key === tab;
         return (
           <Box key={t.key} component="button" type="button" role="tab" aria-selected={on} aria-controls={`sd-home-panel-${t.key}`} data-testid={`sd-home-tab-${t.key}`} onClick={() => onChange(t.key)}
-            sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.85, px: { xs: 1.3, sm: 1.8 }, minHeight: { xs: 40, sm: 34 }, display: "flex", alignItems: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", whiteSpace: "nowrap", flexShrink: 0, "& svg": { display: { xs: "none", sm: "block" } }, color: on ? SD_INK : SD_TEXT_MUTED, backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: SD_INK, backgroundColor: on ? SD_GOLD : SD_PAGE } }}>
+            sx={{ border: 0, cursor: "pointer", borderRadius: 99, py: 0.85, px: { xs: 1.3, sm: 1.8 }, minHeight: { xs: 44, sm: 36 }, display: "flex", alignItems: "center", gap: 0.7, fontWeight: 800, fontSize: 13, fontFamily: "inherit", whiteSpace: "nowrap", flexShrink: 0, "& svg": { display: { xs: "none", sm: "block" } }, color: on ? SD_INK : SD_TEXT_MUTED, backgroundColor: on ? SD_GOLD : "transparent", transition: "background-color .18s, color .18s", "&:hover": { color: SD_INK, backgroundColor: on ? SD_GOLD : SD_PAGE } }}>
             <Icon icon={t.icon} width={16} aria-hidden />
             {t.label}
             {t.key === "deals" && badge > 0 && <Box component="span" data-testid="sd-home-your-move-count" sx={{ ml: 0.3, minWidth: 18, height: 18, px: 0.5, borderRadius: 99, fontSize: 10.5, fontWeight: 900, display: "grid", placeItems: "center", backgroundColor: on ? SD_INK : SD_GOLD, color: on ? SD_GOLD : SD_INK }}>{badge}</Box>}
@@ -65,7 +65,7 @@ function SectionTitle({ title, sub, action }: { title: string; sub?: string; act
   );
 }
 
-const seeAllBtn = { textTransform: "none", fontWeight: 800, color: SD_GOLD_DEEP, borderRadius: 99, whiteSpace: "nowrap" } as const;
+const seeAllBtn = { textTransform: "none", fontWeight: 800, color: SD_GOLD_DEEP, borderRadius: 99, minHeight: 44, whiteSpace: "nowrap" } as const;
 
 /** Signed-in SafeDeal home: balances, deals in progress, activity feed and documents — one place, four tabs. */
 export default function SafeDealHome({ initialTab = "overview" }: { initialTab?: HomeTab }) {
@@ -185,7 +185,7 @@ export default function SafeDealHome({ initialTab = "overview" }: { initialTab?:
           </Typography>
         </Box>
         <Link href={href("/deals/new")} data-testid="sd-new-deal" style={{ textDecoration: "none" }}>
-          <Button variant="contained" startIcon={<Icon icon="mdi:plus" />} sx={{ textTransform: "none", fontWeight: 900, borderRadius: 99, px: 2.6, py: 1.1, color: SD_INK, backgroundColor: SD_GOLD, boxShadow: `0 10px 24px ${goldAlpha(0.3)}`, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
+          <Button variant="contained" startIcon={<Icon icon="mdi:plus" />} sx={{ textTransform: "none", fontWeight: 900, borderRadius: 99, px: 2.6, py: 1.1, minHeight: 44, color: SD_INK, backgroundColor: SD_GOLD, boxShadow: `0 10px 24px ${goldAlpha(0.3)}`, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
             New deal
           </Button>
         </Link>

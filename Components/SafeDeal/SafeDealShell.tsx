@@ -210,7 +210,7 @@ export default function SafeDealShell({
         <style key="sd-focus-ring">{`:root{--dyno-focus-ring:${SD_GOLD};--dyno-focus-ring-shadow:0 0 0 3px rgba(255,198,26,0.35)}`}</style>
       </Head>
       <Box component="header" sx={{ borderBottom: dark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #E1E5EA", backgroundColor: dark ? "rgba(10,10,11,0.85)" : "rgba(255,255,255,0.85)", backdropFilter: "blur(12px)", position: "sticky", top: "env(safe-area-inset-top, 0px)", zIndex: 20 }}>
-        <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 1, sm: 2 } }}>
+        <Container maxWidth={wide ? "xl" : "lg"} sx={{ py: 1.4, px: { xs: 1, sm: 3 }, display: "flex", alignItems: "center", justifyContent: "space-between", gap: { xs: 0.75, sm: 2 } }}>
           <Link href={href(user ? "/deals" : "/")} style={{ textDecoration: "none" }} aria-label="SafeDeal home">
             <SafeDealLogo light={dark} />
           </Link>
@@ -234,7 +234,7 @@ export default function SafeDealShell({
                     onClick={() => setAddEmailOpen(true)}
                     data-testid="sd-nav-add-email"
                     startIcon={<Icon icon="mdi:email-plus-outline" width={16} />}
-                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, minHeight: 36, borderColor: SD_GOLD, color: fg, "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_GOLD_SOFT } }}
+                    sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, minHeight: 44, borderColor: SD_GOLD, color: fg, "&:hover": { borderColor: SD_GOLD_DEEP, backgroundColor: SD_GOLD_SOFT } }}
                   >
                     Add email
                   </Button>
@@ -258,14 +258,14 @@ export default function SafeDealShell({
                     void router.push(href("/"));
                   }}
                   data-testid="sd-nav-signout"
-                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, minHeight: 36, px: 1.5, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D5DAE0", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
+                  sx={{ textTransform: "none", fontWeight: 700, borderRadius: 99, whiteSpace: "nowrap", minWidth: 0, minHeight: 44, px: { xs: 1.25, sm: 1.5 }, borderColor: dark ? "rgba(255,255,255,0.25)" : "#D5DAE0", color: fg, "&:hover": { borderColor: SD_GOLD_DEEP } }}
                 >
                   Sign out
                 </Button>
               </Stack>
             ) : ready ? (
               <Link href={href("/signin")} data-testid="sd-nav-signin" style={{ textDecoration: "none" }}>
-                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: 2, minHeight: 36, whiteSpace: "nowrap", color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
+                <Button size="small" variant="contained" sx={{ textTransform: "none", fontWeight: 800, borderRadius: 99, px: { xs: 1.5, sm: 2 }, minHeight: 44, whiteSpace: "nowrap", color: SD_INK, backgroundColor: SD_GOLD, "&:hover": { backgroundColor: SD_GOLD_DARK } }}>
                   Sign in
                 </Button>
               </Link>
@@ -302,7 +302,7 @@ export default function SafeDealShell({
             <Stack component="nav" aria-label="Footer" direction="row" spacing={{ xs: 2, sm: 3 }} flexWrap="wrap" useFlexGap>
               {FOOTER_LINKS.map((l) => (
                 <Link key={l.to} href={href(l.to)} data-testid={l.testid} style={{ textDecoration: "none" }}>
-                  <Typography component="span" sx={{ fontSize: 13.5, fontWeight: 700, color: dark ? "rgba(255,255,255,0.85)" : "#374151", "&:hover": { color: navActive } }}>{l.label}</Typography>
+                  <Typography component="span" sx={{ display: "inline-flex", alignItems: "center", minHeight: 44, fontSize: 13.5, fontWeight: 700, color: dark ? "rgba(255,255,255,0.85)" : "#374151", "&:hover": { color: navActive } }}>{l.label}</Typography>
                 </Link>
               ))}
             </Stack>
