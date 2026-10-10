@@ -131,8 +131,14 @@ export const getArticleBySlug = async (req: Request, res: Response) => {
     });
 
     if (!article) {
-      return res.status(404).json({
+      // A "miss" is a normal outcome here: the help page (getServerSideProps in
+      // pages/help-support/[slug].tsx) layers DB articles over hand-authored
+      // static stubs, so an unseeded slug must fall through gracefully — not be
+      // an error. Return 200 + article:null (the only by-slug consumer checks
+      // `article?.slug`) so this expected lookup stops emitting 404 log noise.
+      return res.status(200).json({
         message: "Article not found",
+        data: { article: null },
       });
     }
 

@@ -24,6 +24,22 @@ import { notifyWalletChanges, WalletChange, assertWalletNotFrozen } from "../../
 
 const MAX_BATCH_OPS = 50;
 
+// Bound each on-chain address validation so one hung Tatum read (the shared
+// tatumHttp client allows up to 30s/attempt × retries) can't stall the whole
+// sequential batch request — the 62s /wallet/batch outlier seen in prod logs.
+// Env-overridable; a timed-out validation fails just that op ("try again").
+const ADDR_VALIDATION_TIMEOUT_MS = Number(process.env.WALLET_BATCH_ADDR_TIMEOUT_MS) || 15000;
+
+/** Reject if `p` doesn't settle within `ms` so a slow dependency can't hang the batch. */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms),
+    ),
+  ]);
+}
+
 const MERCHANT_POOL_CRYPTO_TYPES = [
   "BTC", "ETH", "LTC", "DOGE", "TRX", "BCH", "USDT-TRC20", "USDT-ERC20",
   "USDC-ERC20", "SOL", "XRP", "RLUSD", "RLUSD-ERC20", "POLYGON", "USDT-POLYGON",
@@ -53,9 +69,14 @@ async function validateAddressOnChain(wallet_address: string, currency: string) 
     throw new Error(`Invalid ${currency} address format`);
   }
   if (currency === "TRX" || currency === "USDT-TRC20") {
-    await tatumClient.validateTronAddress(wallet_address);
+    // Synchronous TronWeb format check (throws on invalid) — no network call.
+    tatumClient.validateTronAddress(wallet_address);
   } else {
-    await tatumClient.getAddressBalance(wallet_address, currency);
+    await withTimeout(
+      tatumClient.getAddressBalance(wallet_address, currency),
+      ADDR_VALIDATION_TIMEOUT_MS,
+      `${currency} address check`,
+    );
   }
 }
 

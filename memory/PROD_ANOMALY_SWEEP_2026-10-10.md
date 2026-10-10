@@ -20,3 +20,12 @@ Fresh pod key authorized: `emergent-agent-dynopay-prodlogs-2026-10-10`.
 - **Creator-handle 404s** (`/api/pay/creator/<handle>` + `/analytics`: steliospal 33, tiktaak37 14, wp/z47zrd/staging/dev/nima…) — non-existent handles, mix of bots and dead links. Expected.
 - **Crons** — WrongAsset scans, PreWarm, CrumbSweeper, ErrorMonitor all `errors=0`.
 - Reconciliation re-queued 2 Tatum webhooks (self-healing working).
+
+## FIXES APPLIED — 2026-10-10
+1. **Email logo 404 (v4)** — Added `backend/public/dynopay-email-logo-v4.png` (copy of `dynopay-email-logo-light-v6.png`) to the repo (permanent; bakes into image on next build). Also applied LIVE on the droplet via `docker cp` into the running `dynopay` container at `/app/backend/public/dynopay-email-logo-v4.png` → now serves HTTP 200 (immediate relief for recipients opening pre-v6 emails). NOTE: the live copy is ephemeral (public/ is baked into the image, not a bind-mount) — it persists only until the container is recreated; the repo copy makes it permanent on next deploy.
+2. **`/api/wallet/batch` 62s outlier** — `backend/controller/wallet/walletBatch.ts`: added `withTimeout()` wrapper + `ADDR_VALIDATION_TIMEOUT_MS` (default 15000, env `WALLET_BATCH_ADDR_TIMEOUT_MS`) around the async on-chain `getAddressBalance` validation, so a hung Tatum read (tatumHttp allows 30s/attempt × retries) fails just that op instead of stalling the whole sequential batch. `validateTronAddress` is synchronous (format-only) → left unwrapped. Did NOT parallelize the add-path (order-sensitive dedup/slot logic). tsc clean.
+3. **KB by-slug 404 noise** — `backend/controller/knowledgeBaseController.ts` `getArticleBySlug`: a miss now returns 200 + `{data:{article:null}}` instead of 404 (the only by-slug consumer — SSR fallback in `pages/help-support/[slug].tsx` — checks `article?.slug` and falls through to the static stub). Kills the whole class of `/api/kb/articles/:slug` SSR-probe 404s (KB DB is unseeded in prod; help content is hand-authored static). Verified on preview: 200 + article:null, help page renders full content HTTP 200.
+
+### Deployment status
+- Logo: LIVE on droplet now + in repo (permanent next build).
+- walletBatch + KB code: in repo, verified on preview (backend restarted via supervisor). **Not yet on the droplet** — prod runs a baked image via `/opt/dynopay/docker-compose.yml`, so these go live on the next image rebuild + redeploy from the updated repo.
