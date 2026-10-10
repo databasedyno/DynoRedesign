@@ -4,7 +4,8 @@
 #   paths, utils/merchantMoneyEvents.ts (cache invalidation + SSE money_update on payment notifications / currency change).
 # Frontend: useDisplayFx (effective currency, 60s), useFiatAutoRefresh (60s + focus + SSE + requestFiatRefresh) in Containers/Client,
 #   FxAsOfLabel ("Rate as of hh:mm" / "Shown in USD"), WalletTotalHero brand-rate fix, KYC Requirements flash fix (useKycGate.settled).
-# Backlog: Redis pub/sub fan-out for SSE across instances (P2); legacy wallet/analytics conversion (P2); USDT proxy for fiat->fiat (P2).
+# Follow-up DONE: legacy POST /api/wallet/getUserAnalytics now settlement-USD based + resolveDisplayFx + real fees + fx block (jest userAnalyticsFx).
+# Backlog: Redis pub/sub fan-out for SSE across instances (P2); USDT proxy for fiat->fiat (P2).
 # ============================================================================================
 # === 2026-06 (fork, pod a81d8386) — KYC CONFIDENCE UI DONE (user verification pending) + FIAT/CRYPTO AUDIT HANDED OFF — NOT STARTED ===
 # DONE: KYC visuals (volume meter to $10k, 3-stage journey "You are here", 90-day grace ring, "What works right now", FAQ),

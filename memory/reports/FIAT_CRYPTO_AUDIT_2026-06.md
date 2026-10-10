@@ -25,6 +25,7 @@ testing agent iteration_283 — backend 11/11 (`/app/tests/test_fiat_crypto_audi
 | UI | P0 | No indication when a rate is old/missing. | `FxAsOfLabel`: "Rate as of 14:05" (stale) or "Shown in USD · EUR rate unavailable" (fallback), with tooltip; on dashboard money row, wallet hero, transactions, payouts, brands, Receipts & Tax. Nothing shown when live. i18n in en/de/es/fr/nl/pt (`common.fxLabel.*`, `scripts/i18n/fx_label_i18n.py`). |
 | Tax | P1 | Tax report added currencies with no rate at 1:1 into the converted total. | Those currencies are excluded and listed in `summary.unconverted_currencies`. |
 | KYC | P1 | /kyc defaulted to view "not_needed" before status loaded → Requirements card flashed for verified accounts. | `useKycGate().settled`; page shows a skeleton until status resolves, then hides the card for verified accounts. |
+| Analytics | P1 | Legacy `POST /api/wallet/getUserAnalytics` (public API; no in-app caller) re-converted coin totals at today's rate, returned 0 and kept the brand label on a rate outage, put the brand-currency value in `amount_in_usd`, counted unsettled/test rows, and read fees from an empty column (always 0). | (follow-up, 2026-06) Revenue = settled, live-only, USD locked in at settlement (`PROCESSED_USD_EXPR`, same as dashboard — verified 34,904.42 = dashboard total), `amount_in_usd` real USD, `amount_in_fiat` via `resolveDisplayFx` (no rate → USD, never 0), fees from `transaction_fee + fixed_fee` converted per row at that row's settlement rate, response `fx` block. Jest `__tests__/userAnalyticsFx.test.ts`. |
 | F9 | P2 | Fiat→fiat via Tatum uses USDT as a USD proxy when FastForex is down (small depeg error). | Not changed (documented). |
 | F10 | P2 | Comment/doc drift in currencyConvert.ts. | Rewritten with the engine. |
 
@@ -33,7 +34,5 @@ testing agent iteration_283 — backend 11/11 (`/app/tests/test_fiat_crypto_audi
   stream, the tab still refreshes within 60 s (interval) instead of instantly. A Redis pub/sub fan-out would close this.
 - After a currency change, SWR keys not mounted on the current page (e.g. FX rate while on Settings) refetch the next
   time their page mounts (dedupe is cleared) — they never show the new currency's symbol with old numbers.
-- Legacy `wallet/analytics` revenue endpoint still converts per row via `convertToFiat` (shows 0 when unavailable); not
-  used by the current dashboard.
 - `__tests__/merchantMoneyEvents.test.ts` mocks modules by absolute `/app/backend/...` path (relative mocks were not
   applied under this jest config).

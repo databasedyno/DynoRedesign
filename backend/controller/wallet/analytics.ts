@@ -10,7 +10,8 @@ import {
   getErrorMessage,
   successResponseHelper,
 } from "../../helper";
-import { convertToFiat, getUserDisplayCurrency } from "../../utils/currencyUtils";
+import { fxMeta, getUserDisplayCurrency, resolveDisplayFx } from "../../utils/currencyUtils";
+import { PROCESSED_STATUS_SQL, PROCESSED_USD_EXPR } from "../../utils/processedVolume";
 import { validateCompanyOwnership } from "../../utils/validateCompanyOwnership";
 import { walletLogger } from "../../utils/loggers";
 import {
@@ -133,34 +134,39 @@ export const getUserAnalytics = async (
     }
 
     const revenue_performance: Array<Record<string, unknown>> = [];
-    const totalIncome = await sequelize.query<{ base_currency: string; amount: number }>(
-      `select base_currency,sum(base_amount) as amount from tbl_user_transaction ut ${where} group by base_currency`,
+    // Revenue per asset (settled, live only) valued at the USD locked in at
+    // settlement — the same figure the dashboard and admin overview show — then
+    // shown in the brand currency at the current display rate. Fees are the real
+    // fee columns (crypto units of the paid coin), converted per row with that
+    // row's own settlement rate. No display rate → USD, never 0 (audit F1).
+    const paidUnits = "NULLIF(COALESCE(NULLIF(ut.crypto_amount, 0), ut.base_amount), 0)";
+    const feeUnits = "(COALESCE(ut.transaction_fee, 0) + COALESCE(ut.fixed_fee, 0))";
+    const totalIncome = await sequelize.query<{ base_currency: string; amount: string; amount_in_usd: string; fee_amount: string; fee_usd: string }>(
+      `select ut.base_currency,
+              sum(ut.base_amount) as amount,
+              sum(${PROCESSED_USD_EXPR}) as amount_in_usd,
+              sum(${feeUnits} * ut.base_amount / ${paidUnits}) as fee_amount,
+              sum(${feeUnits} * ${PROCESSED_USD_EXPR} / ${paidUnits}) as fee_usd
+       from tbl_user_transaction ut ${where}
+         and ${PROCESSED_STATUS_SQL}
+         and COALESCE(ut.environment, 'production') <> 'development'
+       group by ut.base_currency`,
       { type: QueryTypes.SELECT }
     );
-    const totalFee = await sequelize.query<{ wallet_type: string; fee_amount: number }>(
-      `
-      select wallet_type,sum(blockchain_fee) as fee_amount from tbl_user_temp_address ut ${where} group by wallet_type
-      `,
-      {
-        type: QueryTypes.SELECT,
-      }
-    );
 
-    for (let i = 0; i < totalIncome.length; i++) {
-      const feeIndex = totalFee.findIndex(
-        (x) => x.wallet_type === totalIncome[i]?.base_currency
-      );
-      const fiatResult = await convertToFiat(totalIncome[i]?.base_currency, preferredCurrency, totalIncome[i].amount);
-      const currencyData = [{ amount: fiatResult.amount, transferRate: fiatResult.rate }];
-      const feeAmount = totalFee[feeIndex]?.fee_amount || 0;
+    const dfx = await resolveDisplayFx(preferredCurrency);
+    for (const row of totalIncome) {
+      const usd = Number(row.amount_in_usd) || 0;
+      const feeUsd = Number(row.fee_usd) || 0;
       revenue_performance.push({
-        ...totalIncome[i],
-        amount_in_fiat: currencyData[0].amount,
-        amount_in_usd: currencyData[0].amount, // backward compat
-        display_currency: preferredCurrency,
-        fee_amount: toFixedStr(feeAmount, 8),
-        fee_in_fiat: toFixedStr(feeAmount * currencyData[0].transferRate, 2),
-        fee_in_usd: toFixedStr(feeAmount * currencyData[0].transferRate, 2), // backward compat
+        base_currency: row.base_currency,
+        amount: Number(row.amount) || 0,
+        amount_in_usd: toFixedStr(usd, 2),
+        amount_in_fiat: toFixedStr(usd * dfx.rate, 2),
+        display_currency: dfx.currency,
+        fee_amount: toFixedStr(Number(row.fee_amount) || 0, 8),
+        fee_in_usd: toFixedStr(feeUsd, 2),
+        fee_in_fiat: toFixedStr(feeUsd * dfx.rate, 2),
       });
     }
 
@@ -171,7 +177,8 @@ export const getUserAnalytics = async (
       paymentSuccessRates,
       historicalTrends,
       revenue_performance,
-      display_currency: preferredCurrency,
+      display_currency: dfx.currency,
+      fx: fxMeta(dfx),
     };
 
     successResponseHelper(res, 200, "Analytics data retrieved successfully", returnData);

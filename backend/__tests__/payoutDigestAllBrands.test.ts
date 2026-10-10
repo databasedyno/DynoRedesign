@@ -19,6 +19,7 @@ jest.mock("../utils/currencyUtils", () => ({
   getUserDisplayCurrency: async () => "USD",
   getUsdToFiatRate: async () => 1,
   getCurrencySymbol: (c: string) => (c === "USD" ? "$" : c === "EUR" ? "€" : ""),
+  resolveDisplayFx: async (c: string) => ({ currency: c, requested_currency: c, rate: 1, symbol: "$", as_of: null, is_stale: false, fallback: false }),
 }));
 jest.mock("../utils/volumeTierUtils", () => ({
   getVolumeTiers: () => [{ displayName: "Growth", percent: 1, min: 0, max: null }],
