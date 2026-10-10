@@ -6,7 +6,9 @@
 #   FxAsOfLabel ("Rate as of hh:mm" / "Shown in USD"), WalletTotalHero brand-rate fix, KYC Requirements flash fix (useKycGate.settled).
 # Follow-up DONE: legacy POST /api/wallet/getUserAnalytics now settlement-USD based + resolveDisplayFx + real fees + fx block (jest userAnalyticsFx).
 # CI: before finishing run `node scripts/qa/strip_unused_imports.cjs backend/tsconfig.json --check` (+ frontend variant) — Preflight hard-fails on unused imports.
-# Backlog: Redis pub/sub fan-out for SSE across instances (P2); USDT proxy for fiat->fiat (P2); getWalletTransactions/:id 500 'Wallet.id' (P2, pre-existing).
+# DONE (iteration_285): getWalletTransactions/:id fixed (wallet_id lookup, owner/team check, settlement-USD amounts); /pay/getBalance wrong-login → 401.
+# PENDING USER OK: delete accidental live-DB test users 438 (mine, 2026-10-10) + 418/419 (2026-10-08) and their session/login/wallet rows + avatar png.
+# Backlog: Redis pub/sub fan-out for SSE across instances (P2); USDT proxy for fiat->fiat (P2).
 # ============================================================================================
 # === 2026-06 (fork, pod a81d8386) — KYC CONFIDENCE UI DONE (user verification pending) + FIAT/CRYPTO AUDIT HANDED OFF — NOT STARTED ===
 # DONE: KYC visuals (volume meter to $10k, 3-stage journey "You are here", 90-day grace ring, "What works right now", FAQ),

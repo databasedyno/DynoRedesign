@@ -1,0 +1,51 @@
+{
+  "summary": "Verified both hidden-bug fixes end-to-end. All status codes, error messages, response shapes and amount invariants in the spec match. Backend unit suite 842/842 green; walletTransactionsAccess suite 6/6; walletBalanceGuards integration 4/4; tsc --noEmit and strip_unused_imports --check both exit 0. Live preview URL calls hit prod DB READ-ONLY only; no writes, no yarn.lock changes.",
+  "live_endpoint_checks": {
+    "POST /api/wallet/getWalletTransactions/:id (merchant Bearer)": {
+      "1": "200 — currency=USD, fx.rate=1, 10 customer txns (8 settled / 2 unsettled, no bare 0, no nulls)",
+      "2": "200 — 10 ct (9/1), invariants pass",
+      "3": "200 — 7 ct (2/5), invariants pass",
+      "4": "200 — 10 ct (8/2), invariants pass",
+      "7": "200 — 10 ct (6/4), invariants pass",
+      "14": "403 — \"You don't have access to this company\"",
+      "20": "404 — \"Wallet not found\"",
+      "999999999": "404 — \"Wallet not found\"",
+      "abc": "400 — \"Invalid wallet id\"",
+      "amount_invariants": "settled rows: amount_in_usd == usd_value (verified across all 5 owned wallets, 33 settled rows total). display_amount == round(amount_in_usd * fx.rate, 2) within 0.01. Unsettled rows (14 total): zero bare-zero amounts with positive base_amount; estimates populated (fx.rate=1 so USD display matches)."
+    },
+    "GET /api/pay/getBalance": {
+      "merchant_token": "401 — \"Please sign in as a customer to view this balance\" (no 500)",
+      "no_token": "403 — \"Your Login has Expired\"",
+      "customer_1084": "200 — {amount:\"0.00\", currency:\"USD\"}",
+      "customer_999999999": "403 — \"Customer account does not exist\" (no 500)"
+    }
+  },
+  "jest_results": {
+    "unit_walletTransactionsAccess": {"cmd": "npx jest __tests__/walletTransactionsAccess.test.ts", "result": "6/6 passed", "exit": 0},
+    "unit_all": {"cmd": "npx jest --selectProjects unit", "result": "55 suites / 842 tests passed", "exit": 0, "duration": "33.17s"},
+    "integration_walletBalanceGuards": {"cmd": "TEST_MERCHANT_TOKEN=... npx jest __tests__/api/walletBalanceGuards.test.ts --selectProjects integration", "result": "4/4 passed (path BEFORE --selectProjects as required)", "exit": 0}
+  },
+  "ci_gates": {
+    "backend_tsc_noEmit": {"exit": 0},
+    "strip_unused_imports_check": {"exit": 0, "result": "[dry] 0 files, 0 unused import bindings removed"}
+  },
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/__tests__/walletTransactionsAccess.test.ts",
+    "/app/backend/__tests__/api/walletBalanceGuards.test.ts"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fixes look correct: wallet lookup now uses wallet_id (was `id`, causing the pre-existing 500 flagged in iteration_284), access control routes through validateCompanyOwnership(..., 'view_wallets'), and settled/unsettled USD valuation + display conversion are consistent (verified mathematically on 33 live settled rows).",
+    "paymentController.getBalance now short-circuits to 401 when the caller is not a customer-token instead of crashing on undefined claims — matches the spec exactly."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (9/9 wallet HTTP cases, 4/4 getBalance HTTP cases, 842/842 unit, 4/4 integration guards, 2/2 CI gates)", "frontend": "N/A (skipped per request)"},
+  "test_credentials": "Merchant Bearer /app/memory/tmp/merchant_token.txt (user_id 1, company 1). Customer tokens via node /app/memory/tmp/sign_customer_token.cjs <id>.",
+  "seed_data_creation": "none (SAFE MODE, read-only; git status clean of yarn.lock changes)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "To rerun the integration guards: cd /app/backend && TEST_MERCHANT_TOKEN=$(cat /app/memory/tmp/merchant_token.txt) npx jest __tests__/api/walletBalanceGuards.test.ts --selectProjects integration (path MUST precede --selectProjects or the full live-DB suite runs and registers real users). For live curls to the preview URL a Browser User-Agent header is required.",
+  "rca of the issue": "Pre-fix: walletRead.getWalletTransactions ran `Wallet.findOne({where:{id}})` but the model's PK is `wallet_id` → Postgres 500 'column Wallet.id does not exist' on every call (noted in iteration_284). paymentController.getBalance destructured customer_id from res.locals.user without a presence check, throwing when a non-customer or missing token hit the route. Fixes: switch lookup to `where:{wallet_id:Number(id)}`, add numeric-id guard (400), ownership via validateCompanyOwnership (view_wallets) → 403, missing wallet 404; getBalance now explicitly rejects with 401 when the auth payload lacks customer_id. All verified live + unit + integration."
+}
