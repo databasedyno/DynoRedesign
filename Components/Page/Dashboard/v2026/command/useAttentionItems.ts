@@ -146,7 +146,7 @@ export const useAttentionItems = ({ overview, onboarding, includeDismissed = fal
         severity: kyc.blocked ? "critical" : "warning",
         icon: "shield-check",
         text: kyc.blocked
-          ? t("kyc.blockedTitle", { defaultValue: "Verification overdue — payments are paused" })
+          ? t("kyc.blockedTitle", { defaultValue: "Verification overdue — new payments are paused" })
           : kyc.daysRemaining != null
             ? t("command.kycDays", { count: kyc.daysRemaining, defaultValue: "Verify your identity within {{count}} days to keep processing payments" })
             : t("kyc.graceGeneric", { defaultValue: "Verify your identity to keep processing payments" }),

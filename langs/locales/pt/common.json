@@ -855,7 +855,9 @@
     "security": "Segurança",
     "securityDesc": "Verificação em duas etapas, palavra-passe, proteção de endereços de pagamento e dispositivos conectados.",
     "sectionsAria": "Secções de definições",
-    "brandProfile": "Perfil da marca"
+    "brandProfile": "Perfil da marca",
+    "identity": "Verificação de identidade",
+    "identityDesc": "O seu estado de verificação, o período de tolerância e o que afeta"
   },
   "donation": {
     "defaultTitle": "Apoie esta campanha",

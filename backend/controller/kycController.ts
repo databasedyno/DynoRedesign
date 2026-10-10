@@ -81,6 +81,12 @@ const getKYCStatus = async (req: express.Request, res: express.Response) => {
       kyc_record: kycRecord || null,
       total_volume: enforcement.totalVolume,
       volume_threshold: KYC_THRESHOLD_USD,
+      // Always present (grace_period below is only set while KYC is required &
+      // unapproved) so the UI can explain the rule before it ever applies.
+      grace_period_days: KYC_GRACE_PERIOD_DAYS,
+      // Settlement of funds already received is never gated on KYC — only new
+      // payment links + new checkouts pause after an unverified grace expiry.
+      settlement_affected: false,
       requires_kyc: requiresKYC,
       needs_submission: needsSubmission,
       can_process_payments: canProcess,
@@ -106,9 +112,10 @@ const getKYCStatus = async (req: express.Request, res: express.Response) => {
 const getKYCRequirements = async (_req: express.Request, res: express.Response) => {
   try {
     const requirements = {
-      volume_threshold: 10000,
-      grace_period_days: 90,
-      threshold_description: "KYC verification is required when your transaction volume reaches $10,000. You have 90 days from reaching the threshold to complete verification.",
+      // Same constants that gate payments (helper/kycEnforcement) — never drift.
+      volume_threshold: KYC_THRESHOLD_USD,
+      grace_period_days: KYC_GRACE_PERIOD_DAYS,
+      threshold_description: `KYC verification is required when your transaction volume reaches $${KYC_THRESHOLD_USD.toLocaleString("en-US")}. You have ${KYC_GRACE_PERIOD_DAYS} days from reaching the threshold to complete verification.`,
       required_documents: [
         {
           type: "government_id",

@@ -855,7 +855,9 @@
     "security": "Beveiliging",
     "securityDesc": "Twee-staps verificatie, wachtwoord, bescherming van uitbetalingsadressen en ingelogde apparaten.",
     "sectionsAria": "Instellingensecties",
-    "brandProfile": "Merkprofiel"
+    "brandProfile": "Merkprofiel",
+    "identity": "Identiteitsverificatie",
+    "identityDesc": "Je verificatiestatus, respijtperiode en waar die invloed op heeft"
   },
   "donation": {
     "defaultTitle": "Steun deze campagne",

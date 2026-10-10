@@ -21,6 +21,7 @@ import AttentionFeed from "./command/AttentionFeed";
 import MoneyRow from "./command/MoneyRow";
 import TopSourcesCard from "./command/TopSourcesCard";
 import PlanRow from "./command/PlanRow";
+import KycStatusCard from "./command/KycStatusCard";
 import { useDashboardOverview } from "./command/useDashboardOverview";
 import { useAttentionItems } from "./command/useAttentionItems";
 
@@ -233,6 +234,7 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
               />
             </Box>
           </Box>
+          <KycStatusCard />
           <PlanRow />
         </Box>
       )}

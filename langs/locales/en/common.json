@@ -855,7 +855,9 @@
     "security": "Security",
     "securityDesc": "Two-step verification, password, payout address protection and signed-in devices.",
     "sectionsAria": "Settings sections",
-    "brandProfile": "Brand profile"
+    "brandProfile": "Brand profile",
+    "identity": "Identity verification",
+    "identityDesc": "Your verification status, grace period and what it affects"
   },
   "donation": {
     "defaultTitle": "Support this campaign",

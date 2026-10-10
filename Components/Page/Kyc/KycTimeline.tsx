@@ -53,8 +53,9 @@ const KycTimeline = ({ view, status, latest }: Props) => {
     },
     {
       id: "verified",
-      title: t("kycTimeline.verified.title", { defaultValue: "Verified — payouts unlocked" }),
-      body: t("kycTimeline.verified.body", { defaultValue: "Full limits, live payment links and settlements to your payout addresses." }),
+      // Settlement never waits on KYC (it isn't gated in any stage) — don't imply payouts unlock here.
+      title: t("kycTimeline.verified.title", { defaultValue: "Verified — no volume limits" }),
+      body: t("kycTimeline.verified.body", { defaultValue: "New checkouts and payment links stay on with no volume limits, and the verified badge shows on your checkout. Settlements never waited on this step." }),
       wait: t("kycTimeline.verified.wait", { defaultValue: "Done" }),
       state: stageIdx === 3 ? "done" : "upcoming",
       stamp: stageIdx === 3 ? when(latest?.reviewed_at) : null,

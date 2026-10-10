@@ -4,7 +4,7 @@
 import { chromium, webkit, devices } from "playwright";
 import fs from "fs";
 
-const BASE = process.env.AUDIT_BASE || "https://a81d8386-57ce-4f3b-b71d-dfd38e2158f0.preview.emergentagent.com";
+const BASE = process.env.AUDIT_BASE || "https://vault-setup-21.preview.emergentagent.com";
 const OUT = process.env.OUT || "/app/test_reports/safedeal_ux_audit";
 const IDS = JSON.parse(fs.readFileSync(process.env.IDS || "/app/memory/tmp/sd_audit/identities.json", "utf8"));
 const CHROME = process.env.CHROME_PATH || "/usr/bin/google-chrome";

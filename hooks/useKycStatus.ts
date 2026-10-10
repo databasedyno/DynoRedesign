@@ -13,10 +13,18 @@ export interface KycStatus {
   verification_url?: string | null;
   total_volume?: number;
   volume_threshold?: number;
+  /** Rule constant — always present (grace_period below is only set while KYC is required & unapproved). */
+  grace_period_days?: number;
+  /** Always false: settlement of funds already received is never gated on KYC. */
+  settlement_affected?: boolean;
+  can_process_payments?: boolean;
   kyc_record?: { status?: string; submitted_at?: string | null; reviewed_at?: string | null; updated_at?: string | null; rejection_reason?: string | null } | null;
   grace_period?: {
+    grace_period_days?: number;
     days_remaining?: number | null;
     grace_period_end?: string | null;
+    /** Day this brand's successful volume first crossed the threshold (= grace start). */
+    threshold_date?: string | null;
     blocked?: boolean;
   } | null;
 }

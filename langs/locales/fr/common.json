@@ -855,7 +855,9 @@
     "security": "Sécurité",
     "securityDesc": "Vérification en deux étapes, mot de passe, protection des adresses de paiement et appareils connectés.",
     "sectionsAria": "Sections des paramètres",
-    "brandProfile": "Profil de la marque"
+    "brandProfile": "Profil de la marque",
+    "identity": "Vérification d'identité",
+    "identityDesc": "Votre statut de vérification, le délai de grâce et ce qu'il concerne"
   },
   "donation": {
     "defaultTitle": "Soutenez cette campagne",

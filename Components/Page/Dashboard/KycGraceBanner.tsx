@@ -42,7 +42,7 @@ const KycGraceBanner: React.FC = () => {
 
   const headline = blocked
     ? t("kyc.blockedTitle", {
-        defaultValue: "Verification overdue — payments are paused",
+        defaultValue: "Verification overdue — new payments are paused",
       })
     : daysRemaining !== null
       ? t("kyc.graceDays", {
@@ -56,11 +56,11 @@ const KycGraceBanner: React.FC = () => {
   const body = blocked
     ? t("kyc.blockedBody", {
         defaultValue:
-          "You've passed the $10,000 volume threshold. Complete KYC now to resume accepting payments.",
+          "You've passed the $10,000 volume threshold and the grace period has ended. New payments are paused — payments you've already received still settle. Verify to resume.",
       })
     : t("kyc.graceBody", {
         defaultValue:
-          "You've passed the $10,000 volume threshold. Finish a quick identity check to stay unrestricted.",
+          "You've passed the $10,000 volume threshold. Finish a quick identity check to stay unrestricted — payments and settlements keep working meanwhile.",
       });
 
   return (

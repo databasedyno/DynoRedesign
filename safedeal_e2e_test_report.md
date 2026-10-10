@@ -1,7 +1,7 @@
 # SafeDeal E2E Test Report
 **Date:** 2026-09-19  
 **Tester:** Testing Agent (auto_frontend_testing_agent)  
-**Base URL:** https://secure-vault-app-58.preview.emergentagent.com  
+**Base URL:** https://vault-setup-21.preview.emergentagent.com  
 **Deal Token:** e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  
 
 ---

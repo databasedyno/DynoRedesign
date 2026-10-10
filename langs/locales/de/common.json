@@ -855,7 +855,9 @@
     "security": "Sicherheit",
     "securityDesc": "Zwei-Faktor-Authentifizierung, Passwort, Schutz der Auszahlungsadresse und angemeldete Geräte.",
     "sectionsAria": "Einstellungsbereiche",
-    "brandProfile": "Markenprofil"
+    "brandProfile": "Markenprofil",
+    "identity": "Identitätsprüfung",
+    "identityDesc": "Ihr Verifizierungsstatus, die Frist und was davon betroffen ist"
   },
   "donation": {
     "defaultTitle": "Unterstütze diese Kampagne",

@@ -16,6 +16,7 @@ import {
   CodeRounded,
   ShieldRounded,
   ArrowOutwardRounded,
+  VerifiedUserRounded,
   TranslateRounded,
   ChevronLeftRounded,
 } from "@mui/icons-material";
@@ -663,6 +664,7 @@ const SettingsPageInner = ({
                 id: "more",
                 label: t("settingsPage.groupMore", { defaultValue: "More" }),
                 rows: [
+                  { key: "identity", label: t("settingsPage.identity", { defaultValue: "Identity verification" }), description: t("settingsPage.identityDesc", { defaultValue: "Your verification status, grace period and what it affects" }), icon: <VerifiedUserRounded sx={{ fontSize: 19 }} />, external: true, onClick: () => router.push("/kyc") },
                   { key: "developers", label: t("settingsPage.developers", { defaultValue: "Developers" }), description: t("settingsPage.developersDesc", { defaultValue: "API keys, webhooks and events" }), icon: <CodeRounded sx={{ fontSize: 19 }} />, external: true, onClick: () => router.push("/developer-keys") },
                   { key: "referrals", label: t("settingsPage.referrals", { defaultValue: "Referrals" }), description: t("settingsPage.referralsDesc", { defaultValue: "Invite merchants and earn rewards" }), icon: <GroupAddRounded sx={{ fontSize: 19 }} />, external: true, onClick: () => router.push("/referrals") },
                 ],
@@ -779,6 +781,12 @@ const SettingsPageInner = ({
           />
           {/* Developers is NOT repeated here — it has its own sidebar destination (blueprint §8.9). */}
           {[
+            {
+              key: "identity",
+              label: t("settingsPage.identity", { defaultValue: "Identity verification" }),
+              href: "/kyc",
+              icon: <VerifiedUserRounded sx={{ fontSize: 19 }} />,
+            },
             {
               key: "referrals",
               label: t("settingsPage.referrals", { defaultValue: "Referrals" }),

@@ -39,7 +39,8 @@ const KycStatusHero: React.FC<Props> = ({ view, loading, data, daysRemaining, bl
   const border = isDark ? CB_TOKENS.border.dark : CB_TOKENS.border.light;
   const threshold = data?.volume_threshold ?? 10000;
   const volume = data?.total_volume ?? 0;
-  const pct = Math.min(100, Math.round((volume / (threshold || 1)) * 100));
+  // floor, not round: progress toward the threshold must never overstate (75.5% → 75%, matching the meter).
+  const pct = Math.min(100, Math.floor((volume / (threshold || 1)) * 100));
 
   const copy: Record<KycView, { icon: string; title: string; body: string; cta?: string }> = {
     verified: { icon: "lucide:badge-check", title: t("kycPage.verifiedTitle", { defaultValue: "You're verified" }), body: t("kycPage.verifiedBody", { defaultValue: "Identity confirmed. There are no limits on your payments and the verified badge shows on your checkout." }) },
@@ -47,8 +48,8 @@ const KycStatusHero: React.FC<Props> = ({ view, loading, data, daysRemaining, bl
     retry: { icon: "lucide:refresh-cw", title: t("kycPage.retryTitle", { defaultValue: "Needs another try" }), body: data?.kyc_record?.rejection_reason ? t("kycPage.retryBodyReason", { reason: data.kyc_record.rejection_reason, defaultValue: "Your last attempt couldn't be approved: {{reason}}. You can go again right away." }) : t("kycPage.retryBody", { defaultValue: "Your last attempt couldn't be approved — usually a blurry photo or a mismatched name. You can go again right away." }), cta: t("kycPage.ctaRetry", { defaultValue: "Try again" }) },
     action_needed: {
       icon: "lucide:id-card",
-      title: blocked ? t("kycPage.blockedTitle", { defaultValue: "Payments paused until you verify" }) : daysRemaining !== null ? t("kycPage.daysTitle", { count: daysRemaining, defaultValue: "{{count}} days to verify your identity" }) : t("kycPage.neededTitle", { defaultValue: "Verify your identity" }),
-      body: blocked ? t("kycPage.blockedBody", { threshold: fmtUsd(threshold), defaultValue: "You passed {{threshold}} in volume and the grace period has ended, so new payments are paused. Finish the {{threshold}}-free check below to resume." }) : t("kycPage.neededBody", { threshold: fmtUsd(threshold), defaultValue: "You passed {{threshold}} in payment volume, so regulations require a quick identity check. Payments keep flowing while you complete it." }),
+      title: blocked ? t("kycPage.blockedTitle", { defaultValue: "New payments paused until you verify" }) : daysRemaining !== null ? t("kycPage.daysTitle", { count: daysRemaining, defaultValue: "{{count}} days to verify your identity" }) : t("kycPage.neededTitle", { defaultValue: "Verify your identity" }),
+      body: blocked ? t("kycPage.blockedBody", { threshold: fmtUsd(threshold), defaultValue: "You passed {{threshold}} in volume and the grace period has ended, so new payments are paused. Payments you've already received still settle as normal. Finish the quick check below to resume." }) : t("kycPage.neededBody", { threshold: fmtUsd(threshold), defaultValue: "You passed {{threshold}} in payment volume, so regulations require a quick identity check. Payments keep flowing while you complete it." }),
       cta: hasSession ? t("kyc.continueVerification", { defaultValue: "Continue verification" }) : t("kyc.startVerification", { defaultValue: "Start verification" }),
     },
     not_needed: { icon: "lucide:shield", title: t("kycPage.notNeededTitle", { defaultValue: "Not needed yet" }), body: t("kycPage.notNeededBody", { threshold: fmtUsd(threshold), defaultValue: "Identity verification becomes required once your payment volume reaches {{threshold}}. You can verify early to unlock the verified badge." }), cta: t("kycPage.ctaEarly", { defaultValue: "Verify now" }) },
