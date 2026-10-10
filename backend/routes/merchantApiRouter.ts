@@ -347,6 +347,7 @@ router.post("/cryptoPayment", legacyApiAuthMiddleware, idempotencyMiddleware, as
       [localCurrency],
       amount,
       false,
+      { strict: true }, // money path: live / ≤30 min rate or refuse (rate_unavailable)
     );
   } catch (rateError) {
     apiLogger.error("[MerchantAPI] Currency rate error:", rateError);

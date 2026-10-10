@@ -40,6 +40,11 @@ import { getClientIP, getCountryFromIP, getCountryFromTimezone } from "../../uti
 import { checkKycEnforcement } from "../../helper/kycEnforcement";
 import { add, div, mul, pct, sum, toFixedStr, toNumber } from "../../utils/money";
 import { computeCheckoutSplit, computeFallbackSplit } from "./checkoutMath";
+import { isRateUnavailableError, RateUnavailableError, MONEY_RATE_MAX_AGE_MS } from "../../helper/currencyConvert";
+
+/** Shown to the payer when no live (or ≤30 min) rate exists — retry is safe. */
+export const RATE_UNAVAILABLE_CHECKOUT_MSG =
+  "Exchange rates are temporarily unavailable, so we can't price this payment right now. Please try again in a minute — nothing has been charged.";
 import { getCoinMinimumUsd, getCoinMinimumsUsd, getOrderMinimumUsd } from "../../services/checkout/checkoutMinimums";
 import { getMerchantMinOrderUsdByCompanyId } from "../../services/checkout/orderMinimums";
 
@@ -1467,6 +1472,32 @@ const createCryptoPayment = async (
         customer_id: items.customer_id,
         company_id: items.company_id || hasWallet.dataValues.company_id,  // Include company_id from Redis or wallet
       };
+
+      // ── FX preflight (money path, audit 2026-06) ──
+      // Resolve every rate this quote needs in STRICT mode BEFORE a pool address
+      // is reserved: a live rate, or a last-known one ≤30 min old. If neither
+      // exists the quote is refused — a payment is never priced on a 0 / 1 rate,
+      // and the payer never commits funds to an address we can't price.
+      {
+        const pfBase = String(items.base_currency || 'USD').toUpperCase();
+        const pfNorm = String(requestedCurrency || '').replace(/-.*$/, '').toUpperCase();
+        const pfUsdPeg = ['USDT', 'USDC'].includes(pfNorm) && pfBase === 'USD';
+        try {
+          if (pfBase !== 'USD') {
+            await currencyConvert({ sourceCurrency: pfBase, currency: ['USD'], amount: 1, fixedDecimal: true, strict: true });
+          }
+          if (!pfUsdPeg) {
+            await currencyConvert({ sourceCurrency: pfBase, currency: [requestedCurrency], amount: 1, fixedDecimal: false, strict: true });
+          }
+        } catch (pfErr) {
+          if (isRateUnavailableError(pfErr)) {
+            cronLogger.warn(`[createCryptoPayment] FX preflight refused quote ${pfBase}→${requestedCurrency}: ${(pfErr as Error).message}`);
+            return errorResponseHelper(res, 503, RATE_UNAVAILABLE_CHECKOUT_MSG);
+          }
+          throw pfErr;
+        }
+      }
+
       const { paymentRes, uniqueRef } = await Crypto(data, tokenData as IUserType, true);
       
       // Determine fee_payer mode
@@ -1477,7 +1508,9 @@ const createCryptoPayment = async (
       const baseCurrency = items.base_currency || 'USD';
       
       // Convert base amount to USD for fee tier calculation
-      // Fee tiers are defined in USD, so we need accurate USD amount
+      // Fee tiers are defined in USD, so we need accurate USD amount.
+      // STRICT: the preflight above guarantees a usable rate; if it vanished in
+      // between, refuse rather than treating e.g. ₦150,000 as $150,000.
       let baseAmountUSD = baseAmountOriginal;
       if (baseCurrency !== 'USD') {
         try {
@@ -1486,12 +1519,16 @@ const createCryptoPayment = async (
             currency: ['USD'],
             amount: baseAmountOriginal,
             fixedDecimal: true,
+            strict: true,
           });
-          baseAmountUSD = Number(usdConversion[0]?.amount || baseAmountOriginal);
+          baseAmountUSD = Number(usdConversion[0]?.amount);
+          if (!(baseAmountUSD > 0) && baseAmountOriginal > 0) {
+            throw new RateUnavailableError(baseCurrency, 'USD', MONEY_RATE_MAX_AGE_MS);
+          }
           cronLogger.info(`[createCryptoPayment] Converted ${baseAmountOriginal} ${baseCurrency} → ${baseAmountUSD} USD for fee calculation`);
         } catch (conversionError) {
-          cronLogger.warn(`[createCryptoPayment] USD conversion failed, using original amount:`, conversionError);
-          // Fallback to original amount if conversion fails
+          cronLogger.warn(`[createCryptoPayment] USD conversion failed — refusing quote:`, conversionError);
+          return errorResponseHelper(res, 503, RATE_UNAVAILABLE_CHECKOUT_MSG);
         }
       }
       
@@ -1608,9 +1645,13 @@ const createCryptoPayment = async (
             currency: [requestedCurrency],
             amount: totalAmountWithTax,
             fixedDecimal: false,
+            strict: true,
           });
           total_crypto_amount = parseFloat(cryptoRates[0]?.amount?.toString() || '0');
           exchange_rate = parseFloat(cryptoRates[0]?.transferRate?.toString() || '0');
+          if (!(total_crypto_amount > 0) || !(exchange_rate > 0)) {
+            throw new RateUnavailableError(baseCurrency, requestedCurrency, MONEY_RATE_MAX_AGE_MS);
+          }
         }
         
         // Calculate base crypto amount (without tax) for merchant amount calculation
@@ -1697,6 +1738,12 @@ const createCryptoPayment = async (
             - Tax collected: ${toFixedStr(tax_amount_crypto, 8)} ${requestedCurrency} (included in merchant amount)`);
         }
       } catch (calcError) {
+        // Never fall back to a client-supplied amount when the RATE is missing —
+        // that would price the payment on whatever the browser sent.
+        if (isRateUnavailableError(calcError)) {
+          cronLogger.warn('[createCryptoPayment] Rate unavailable during quote — refusing:', (calcError as Error).message);
+          return errorResponseHelper(res, 503, RATE_UNAVAILABLE_CHECKOUT_MSG);
+        }
         cronLogger.error('[createCryptoPayment] Crypto/fee calculation error:', calcError);
         // Fallback to simple 2% if calculation fails
         crypto_amount = data.amount || 0;
@@ -1743,6 +1790,13 @@ const createCryptoPayment = async (
       // This is separate from payment link expiry - crypto invoice has shorter window
       const cryptoInvoiceExpiresAt = new Date(Date.now() + CRYPTO_INVOICE_MINUTES * 60 * 1000).toISOString();
       
+      // FX snapshot at quote time — settlement falls back to it (≤30 min old)
+      // when every live provider is down, instead of pricing on 0 (audit 2026-06).
+      const quoteUsdPerUnit =
+        exchange_rate > 0 && baseAmountOriginal > 0 && baseAmountUSD > 0
+          ? toNumber(div(div(baseAmountUSD, baseAmountOriginal), exchange_rate), 10)
+          : 0;
+
       // Build the crypto address Redis payload (needed for webhook processing)
       const cryptoRedisPayload = {
         mode: paymentTypes.CRYPTO,
@@ -1750,6 +1804,9 @@ const createCryptoPayment = async (
         merchant_amount: merchant_amount_crypto, // Amount merchant should receive (includes tax)
         total_fees: total_fees_crypto,          // Total fees (admin's portion - from base only)
         fee_payer: fee_payer,                   // Who pays fees
+        quoted_at: Date.now(),                  // epoch ms of the quote (FX snapshot age)
+        quote_rate: exchange_rate,              // 1 base-currency unit = quote_rate crypto
+        ...(quoteUsdPerUnit > 0 && { quote_usd_per_unit: quoteUsdPerUnit }), // USD value of 1 crypto unit at quote time
         // Store both original and USD amounts for accurate fee calculations
         base_amount_original: baseAmountOriginal,  // Original amount in merchant's currency
         base_currency: baseCurrency,              // Merchant's currency (e.g., AUD)

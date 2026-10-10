@@ -12,6 +12,7 @@ import { IUserType } from "../utils/types";
 import { notificationModel, notificationPreferencesModel, companyModel, signupAttributionModel } from "../models";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getCompanyEmailHealth } from "../services/email/deliverability";
+import { notifyMerchantMoneyChange } from "../utils/merchantMoneyEvents";
 // sequelize import removed - not used
 
 // Cache TTL for notifications (15 seconds - shorter because notifications change often)
@@ -39,6 +40,16 @@ export const NOTIFICATION_TYPES = {
   TEAM_MEMBER_JOINED: "team_member_joined",
   CONVERSION_FAILED: "conversion_failed",     // Auto-conversion gave up — funds held in the exchange deposit wallet (E2)
 };
+
+const MONEY_NOTIFICATION_TYPES = new Set<string>([
+  NOTIFICATION_TYPES.TRANSACTION_CONFIRMED,
+  NOTIFICATION_TYPES.PAYMENT_RECEIVED,
+  NOTIFICATION_TYPES.PAYMENT_PENDING,
+  NOTIFICATION_TYPES.PAYMENT_CONFIRMING,
+  NOTIFICATION_TYPES.PAYMENT_PARTIAL,
+  NOTIFICATION_TYPES.PAYMENT_PARTIAL_EXPIRED,
+  NOTIFICATION_TYPES.PAYMENT_OVERPAID,
+]);
 
 /**
  * Get user's notification preferences
@@ -450,6 +461,15 @@ export const createNotification = async (
   companyId?: number
 ) => {
   try {
+    // Money events refresh the merchant's fiat totals even if the inbox item is muted.
+    if (MONEY_NOTIFICATION_TYPES.has(type)) {
+      void notifyMerchantMoneyChange(userId, {
+        reason: "payment",
+        type,
+        transaction_id: (data?.transaction_id as string | number | undefined) ?? null,
+        company_id: companyId ?? null,
+      });
+    }
     // Check user preferences before creating notification
     const preferences = await notificationPreferencesModel.findOne({
       where: {

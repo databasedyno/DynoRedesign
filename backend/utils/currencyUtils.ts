@@ -32,7 +32,10 @@ export const SUPPORTED_BASE_CURRENCIES = [
 // Supported CURATED display currencies for the merchant dashboard (Session 39).
 // Distinct from SUPPORTED_BASE_CURRENCIES (API-key pricing currencies). This is
 // a presentation preference only — it never affects stored data or pricing.
-export const SUPPORTED_DISPLAY_CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN', 'CAD', 'AUD'];
+// Defined in ./displayCurrencies (dependency-free) so the FX engine can pre-cache
+// every display currency without a circular import.
+import { SUPPORTED_DISPLAY_CURRENCIES } from "./displayCurrencies";
+export { SUPPORTED_DISPLAY_CURRENCIES };
 
 export const isSupportedDisplayCurrency = (c?: string | null): boolean =>
   !!c && SUPPORTED_DISPLAY_CURRENCIES.includes(String(c).toUpperCase());
@@ -189,6 +192,7 @@ export const getCurrencyInfo = (currency: string = 'USD'): {
 // =============================================
 
 import currencyConvert from "../helper/currencyConvert";
+import type { ConvertOptions, CurrencyRateList } from "../helper/currencyConvert";
 import { QueryTypes } from "sequelize";
 import sequelizeInstance from "./dbInstance";
 import { log } from "./loggers";
@@ -283,40 +287,122 @@ export const getUserDisplayCurrency = async (
 export const getBrandCurrency = getCompanyDisplayCurrency;
 
 /**
- * Cached USD → target-fiat rate (Redis, ~10 min TTL). Keeps the dashboard fast
- * and avoids burning FX-provider quota per request. Returns 1 on total failure
- * (i.e. amounts shown unconverted) rather than throwing.
+ * USD → target-fiat display rate WITH provenance (audit F1, 2026-06).
+ * Redis-cached for 2 min (shared by every instance). Uses the FULL-precision
+ * transferRate — the old path read the 2-dp `amount` of a 1-unit conversion,
+ * so USD→EUR 0.8917 became 0.89 and GBP 0.7545 became 0.75.
+ * Returns null when no live rate and no last-known rate ≤24h exists — callers
+ * must then show USD (symbol AND numbers), never "€" with USD numbers.
  */
-export const getUsdToFiatRate = async (target: string): Promise<number> => {
+export interface UsdFxQuote {
+  rate: number;
+  /** epoch ms the rate was observed */
+  at: number;
+  /** true when the rate is a last-known fallback or older than FX_STALE_AFTER_MS */
+  is_stale: boolean;
+}
+
+/** A display rate older than this is labelled "rate as of hh:mm" in the UI. */
+export const FX_STALE_AFTER_MS = 15 * 60 * 1000;
+const FX_DISPLAY_CACHE_TTL_S = 120;
+
+export const getUsdToFiatRateInfo = async (target: string): Promise<UsdFxQuote | null> => {
   const cur = String(target || 'USD').toUpperCase();
-  if (cur === 'USD') return 1;
-  const key = `fxrate:USD:${cur}`;
+  const now = Date.now();
+  if (cur === 'USD') return { rate: 1, at: now, is_stale: false };
+  const key = `fxrate:v2:USD:${cur}`;
   try {
     const cached = await getRedisItem(key);
-    if (cached && Number(cached.rate) > 0) return Number(cached.rate);
+    const rate = Number(cached?.rate);
+    const at = Number(cached?.at);
+    if (rate > 0 && at > 0) {
+      return { rate, at, is_stale: !!cached?.stale || now - at > FX_STALE_AFTER_MS };
+    }
   } catch {
-    /* cache miss / error → fetch live */
+    /* cache miss / error → fetch */
   }
   try {
-    const { amount } = await convertToFiat('USD', cur, 1);
-    const rate = Number(amount) || 0;
-    if (rate > 0) {
-      try {
-        await setRedisItemWithTTL(key, { rate }, 600);
-      } catch {
-        /* non-fatal */
-      }
-      return rate;
+    const [r] = await currencyConvert({ currency: [cur], sourceCurrency: 'USD', amount: 1, fixedDecimal: false });
+    const rate = Number(r?.transferRate) || 0;
+    if (r && !r.unavailable && rate > 0) {
+      const at = Number(r.rateAsOf) || now;
+      const stale = !!r.stale;
+      // Stale fallbacks are cached briefly so a recovering provider is retried soon.
+      setRedisItemWithTTL(key, { rate, at, stale }, stale ? 30 : FX_DISPLAY_CACHE_TTL_S).catch(() => {});
+      return { rate, at, is_stale: stale || now - at > FX_STALE_AFTER_MS };
     }
   } catch (err) {
-    log(`[getUsdToFiatRate] USD→${cur} conversion failed, using rate 1`, 'warn');
+    log(`[getUsdToFiatRateInfo] USD→${cur} conversion failed`, 'warn');
   }
-  return 1;
+  log(`[getUsdToFiatRateInfo] No USD→${cur} rate (live or last-known ≤24h) — callers fall back to USD`, 'warn');
+  return null;
 };
 
 /**
+ * @deprecated Use resolveDisplayFx / getUsdToFiatRateInfo — this cannot tell
+ * the caller that the rate is missing. Returns NaN (not 1) when unavailable so
+ * a forgotten caller can never silently label USD numbers with another symbol.
+ */
+export const getUsdToFiatRate = async (target: string): Promise<number> => {
+  const q = await getUsdToFiatRateInfo(target);
+  return q ? q.rate : NaN;
+};
+
+/**
+ * Everything a display endpoint needs to label converted amounts consistently.
+ * `currency` is the currency the numbers are ACTUALLY in: the brand currency
+ * when a rate exists, otherwise USD (fallback=true) — symbol and numbers always
+ * agree (audit F1).
+ */
+export interface DisplayFx {
+  currency: string;
+  requested_currency: string;
+  symbol: string;
+  rate: number;
+  as_of: string | null;
+  is_stale: boolean;
+  fallback: boolean;
+}
+
+export const resolveDisplayFx = async (requested: string | null | undefined): Promise<DisplayFx> => {
+  const want = String(requested || 'USD').toUpperCase();
+  const q = await getUsdToFiatRateInfo(want);
+  if (!q) {
+    return {
+      currency: 'USD',
+      requested_currency: want,
+      symbol: getCurrencySymbol('USD'),
+      rate: 1,
+      as_of: null,
+      is_stale: false,
+      fallback: want !== 'USD',
+    };
+  }
+  return {
+    currency: want,
+    requested_currency: want,
+    symbol: getCurrencySymbol(want),
+    rate: q.rate,
+    as_of: new Date(q.at).toISOString(),
+    is_stale: q.is_stale,
+    fallback: false,
+  };
+};
+
+/** Compact FX provenance block for API responses (`fx` field). */
+export const fxMeta = (fx: DisplayFx) => ({
+  currency: fx.currency,
+  requested_currency: fx.requested_currency,
+  rate: fx.rate,
+  as_of: fx.as_of,
+  is_stale: fx.is_stale,
+  fallback: fx.fallback,
+});
+
+/**
  * Convert a USD amount into the merchant's display currency (cached rate).
- * Returns the USD amount unchanged if target is USD or conversion is unavailable.
+ * Returns the USD amount unchanged if target is USD or conversion is unavailable
+ * — prefer resolveDisplayFx() so the response can be labelled correctly.
  */
 export const convertUsdForDisplay = async (
   usd: number,
@@ -324,21 +410,39 @@ export const convertUsdForDisplay = async (
 ): Promise<number> => {
   const cur = String(target || 'USD').toUpperCase();
   if (!usd || cur === 'USD') return usd || 0;
-  const rate = await getUsdToFiatRate(cur);
-  return mul(usd, rate).toNumber();
+  const fx = await resolveDisplayFx(cur);
+  return mul(usd, fx.rate).toNumber();
+};
+
+/** Options forwarded to currencyConvert (strict = money path, see helper/currencyConvert). */
+type FxOpts = ConvertOptions;
+
+/**
+ * USD price of ONE unit of `code` at full precision (e.g. DOGE 0.08581).
+ * Use this instead of convertToUSD(code, 1), which rounds the result to 2 dp
+ * (DOGE → 0.09, ≈5% off). Returns 0 when unavailable.
+ */
+export const getUsdPerUnit = async (code: string, opts: FxOpts = {}): Promise<number> => {
+  const cur = String(code || '').toUpperCase();
+  if (!cur) return 0;
+  if (cur === 'USD') return 1;
+  const [r] = await currencyConvert({ currency: ['USD'], sourceCurrency: cur, amount: 1, fixedDecimal: false, ...opts });
+  return r && !r.unavailable ? Number(r.transferRate) || 0 : 0;
 };
 
 /**
  * Convert any currency amount to USD (most common pattern).
- * Returns the USD amount as a number.
+ * Returns the USD amount as a number (0 when unavailable in display mode;
+ * throws RateUnavailableError in strict mode).
  */
-export const convertToUSD = async (sourceCurrency: string, amount: number): Promise<number> => {
+export const convertToUSD = async (sourceCurrency: string, amount: number, opts: FxOpts = {}): Promise<number> => {
   if (sourceCurrency === 'USD') return amount;
   const result = await currencyConvert({
     currency: ['USD'],
     sourceCurrency,
     amount,
     fixedDecimal: true,
+    ...opts,
   });
   return Number(result[0]?.amount || 0);
 };
@@ -351,12 +455,14 @@ export const convertToCrypto = async (
   baseCurrency: string,
   cryptoType: string,
   amount: number,
+  opts: FxOpts = {},
 ): Promise<{ amount: number; rate: number }> => {
   const result = await currencyConvert({
     currency: [cryptoType],
     sourceCurrency: baseCurrency,
     amount,
     fixedDecimal: false,
+    ...opts,
   });
   return {
     amount: Number(result[0]?.amount || 0),
@@ -366,23 +472,28 @@ export const convertToCrypto = async (
 
 /**
  * Convert a crypto/fiat amount into a target fiat currency.
- * Returns { amount, rate }.
+ * Returns { amount, rate, unavailable? } — `rate` is full precision.
  */
 export const convertToFiat = async (
   sourceCurrency: string,
   targetFiat: string,
   amount: number,
-): Promise<{ amount: number; rate: number }> => {
+  opts: FxOpts = {},
+): Promise<{ amount: number; rate: number; unavailable?: boolean; stale?: boolean; rateAsOf?: number }> => {
   if (sourceCurrency === targetFiat) return { amount, rate: 1 };
   const result = await currencyConvert({
     currency: [targetFiat],
     sourceCurrency,
     amount,
     fixedDecimal: true,
+    ...opts,
   });
   return {
     amount: Number(result[0]?.amount || 0),
     rate: Number(result[0]?.transferRate || 0),
+    ...(result[0]?.unavailable ? { unavailable: true } : {}),
+    ...(result[0]?.stale ? { stale: true } : {}),
+    ...(result[0]?.rateAsOf ? { rateAsOf: result[0].rateAsOf } : {}),
   };
 };
 
@@ -395,12 +506,14 @@ export const convertToMultiple = async (
   targets: string[],
   amount: number,
   fixedDecimal: boolean = true,
-): Promise<Array<{ currency: string; amount: number; transferRate: number }>> => {
+  opts: FxOpts = {},
+): Promise<CurrencyRateList[]> => {
   return await currencyConvert({
     currency: targets,
     sourceCurrency,
     amount,
     fixedDecimal,
+    ...opts,
   });
 };
 

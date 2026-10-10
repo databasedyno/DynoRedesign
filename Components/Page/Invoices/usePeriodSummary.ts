@@ -6,6 +6,7 @@ export interface PeriodSummary {
   range: { start: string; end: string };
   currency: string;
   currency_symbol: string;
+  fx?: import("@/Components/UI/FxAsOfLabel").FxInfo;
   collected: number;
   net: number;
   fees: number;

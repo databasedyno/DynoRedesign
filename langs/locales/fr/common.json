@@ -1931,5 +1931,11 @@
   "clearFilters": "Effacer",
   "filtersDone": "Terminé",
   "selectItems": "Sélectionner",
-  "selectDone": "Terminé"
+  "selectDone": "Terminé",
+  "fxLabel": {
+    "asOf": "Taux de {{time}}",
+    "asOfHint": "Le taux de change en direct est brièvement indisponible, nous utilisons donc le dernier taux connu. Les paiements ne sont pas affectés.",
+    "fallback": "Affiché en USD · taux {{currency}} indisponible",
+    "fallbackHint": "Nous n'avons pas pu obtenir de taux de change {{currency}}, ces montants sont donc en dollars américains. Ils reviendront automatiquement."
+  }
 }

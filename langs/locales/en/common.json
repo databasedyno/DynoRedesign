@@ -1931,5 +1931,11 @@
   "clearFilters": "Clear",
   "filtersDone": "Done",
   "selectItems": "Select",
-  "selectDone": "Done"
+  "selectDone": "Done",
+  "fxLabel": {
+    "asOf": "Rate as of {{time}}",
+    "asOfHint": "The live exchange rate is briefly unavailable, so we're using the last known rate. Payments are not affected.",
+    "fallback": "Shown in USD · {{currency}} rate unavailable",
+    "fallbackHint": "We couldn't get a {{currency}} exchange rate, so these amounts are in US dollars. They switch back automatically."
+  }
 }

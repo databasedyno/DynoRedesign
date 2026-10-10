@@ -32,6 +32,7 @@ import {
 } from "./styled";
 import PageTip, { PageInfoButton } from "@/Components/UX/PageTip";
 import CompactTitleBar from "./CompactTitleBar";
+import useFiatAutoRefresh from "@/hooks/useFiatAutoRefresh";
 import { getPageTipKey } from "@/Components/UX/pageTips";
 
 const ClientLayout = ({
@@ -45,6 +46,7 @@ const ClientLayout = ({
   const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation("common");
+  useFiatAutoRefresh();
   const isMobile = useIsMobile("md");
   const { collapsed: sidebarCollapsed } = useSidebarCollapsed();
   // One frame per shell mode (styles/shellTokens.ts): phone < 600 = tab bar +

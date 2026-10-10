@@ -6,6 +6,7 @@ import {
   successResponseHelper,
 } from "../helper";
 import { handleControllerError } from "../helper/controllerErrorHandler";
+import { notifyMerchantMoneyChange } from "../utils/merchantMoneyEvents";
 import { formatAmountForDisplay, getCurrencyInfo, convertToFiat, getCompanyDisplayCurrency, getUserDisplayCurrency, SUPPORTED_DISPLAY_CURRENCIES, isSupportedDisplayCurrency } from "../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { deriveTxDisplayStatus } from "../utils/transactionDisplayStatus";
@@ -1015,8 +1016,9 @@ const getTransactions = async (req: express.Request, res: express.Response) => {
     for (const srcCurrency of uniqueBaseCurrencies) {
       try {
         const result = await convertToFiat(srcCurrency, preferredCurrency, 1);
-        if (result.amount) {
-          conversionRates[srcCurrency] = result.amount;
+        // Full-precision per-unit rate (the 2-dp `amount` cut DOGE 0.0858 to 0.08).
+        if (!result.unavailable && result.rate > 0) {
+          conversionRates[srcCurrency] = result.rate;
         }
       } catch (convErr) {
         companyLogger.warn(`[getTransactions] Conversion ${srcCurrency}->${preferredCurrency} failed:`, convErr);
@@ -2067,6 +2069,7 @@ const updateDisplayCurrency = async (
     );
 
     companyLogger.info(`[DisplayCurrency] Company ${id} display_currency set to ${cur}`);
+    await notifyMerchantMoneyChange(userData.user_id, { reason: "currency", company_id: Number(id) });
 
     return successResponseHelper(res, 200, "Display currency updated", {
       display_currency: cur,

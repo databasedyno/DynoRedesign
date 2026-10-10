@@ -6,7 +6,7 @@ import { successResponseHelper } from "../helper";
 import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
-import { convertToFiat, convertToUSD, getCurrencySymbol, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { convertToFiat, convertToUSD, fxMeta, getUserDisplayCurrency, resolveDisplayFx } from "../utils/currencyUtils";
 import { toNumber, num } from "../utils/money";
 import {
   OverviewScope,
@@ -128,14 +128,9 @@ const getOverview = async (req: express.Request, res: express.Response) => {
       sumUnlockedUsd(unlocked, "expired_today"),
     ]);
 
-    let rate = 1;
-    if (currency !== "USD") {
-      try {
-        rate = (await convertToFiat("USD", currency, 1)).rate || 1;
-      } catch {
-        rate = 1;
-      }
-    }
+    // Symbol and numbers always agree: no rate → USD (audit F1).
+    const dfx = await resolveDisplayFx(currency);
+    const rate = dfx.rate;
     const fx = (usd: number) => toNumber(usd * rate, 2);
 
     const net = num(settled.net);
@@ -190,8 +185,9 @@ const getOverview = async (req: express.Request, res: express.Response) => {
 
     const data = {
       range: { period: range.period, start: range.start.toISOString(), end: range.end.toISOString() },
-      currency,
-      currency_symbol: getCurrencySymbol(currency),
+      currency: dfx.currency,
+      currency_symbol: dfx.symbol,
+      fx: fxMeta(dfx),
       pulse: {
         confirming_count: num(funnel.confirming),
         awaiting_count: num(funnel.awaiting),
@@ -268,7 +264,7 @@ const getOverview = async (req: express.Request, res: express.Response) => {
       generated_at: now.toISOString(),
     };
 
-    setRedisItemWithTTL(cacheKey, data, CACHE_TTL).catch(() => {});
+    if (!dfx.fallback) setRedisItemWithTTL(cacheKey, data, CACHE_TTL).catch(() => {});
     return successResponseHelper(res, 200, "Overview retrieved", data);
   } catch (e) {
     return handleControllerErrorReturn(res, e, apiLogger);

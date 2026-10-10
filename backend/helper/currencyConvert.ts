@@ -4,181 +4,341 @@ import axios from "../utils/tatumHttp";
 import { apiLogger } from "../utils/loggers";
 import { TATUM_V3_URL, getTatumApiKey } from "../utils/tatumAuth";
 import { mul, toFixedStr } from "../utils/money";
+import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
+import { SUPPORTED_DISPLAY_CURRENCIES } from "../utils/displayCurrencies";
 
-interface CurrencyRateList {
+// ═══════════════════════════════════════════════════════════════════════════
+// FX ENGINE — how a rate is resolved (FIAT/CRYPTO audit 2026-06, F1–F6/F10)
+//
+//   1. same currency / USD↔stablecoin peg            → exact (1)
+//   2. 30s per-request cache                          → recent live rate
+//   3. FastForex (fiat↔fiat, only if a key is set)    → live
+//   4. background cache (cron every 2 min, in-memory) → live, ≤3 min crypto / ≤15 min fiat
+//   5. Tatum live, then CoinGecko live                → live
+//   6. LAST-KNOWN store (memory + Redis, 48h)         → STALE, age-capped:
+//        • strict (money: quotes, fees, settlement) ≤ 30 min, else RateUnavailableError
+//        • display (dashboards, estimates)          ≤ 24 h, else { unavailable: true }
+//
+// A conversion NEVER silently returns 0 or 1 as if it were a real rate:
+// strict callers get a typed error, display callers get `unavailable: true`
+// (amount/transferRate 0) and must fall back to USD for BOTH symbol and number.
+//
+// Precision depends on the TARGET asset, not the magnitude (F3):
+//   fiat → 2 dp (sub-unit values keep 8 dp unless fixedDecimal), crypto → the
+//   asset's own decimals (BTC/ETH/LTC… 8, TRX/XRP/USDT/USDC 6). transferRate is
+//   never rounded to 2 dp (USD→EUR 0.8917 used to become 0.89).
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface CurrencyRateList {
   currency: string;
   amount: number;
   transferRate: number;
+  /** Epoch ms when the rate used was observed (≈ now for live rates). */
+  rateAsOf?: number;
+  /** True when no live provider answered and a last-known rate was used. */
+  stale?: boolean;
+  /** True when NO usable rate exists (display mode only) — amount/transferRate are 0. */
+  unavailable?: boolean;
 }
 
-// ============================================
-// BACKGROUND RATE CACHE (CoinGecko every 60s — free, saves FastForex API calls)
-// ============================================
+export interface ConvertOptions {
+  /** Money path: last-known fallback capped at MONEY_RATE_MAX_AGE_MS, then throw RateUnavailableError. */
+  strict?: boolean;
+  /** Display path override for the last-known cap (default DISPLAY_RATE_MAX_AGE_MS). */
+  maxStaleMs?: number;
+}
 
-// Background cache: populated by CoinGecko every 60s, used ONLY as fallback
-const backgroundRateCache = new Map<string, { rate: number; timestamp: number }>();
+/** Money paths may use a last-known rate at most this old (user decision 2026-06: ~30 min). */
+export const MONEY_RATE_MAX_AGE_MS = 30 * 60 * 1000;
+/** Display paths may show a last-known rate up to this old, labelled "rate as of hh:mm". */
+export const DISPLAY_RATE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const LAST_KNOWN_REDIS_TTL_S = 48 * 60 * 60;
+
+export class RateUnavailableError extends Error {
+  code = "RATE_UNAVAILABLE" as const;
+  status = 503;
+  from: string;
+  to: string;
+  constructor(from: string, to: string, maxAgeMs: number) {
+    super(
+      `Exchange rate ${from}→${to} is temporarily unavailable (no live rate and no rate newer than ${Math.round(maxAgeMs / 60000)} min)`,
+    );
+    this.name = "RateUnavailableError";
+    this.from = from;
+    this.to = to;
+  }
+}
+
+export const isRateUnavailableError = (e: unknown): e is RateUnavailableError =>
+  !!e && (e instanceof RateUnavailableError || (e as { code?: string })?.code === "RATE_UNAVAILABLE");
+
+// ============================================
+// BACKGROUND RATE CACHE (component-based, refreshed by cron every 2 min)
+// ============================================
+// Stores USD legs only and derives every pair from them, so ANY combination of
+// supported crypto/fiat is served from cache (the old pair cache only covered
+// 5 coins × USD/EUR/GBP/BRL and expired 7 of every 10 minutes — F4/F5).
+// In-process per instance (fast); the cross-instance fallback is the Redis
+// last-known store below (F6).
+type RatePoint = { rate: number; at: number };
+const usdPriceCache = new Map<string, RatePoint>(); // ASSET → USD price of 1 unit
+const usdToFiatCache = new Map<string, RatePoint>(); // FIAT  → units of FIAT per 1 USD
 let lastBackgroundRefresh: { at: number; provider: string; rates: number } | null = null;
+let lastFiatRefreshAt = 0;
 
 /** Freshness of the always-on background rate cache (read by the gateway-health endpoint). */
 export const getBackgroundRateCacheStatus = () => lastBackgroundRefresh;
-const BACKGROUND_CACHE_TTL_MS = 180_000; // 180s — slightly longer than 120s refresh interval for overlap
 
-// FastForex API key (primary real-time provider — 150-300ms)
+const CRYPTO_REFRESH_MS = 2 * 60 * 1000; // cron cadence (server.ts "*/2 * * * *")
+const CRYPTO_FRESH_MS = CRYPTO_REFRESH_MS + 60 * 1000; // interval + 60s margin → never a gap
+const FIAT_REFRESH_MS = 10 * 60 * 1000; // fiat FX moves slowly — refresh every 5th tick
+const FIAT_FRESH_MS = FIAT_REFRESH_MS + 5 * 60 * 1000;
+
+// FastForex API key (optional real-time fiat provider — 150-300ms)
 const FASTFOREX_API_KEY = envRaw("FASTFOREX_API_KEY") || '';
 
-// Common fiat currencies to pre-cache rates for
-const CACHE_FIAT_TARGETS = ['USD', 'EUR', 'GBP', 'BRL'];
-// Core crypto currencies to pre-cache
-const CACHE_CRYPTO_TARGETS = ['ETH', 'BTC', 'TRX', 'LTC', 'DOGE'];
+// Every brand display currency (+ BRL, a common API-key base currency).
+const CACHE_FIAT_TARGETS = Array.from(new Set([...SUPPORTED_DISPLAY_CURRENCIES, 'BRL'])).filter((c) => c !== 'USD');
+// Every volatile asset the checkout accepts (stablecoins are pegged 1:1 to USD).
+const CACHE_CRYPTO_TARGETS = ['BTC', 'ETH', 'LTC', 'DOGE', 'BCH', 'TRX', 'SOL', 'XRP', 'BNB', 'MATIC'];
+
+const USD_PEGGED = new Set(['USD', 'USDT', 'USDC', 'RLUSD']);
+
+// ── Last-known store (memory + Redis, shared across instances) ──────────────
+const lastKnownPair = new Map<string, RatePoint>(); // "FROM:TO" → rate
+const lastKnownUsd = new Map<string, RatePoint>(); // CODE → USD value of 1 unit
+const lkPairKey = (from: string, to: string) => `fx:lk:v1:pair:${from}:${to}`;
+const lkUsdKey = (code: string) => `fx:lk:v1:usd:${code}`;
+
+const persistLastKnown = (key: string, point: RatePoint) => {
+  // Fire-and-forget: a Redis hiccup must never slow or fail a conversion.
+  setRedisItemWithTTL(key, point, LAST_KNOWN_REDIS_TTL_S).catch(() => {});
+};
+
+/** Remember the USD value of 1 unit of `code` (crypto price, or 1/fiat-per-USD). */
+const rememberUsdPerUnit = (code: string, usdPerUnit: number, at: number = Date.now()) => {
+  if (!(usdPerUnit > 0) || !Number.isFinite(usdPerUnit)) return;
+  const point = { rate: usdPerUnit, at };
+  lastKnownUsd.set(code, point);
+  persistLastKnown(lkUsdKey(code), point);
+};
+
+/** Remember a live pair rate (and its inverse) as the last-known value. */
+const rememberPairRate = (from: string, to: string, rate: number, at: number = Date.now()) => {
+  if (!(rate > 0) || !Number.isFinite(rate)) return;
+  lastKnownPair.set(`${from}:${to}`, { rate, at });
+  lastKnownPair.set(`${to}:${from}`, { rate: 1 / rate, at });
+  persistLastKnown(lkPairKey(from, to), { rate, at });
+};
+
+const readRedisPoint = async (key: string): Promise<RatePoint | null> => {
+  try {
+    const v = (await getRedisItem(key)) as Partial<RatePoint> | null;
+    const rate = Number(v?.rate);
+    const at = Number(v?.at);
+    return rate > 0 && Number.isFinite(rate) && at > 0 ? { rate, at } : null;
+  } catch {
+    return null;
+  }
+};
+
+const usdLegFromLastKnown = async (code: string): Promise<RatePoint | null> => {
+  if (USD_PEGGED.has(code)) return { rate: 1, at: Date.now() };
+  const mem = lastKnownUsd.get(code);
+  const red = await readRedisPoint(lkUsdKey(code));
+  if (mem && red) return mem.at >= red.at ? mem : red;
+  return mem || red;
+};
 
 /**
- * Background rate refresh — called every 60s by cron
- * Uses Tatum (paid, reliable) as PRIMARY provider for crypto rates
- * Falls back to CoinGecko (free) only if Tatum fails
- * FastForex handles fiat↔fiat separately (not used for crypto)
+ * Most recent known rate for from→to no older than `maxAgeMs`, from (a) the
+ * direct pair, (b) the inverse pair, or (c) USD legs — memory first, then Redis
+ * (so a freshly booted instance can reuse a rate another instance fetched).
  */
-export const refreshBackgroundRateCache = async (): Promise<void> => {
+export const recallLastKnownRate = async (
+  from: string,
+  to: string,
+  maxAgeMs: number,
+): Promise<RatePoint | null> => {
+  const now = Date.now();
+  const fresh = (p: RatePoint | null | undefined): RatePoint | null =>
+    p && p.rate > 0 && now - p.at <= maxAgeMs ? p : null;
+  const candidates: RatePoint[] = [];
+  const memPair = fresh(lastKnownPair.get(`${from}:${to}`));
+  if (memPair) candidates.push(memPair);
+  const redPair = fresh(await readRedisPoint(lkPairKey(from, to)));
+  if (redPair) candidates.push(redPair);
+  const redInv = fresh(await readRedisPoint(lkPairKey(to, from)));
+  if (redInv) candidates.push({ rate: 1 / redInv.rate, at: redInv.at });
+  const a = await usdLegFromLastKnown(from);
+  const b = await usdLegFromLastKnown(to);
+  const derived = a && b && b.rate > 0 ? fresh({ rate: a.rate / b.rate, at: Math.min(a.at, b.at) }) : null;
+  if (derived) candidates.push(derived);
+  if (candidates.length === 0) return null;
+  return candidates.reduce((best, c) => (c.at > best.at ? c : best));
+};
+
+/** USD value of 1 unit of `code` from the FRESH background cache (null when missing/expired). */
+const freshUsdLeg = (code: string): RatePoint | null => {
+  const now = Date.now();
+  if (USD_PEGGED.has(code)) return { rate: 1, at: now };
+  if (CRYPTO_CURRENCIES.includes(code)) {
+    const p = usdPriceCache.get(code);
+    return p && now - p.at <= CRYPTO_FRESH_MS ? p : null;
+  }
+  const f = usdToFiatCache.get(code);
+  return f && f.rate > 0 && now - f.at <= FIAT_FRESH_MS ? { rate: 1 / f.rate, at: f.at } : null;
+};
+
+const setUsdPrice = (asset: string, price: number) => {
+  const at = Date.now();
+  usdPriceCache.set(asset, { rate: price, at });
+  rememberUsdPerUnit(asset, price, at);
+};
+
+const setUsdToFiat = (fiat: string, perUsd: number) => {
+  const at = Date.now();
+  usdToFiatCache.set(fiat, { rate: perUsd, at });
+  rememberUsdPerUnit(fiat, 1 / perUsd, at);
+};
+
+/**
+ * Background rate refresh — cron every 2 min (server.ts) + once on startup.
+ *   • crypto → USD for every supported volatile asset: Tatum (paid, reliable),
+ *     CoinGecko supplements whatever Tatum missed (1 batched call)
+ *   • USD → fiat for every display currency every 10 min: FastForex (if keyed),
+ *     else Tatum USDT→fiat (USDT ≈ USD proxy), CoinGecko tether as last resort
+ * Every successful value also lands in the Redis last-known store.
+ */
+export const refreshBackgroundRateCache = async (opts: { forceFiat?: boolean } = {}): Promise<void> => {
   const startTime = Date.now();
   let provider = 'Tatum';
   let ratesUpdated = 0;
-  
+
   try {
-    // PRIMARY: Tatum — batch requests in groups of 4 (paid, reliable, no rate limits)
-    const tatumPairs: Array<{ crypto: string; fiat: string }> = [];
-    for (const crypto of CACHE_CRYPTO_TARGETS) {
-      for (const fiat of CACHE_FIAT_TARGETS) {
-        tatumPairs.push({ crypto, fiat });
-      }
-    }
-    
-    // Process in batches of 4 with 150ms delay between batches
+    // ── 1. crypto → USD (Tatum, batches of 4 with a short pause) ──
     const BATCH_SIZE = 4;
-    for (let i = 0; i < tatumPairs.length; i += BATCH_SIZE) {
-      const batch = tatumPairs.slice(i, i + BATCH_SIZE);
-      const batchPromises = batch.map(({ crypto, fiat }) =>
-        (async () => {
-          try {
-            const priceInFiat = await getTatumRate(crypto, fiat);
-            if (priceInFiat && priceInFiat > 0) {
-              backgroundRateCache.set(`rate_bg:${crypto}:${fiat}`, { rate: priceInFiat, timestamp: Date.now() });
-              backgroundRateCache.set(`rate_bg:${fiat}:${crypto}`, { rate: 1 / priceInFiat, timestamp: Date.now() });
-              ratesUpdated += 2;
-            }
-          } catch {
-            // Skip silently — individual pair failure
+    for (let i = 0; i < CACHE_CRYPTO_TARGETS.length; i += BATCH_SIZE) {
+      const batch = CACHE_CRYPTO_TARGETS.slice(i, i + BATCH_SIZE);
+      await Promise.allSettled(
+        batch.map(async (asset) => {
+          const price = await getTatumRate(asset, 'USD');
+          if (price && price > 0) {
+            setUsdPrice(asset, price);
+            ratesUpdated += 1;
           }
-        })()
+        }),
       );
-      await Promise.allSettled(batchPromises);
-      if (i + BATCH_SIZE < tatumPairs.length) {
-        await new Promise(r => setTimeout(r, 150));
+      if (i + BATCH_SIZE < CACHE_CRYPTO_TARGETS.length) {
+        await new Promise((r) => setTimeout(r, 150));
       }
     }
-    
-    // Cross-rate recovery: fill gaps where direct Tatum pairs failed (e.g., TRX→BRL)
-    // Strategy: crypto→USD (usually works) × USD→fiat (via USDT proxy or existing cache)
-    for (const crypto of CACHE_CRYPTO_TARGETS) {
-      for (const fiat of CACHE_FIAT_TARGETS) {
-        const cacheKey = `rate_bg:${crypto}:${fiat}`;
-        if (backgroundRateCache.has(cacheKey)) continue; // Already have it
-        
-        // Try cross-rate: crypto→USD × USD→fiat
-        const cryptoUsdKey = `rate_bg:${crypto}:USD`;
-        const usdFiatKey = `rate_bg:USD:${fiat}`;
-        const cryptoUsd = backgroundRateCache.get(cryptoUsdKey);
-        
-        if (cryptoUsd && fiat === 'USD') {
-          continue; // Already have via USD key
-        }
-        
-        // Get USD→fiat rate from existing cache or USDT proxy
-        let usdToFiat = backgroundRateCache.get(usdFiatKey)?.rate;
-        if (!usdToFiat) {
-          // Try via any other crypto that HAS this fiat rate
-          for (const otherCrypto of CACHE_CRYPTO_TARGETS) {
-            const otherFiat = backgroundRateCache.get(`rate_bg:${otherCrypto}:${fiat}`)?.rate;
-            const otherUsd = backgroundRateCache.get(`rate_bg:${otherCrypto}:USD`)?.rate;
-            if (otherFiat && otherUsd && otherUsd > 0) {
-              usdToFiat = otherFiat / otherUsd;
-              break;
-            }
-          }
-        }
-        
-        if (cryptoUsd && usdToFiat && usdToFiat > 0) {
-          const crossRate = cryptoUsd.rate * usdToFiat;
-          backgroundRateCache.set(cacheKey, { rate: crossRate, timestamp: Date.now() });
-          backgroundRateCache.set(`rate_bg:${fiat}:${crypto}`, { rate: 1 / crossRate, timestamp: Date.now() });
-          ratesUpdated += 2;
-          apiLogger.info(`[BackgroundCache] 🔗 Cross-rate recovery: ${crypto}→${fiat} = ${toFixedStr(crossRate, 6)} (via ${crypto}→USD × USD→${fiat})`);
-        }
-      }
-    }
-    
-    // If Tatum produced very few rates, supplement with CoinGecko as fallback
-    if (ratesUpdated < 8) {
-      apiLogger.warn(`[BackgroundCache] Tatum only returned ${ratesUpdated} rates, supplementing with CoinGecko`);
+
+    const missingCrypto = CACHE_CRYPTO_TARGETS.filter((a) => !freshUsdLeg(a));
+    if (missingCrypto.length > 0) {
       provider = 'Tatum+CoinGecko';
       try {
-        const coinIds = CACHE_CRYPTO_TARGETS
-          .map(c => COINGECKO_IDS[c])
-          .filter(Boolean)
-          .join(',');
-        const fiatTargets = CACHE_FIAT_TARGETS.map(f => f.toLowerCase()).join(',');
-        
-        const { data } = await axios.get(
-          `https://api.coingecko.com/api/v3/simple/price`,
-          {
-            params: { ids: coinIds, vs_currencies: fiatTargets },
-            timeout: 8000,
-          }
-        );
-
-        for (const crypto of CACHE_CRYPTO_TARGETS) {
-          const coinId = COINGECKO_IDS[crypto];
-          if (!coinId || !data[coinId]) continue;
-          
-          for (const fiat of CACHE_FIAT_TARGETS) {
-            const cacheKey = `rate_bg:${crypto}:${fiat}`;
-            if (backgroundRateCache.has(cacheKey)) continue; // Tatum already filled this
-            
-            const priceInFiat = data[coinId][fiat.toLowerCase()];
-            if (priceInFiat && priceInFiat > 0) {
-              backgroundRateCache.set(cacheKey, { rate: priceInFiat, timestamp: Date.now() });
-              backgroundRateCache.set(`rate_bg:${fiat}:${crypto}`, { rate: 1 / priceInFiat, timestamp: Date.now() });
-              ratesUpdated += 2;
-            }
+        const ids = missingCrypto.map((c) => COINGECKO_IDS[c]).filter(Boolean).join(',');
+        const { data } = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
+          params: { ids, vs_currencies: 'usd' },
+          timeout: 8000,
+        });
+        for (const asset of missingCrypto) {
+          const price = Number(data?.[COINGECKO_IDS[asset]]?.usd);
+          if (price > 0) {
+            setUsdPrice(asset, price);
+            ratesUpdated += 1;
           }
         }
       } catch {
-        apiLogger.warn(`[BackgroundCache] CoinGecko fallback also failed — using Tatum-only rates`);
+        apiLogger.warn(`[BackgroundCache] CoinGecko supplement failed for ${missingCrypto.join(',')}`);
+      }
+    }
+
+    // ── 2. USD → fiat (every 10 min, or sooner when a currency is missing) ──
+    const fiatDue =
+      opts.forceFiat ||
+      Date.now() - lastFiatRefreshAt >= FIAT_REFRESH_MS ||
+      CACHE_FIAT_TARGETS.some((f) => !freshUsdLeg(f));
+    if (fiatDue) {
+      lastFiatRefreshAt = Date.now();
+      let gotFromFastForex = false;
+      const ffKey = FASTFOREX_API_KEY || envRaw("FAST_FOREX_KEY");
+      if (ffKey && Date.now() >= fastForexDisabledUntil) {
+        try {
+          const { data } = await axios.get(`https://api.fastforex.io/fetch-multi`, {
+            params: { api_key: ffKey, from: 'USD', to: CACHE_FIAT_TARGETS.join(',') },
+            timeout: 5000,
+          });
+          for (const fiat of CACHE_FIAT_TARGETS) {
+            const perUsd = Number(data?.results?.[fiat]);
+            if (perUsd > 0) {
+              setUsdToFiat(fiat, perUsd);
+              ratesUpdated += 1;
+              gotFromFastForex = true;
+            }
+          }
+        } catch {
+          /* fall through to Tatum */
+        }
+      }
+      const missingFiat = CACHE_FIAT_TARGETS.filter((f) => !freshUsdLeg(f));
+      if (missingFiat.length > 0) {
+        provider += gotFromFastForex ? '+FastForex+TatumFX' : '+TatumFX';
+        await Promise.allSettled(
+          missingFiat.map(async (fiat) => {
+            const perUsd = await getTatumRate('USDT', fiat);
+            if (perUsd && perUsd > 0) {
+              setUsdToFiat(fiat, perUsd);
+              ratesUpdated += 1;
+            }
+          }),
+        );
+      } else if (gotFromFastForex) {
+        provider += '+FastForex';
+      }
+      const stillMissing = CACHE_FIAT_TARGETS.filter((f) => !freshUsdLeg(f));
+      if (stillMissing.length > 0) {
+        try {
+          const { data } = await axios.get(`https://api.coingecko.com/api/v3/simple/price`, {
+            params: { ids: 'tether', vs_currencies: stillMissing.map((f) => f.toLowerCase()).join(',') },
+            timeout: 8000,
+          });
+          for (const fiat of stillMissing) {
+            const perUsd = Number(data?.tether?.[fiat.toLowerCase()]);
+            if (perUsd > 0) {
+              setUsdToFiat(fiat, perUsd);
+              ratesUpdated += 1;
+            }
+          }
+        } catch {
+          apiLogger.warn(`[BackgroundCache] fiat fallback failed for ${stillMissing.join(',')}`);
+        }
       }
     }
   } catch (error: unknown) {
     const err = error as { message?: string };
     apiLogger.error(`[BackgroundCache] Rate refresh failed: ${err.message}`);
   }
-  
+
   const elapsed = Date.now() - startTime;
   if (ratesUpdated > 0) lastBackgroundRefresh = { at: Date.now(), provider, rates: ratesUpdated };
-  apiLogger.info(`[BackgroundCache] ✅ Refreshed ${ratesUpdated} rates via ${provider} in ${elapsed}ms`);
+  apiLogger.info(`[BackgroundCache] ✅ Refreshed ${ratesUpdated} USD legs via ${provider} in ${elapsed}ms`);
 };
 
 /**
- * Get rate from background cache (populated by CoinGecko every 60s)
- * Used ONLY as fallback when real-time providers fail
+ * Fresh background-cache rate for from→to, derived from USD legs.
+ * Returns null when either leg is missing or past its freshness window.
  */
-const getBackgroundCachedRate = (from: string, to: string): number | null => {
-  const cacheKey = `rate_bg:${from}:${to}`;
-  const cached = backgroundRateCache.get(cacheKey);
-  if (cached) {
-    const age = Date.now() - cached.timestamp;
-    if (age < BACKGROUND_CACHE_TTL_MS) {
-      apiLogger.info(`[currencyConvert] Using background-cached rate for ${from}→${to}: ${cached.rate} (age: ${Math.floor(age / 1000)}s, source: CoinGecko/Tatum)`);
-      return cached.rate;
-    }
-  }
-  return null;
+const getBackgroundCachedRate = (from: string, to: string): RatePoint | null => {
+  const a = freshUsdLeg(from);
+  const b = freshUsdLeg(to);
+  if (!a || !b || !(b.rate > 0)) return null;
+  const point = { rate: a.rate / b.rate, at: Math.min(a.at, b.at) };
+  apiLogger.info(
+    `[currencyConvert] Using background-cached rate for ${from}→${to}: ${point.rate} (age: ${Math.floor((Date.now() - point.at) / 1000)}s)`,
+  );
+  return point;
 };
 
 // List of crypto currencies
@@ -203,8 +363,8 @@ const COINGECKO_IDS: Record<string, string> = {
   RLUSD: 'ripple-usd',
 };
 
-// No per-request cache — FastForex is always called fresh for real-time payments
-// Background cache (CoinGecko 60s) is the ONLY fallback cache
+// Per-request cache: 30s (below). Fresh background cache: component legs above.
+// Last-known (stale, age-capped) store: memory + Redis above — used only when every live source fails.
 
 /**
  * Tatum rate IDs — maps our currency codes to Tatum's /v3/tatum/rate/{id}
@@ -296,7 +456,7 @@ const getTatumRate = async (crypto: string, fiat: string = 'USD'): Promise<numbe
  *
  * Resolution order per asset:
  *   1. Stablecoins → $1
- *   2. Fresh Tatum-backed background cache (rate_bg:ASSET:USD)
+ *   2. Fresh Tatum-backed background cache (USD leg, ≤3 min)
  *   3. Live Tatum rate (getTatumRate)
  * Assets that can't be priced are omitted (callers hide the estimate).
  *
@@ -317,19 +477,20 @@ export const getUsdPriceSnapshot = async (
         out[asset] = 1;
         return;
       }
-      // 1) fresh Tatum-backed background cache (refreshed ~every 60s)
-      const cached = backgroundRateCache.get(`rate_bg:${asset}:USD`);
-      if (cached && cached.rate > 0 && Date.now() - cached.timestamp < BACKGROUND_CACHE_TTL_MS) {
+      // POL / POLYGON share the MATIC rate id.
+      const sym = asset === "POL" || asset === "POLYGON" ? "MATIC" : asset;
+      // 1) fresh Tatum-backed background cache (refreshed every 2 min)
+      const cached = freshUsdLeg(sym);
+      if (cached && cached.rate > 0) {
         out[asset] = cached.rate;
         return;
       }
-      // 2) live Tatum (POL shares the MATIC rate id)
+      // 2) live Tatum
       try {
-        const tatumSym = asset === "POL" ? "MATIC" : asset;
-        const rate = await getTatumRate(tatumSym, "USD");
+        const rate = await getTatumRate(sym, "USD");
         if (rate && rate > 0) {
           out[asset] = rate;
-          backgroundRateCache.set(`rate_bg:${asset}:USD`, { rate, timestamp: Date.now() });
+          if (CRYPTO_CURRENCIES.includes(sym)) setUsdPrice(sym, rate);
         }
       } catch {
         /* skip — asset stays unpriced */
@@ -351,7 +512,12 @@ const getCryptoRateViaTatum = async (from: string, to: string): Promise<number |
 
   if (fromIsCrypto && !toIsCrypto) {
     // Crypto → fiat (e.g., BTC → EUR) — Tatum returns crypto price in target fiat directly
-    if (isStable(from)) return 1;
+    // Stablecoin → fiat is only 1:1 for USD. USDT→EUR is ~0.89, USDT→NGN ~1330 —
+    // the old `return 1` priced every non-USD stablecoin conversion at par (audit 2026-06).
+    if (isStable(from)) {
+      if (to.toUpperCase() === 'USD') return 1;
+      return await getTatumRate('USDT', to);
+    }
     const priceInFiat = await getTatumRate(from, to);
     if (priceInFiat) return priceInFiat;  // This is "1 BTC = X EUR"
     
@@ -369,7 +535,12 @@ const getCryptoRateViaTatum = async (from: string, to: string): Promise<number |
     }
   } else if (!fromIsCrypto && toIsCrypto) {
     // Fiat → crypto (e.g., EUR → BTC) — invert: 1/price
-    if (isStable(to)) return 1;
+    // Fiat → stablecoin: 1 EUR = 1/(USDT→EUR) USDT (≈1.12), NOT 1 (see above).
+    if (isStable(to)) {
+      if (from.toUpperCase() === 'USD') return 1;
+      const usdtInFrom = await getTatumRate('USDT', from);
+      return usdtInFrom && usdtInFrom > 0 ? 1 / usdtInFrom : null;
+    }
     const priceInFiat = await getTatumRate(to, from);
     if (priceInFiat) return 1 / priceInFiat;  // "1 EUR = 1/X BTC"
     
@@ -525,23 +696,23 @@ const getCryptoRateViaCoinGecko = async (from: string, to: string): Promise<numb
 const requestRateCache = new Map<string, { rate: number; timestamp: number }>();
 const REQUEST_RATE_CACHE_TTL_MS = 30 * 1000; // 30 seconds
 
-const getCachedRequestRate = (from: string, to: string): number | null => {
+const getCachedRequestRate = (from: string, to: string): RatePoint | null => {
   const key = `req_rate:${from}:${to}`;
   const cached = requestRateCache.get(key);
   if (cached && (Date.now() - cached.timestamp) < REQUEST_RATE_CACHE_TTL_MS) {
     apiLogger.info(`[currencyConvert] ⚡ Request cache HIT for ${from}→${to}: ${cached.rate} (age: ${Math.floor((Date.now() - cached.timestamp) / 1000)}s)`);
-    return cached.rate;
+    return { rate: cached.rate, at: cached.timestamp };
   }
   return null;
 };
 
-const setCachedRequestRate = (from: string, to: string, rate: number): void => {
+const setCachedRequestRate = (from: string, to: string, rate: number, at: number = Date.now()): void => {
   const key = `req_rate:${from}:${to}`;
-  requestRateCache.set(key, { rate, timestamp: Date.now() });
+  requestRateCache.set(key, { rate, timestamp: at });
   // Inverse rate cache too (saves lookup in both directions)
   if (rate > 0) {
     const inverseKey = `req_rate:${to}:${from}`;
-    requestRateCache.set(inverseKey, { rate: 1 / rate, timestamp: Date.now() });
+    requestRateCache.set(inverseKey, { rate: 1 / rate, timestamp: at });
   }
   // Cleanup old entries periodically (every 100 sets)
   if (requestRateCache.size > 200) {
@@ -568,24 +739,51 @@ const normalizeCurrency = (currency: string): string => {
 };
 
 /**
- * Process a single currency conversion
- * Returns the rate data or throws an error
+ * Native decimals used for converted CRYPTO amounts (F3). Capped at 8 to match
+ * the ledger (toFixedStr(…, 8) everywhere); 6-decimal tokens/chains use 6.
+ */
+const ASSET_DECIMALS: Record<string, number> = {
+  BTC: 8, LTC: 8, DOGE: 8, BCH: 8, ETH: 8, BNB: 8, MATIC: 8, SOL: 8, ADA: 6,
+  TRX: 6, XRP: 6, USDT: 6, USDC: 6, RLUSD: 6,
+};
+
+/** True when `code` (already normalised) is a crypto asset rather than fiat. */
+export const isCryptoAsset = (code: string): boolean => CRYPTO_CURRENCIES.includes(normalizeCurrency(code));
+
+/**
+ * Decimal places for a converted amount — driven by the TARGET asset, never by
+ * the magnitude (1.23456789 BTC used to be cut to 1.23).
+ *   crypto target → native decimals (8 / 6)
+ *   fiat target   → 2 dp; legacy non-fixed calls keep 8 dp for sub-unit values
+ */
+export const amountDecimalsFor = (target: string, value: number, fixedDecimal: boolean): number => {
+  const code = normalizeCurrency(target);
+  if (CRYPTO_CURRENCIES.includes(code)) return ASSET_DECIMALS[code] ?? 8;
+  if (fixedDecimal) return 2;
+  return Math.abs(value) >= 1 ? 2 : 8;
+};
+
+/** Rates are kept at full useful precision (never 2 dp): 8 dp ≥ 1, 12 dp below. */
+const normalizeRate = (rate: number): number => Number(toFixedStr(rate, rate >= 1 ? 8 : 12));
+
+/**
+ * Process a single currency conversion.
+ * Live sources first, then an age-capped last-known rate. When nothing usable
+ * exists: strict → RateUnavailableError, display → { unavailable: true }.
  */
 const processSingleCurrency = async (
   source: string,
   defaultCurrency: string,
   amount: number,
-  fixedDecimal: boolean
+  fixedDecimal: boolean,
+  opts: ConvertOptions = {},
 ): Promise<CurrencyRateList> => {
   const currentCurrency = normalizeCurrency(defaultCurrency);
+  const outCode = defaultCurrency.toUpperCase();
 
   // Same currency - no conversion needed
   if (source === currentCurrency) {
-    return {
-      currency: defaultCurrency.toUpperCase(),
-      amount: amount,
-      transferRate: 1,
-    };
+    return { currency: outCode, amount, transferRate: 1, rateAsOf: Date.now() };
   }
 
   // Stablecoin shortcut: USD ↔ USDT/USDC is exactly 1:1
@@ -594,96 +792,108 @@ const processSingleCurrency = async (
   const isTargetStable = ['USDT', 'USDC', 'RLUSD'].includes(currentCurrency);
   const isSourceStable = ['USDT', 'USDC', 'RLUSD'].includes(source);
   const isTargetUSD = currentCurrency === 'USD';
-  
+
   if ((isSourceUSD && isTargetStable) || (isSourceStable && isTargetUSD)) {
     apiLogger.info(`[currencyConvert] 💵 Stablecoin 1:1: ${source}→${currentCurrency} = ${amount} (exact peg)`);
-    return {
-      currency: defaultCurrency.toUpperCase(),
-      amount: amount,
-      transferRate: 1,
-    };
+    return { currency: outCode, amount, transferRate: 1, rateAsOf: Date.now() };
   }
 
   let rate: number | null = null;
+  let rateAsOf = Date.now();
+  let stale = false;
   let convertedAmount: number | null = null;
 
   const isCryptoConversion = CRYPTO_CURRENCIES.includes(source) || CRYPTO_CURRENCIES.includes(currentCurrency);
 
-  // PERF FIX 4: Check short-lived request rate cache first (30s TTL, saves ~200ms)
-  const cachedRate = getCachedRequestRate(source, currentCurrency);
-  if (cachedRate) {
-    rate = cachedRate;
+  // 1. Short-lived request rate cache (30s TTL, saves ~200ms)
+  const cached = getCachedRequestRate(source, currentCurrency);
+  if (cached) {
+    rate = cached.rate;
+    rateAsOf = cached.at;
   }
 
-  // Strategy 1: FastForex — only for fiat↔fiat conversions (150-300ms)
+  // 2. FastForex — only for fiat↔fiat conversions (150-300ms, only when keyed)
   if (!rate && !isCryptoConversion) {
     const fastForexResult = await getFastForexRate(source, currentCurrency, amount);
     if (fastForexResult) {
       rate = fastForexResult.rate;
       convertedAmount = fastForexResult.converted;
+      rateAsOf = Date.now();
     }
   }
 
-  // Strategy 2: Background cache — CoinGecko rates refreshed every 60s (instant, 0 API calls)
+  // 3. Fresh background cache (USD legs, cron every 2 min — instant, 0 API calls)
   if (!rate) {
-    rate = getBackgroundCachedRate(source, currentCurrency);
+    const bg = getBackgroundCachedRate(source, currentCurrency);
+    if (bg) {
+      rate = bg.rate;
+      rateAsOf = bg.at;
+    }
   }
 
-  // Strategy 3: Tatum — direct fallback if FastForex + cache both failed
+  // 4. Tatum live
   if (!rate) {
     rate = await getCryptoRateViaTatum(source, currentCurrency);
+    if (rate) rateAsOf = Date.now();
   }
 
-  // Strategy 4: CoinGecko — direct last resort
+  // 5. CoinGecko live (crypto only)
   if (!rate && isCryptoConversion) {
     rate = await getCryptoRateViaCoinGecko(source, currentCurrency);
+    if (rate) rateAsOf = Date.now();
+  }
+
+  // 6. Last-known rate, age-capped (money ≤30 min, display ≤24h)
+  const maxAgeMs = opts.strict ? MONEY_RATE_MAX_AGE_MS : (opts.maxStaleMs ?? DISPLAY_RATE_MAX_AGE_MS);
+  if (!rate) {
+    const lk = await recallLastKnownRate(source, currentCurrency, maxAgeMs);
+    if (lk) {
+      rate = lk.rate;
+      rateAsOf = lk.at;
+      stale = true;
+      apiLogger.warn(
+        `[currencyConvert] ⚠️ Live providers failed for ${source}→${currentCurrency}; using LAST-KNOWN rate ${lk.rate} from ${new Date(lk.at).toISOString()} (${Math.round((Date.now() - lk.at) / 60000)} min old, cap ${Math.round(maxAgeMs / 60000)} min)`,
+      );
+    }
   }
 
   if (!rate) {
-    apiLogger.error(`[currencyConvert] ❌ No rate available for ${source}→${currentCurrency} - all providers failed (FastForex, Tatum, CoinGecko)`);
-    // Graceful fallback: return amount as-is with rate=1 instead of crashing
-    // This ensures the wallet page still loads even if rate providers are down
-    apiLogger.warn(`[currencyConvert] ⚠️ Using fallback rate 0 for ${source}→${currentCurrency} (providers unavailable)`);
-    return {
-      amount: 0,
-      transferRate: 0,
-      currency: currentCurrency,
-    };
+    apiLogger.error(
+      `[currencyConvert] ❌ No usable rate for ${source}→${currentCurrency} — all live providers failed and no last-known rate within ${Math.round(maxAgeMs / 60000)} min (${opts.strict ? 'strict: refusing' : 'display: unavailable'})`,
+    );
+    if (opts.strict) throw new RateUnavailableError(source, currentCurrency, maxAgeMs);
+    // Display mode: explicit "unavailable" — callers must NOT treat 0 as a real
+    // value and must not label USD numbers with another currency's symbol.
+    return { currency: outCode, amount: 0, transferRate: 0, unavailable: true };
   }
 
-  // PERF FIX 4: Cache the resolved rate for 30s (saves API calls for subsequent requests)
-  setCachedRequestRate(source, currentCurrency, rate);
+  if (!stale) {
+    // Cache for 30s and remember as the last-known rate (memory + Redis).
+    setCachedRequestRate(source, currentCurrency, rate, rateAsOf);
+    if (!cached) rememberPairRate(source, currentCurrency, rate, rateAsOf);
+  }
 
   // Calculate converted amount if not already set by FastForex
   if (convertedAmount === null) {
     convertedAmount = mul(amount, rate).toNumber();
   }
 
-  // Format the values based on magnitude
-  const transferRate = fixedDecimal
-    ? toFixedStr(rate, 2)
-    : rate > 1
-    ? toFixedStr(rate, 2)
-    : toFixedStr(rate, 8);
-
-  const formattedAmount = fixedDecimal
-    ? toFixedStr(convertedAmount, 2)
-    : convertedAmount > 1
-    ? toFixedStr(convertedAmount, 2)
-    : toFixedStr(convertedAmount, 8);
-
+  const dp = amountDecimalsFor(currentCurrency, convertedAmount, fixedDecimal);
   return {
-    currency: defaultCurrency.toUpperCase(),
-    amount: Number(formattedAmount),
-    transferRate: Number(transferRate),
+    currency: outCode,
+    amount: Number(toFixedStr(convertedAmount, dp)),
+    transferRate: normalizeRate(rate),
+    rateAsOf,
+    ...(stale ? { stale: true } : {}),
   };
 };
 
 /**
  * Main currency conversion function
- * Supports crypto-to-crypto, crypto-to-fiat, and fiat-to-fiat conversions
- * Uses FastForex as primary, CoinGecko as fallback for crypto
- * 
+ * Supports crypto-to-crypto, crypto-to-fiat, and fiat-to-fiat conversions.
+ * Pass `strict: true` on MONEY paths (checkout quotes, fee tiers, settlement):
+ * it throws RateUnavailableError instead of ever returning a 0 / made-up rate.
+ *
  * OPTIMIZED: Uses Promise.all for parallel API calls instead of sequential
  */
 const currencyConvert = async ({
@@ -691,12 +901,14 @@ const currencyConvert = async ({
   sourceCurrency,
   amount,
   fixedDecimal,
+  strict,
+  maxStaleMs,
 }: {
   currency: string[];
   sourceCurrency: string;
   amount: number;
   fixedDecimal: boolean;
-}) => {
+} & ConvertOptions): Promise<CurrencyRateList[]> => {
   // Validate amount parameter
   if (amount === null || amount === undefined || isNaN(Number(amount))) {
     apiLogger.error(`[currencyConvert] Invalid amount: ${amount}`);
@@ -710,7 +922,7 @@ const currencyConvert = async ({
 
   // Process all currencies in parallel using Promise.all
   const currencyRateList = await Promise.all(
-    currency.map((curr) => processSingleCurrency(source, curr, amount, fixedDecimal))
+    currency.map((curr) => processSingleCurrency(source, curr, amount, fixedDecimal, { strict, maxStaleMs }))
   );
 
   const elapsed = Date.now() - startTime;
@@ -718,6 +930,18 @@ const currencyConvert = async ({
   apiLogger.info(`[currencyConvert] Results:`, currencyRateList);
   
   return currencyRateList;
+};
+
+/** Test-only: reset every in-memory cache (background, request, last-known). */
+export const __resetFxCachesForTests = (): void => {
+  usdPriceCache.clear();
+  usdToFiatCache.clear();
+  lastKnownPair.clear();
+  lastKnownUsd.clear();
+  requestRateCache.clear();
+  tatumFailureCache.clear();
+  lastFiatRefreshAt = 0;
+  lastBackgroundRefresh = null;
 };
 
 export default currencyConvert;

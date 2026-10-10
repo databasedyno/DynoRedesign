@@ -36,6 +36,8 @@ import CollectedTaxReport from "@/Components/Page/Invoices/CollectedTaxReport";
 import PeriodTotals from "@/Components/Page/Invoices/PeriodTotals";
 import ReceiptsEmptyState from "@/Components/Page/Invoices/ReceiptsEmptyState";
 import { usePeriodSummary } from "@/Components/Page/Invoices/usePeriodSummary";
+import FxAsOfLabel from "@/Components/UI/FxAsOfLabel";
+
 import { InvoicePeriod, isInvoicePeriod, periodParams } from "@/Components/Page/Invoices/invoicePeriods";
 import InvoicePreviewDrawer, { InvoicePreviewInvoice } from "@/Components/Page/Invoices/InvoicePreviewDrawer";
 import { StatusPill } from "@/Components/UI/_shared";
@@ -336,6 +338,7 @@ const InvoicesPage = ({ setPageName, setPageDescription }: pageProps) => {
           exporting={exporting}
           onExport={handleExportCSV}
         />
+        <FxAsOfLabel fx={periodSummary.data?.fx} testId="invoices-fx-as-of" sx={{ mt: -1, mb: 2 }} />
         {/* Tabs */}
         <Box sx={{ mb: 3 }}>
           <OverflowTabs

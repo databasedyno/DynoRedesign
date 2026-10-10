@@ -10,7 +10,7 @@ import {
   successResponseHelper,
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
-import { convertToUSD, convertToFiat, getUserDisplayCurrency } from "../../utils/currencyUtils";
+import { convertToUSD, convertToFiat, getUserDisplayCurrency, resolveDisplayFx } from "../../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../../utils/transactionSource";
 import {
   deriveTxDisplayStatus,
@@ -385,14 +385,10 @@ export const exportTransactions = async (req: express.Request, res: express.Resp
       });
 
     // Get company's preferred currency for the value column
-    const preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id);
-    let fiatConversionRate = 1;
-    if (preferredCurrency !== 'USD') {
-      try {
-        const result = await convertToFiat('USD', preferredCurrency, 1);
-        if (result.amount) fiatConversionRate = result.amount;
-      } catch { /* fallback to USD */ }
-    }
+    // No rate → the column is labelled USD with USD values (never mixed).
+    const exportFx = await resolveDisplayFx(await getUserDisplayCurrency(userData?.user_id, company_id));
+    const preferredCurrency = exportFx.currency;
+    const fiatConversionRate = exportFx.rate;
 
     // Convert to CSV format. The "<CUR> Value" column uses the authoritative
     // per-transaction usd_value (× the cached USD→display rate) so it's ALWAYS

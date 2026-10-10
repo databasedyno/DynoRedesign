@@ -38,6 +38,7 @@ export interface BrandsData {
   range: { period: string; start: string; end: string };
   currency: string;
   currency_symbol: string;
+  fx?: import("@/Components/UI/FxAsOfLabel").FxInfo;
   summary: BrandsSummaryTotals;
   brands: BrandRow[];
   generated_at: string;

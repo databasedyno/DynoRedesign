@@ -53,5 +53,5 @@
   "seed_data_creation": "None",
   "retest_needed": false,
   "should_main_agent_self_test": true,
-  "context_for_next_testing_agent": "Preview URL: https://vault-setup-21.preview.emergentagent.com. Test signed-out (clear localStorage 'token'). Use ?view=landing to force the marketing homepage. Hero/Final primary CTAs are buttons (no href) that programmatically navigate to /auth/register?ref=hero|final. Theme toggle is data-testid 'theme-toggle-button' in the header; visually flips but does not set a data-theme attribute on <html>. Horizontal overflow must be measured on document.documentElement, not on individual marquee elements."
+  "context_for_next_testing_agent": "Preview URL: https://fiat-crypto-vault.preview.emergentagent.com. Test signed-out (clear localStorage 'token'). Use ?view=landing to force the marketing homepage. Hero/Final primary CTAs are buttons (no href) that programmatically navigate to /auth/register?ref=hero|final. Theme toggle is data-testid 'theme-toggle-button' in the header; visually flips but does not set a data-theme attribute on <html>. Horizontal overflow must be measured on document.documentElement, not on individual marquee elements."
 }

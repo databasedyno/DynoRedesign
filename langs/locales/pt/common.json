@@ -1931,5 +1931,11 @@
   "clearFilters": "Limpar",
   "filtersDone": "Concluído",
   "selectItems": "Selecionar",
-  "selectDone": "Concluído"
+  "selectDone": "Concluído",
+  "fxLabel": {
+    "asOf": "Câmbio das {{time}}",
+    "asOfHint": "A taxa de câmbio ao vivo está indisponível por um momento, então usamos a última conhecida. Os pagamentos não são afetados.",
+    "fallback": "Exibido em USD · câmbio de {{currency}} indisponível",
+    "fallbackHint": "Não conseguimos obter uma taxa de câmbio de {{currency}}, então estes valores estão em dólares americanos. Eles voltam automaticamente."
+  }
 }

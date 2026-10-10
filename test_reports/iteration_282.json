@@ -113,5 +113,5 @@
   "seed_data_creation": "none (all mutations avoided; GET /api/kyc/status mocked per-context)",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "KYC visuals shipped and verified. If you need to re-mock states, follow the pattern in iteration_282: new_context per state, ctx.route('**/api/kyc/status**', fulfill JSON) BEFORE first goto. For i18n also mock /api/user/profile to inject language=<code>. The real QA merchant is verified, so other states MUST be mocked. Preview URL used: https://cd900b8d-6c7e-4c5b-974c-4edce5c1b7b9.preview.emergentagent.com"
+  "context_for_next_testing_agent": "KYC visuals shipped and verified. If you need to re-mock states, follow the pattern in iteration_282: new_context per state, ctx.route('**/api/kyc/status**', fulfill JSON) BEFORE first goto. For i18n also mock /api/user/profile to inject language=<code>. The real QA merchant is verified, so other states MUST be mocked. Preview URL used: https://fiat-crypto-vault.preview.emergentagent.com"
 }

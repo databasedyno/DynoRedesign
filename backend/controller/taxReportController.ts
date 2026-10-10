@@ -175,6 +175,7 @@ interface ConversionResult {
   display_currency: string;
   currency_symbol: string;
   rates: Record<string, number>;
+  unconverted: string[];
   totals: { tax_collected: number; taxable_base: number; reverse_charge_base: number };
 }
 
@@ -186,15 +187,21 @@ const resolveConversion = async (
   const display = await getUserDisplayCurrency(userId, companyId ?? null);
   const rates: Record<string, number> = {};
   const totals = { tax_collected: 0, taxable_base: 0, reverse_charge_base: 0 };
+  const unconverted: string[] = [];
   for (const c of byCurrency) {
     let rate = 1;
     if (c.currency !== display) {
       try {
         const r = await convertToFiat(c.currency, display, 1);
-        rate = Number(r.amount) || Number(r.rate) || 1;
+        rate = !r.unavailable && Number(r.rate) > 0 ? Number(r.rate) : NaN;
       } catch {
-        rate = 1;
+        rate = NaN;
       }
+    }
+    // No rate → keep this currency out of the converted total (never add it 1:1).
+    if (!Number.isFinite(rate)) {
+      unconverted.push(c.currency);
+      continue;
     }
     rates[c.currency] = rate;
     totals.tax_collected += c.tax_collected * rate;
@@ -205,6 +212,7 @@ const resolveConversion = async (
     display_currency: display,
     currency_symbol: getCurrencySymbol(display),
     rates,
+    unconverted,
     totals: {
       tax_collected: round2(totals.tax_collected),
       taxable_base: round2(totals.taxable_base),
@@ -238,6 +246,7 @@ const getCollectedTaxReport = async (req: express.Request, res: express.Response
         display_currency: conv.display_currency,
         currency_symbol: conv.currency_symbol,
         converted_totals: conv.totals,
+        unconverted_currencies: conv.unconverted,
       },
       by_period: agg.by_period,
       by_country: agg.by_country.map((b) => ({

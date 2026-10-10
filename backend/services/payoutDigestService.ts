@@ -149,10 +149,12 @@ export async function buildPayoutDigest(
   // rely on so every merchant-facing surface stays in lock-step.
   const companyIdForResolve =
     overrideCompanyId ?? (u.last_company_id as number | null) ?? null;
-  const { getUserDisplayCurrency } = await import("../utils/currencyUtils");
-  const displayCurrency = String(
-    await getUserDisplayCurrency(Number(u.user_id), companyIdForResolve),
-  ).toUpperCase();
+  const { getUserDisplayCurrency, resolveDisplayFx } = await import("../utils/currencyUtils");
+  // No USD→brand rate → the whole digest is in USD (label and numbers agree).
+  const digestFx = await resolveDisplayFx(
+    String(await getUserDisplayCurrency(Number(u.user_id), companyIdForResolve)),
+  );
+  const displayCurrency = digestFx.currency;
   const currencySymbol = getCurrencySymbol(displayCurrency);
   if (!email) return null;
 

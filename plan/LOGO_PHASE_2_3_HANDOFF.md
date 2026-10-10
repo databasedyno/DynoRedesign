@@ -1,7 +1,7 @@
 # LOGO PHASE 2/3 — HANDOFF SPEC (for next agent, complete end-to-end)
 
 > Written 2026-10-07 (pod bc82ec41) after a full code review of the brand/logo system.
-> Preview: https://vault-setup-21.preview.emergentagent.com
+> Preview: https://fiat-crypto-vault.preview.emergentagent.com
 > Frontend = Next **production** build (`.next-prod`, no hot reload) → you MUST rebuild+swap
 > after any FE edit (command in §7). Backend = ts-node via `backend/server.py` shim on :8001.
 > SAFE MODE, LIVE prod DB. Changes ship via **"Save to GitHub"** (do not git-push yourself).

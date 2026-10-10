@@ -7,7 +7,7 @@ import { apiLogger } from "../utils/loggers";
 import { IUserType } from "../utils/types";
 import { companyModel, teamMemberModel, userModel } from "../models";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
-import { convertToFiat, getCurrencySymbol, isSupportedDisplayCurrency } from "../utils/currencyUtils";
+import { fxMeta, isSupportedDisplayCurrency, resolveDisplayFx } from "../utils/currencyUtils";
 import { toNumber, num } from "../utils/money";
 import { OverviewScope, coinsWithoutWallet } from "../services/dashboard/overviewQueries";
 import { brandStats, brandAttention } from "../services/dashboard/brandsQueries";
@@ -90,14 +90,8 @@ const getBrands = async (req: express.Request, res: express.Response) => {
 
     const brands = await resolveAccessibleBrands(userId);
 
-    let rate = 1;
-    if (currency !== "USD") {
-      try {
-        rate = (await convertToFiat("USD", currency, 1)).rate || 1;
-      } catch {
-        rate = 1;
-      }
-    }
+    const dfx = await resolveDisplayFx(currency);
+    const rate = dfx.rate;
     const fx = (usd: number) => toNumber(usd * rate, 2);
 
     const now = new Date();
@@ -172,14 +166,15 @@ const getBrands = async (req: express.Request, res: express.Response) => {
 
     const data = {
       range: { period: range.period, start: range.start.toISOString(), end: range.end.toISOString() },
-      currency,
-      currency_symbol: getCurrencySymbol(currency),
+      currency: dfx.currency,
+      currency_symbol: dfx.symbol,
+      fx: fxMeta(dfx),
       summary,
       brands: rows.map(({ settled_net_usd, ...rest }) => rest),
       generated_at: now.toISOString(),
     };
 
-    await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
+    if (!dfx.fallback) await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
     return successResponseHelper(res, 200, "Brands retrieved", data);
   } catch (e) {
     return handleControllerErrorReturn(res, e, apiLogger);

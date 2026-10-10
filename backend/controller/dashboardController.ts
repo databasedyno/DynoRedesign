@@ -12,7 +12,7 @@ import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
-import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, convertToFiat, convertToUSD, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, convertToFiat, convertToUSD, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { deriveTxDisplayStatus, isPaymentDetected, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";
@@ -244,8 +244,11 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
     let todayVolume = todayVolumeUSD;
     let yesterdayVolume = yesterdayVolumeUSD;
     
+    // Symbol and numbers always agree: no rate → USD (audit F1).
+    const dfx = await resolveDisplayFx(preferredCurrency);
+    preferredCurrency = dfx.currency;
     if (preferredCurrency !== 'USD' && totalVolumeUSD > 0) {
-      const { rate } = await convertToFiat('USD', preferredCurrency, 1);
+      const rate = dfx.rate;
       totalVolume = toNumber(mul(totalVolumeUSD, rate), 2);
       currentVolume = toNumber(mul(currentVolumeUSD, rate), 2);
       lastVolume = toNumber(mul(lastVolumeUSD, rate), 2);
@@ -309,10 +312,11 @@ const getDashboard = async (req: express.Request, res: express.Response) => {
         details: activeWallets,
       },
       fee_tier: feeTier,
+      fx: fxMeta(dfx),
     };
 
     // Cache the result (B3: single SET EX round-trip, fire-and-forget)
-    setRedisItemWithTTL(cacheKey, dashboardData, DASHBOARD_CACHE_TTL).catch(() => {});
+    if (!dfx.fallback) setRedisItemWithTTL(cacheKey, dashboardData, DASHBOARD_CACHE_TTL).catch(() => {});
 
     return successResponseHelper(res, 200, "Dashboard data retrieved successfully", dashboardData);
 
@@ -501,15 +505,9 @@ const getChartData = async (req: express.Request, res: express.Response) => {
     ]) as [Array<Record<string, unknown>>, Array<Record<string, unknown>>, Array<Record<string, unknown>>, Array<Record<string, unknown>>];
 
     // ── Aggregate chart rows using stored usd_value ──
-    let chartUsdToPreferredRate = 1;
-    if (preferredCurrency !== 'USD') {
-      try {
-        const { rate } = await convertToFiat('USD', preferredCurrency, 1);
-        chartUsdToPreferredRate = rate || 1;
-      } catch {
-        chartUsdToPreferredRate = 1;
-      }
-    }
+    const chartFx = await resolveDisplayFx(preferredCurrency);
+    preferredCurrency = chartFx.currency;
+    const chartUsdToPreferredRate = chartFx.rate;
     
     const dateAgg: Record<string, { volume: number; transaction_count: number }> = {};
     for (const row of rawChartData) {
@@ -590,7 +588,7 @@ const getChartData = async (req: express.Request, res: express.Response) => {
 
     // Cache the result (120 second TTL — chart data changes slowly)
     // B3: single SET EX round-trip, fire-and-forget.
-    setRedisItemWithTTL(cacheKey, responseData, 120).catch(() => {});
+    if (!chartFx.fallback) setRedisItemWithTTL(cacheKey, responseData, 120).catch(() => {});
 
     return successResponseHelper(res, 200, "Chart data retrieved successfully", responseData);
 
@@ -749,17 +747,9 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     const allTimeVolumeUSD = toNumber(parseFloat(String(volumeResult[0]?.total_usd_volume || '0')), 2);
     
     // Get conversion rate if not USD
-    if (preferredCurrency !== 'USD') {
-      try {
-        const result = await convertToFiat('USD', preferredCurrency, 1);
-        if (result.amount) {
-          conversionRate = result.amount;
-        }
-      } catch (e) {
-        apiLogger.warn(`[getFeeTiers] Currency conversion failed, using USD`);
-        preferredCurrency = 'USD';
-      }
-    }
+    const tierFx = await resolveDisplayFx(preferredCurrency);
+    preferredCurrency = tierFx.currency;
+    conversionRate = tierFx.rate;
     
     const userTierInfo = getFeeTier(allTimeVolumeUSD, preferredCurrency, conversionRate);
     const currencySymbol = getCurrencySymbol(preferredCurrency);
@@ -797,7 +787,7 @@ const getFeeTiers = async (req: express.Request, res: express.Response) => {
     };
 
     // Cache for 5 minutes (B3: single SET EX round-trip, fire-and-forget)
-    setRedisItemWithTTL(cacheKey, feeTiersResponse, 300).catch(() => {});
+    if (!tierFx.fallback) setRedisItemWithTTL(cacheKey, feeTiersResponse, 300).catch(() => {});
 
     return successResponseHelper(res, 200, "Fee tiers retrieved successfully", feeTiersResponse);
   } catch (e) {

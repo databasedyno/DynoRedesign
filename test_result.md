@@ -199,7 +199,7 @@
 #  SafeDeal escrow is intentionally EXCLUDED from the homepage.
 #
 #  Serving PRODUCTION build (distDir=.next-prod). Preview URL (this pod):
-#  https://vault-setup-21.preview.emergentagent.com
+#  https://fiat-crypto-vault.preview.emergentagent.com
 #  Live tickers verified 200 through the ingress.
 #
 # ============================================================================
@@ -208,7 +208,7 @@
 #  Tested by: testing_agent (auto_frontend_testing_agent)
 #  Test date: 2026-10-06
 #  Test method: Python Playwright browser automation (READ-ONLY, public page)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: PRODUCTION Next.js build (.next-prod), public homepage
 #
 #  CONTEXT: Comprehensive verification of the newly rebuilt DynoPay marketing
@@ -451,7 +451,7 @@
 # >>> 2026-10-06 (fork, pod 33379795) — SAFEDEAL FETCH-LOOP FIX + DEPLOY HA +
 #     TESTING-AGENT 429 GUIDANCE
 # ============================================================================
-#  Preview URL (THIS pod) = https://vault-setup-21.preview.emergentagent.com
+#  Preview URL (THIS pod) = https://fiat-crypto-vault.preview.emergentagent.com
 #  Frontend = PRODUCTION Next build (distDir=.next-prod, NO hot reload). After FE
 #  edits: cd /app && NEXT_DIST_DIR=.next-prod-new node_modules/.bin/next build then
 #  rm -rf .next-prod-old && mv .next-prod .next-prod-old && mv .next-prod-new .next-prod
@@ -510,7 +510,7 @@
 # ============================================================================
 # >>> 2026-10-05 (CREATE-FLOWS ENHANCEMENTS, 4 items) — NEEDS testing_agent (frontend)
 # ============================================================================
-#  App: DynoPay. Preview URL = https://vault-setup-21.preview.emergentagent.com
+#  App: DynoPay. Preview URL = https://fiat-crypto-vault.preview.emergentagent.com
 #  Env: Next.js FE in DEV mode (hot reload), ts-node backend :8001, LIVE prod DB in SAFE MODE.
 #  Gates BEFORE this run: `tsc --noEmit` = 0 errors; eslint (project config) = 0 on the 4
 #  changed TS files; strip_unused_imports --check = 0 unused imports. All green.
@@ -597,7 +597,7 @@
 #  Tested by: testing_agent (auto_frontend_testing_agent)
 #  Test date: 2026-10-05
 #  Test method: Python Playwright browser automation (READ-ONLY on LIVE PRODUCTION DB)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: LIVE prod DB, Next.js frontend (DEV mode with cold compile)
 #  Test account: onarrival21@gmail.com / company_id 1 "The Dev Store" (owner's test brand)
 #
@@ -825,7 +825,7 @@
 # >>> 2026-10-05 (Create Hub + Fundraiser discovery, vault pod) — FRONTEND CHANGE
 #     Awaiting testing_agent verification.
 # ============================================================================
-#  POD: current preview (https://vault-setup-21.preview.emergentagent.com).
+#  POD: current preview (https://fiat-crypto-vault.preview.emergentagent.com).
 #  SAFE MODE, LIVE prod DB — MOCK every write in UI tests (do NOT actually create links/campaigns).
 #  Merchant/owner for testing: onarrival21@gmail.com / Katiekendra123@ (company_id 1 "The Dev Store").
 #  Quick login alt: localStorage token from /app/memory/tmp/merchant_token.txt + last_company_id=1.
@@ -965,7 +965,7 @@
 #
 #  HOW TO TEST (UI — LIVE prod DB, SAFE MODE → DO NOT SUBMIT/CREATE a link):
 #   1) Quick-login as owner (TOTP-enrolled) — mint a fresh token:
-#        node /app/scripts/qa/owner_login.cjs https://vault-setup-21.preview.emergentagent.com
+#        node /app/scripts/qa/owner_login.cjs https://fiat-crypto-vault.preview.emergentagent.com
 #      then in the browser before navigating:
 #        localStorage.setItem("token", "<token>");
 #        localStorage.setItem("last_company_id", "1");
@@ -987,7 +987,7 @@
 #  Tested by: testing_agent (auto_frontend_testing_agent)
 #  Test date: 2026-10-04
 #  Test method: Python Playwright browser automation (READ-ONLY on LIVE PRODUCTION DB)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: SAFE MODE, LIVE prod DB, Next.js PRODUCTION build
 #
 #  CONTEXT: Verified the bug fix where the fee-payer selector on the "Create Payment Link"
@@ -1219,7 +1219,7 @@
 #  Tested by: testing_agent (deep_testing_backend_v2)
 #  Test date: 2026-10-03
 #  Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend on :8001
 #
 #  CONTEXT: Verified the webhook-status bug fix where the public status page
@@ -1365,7 +1365,7 @@
 # >>> 2026-10-01 (vault-setup, pod 31539451) — CONTEXT-AWARE ONBOARDING FOR
 #     ALL 4 SIGNUP VERTICALS — IMPLEMENTED (frontend only), awaiting test <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com
 #  SAFE MODE, LIVE prod DB. Next.js PRODUCTION build (.next-prod, rebuilt this
 #  session — compiled ok, /get-started 200 local+external). FE edits are NOT
 #  live without a rebuild.
@@ -1432,7 +1432,7 @@
 #  Tested by: testing_agent (auto_frontend_testing_agent)
 #  Test date: 2026-10-01
 #  Test method: Python Playwright browser automation (READ-ONLY)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: SAFE MODE, LIVE prod DB, Next.js PRODUCTION build
 #
 #  CONTEXT: Comprehensive verification of TWO features:
@@ -1631,7 +1631,7 @@
 #     TIMESTAMP (Bug #2, Option A) — from memory/BTC_EMAIL_AND_TIMESTAMP_BUGS_2026-06.md
 #     — IMPLEMENTED (backend), awaiting test <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com
 #  SAFE MODE, LIVE prod DB, DISABLE_OUTBOUND_EMAIL=true, settlement worker OFF.
 #  => The settlement email path (chainVerification) CANNOT be triggered via API
 #     here (needs a real on-chain payment + the chain-verification cron). Verify
@@ -1678,7 +1678,7 @@
 # >>> 2026-09-30 (vault-setup) — UX BATCH A + B + i18n (from
 #     memory/UX_FEEDBACK_PATTERNS_2026-09.md) — IMPLEMENTED, SELF-VERIFIED ✅ <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com
 #  SAFE MODE, LIVE prod DB. Next.js PRODUCTION build (rebuilt this session).
 #  Merchant: onarrival21@gmail.com / Katiekendra123@ (2FA TOTP: node
 #  /app/backend/scripts/print_totp.cjs 1). Admin: moxxcompany@gmail.com / same pw.
@@ -1729,7 +1729,7 @@
 #  Tested by: testing_agent (auto_frontend_testing_agent)
 #  Test date: 2026-09-30
 #  Test method: Python Playwright browser automation (READ-ONLY)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: SAFE MODE, LIVE prod DB, Next.js PRODUCTION build
 #
 #  CONTEXT: Comprehensive end-to-end verification of TWO new UX features:
@@ -2046,7 +2046,7 @@
 # >>> 2026-09-28 (fork, pt9b) — RETIRE WalletConnect FULLY (remove Reown keys +
 #     wallet SDK deps, trim bundle) — DONE & SMOKE-VERIFIED ✅ <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com
 #  SAFE MODE, LIVE prod DB. Next.js PROD build (no hot reload) — REBUILT this fork.
 #
 #  WHAT: fully retired the (already UI-disabled) WalletConnect/Reown stack.
@@ -2076,7 +2076,7 @@
 # >>> 2026-09-28 (fork, pt9) — BUGFIX: remove WalletConnect "Verify ownership by
 #     signing" from merchant Payout addresses (/wallet) — DONE & VERIFIED ✅ <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com
 #  (= SERVER_URL in /app/backend/.env; the vault-auth-8 URL below is STALE).
 #  SAFE MODE, LIVE prod DB. Next.js PROD build (no hot reload) — REBUILT this fork.
 #
@@ -2113,7 +2113,7 @@
 # ============================================================================
 # >>> 2026-09-28 (fork, pt8) — HANDOFF FOR TESTING: payment-link "created" date — 6 GAPS CLOSED, FRONTEND TEST PENDING <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com (= SERVER_URL in
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com (= SERVER_URL in
 #  /app/backend/.env; the vault-setup-12 URL above is STALE). SAFE MODE, LIVE prod DB. Next.js PROD
 #  build (no hot reload) — REBUILT this session and contains testid tx-detail-link-created.
 #  Owner login: onarrival21@gmail.com / Katiekendra123@ (user_id 1, company_id 1 "The Dev Store";
@@ -2166,7 +2166,7 @@
 #  Tested by: testing_agent (deep_testing_backend_v2)
 #  Test date: 2026-09-28
 #  Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #  CONTEXT: Verified the backend change for POST /api/wallet/getAllTransactions
@@ -2305,7 +2305,7 @@
 # ============================================================================
 # >>> 2026-09-28 (fork, pt6) — MAIN AGENT CHANGES FOR TESTING <<<
 # ============================================================================
-#  POD: https://vault-setup-21.preview.emergentagent.com
+#  POD: https://fiat-crypto-vault.preview.emergentagent.com
 #  (the older vault-setup-11 / db6f1699 URLs in this file are STALE — use the one above)
 #  SAFE MODE, LIVE prod DB, Node/TypeScript backend on :8001, Next.js prod build on :3000.
 #  Admin login: moxxcompany@gmail.com / Katiekendra123@
@@ -2366,7 +2366,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-28
 #   Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #   CONTEXT: Verified the bugfix for "Weekly Summary" notification volume bug where
@@ -2594,7 +2594,7 @@
 #      finish. Credentials: owner onarrival21@gmail.com / Katiekendra123@ (user_id 1, TOTP 2FA:
 #      `node backend/scripts/print_totp.cjs 1`). Login: POST /api/user/login → challenge_token →
 #      POST /api/user/2fa/validate {challenge_token, token} → accessToken. Bearer bypasses CSRF on
-#      /api/notifications/*. Preview: https://vault-setup-21.preview.emergentagent.com
+#      /api/notifications/*. Preview: https://fiat-crypto-vault.preview.emergentagent.com
 #      OPS: preview FE = PRODUCTION next build (NO hot reload) — after FE edits `rm -rf /app/.next-prod
 #      && sudo supervisorctl restart frontend` (~3.5m). Backend ts-node: `sudo supervisorctl restart backend`.
 # ============================================================================
@@ -2607,7 +2607,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-28
 #   Test method: Python backend API testing with read-only DB query validation
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #   CONTEXT: Verified the bug fix for merchant "Weekly Summary" notification where
@@ -2826,7 +2826,7 @@
 #   OPS: preview = PRODUCTION next build (NO hot reload). After FE edits:
 #     rm -rf /app/.next-prod && sudo supervisorctl restart frontend (~3.5 min).
 #     Backend Node/ts-node: sudo supervisorctl restart backend.
-#     Preview URL: https://vault-setup-21.preview.emergentagent.com
+#     Preview URL: https://fiat-crypto-vault.preview.emergentagent.com
 # ============================================================================
 
 
@@ -2836,7 +2836,7 @@
 #   Tested by: testing_agent (frontend_testing_v2)
 #   Test date: 2026-09-28
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, PRODUCTION Next.js build
 #
 #   CONTEXT: E2E verification of SafeDeal UX Audit Batch 3 findings (SD-01 through SD-06)
@@ -5270,7 +5270,7 @@
 
 # ============================================================================
 # >>> CURRENT FRONTEND TEST REQUEST (fee-copy + currency-selector) <<<
-#   Preview URL (THIS pod): https://vault-setup-21.preview.emergentagent.com
+#   Preview URL (THIS pod): https://fiat-crypto-vault.preview.emergentagent.com
 #   SafeDeal sign-in = email + one-time code; outbound email OFF in preview so the code is shown
 #   in the UI (data-testid=sd-signin-preview-code) and returned as data.preview_code. Any email
 #   works (creates a customer under brand 262). Use throwaway sd_qa_*@example.com.
@@ -5611,7 +5611,7 @@
 
 # ============================================================================
 # >>> CURRENT TASK (2026-09-20) — SAFEDEAL BUYER<->SELLER E2E (fund -> deliver -> release) <<<
-#   Preview URL (THIS pod): https://vault-setup-21.preview.emergentagent.com
+#   Preview URL (THIS pod): https://fiat-crypto-vault.preview.emergentagent.com
 #   Prepared deal (LIVE prod DB, SAFE MODE, money SIMULATED, ESCROW_LIVE_SETTLEMENT off):
 #     token=e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0  escrow_id=164  $250 USD  USDT-TRC20
 #     status=awaiting_payment  company_id=262 (SafeDeal brand)  seller=cid607  buyer=cid608
@@ -5636,7 +5636,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-20
 #   Test method: Python Playwright browser automation
-#   Preview URL: https://vault-setup-21.preview.emergentagent.com
+#   Preview URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Deal token: e79888ff5e7e15c0657539d6c83f4242006f90db8846daa0
 #   Deal amount: $250 USD (USDT-TRC20)
 #   Parties: Seller cid607 (sd-audit-1789847049@example.com) / Buyer cid608 (sd-buyer-e2e-1789849169@example.com)
@@ -5887,7 +5887,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: ALL PRIMARY TESTS PASSED (100% success rate)
 #
@@ -6024,7 +6024,7 @@
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-19
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #
 #   TEST RESULTS SUMMARY: 2/2 TESTS PASSED (100% success rate)
 #
@@ -6336,7 +6336,7 @@
 #   Tested by: testing_agent (deep_testing_backend_v2)
 #   Test date: 2026-09-18
 #   Test method: Python backend test (backend_test_escrow.py)
-#   Base URL: https://vault-setup-21.preview.emergentagent.com/api
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com/api
 #   Auth: Merchant owner (onarrival21@gmail.com) + Super-admin (moxxcompany@gmail.com)
 #
 #   CONTEXT: Verified the NEW email-OTP flow, custody conversion, two-phase settlement
@@ -12865,7 +12865,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent
 #   Test date: 2026-09-17
 #   Test method: Python backend test (backend_test.py)
-#   Backend URL: https://vault-setup-21.preview.emergentagent.com/api
+#   Backend URL: https://fiat-crypto-vault.preview.emergentagent.com/api
 #   Admin login: moxxcompany@gmail.com / Katiekendra123@
 #
 #   CONTEXT: Verified the payment email rendering fix via the new diagnostics endpoint
@@ -13190,7 +13190,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (auto_frontend_testing_agent)
 #   Test date: 2026-09-18 18:12 UTC
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Auth: Merchant owner (onarrival21@gmail.com) + TOTP 2FA
 #
 #   CONTEXT: Attempted comprehensive E2E testing of the DynoPay ESCROW UI covering:
@@ -13200,7 +13200,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   - TEST D: Admin (best-effort, dispute queue, run-escalations)
 #
 #   CRITICAL BLOCKER: Preview URL returned 502 Bad Gateway (Cloudflare error)
-#   - The preview URL https://vault-setup-21.preview.emergentagent.com
+#   - The preview URL https://fiat-crypto-vault.preview.emergentagent.com
 #     is showing "Bad gateway - Error code 502" from Cloudflare
 #   - This appears to be a Kubernetes ingress or preview environment issue
 #   - Local services are HEALTHY:
@@ -13550,7 +13550,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (frontend_testing_v2)
 #   Test date: 2026-09-27
 #   Test method: Python Playwright browser automation
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB (test-mode payments only, no real crypto)
 #
 #   CONTEXT: Verified the enhanced "Sandbox testing" card on the Developers → 
@@ -13790,7 +13790,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Tested by: testing_agent (backend_testing)
 #   Test date: 2026-09-28
 #   Test method: Python requests API testing
-#   Base URL: https://vault-setup-21.preview.emergentagent.com
+#   Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, BACKEND-ONLY (public endpoint, no auth)
 #
 #   CONTEXT: Verified the SafeDeal deal preview endpoint for E2E UX Audit Batch 3
@@ -14071,7 +14071,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #   Test date: 2026-09-28
 #   Test method: Python backend API testing (READ-ONLY on LIVE PRODUCTION DB)
 #   Base URL: http://localhost:8001
-#   External URL: https://vault-setup-21.preview.emergentagent.com
+#   External URL: https://fiat-crypto-vault.preview.emergentagent.com
 #   Environment: SAFE MODE, LIVE prod DB, Node/TypeScript backend
 #
 #   CONTEXT: Verified two backend changes on the Dynopay/SafeDeal app:
@@ -14445,7 +14445,7 @@ Test Data Cleaned: Attempted (deletion blocked by OTP requirement)
 #  Tested by: testing_agent (auto_frontend_testing_agent)
 #  Test date: 2026-10-06
 #  Test method: Python Playwright browser automation (READ-ONLY, public pages)
-#  Base URL: https://vault-setup-21.preview.emergentagent.com
+#  Base URL: https://fiat-crypto-vault.preview.emergentagent.com
 #  Environment: PRODUCTION Next.js build (.next-prod), public marketing pages
 #
 #  CONTEXT: Comprehensive verification of SIX new DynoPay product detail pages

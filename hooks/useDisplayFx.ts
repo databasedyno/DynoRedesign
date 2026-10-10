@@ -5,66 +5,89 @@ import { toFixedStr, trimZeros } from "@/utils/money";
 import { formatWithSymbol } from "@/utils/locale";
 
 /**
- * useDisplayFx — resolves the selected brand's currency (Settings → Brand
- * currency: USD/EUR/GBP/NGN/CAD/AUD) plus the authoritative USD→currency FX
- * rate, so fiat estimates can be shown next to crypto amounts in the brand's
- * own currency ("≈ €12.34") anywhere in the app.
+ * useDisplayFx — the brand currency + authoritative USD→currency rate from
+ * `GET /api/user/display-currency?company_id=` so fiat estimates show in the
+ * brand's own currency ("≈ €12.34").
  *
- * The rate comes from the backend (`GET /api/user/display-currency?company_id=`),
- * which reads a Redis-cached rate — no client-side FX guessing. Fails safe: if
- * the call fails we fall back to USD @ rate 1 so amounts still render.
- *
- * Standard SWR revalidation is ON so a brand-currency change (which mutates
- * this key) or a stale localStorage-hydrated value refreshes promptly.
+ * Audit 2026-06: `currency`/`symbol` are the EFFECTIVE currency the rate converts
+ * into. When the backend has no live or last-known rate it answers USD @ 1, so
+ * symbol and numbers always agree. The rate re-checks every 60s and on focus;
+ * SWR keeps the last good value on error, and `isStale`/`asOf` drive the
+ * "rate as of hh:mm" label.
  */
 
-interface DisplayFxState {
+export interface FxProvenance {
+  asOf: string | null;
+  isStale: boolean;
+  /** Brand currency wanted but unavailable → amounts are shown in USD. */
+  fallback: boolean;
+  requestedCurrency: string;
+}
+
+interface Resolved extends FxProvenance {
   currency: string;
   symbol: string;
   rate: number;
-  /** True when the brand explicitly chose its currency (vs. the USD default). */
   explicit: boolean;
-  ready: boolean;
 }
 
-const DEFAULT: DisplayFxState = {
+const DEFAULT: Resolved = {
   currency: "USD",
   symbol: "$",
   rate: 1,
   explicit: false,
-  ready: false,
+  asOf: null,
+  isStale: false,
+  fallback: false,
+  requestedCurrency: "USD",
 };
 
-type Resolved = { currency: string; symbol: string; rate: number; explicit: boolean };
+/** A rate older than this is labelled even if the backend still calls it fresh. */
+const CLIENT_STALE_MS = 15 * 60 * 1000;
+
+const resolve = (d: any): Resolved => {
+  const requested = d?.display_currency || "USD";
+  const rate = Number(d?.rate);
+  const effective = d?.effective_currency || requested;
+  // Never pair a non-USD symbol with an unusable rate.
+  if (!(rate > 0) || (effective !== "USD" && rate === 1 && !d?.rate_as_of)) {
+    return { ...DEFAULT, explicit: d?.brand_currency_set === true, fallback: requested !== "USD", requestedCurrency: requested };
+  }
+  return {
+    currency: effective,
+    symbol: (d?.effective_currency_info || d?.currency_info)?.symbol || "$",
+    rate,
+    explicit: d?.brand_currency_set === true,
+    asOf: d?.rate_as_of || null,
+    isStale: d?.rate_is_stale === true,
+    fallback: d?.rate_fallback === true,
+    requestedCurrency: requested,
+  };
+};
 
 export function useDisplayFx() {
   const { selectedCompanyId } = useCompanyStore();
   const key = selectedCompanyId != null ? `user/display-currency?company_id=${selectedCompanyId}` : "user/display-currency";
   const { data, error } = useApiSWR<Resolved>(key, {
-    select: (raw) => {
-      const d = raw?.data;
-      return {
-        currency: d?.display_currency || "USD",
-        symbol: d?.currency_info?.symbol || "$",
-        rate: Number(d?.rate) > 0 ? Number(d.rate) : 1,
-        explicit: d?.brand_currency_set === true,
-      };
-    },
-    revalidateOnFocus: false,
+    select: (raw) => resolve(raw?.data),
+    refreshInterval: 60_000,
+    revalidateOnFocus: true,
+    dedupingInterval: 20_000,
+    keepPreviousData: true,
   });
 
-  // Ready once we have data OR the call failed (fail-safe → USD @ 1).
-  const state: DisplayFxState = data
-    ? { ...data, ready: true }
-    : error
-      ? { ...DEFAULT, ready: true }
-      : DEFAULT;
+  const base = data ?? DEFAULT;
+  const ageStale = !!base.asOf && Date.now() - new Date(base.asOf).getTime() > CLIENT_STALE_MS;
+  const state = {
+    ...base,
+    // Showing a cached rate while the refresh fails → label it.
+    isStale: base.currency !== "USD" && (base.isStale || ageStale || (!!error && !!data)),
+    ready: !!data || !!error,
+  };
 
   /**
-   * Convert a USD amount into the display currency and format it with the
-   * currency symbol. Returns null for non-finite input so callers can hide
-   * the estimate. Small values keep extra precision so sub-cent amounts
-   * don't collapse to "0.00".
+   * USD amount → display currency, formatted with its symbol. null for
+   * non-finite input. Sub-unit values keep extra precision.
    */
   const formatFromUsd = useCallback(
     (usd: number | string): string | null => {
@@ -75,7 +98,6 @@ export function useDisplayFx() {
       const abs = Math.abs(val);
       if (abs === 0) return formatWithSymbol(0, sym, 2);
       if (abs >= 1) return formatWithSymbol(val, sym, 2);
-      // Sub-unit values keep extra precision (trimmed) so they don't collapse to 0.00.
       const trimmed = trimZeros(toFixedStr(val, abs >= 0.01 ? 4 : 6));
       const frac = (trimmed.split(".")[1] || "").length;
       return formatWithSymbol(trimmed, sym, Math.max(2, frac));

@@ -1931,5 +1931,11 @@
   "clearFilters": "Zurücksetzen",
   "filtersDone": "Fertig",
   "selectItems": "Auswählen",
-  "selectDone": "Fertig"
+  "selectDone": "Fertig",
+  "fxLabel": {
+    "asOf": "Kurs von {{time}}",
+    "asOfHint": "Der Live-Wechselkurs ist kurz nicht verfügbar, daher verwenden wir den zuletzt bekannten Kurs. Zahlungen sind nicht betroffen.",
+    "fallback": "In USD angezeigt · {{currency}}-Kurs nicht verfügbar",
+    "fallbackHint": "Wir konnten keinen {{currency}}-Wechselkurs abrufen, daher sind diese Beträge in US-Dollar. Sie wechseln automatisch zurück."
+  }
 }

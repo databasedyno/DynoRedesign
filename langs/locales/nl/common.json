@@ -1931,5 +1931,11 @@
   "clearFilters": "Wissen",
   "filtersDone": "Klaar",
   "selectItems": "Selecteren",
-  "selectDone": "Klaar"
+  "selectDone": "Klaar",
+  "fxLabel": {
+    "asOf": "Koers van {{time}}",
+    "asOfHint": "De live wisselkoers is even niet beschikbaar, dus gebruiken we de laatst bekende koers. Betalingen worden niet beïnvloed.",
+    "fallback": "Getoond in USD · {{currency}}-koers niet beschikbaar",
+    "fallbackHint": "We konden geen {{currency}}-wisselkoers ophalen, dus deze bedragen staan in Amerikaanse dollars. Ze schakelen automatisch terug."
+  }
 }

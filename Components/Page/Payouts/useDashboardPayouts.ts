@@ -47,6 +47,7 @@ export interface PayoutsData {
   range: { period: string; start: string; end: string };
   currency: string;
   currency_symbol: string;
+  fx?: import("@/Components/UI/FxAsOfLabel").FxInfo;
   totals: {
     forwarded_count: number;
     forwarded_amount: number;

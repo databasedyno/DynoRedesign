@@ -1541,7 +1541,10 @@ function startLeaderOnlyServices() {
 // ALWAYS-ON: Background rate cache refresh (not destructive, needed for conversions)
 // Runs regardless of ENABLE_BACKGROUND_JOBS to prevent currency conversion failures
 // ═══════════════════════════════════════════════════════════════════════════
-cron.schedule("*/10 * * * *", function () {
+// Every 2 min: crypto→USD legs (fresh window 3 min = interval + 60s margin, so
+// the cache never has a gap); USD→fiat legs refresh on every 5th tick (10 min).
+// Also feeds the Redis last-known store used when every live provider fails.
+cron.schedule("*/2 * * * *", function () {
   refreshBackgroundRateCache().catch(err => {
     log(`Cron: Background rate cache refresh failed: ${err.message}`, "error");
   });

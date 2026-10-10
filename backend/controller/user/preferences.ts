@@ -44,15 +44,10 @@ export const getUserDisplayCurrency = async (
     }
     const supported = (cu.SUPPORTED_DISPLAY_CURRENCIES as string[]).map((code: string) => cu.getCurrencyInfo(code));
     const source: "company" | "default" = companyIdForResolve ? "company" : "default";
-    // USD→display-currency FX rate (cached in Redis, 600s TTL). Lets the
-    // frontend show a fiat estimate next to crypto amounts in the merchant's
-    // chosen display currency without doing any client-side FX guessing.
-    let rate = 1;
-    try {
-      rate = await cu.getUsdToFiatRate(resolved);
-    } catch {
-      rate = 1;
-    }
+    // USD→display-currency FX rate WITH provenance (audit F1, 2026-06). When no
+    // live or last-known (≤24h) rate exists, the EFFECTIVE currency falls back to
+    // USD so the client never pairs "€"/"₦" with USD numbers.
+    const fx = await cu.resolveDisplayFx(resolved);
     return successResponseHelper(res, 200, "Display currency retrieved", {
       display_currency: resolved,
       brand_currency_set: brandCurrencySet,
@@ -60,7 +55,13 @@ export const getUserDisplayCurrency = async (
       source,
       company_id: companyIdForResolve,
       currency_info: cu.getCurrencyInfo(resolved),
-      rate,
+      // Currency the `rate` converts USD INTO (== display_currency unless fallback).
+      effective_currency: fx.currency,
+      effective_currency_info: cu.getCurrencyInfo(fx.currency),
+      rate: fx.rate,
+      rate_as_of: fx.as_of,
+      rate_is_stale: fx.is_stale,
+      rate_fallback: fx.fallback,
       supported,
     });
   } catch (e) {

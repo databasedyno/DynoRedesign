@@ -2,22 +2,15 @@ import { Box, Typography, useTheme } from "@mui/material";
 import { Icon } from "@iconify/react";
 import { useMemo } from "react";
 import { formatLocaleNumber } from "@/utils/locale";
-import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useWalletData } from "@/hooks/useWalletData";
 import useAccountProfile from "@/hooks/useAccountProfile";
 import { CB_TOKENS } from "@/Components/UI/_shared";
 import { MONO } from "@/styles/uiKit";
-import { rootReducer } from "@/utils/types";
+import { useDisplayFx } from "@/hooks/useDisplayFx";
+import FxAsOfLabel from "@/Components/UI/FxAsOfLabel";
 import InfoHint from "@/Components/UI/InfoHint";
 
-/** Minimal symbol map — matches the currencies the wallet totals actually
- *  ship in today. Falls back to the ISO code when unmapped, which is the
- *  safest default for anything else. */
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$", EUR: "€", GBP: "£", NGN: "₦", GHS: "₵", RWF: "₣",
-  KES: "KES ", UGX: "UGX ", INR: "₹", ZAR: "R", AUD: "A$", CAD: "C$", BRL: "R$",
-};
 
 /**
  * WalletTotalHero — aurora "big number" hero for /wallet.
@@ -47,12 +40,11 @@ export default function WalletTotalHero() {
   const { t } = useTranslation(["walletScreen", "common"]);
   const { walletData, allCryptocurrencies } = useWalletData();
   const { account, isIndividual } = useAccountProfile();
-  const profile = useSelector((s: rootReducer) => (s as any).userReducer?.profile);
-  const currencyCode = profile?.display_currency || profile?.base_currency || "USD";
-  const currencySymbol = useMemo(
-    () => CURRENCY_SYMBOLS[String(currencyCode).toUpperCase()] || "$",
-    [currencyCode]
-  );
+  // Brand currency + USD rate from the same resolver as every other total, so the
+  // symbol always matches the numbers (was: user-level currency over USD numbers).
+  const fx = useDisplayFx();
+  const currencyCode = fx.currency;
+  const currencySymbol = fx.symbol;
 
   const stats = useMemo(() => {
     const totalUsd = walletData.reduce((sum, w) => sum + (Number(w.totalProcessed) || 0), 0);
@@ -63,7 +55,7 @@ export default function WalletTotalHero() {
     return { totalUsd, activeWallets, coverage, totalChains: allCryptocurrencies.length };
   }, [walletData, allCryptocurrencies]);
 
-  const formatted = useMemo(() => formatLocaleNumber(stats.totalUsd, 2), [stats.totalUsd]);
+  const formatted = useMemo(() => formatLocaleNumber(stats.totalUsd * fx.rate, 2), [stats.totalUsd, fx.rate]);
 
   return (
     <Box
@@ -156,6 +148,7 @@ export default function WalletTotalHero() {
           <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5, flexWrap: "wrap" }}>
             <Typography
               component="span"
+              data-testid="wallet-total-amount"
               sx={{
                 fontFamily: MONO,
                 fontVariantNumeric: "tabular-nums",
@@ -182,6 +175,7 @@ export default function WalletTotalHero() {
               {currencyCode}
             </Typography>
           </Box>
+          <FxAsOfLabel fx={fx} testId="wallet-fx-as-of" sx={{ mt: 1 }} />
         </Box>
 
         {/* Stat pills */}

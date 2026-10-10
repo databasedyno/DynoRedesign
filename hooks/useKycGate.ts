@@ -49,6 +49,8 @@ export function useKycGate() {
   return {
     data,
     loading: isLoading && !data && !error,
+    /** Status has resolved (or failed) — gate status-dependent UI on this, not `loading`. */
+    settled: data !== undefined || !!error,
     required,
     blocked,
     daysRemaining,

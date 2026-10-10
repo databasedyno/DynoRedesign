@@ -24,7 +24,7 @@ import {
   getCurrencySymbol,
   convertToFiat,
   getUserDisplayCurrency,
-  getUsdToFiatRate,
+  resolveDisplayFx,
 } from "../utils/currencyUtils";
 import { EU_COUNTRIES, FALLBACK_TAX_RATES } from "../utils/taxData";
 import { add, mul, pct, sub, sum, toFixedStr, toNumber } from "../utils/money";
@@ -178,20 +178,12 @@ export const computeInvoiceFigures = async (
   // rate (which previously would have exploded a $1 fee by ~64000×).
   const preferredCurrency = await getCompanyBaseCurrency(companyId);
 
-  let rate = 1;
-  let displayCurrency = "USD";
-  if (preferredCurrency && preferredCurrency !== "USD") {
-    try {
-      const result = await convertToFiat("USD", preferredCurrency, 1);
-      if (result && result.amount) {
-        rate = result.amount;
-        displayCurrency = preferredCurrency;
-      }
-    } catch (convErr) {
-      apiLogger.warn(
-        `[Invoice] Currency conversion USD→${preferredCurrency} failed, using USD amounts`
-      );
-    }
+  // No live/last-known rate → USD amounts labelled USD (never mixed).
+  const invFx = await resolveDisplayFx(preferredCurrency || "USD");
+  const rate = invFx.rate;
+  const displayCurrency = invFx.currency;
+  if (invFx.fallback) {
+    apiLogger.warn(`[Invoice] No USD→${preferredCurrency} rate, using USD amounts`);
   }
 
   // Exact fiat math, rounded to cents so the invoice lines always foot:
@@ -902,9 +894,9 @@ const downloadInvoicePDF = async (
         userData?.user_id,
         invoiceData.company_id
       );
-      const rate = await getUsdToFiatRate(displayCurrency);
-      pdfData.display_currency = displayCurrency;
-      pdfData.usd_to_display_rate = rate;
+      const pdfFx = await resolveDisplayFx(displayCurrency);
+      pdfData.display_currency = pdfFx.currency;
+      pdfData.usd_to_display_rate = pdfFx.rate;
     } catch (fxErr) {
       apiLogger.warn(
         `[Invoice PDF] Could not resolve display currency for user ${userData?.user_id}: ${fxErr}`
@@ -1086,14 +1078,17 @@ const getTaxReport = async (
     // totals to the merchant's DISPLAY currency (same USD→fiat rate as the
     // /transactions export + dashboard tiles). Falls back to rate 1 (USD)
     // if the merchant hasn't picked one or the FX call fails.
-    const displayCurrency = await getUserDisplayCurrency(
-      userData?.user_id,
-      typeof company_id === "string" || typeof company_id === "number"
-        ? company_id
-        : null
+    const reportFx = await resolveDisplayFx(
+      await getUserDisplayCurrency(
+        userData?.user_id,
+        typeof company_id === "string" || typeof company_id === "number"
+          ? company_id
+          : null
+      )
     );
-    const rate = await getUsdToFiatRate(displayCurrency);
-    const currencySymbol = getCurrencySymbol(displayCurrency) || "$";
+    const displayCurrency = reportFx.currency;
+    const rate = reportFx.rate;
+    const currencySymbol = reportFx.symbol || "$";
 
     const byPeriod = Array.from(periodMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
@@ -1128,6 +1123,7 @@ const getTaxReport = async (
         display_currency: displayCurrency,
         currency_symbol: currencySymbol,
         usd_to_display_rate: rate,
+        fx: { as_of: reportFx.as_of, is_stale: reportFx.is_stale, fallback: reportFx.fallback, requested_currency: reportFx.requested_currency },
       },
       by_period: byPeriod,
       by_jurisdiction: byJurisdiction,
@@ -1205,13 +1201,16 @@ const exportTaxReportCSV = async (
     // USD→fiat rate (`fxrate:USD:<CUR>`, ~10 min TTL) as the transactions
     // export, the dashboard, and the tax report summary. Fails safe to
     // USD @ rate 1 so the CSV is never blank.
-    const displayCurrency = await getUserDisplayCurrency(
-      userData?.user_id,
-      typeof company_id === "string" || typeof company_id === "number"
-        ? company_id
-        : null
+    const csvFx = await resolveDisplayFx(
+      await getUserDisplayCurrency(
+        userData?.user_id,
+        typeof company_id === "string" || typeof company_id === "number"
+          ? company_id
+          : null
+      )
     );
-    const rate = await getUsdToFiatRate(displayCurrency);
+    const displayCurrency = csvFx.currency;
+    const rate = csvFx.rate;
 
     // Generate CSV
     const header =

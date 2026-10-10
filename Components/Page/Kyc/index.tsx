@@ -59,7 +59,13 @@ const KycPage = () => {
           <KycTimeline view={kyc.view} status={kyc.status} latest={kyc.data?.kyc_record ?? kyc.history?.[0] ?? null} />
         </>
       )}
-      {kyc.view !== "verified" && <KycRequirements requirements={kyc.requirements} />}
+      {/* Wait for the real status: before it resolves the view defaults to "not_needed",
+          which flashed the Requirements card for verified accounts. */}
+      {!kyc.settled ? (
+        <Skeleton data-testid="kyc-requirements-loading" variant="rounded" height={120} sx={{ borderRadius: "16px" }} />
+      ) : (
+        kyc.view !== "verified" && <KycRequirements requirements={kyc.requirements} />
+      )}
       <KycHistory records={kyc.history} loading={kyc.historyLoading} />
     </Box>
   );

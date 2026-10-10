@@ -2,7 +2,8 @@ import { raw as envRaw } from "../../../utils/config";
 import {
   PAYMENT_TIMING,
 } from "../paymentConfig";
-import { convertToUSD } from "../paymentHelpers";
+import { settlementConvert } from "./settlementFx";
+import { amountDecimalsFor } from "../../../helper/currencyConvert";
 import {
   currencyConvert,
   getErrorMessage,
@@ -206,12 +207,17 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
       )?.dataValues;
 
       const baseCurrency = customerData?.base_currency || company_data?.settlement_currency || 'USD';
-      const finalAmount = await currencyConvert({
-        sourceCurrency: tempData?.currency,
-        currency: [baseCurrency],
-        amount: receivedAmount,
-        fixedDecimal: false,
-      });
+      // Base-currency value of what was received. Settlement FX (audit 2026-06):
+      // live / ≤30 min last-known → quote snapshot → "DEFERRED:" (retried) — never 0.
+      // Nothing has been written yet, so deferring here is side-effect free.
+      const receivedBaseFx = await settlementConvert(
+        tempData?.currency,
+        baseCurrency,
+        receivedAmount,
+        { ...(customerData || {}), ...(tempData || {}) },
+        "received→base",
+      );
+      const finalAmount = [{ amount: receivedBaseFx.amount }];
 
       cronLogger.info("finalAmount=========>", finalAmount[0]);
 
@@ -524,15 +530,22 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         // - Fee-on-fee for customer-pays (fees applied to amount that includes pre-paid fees)
         // - Fee-on-tax for both modes (tax portion subjected to platform fees)
 
-        // Convert crypto amount to USD for reference
-        const amountInUSD = await currencyConvert({
-          sourceCurrency: tempCurrency,
-          currency: [customerData?.base_currency || "USD"],
-          amount: totalAmountReceived,
-          fixedDecimal: false,
-        });
-        
-        const receivedUSD = Number(amountInUSD[0].amount);
+        // Value the received crypto in USD — fee tiers, the minimum-forwarding
+        // threshold and referral credit are all USD. (It used to be converted to
+        // the BASE currency, so an NGN link compared naira against a USD minimum,
+        // and an all-provider outage returned 0 → "under threshold, all to admin".)
+        const receivedUsdFx = await settlementConvert(
+          tempCurrency,
+          "USD",
+          totalAmountReceived,
+          { ...(customerData || {}), ...(tempData || {}) },
+          "received→USD",
+          8,
+        );
+        const receivedUSD = Number(receivedUsdFx.amount);
+        if (receivedUsdFx.source !== "live") {
+          cronLogger.warn(`[cryptoVerification] Settling ${tempCurrency} on a ${receivedUsdFx.source} rate (${receivedUsdFx.rate} USD/unit as of ${new Date(receivedUsdFx.asOf).toISOString()})`);
+        }
         
         // Use stored base_amount_usd for fee tier (same tier as at payment creation)
         const storedBaseAmountUSD = parseFloat(tempData?.base_amount_usd || '0');
@@ -979,16 +992,10 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
         if (autoConvertEnabled && originalUserAmount > 0) {
           try {
             const adminWalletAddr = getAdminWalletAddress(tempCurrency) || "";
-            // Use receivedAmount and currencyConvert for USD value since amountInUSD is block-scoped
+            // USD value of the merchant share at the SAME settlement rate as receivedUSD.
             let usdValue: number | undefined;
             try {
-              const usdConvert = await currencyConvert({
-                sourceCurrency: tempCurrency,
-                currency: ["USD"],
-                amount: originalUserAmount,
-                fixedDecimal: false,
-              });
-              usdValue = usdConvert && usdConvert[0] ? Number(usdConvert[0].amount) : undefined;
+              usdValue = toNumber(mul(originalUserAmount, receivedUsdFx.rate), 8);
             } catch { usdValue = undefined; }
             
             // FIX: Look up the integer transaction_id from tbl_user_transaction
@@ -1293,8 +1300,8 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
             transaction_type: "CREDIT",
             status: "successful",
             customer_id: customerData.customer_id ? Number(customerData.customer_id) : null,
-            // Store USD value at time of receipt (historical value)
-            usd_value: (await convertToUSD(Number(userAmountToSend), tempCurrency)) || 0,
+            // Store USD value at time of receipt (historical value) — settlement rate, never a silent 0
+            usd_value: toNumber(mul(Number(userAmountToSend), receivedUsdFx.rate), 2),
             // FIX: Populate crypto fields for complete transaction records
             // crypto_amount = total crypto the customer sent (before fees)
             // crypto_currency = the cryptocurrency type (ETH, BTC, LTC, etc.)
@@ -1366,7 +1373,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
               crypto_currency: tempCurrency,
               transaction_fee: Number(adminAmountToSend),
               transaction_reference: allTxIds,
-              usd_value: (await convertToUSD(Number(totalAmountReceived), tempCurrency)) || 0,
+              usd_value: toNumber(mul(Number(totalAmountReceived), receivedUsdFx.rate), 2),
               // AUTO-CONVERT FIX (referral accrual + merchant fee display): on
               // auto-convert the merchant portion was merged into adminAmountToSend
               // and userAmountToSend zeroed (for the Binance sweep), which left this
@@ -1382,7 +1389,7 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
                 ? {
                     ...splitFeeCrypto(adminFeeForConversion),
                     base_amount: toFixedStr(originalUserAmount, 8),
-                    usd_value: (await convertToUSD(Number(originalUserAmount), tempCurrency)) || 0,
+                    usd_value: toNumber(mul(Number(originalUserAmount), receivedUsdFx.rate), 2),
                   }
                 : {}),
             };
@@ -1396,24 +1403,31 @@ export const cryptoVerification = async (address, webhook = true, overrideRedisK
 
         // Overpayment excess (already credited to the merchant in the split above) expressed in
         // the API key's base currency — reported in the direct-API response and to the merchant/admin.
+        // Uses the settlement rate resolved above (no extra provider call, never a silent 0).
+        const excessTargetCurrency = String(customerData?.base_currency || "USD").toUpperCase();
+        // This runs AFTER the on-chain transfers, so it must never throw: reuse the
+        // base/USD settlement rates resolved before any routing happened.
+        const toBaseRate = async (target: string): Promise<number> => {
+          if (target === String(baseCurrency).toUpperCase()) return receivedBaseFx.rate;
+          if (target === "USD") return receivedUsdFx.rate;
+          try {
+            const [r] = await currencyConvert({ sourceCurrency: tempCurrency, currency: [target], amount: 1, fixedDecimal: false });
+            return Number(r?.transferRate) || 0;
+          } catch {
+            return 0;
+          }
+        };
         let newAmount = [{ amount: 0 }];
         const tempAmount = overpaymentExcessCrypto;
         if (tempAmount > 0) {
-          newAmount = await currencyConvert({
-            sourceCurrency: tempCurrency,
-            currency: [customerData?.base_currency || "USD"],
-            amount: tempAmount,
-            fixedDecimal: true,
-          });
+          newAmount = [{ amount: toNumber(mul(tempAmount, await toBaseRate(excessTargetCurrency)), 2) }];
         }
 
         if (customerData?.pathType?.includes("addFund")) {
-          const finalAmount = await currencyConvert({
-            sourceCurrency: tempCurrency,
-            currency: [customerData?.base_currency],
-            amount: totalAmountReceived,
-            fixedDecimal: false,
-          });
+          // MONEY: credits the customer's wallet in its base currency — settlement rate or DEFERRED.
+          const fundCurrency = String(customerData?.base_currency || baseCurrency).toUpperCase();
+          const fundRaw = mul(totalAmountReceived, await toBaseRate(fundCurrency)).toNumber();
+          const finalAmount = [{ amount: toNumber(fundRaw, amountDecimalsFor(fundCurrency, fundRaw, false)) }];
           if (customerData.customer_id) {
             await incrementCustomerWallet(Number(customerData.customer_id), Number(finalAmount[0].amount), transaction);
           }

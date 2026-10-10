@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { formatCurrency } from "@/utils/currencyFormat";
 import { BrandsData } from "./useBrands";
+import FxAsOfLabel from "@/Components/UI/FxAsOfLabel";
+
 
 /** Top summary strip — account-wide totals across every accessible brand. */
 const BrandsSummary: React.FC<{ data: BrandsData | null; loading: boolean }> = ({ data, loading }) => {
@@ -58,6 +60,7 @@ const BrandsSummary: React.FC<{ data: BrandsData | null; loading: boolean }> = (
           >
             {tile.value}
           </Typography>
+          {tile.key === "settled" && <FxAsOfLabel fx={data?.fx} testId="brands-fx-as-of" sx={{ mt: 0.5 }} />}
         </Box>
       ))}
     </Box>

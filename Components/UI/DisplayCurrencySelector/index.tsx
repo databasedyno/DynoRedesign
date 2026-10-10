@@ -9,14 +9,11 @@ import {
 } from "@mui/material";
 import { PaidRounded } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
-import { useDispatch } from "react-redux";
 import { useSWRConfig } from "swr";
 import axiosBaseApi from "@/axiosConfig";
-import { DashboardAction } from "@/Redux/Actions";
-import { DASHBOARD_FETCH_ALL } from "@/Redux/Actions/DashboardAction";
-import { useWalletStore } from "@/contexts/WalletDataContext";
 import useApiSWR from "@/hooks/useApiSWR";
 import useToast from "@/hooks/useToast";
+import { requestFiatRefresh } from "@/utils/fiatRefresh";
 
 type SupportedCurrency = {
   code: string;
@@ -24,10 +21,6 @@ type SupportedCurrency = {
   display_format: string;
 };
 
-/** SWR keys whose payloads are denominated in the brand currency — refreshed after a change. */
-const isCurrencyDependentKey = (key: unknown) =>
-  typeof key === "string" &&
-  (key.startsWith("dashboard") || key.startsWith("user/display-currency") || key.startsWith("company/display-currency") || key.startsWith("wallet"));
 
 /**
  * Brand currency selector — ONE currency per brand (Stripe-style):
@@ -38,9 +31,7 @@ const isCurrencyDependentKey = (key: unknown) =>
 const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) => {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const dispatch = useDispatch();
   const { mutate: mutateSwr } = useSWRConfig();
-  const { refetchWallets } = useWalletStore();
   const { t } = useTranslation("common");
 
   // Read standardized onto the shared SWR hook (refactor item 5). `current`
@@ -76,11 +67,10 @@ const DisplayCurrencySelector = ({ companyId }: { companyId: number | null }) =>
         }),
         severity: "success",
       });
-      // Flip every cached amount to the new currency right away: SWR (dashboard
-      // overview, FX rate, brand currency), redux dashboard stats and wallets.
-      void mutateSwr(isCurrencyDependentKey, undefined, { revalidate: true });
-      dispatch(DashboardAction(DASHBOARD_FETCH_ALL));
-      refetchWallets();
+      // Flip every amount on screen to the new currency right away (all
+      // amount-bearing SWR keys + redux dashboard/transactions) — see useFiatAutoRefresh.
+      void mutateSwr(`company/display-currency/${companyId}`);
+      requestFiatRefresh("currency");
     } catch {
       setCurrent(prev);
       showToast({

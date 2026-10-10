@@ -4,7 +4,7 @@
 import { chromium, webkit, devices } from "playwright";
 import fs from "fs";
 
-const BASE = process.env.AUDIT_BASE || "https://vault-setup-21.preview.emergentagent.com";
+const BASE = process.env.AUDIT_BASE || "https://fiat-crypto-vault.preview.emergentagent.com";
 const OUT = process.env.OUT || "/app/test_reports/public_ux_audit";
 fs.mkdirSync(OUT, { recursive: true });
 

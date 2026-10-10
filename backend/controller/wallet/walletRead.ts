@@ -10,7 +10,7 @@ import {
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
 import { parseSortAndPagination } from "../../helper/queryHelpers";
-import { formatAmountForDisplay, getCurrencyInfo, convertToFiat, convertToMultiple, getUserDisplayCurrency } from "../../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, convertToFiat, convertToMultiple, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../../utils/currencyUtils";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import {
   getRedisItem,
@@ -71,7 +71,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
     const volCompanyJoin = company_id ? 'LEFT JOIN tbl_customer c ON ut.customer_id = c.customer_id' : '';
     const volCompanyFilter = company_id ? 'AND (ut.company_id = :companyId OR c.company_id = :companyId)' : '';
 
-    const [walletData, processedRows, fiatRateResult] = await Promise.all([
+    const [walletData, processedRows, displayFx] = await Promise.all([
       userWalletModel.findAll({
         attributes: {
           exclude: [
@@ -96,22 +96,16 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
           type: QueryTypes.SELECT,
         }
       ) as Promise<Array<{ wallet_id: string | number | null; processed_usd: string }>>,
-      preferredCurrency !== 'USD'
-        ? convertToFiat('USD', preferredCurrency, 1)
-            .then((r) => ({ threw: false, amount: r.amount as number | undefined }))
-            .catch(() => ({ threw: true, amount: undefined as number | undefined }))
-        : Promise.resolve({ threw: false, amount: 1 as number | undefined }),
+      // USD → brand currency with provenance; falls back to USD (symbol AND
+      // numbers) when no live / ≤24h rate exists (audit F1 — the old path kept
+      // "EUR" with rate 1 whenever the conversion returned 0 without throwing).
+      resolveDisplayFx(preferredCurrency),
     ]);
 
-    // Resolve USD→preferred fiat rate — preserve original fallback semantics:
-    // only fall back to USD when the conversion actually threw.
-    if (preferredCurrency !== 'USD') {
-      if (fiatRateResult.threw) {
-        walletLogger.warn(`[getWallet] Currency conversion failed, using USD`);
-        preferredCurrency = 'USD';
-      } else if (fiatRateResult.amount) {
-        fiatConversionRate = fiatRateResult.amount;
-      }
+    preferredCurrency = displayFx.currency;
+    fiatConversionRate = displayFx.rate;
+    if (displayFx.fallback) {
+      walletLogger.warn(`[getWallet] No ${displayFx.requested_currency} rate — showing USD`);
     }
 
     // Per-wallet processed-volume lookup (from the parallel query above).
@@ -140,8 +134,8 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
       }),
       convertToMultiple("USD", currencyList, 1, false).catch(() => {
         walletLogger.warn(`[getWallet] Currency conversion failed for some currencies, using fallback rates`);
-        // Fallback: return empty rates - wallet will still load with 0 USD values
-        return currencyList.map((c: string) => ({ currency: c, amount: 0, transferRate: 0 }));
+        // Fallback: explicit "unavailable" rates (0) — never a fake 1
+        return currencyList.map((c: string) => ({ currency: c, amount: 0, transferRate: 0, unavailable: true }));
       }),
     ]);
 
@@ -162,7 +156,8 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
     const walletsWithCompanyName = [];
     for (const wallet of walletData) {
       const currentWallet = wallet.dataValues;
-      const transferRate = rateMap.get(currentWallet.wallet_type) || 1;
+      // USD→coin rate; null when unavailable (was coerced to a fake 1).
+      const transferRate = rateMap.get(currentWallet.wallet_type) || null;
       // Historical processed volume (USD) for THIS wallet — matches dashboard.
       const amountInUSD = processedByWalletId.get(String(currentWallet.wallet_id)) || 0;
       const amountInBaseCurrency = amountInUSD * fiatConversionRate;
@@ -180,7 +175,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
 
     // Group wallets by company
     const currencyInfo = getCurrencyInfo(preferredCurrency);
-    const groupedByCompany: { [key: string]: { company_id: number; company_name: string; base_currency: string; currency_info: typeof currencyInfo; wallets: Array<Record<string, unknown>> } } = {};
+    const groupedByCompany: { [key: string]: { company_id: number; company_name: string; base_currency: string; currency_info: typeof currencyInfo; fx: ReturnType<typeof fxMeta>; wallets: Array<Record<string, unknown>> } } = {};
     
     for (const wallet of walletsWithCompanyName) {
       const companyKey = `company_${wallet.company_id}`;
@@ -190,6 +185,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
           company_name: wallet.company_name,
           base_currency: wallet.base_currency,
           currency_info: getCurrencyInfo(wallet.base_currency),
+          fx: fxMeta(displayFx),
           wallets: [],
         };
       }
@@ -208,7 +204,7 @@ export const getWallet = async (req: express.Request, res: express.Response) => 
     
     // Cache the result (120s TTL — rates update in background cache every 60s).
     // B3: single SET EX round-trip, fire-and-forget so it never blocks the response.
-    setRedisItemWithTTL(cacheKey, returnData, 120).catch(() => {});
+    if (!displayFx.fallback) setRedisItemWithTTL(cacheKey, returnData, 120).catch(() => {});
     
     successResponseHelper(res, 200, message, returnData);
   } catch (e) {
@@ -247,18 +243,10 @@ export const getWalletTransactions = async (
       preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id as string);
     }
     
-    // Get conversion rate if not USD
-    if (preferredCurrency !== 'USD') {
-      try {
-        const result = await convertToFiat('USD', preferredCurrency, 1);
-        if (result.amount) {
-          conversionRate = result.amount;
-        }
-      } catch (e) {
-        walletLogger.warn(`[getWalletTransactions] Currency conversion failed`);
-        preferredCurrency = 'USD';
-      }
-    }
+    // USD → brand currency; no rate → USD for symbol AND numbers.
+    const txFx = await resolveDisplayFx(preferredCurrency);
+    preferredCurrency = txFx.currency;
+    conversionRate = txFx.rate;
     
     const selfData = await selfTransactionModel.findAll({
       attributes: { exclude: ["wallet_id", "transaction_id"] },

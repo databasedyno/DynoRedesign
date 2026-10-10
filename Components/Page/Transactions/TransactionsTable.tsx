@@ -48,6 +48,8 @@ import useTableCardView from "@/hooks/useTableCardView";
 import AmountText from "./AmountText";
 import { SelectModeButton, useCardSelectMode } from "@/Components/Common/SelectMode";
 import { useDisplayFx } from "@/hooks/useDisplayFx";
+import FxAsOfLabel from "@/Components/UI/FxAsOfLabel";
+
 import {
   ExtendedTransaction,
   TransactionsTableProps,
@@ -1088,6 +1090,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
       }}
     >
       {toolbar}
+      <FxAsOfLabel fx={fx} testId="transactions-fx-as-of" sx={{ mx: 2, mb: 1 }} />
       {txSelectionBar}
       {isMobile ? renderMobileCards() : renderDesktopTable()}
 

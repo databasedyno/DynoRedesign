@@ -412,8 +412,10 @@ export const getConfiguredCurrenciesForCheckout = async (
           currency: ['USD'],
           amount: transactionAmount,
           fixedDecimal: true,
+          maxStaleMs: 30 * 60 * 1000,
         });
-        transactionAmountUsd = Number(usdConv?.[0]?.amount || transactionAmount);
+        // 0 / unavailable ⇒ USD value unknown ⇒ frontend greys nothing (never the raw amount as USD).
+        transactionAmountUsd = usdConv?.[0]?.unavailable ? 0 : Number(usdConv?.[0]?.amount || 0);
       } catch {
         cronLogger.warn(`[getConfiguredCurrenciesForCheckout] USD conversion failed; frontend will fall back to not greying coins`);
         transactionAmountUsd = 0; // 0 => frontend treats USD value as unknown, greys nothing
@@ -505,17 +507,25 @@ export const calculateCheckoutFees = async (
     
     if (fiatCurrency !== 'USD') {
       try {
+        // STRICT money path (fee quote): live / ≤30 min rate or refuse.
         const usdConversion = await currencyConvert({
           sourceCurrency: fiatCurrency,
           currency: ['USD'],
           amount: paymentAmount,
           fixedDecimal: true,
+          strict: true,
         });
-        amountUSD = Number(usdConversion[0]?.amount || paymentAmount);
+        amountUSD = Number(usdConversion[0]?.amount);
+        if (!(amountUSD > 0) && paymentAmount > 0) throw new Error(`no ${fiatCurrency}→USD rate`);
         exchangeRate = amountUSD / paymentAmount;
         cronLogger.info(`[calculateCheckoutFees] Converted ${paymentAmount} ${fiatCurrency} → ${toFixedStr(amountUSD, 2)} USD`);
       } catch (conversionError) {
-        cronLogger.warn(`[calculateCheckoutFees] USD conversion failed, using original amount:`, conversionError);
+        cronLogger.warn(`[calculateCheckoutFees] USD conversion failed — refusing fee quote:`, conversionError);
+        return errorResponseHelper(
+          res,
+          503,
+          "Exchange rates are temporarily unavailable, so fees can't be calculated right now. Please try again in a minute.",
+        );
       }
     }
 

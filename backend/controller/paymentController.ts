@@ -100,7 +100,8 @@ import { calculateTaxForCheckout } from "./payment/taxService";
 import { settleCryptoTransaction, verifyCryptoPayment, cryptoVerification, downloadReceipt, createReceiptLink, getPublicReceipt, getPublicReceiptPdf, checkoutStatusStream, tokenFromQuery } from "./payment/cryptoSettlement";
 import { convertToUSD } from "./payment/paymentHelpers";
 import { computeReferralFeeCreditShift, consumeReferralCreditForTransaction } from "../services/referralCreditService";
-import { getData, getPaymentMeta, Crypto, createCryptoPayment } from "./payment/cryptoCheckout";
+import { getData, getPaymentMeta, Crypto, createCryptoPayment, RATE_UNAVAILABLE_CHECKOUT_MSG } from "./payment/cryptoCheckout";
+import { isRateUnavailableError, RateUnavailableError, MONEY_RATE_MAX_AGE_MS } from "../helper/currencyConvert";
 import { getCampaignOgImage } from "./payment/campaignOgImage";
 import { trackCreatorVisit } from "./payment/creatorVisitTracking";
 
@@ -176,6 +177,21 @@ const addPayment = async (req: express.Request, res: express.Response) => {
           if (items.direct_pay_temp_id) {
             value.direct_pay_temp_id = items.direct_pay_temp_id;
           }
+
+          // FX preflight (money path): the fee tier needs base→USD. Refuse BEFORE
+          // reserving an address if no live / ≤30 min rate exists (audit 2026-06).
+          const pfBase = String(items.base_currency || 'USD').toUpperCase();
+          if (pfBase !== 'USD') {
+            try {
+              await currencyConvert({ currency: ['USD'], sourceCurrency: pfBase, amount: 1, fixedDecimal: true, strict: true });
+            } catch (pfErr) {
+              if (isRateUnavailableError(pfErr)) {
+                cronLogger.warn(`[addPayment] FX preflight refused ${pfBase}→USD: ${(pfErr as Error).message}`);
+                return errorResponseHelper(res, 503, RATE_UNAVAILABLE_CHECKOUT_MSG);
+              }
+              throw pfErr;
+            }
+          }
           
           const { paymentRes, uniqueRef } = await Crypto(value, {
             ...userData,
@@ -199,6 +215,7 @@ const addPayment = async (req: express.Request, res: express.Response) => {
           const baseCurrency = items.base_currency || 'USD';
           
           // Convert base amount to USD if not already USD (e.g., EUR → USD)
+          // STRICT: never fall back to treating the raw base amount as USD.
           let baseAmountUSD = baseAmountRaw;
           if (baseCurrency !== 'USD') {
             try {
@@ -207,11 +224,14 @@ const addPayment = async (req: express.Request, res: express.Response) => {
                 sourceCurrency: baseCurrency,
                 amount: baseAmountRaw,
                 fixedDecimal: true,
+                strict: true,
               });
-              baseAmountUSD = Number(usdConversionResult?.[0]?.amount || baseAmountRaw);
+              baseAmountUSD = Number(usdConversionResult?.[0]?.amount);
+              if (!(baseAmountUSD > 0) && baseAmountRaw > 0) throw new RateUnavailableError(baseCurrency, 'USD', MONEY_RATE_MAX_AGE_MS);
               cronLogger.info(`[addPayment] Converted ${baseAmountRaw} ${baseCurrency} → $${toFixedStr(baseAmountUSD, 2)} USD`);
             } catch (convErr) {
-              cronLogger.info(`[addPayment] Currency conversion failed (${baseCurrency}→USD), using raw amount:`, convErr);
+              cronLogger.warn(`[addPayment] Currency conversion failed (${baseCurrency}→USD) — refusing:`, convErr);
+              return errorResponseHelper(res, 503, RATE_UNAVAILABLE_CHECKOUT_MSG);
             }
           }
           
@@ -519,7 +539,8 @@ const getCurrencyRates = async (
 
     cronLogger.info(`[getCurrencyRates] Request params: amount=${amount}, source=${source}, fee_payer=${fee_payer}, tax_amount=${tax_amount}`);
 
-    // Convert source amount to USD if needed (for fee tier calculation)
+    // Convert source amount to USD if needed (for fee tier calculation).
+    // STRICT money path: without a live / ≤30 min rate the tier can't be priced.
     let amountUSD = amount;
     if (source && source !== 'USD') {
       try {
@@ -528,19 +549,26 @@ const getCurrencyRates = async (
           currency: ['USD'],
           amount: amount,
           fixedDecimal: true,
+          strict: true,
         });
-        amountUSD = Number(usdConversion[0]?.amount || amount);
+        amountUSD = Number(usdConversion[0]?.amount);
+        if (!(amountUSD > 0) && Number(amount) > 0) throw new RateUnavailableError(source, 'USD', MONEY_RATE_MAX_AGE_MS);
         cronLogger.info(`[getCurrencyRates] Converted ${amount} ${source} → ${toFixedStr(amountUSD, 2)} USD for fee calculation`);
       } catch (conversionError) {
-        cronLogger.warn(`[getCurrencyRates] USD conversion failed, using original amount:`, conversionError);
+        cronLogger.warn(`[getCurrencyRates] USD conversion failed — refusing quote:`, conversionError);
+        return errorResponseHelper(res, 503, RATE_UNAVAILABLE_CHECKOUT_MSG);
       }
     }
 
+    // Per-coin quotes: last-known capped at the MONEY window (30 min). A coin with
+    // no usable rate comes back `unavailable: true` (amount 0) so the checkout
+    // disables it instead of quoting on a made-up rate; other coins still quote.
     const currencyRateList = await currencyConvert({
       sourceCurrency: source,
       currency: currencyList,
       amount,
       fixedDecimal,
+      maxStaleMs: MONEY_RATE_MAX_AGE_MS,
     });
     
     // If customer pays fees, calculate total amounts including all fees
@@ -556,7 +584,10 @@ const getCurrencyRates = async (
       cronLogger.info(`[getCurrencyRates] Pre-fetched blockchain fees for ${Object.keys(allBlockchainFees).length} chains`);
       
       const enhancedRates = await Promise.all(
-        currencyRateList.map(async (rate: { currency: string; amount: number; transferRate?: number }) => {
+        currencyRateList.map(async (rate: { currency: string; amount: number; transferRate?: number; unavailable?: boolean }) => {
+          // No usable rate for this coin → pass the explicit flag through untouched
+          // (amount 0, no totals). The checkout disables the coin.
+          if (rate.unavailable) return { ...rate, unavailable: true };
           try {
             // Check if this is a fiat currency (not crypto)
             const fiatCurrencies = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'AUD', 'CAD', 'CHF', 'HKD', 'NZD', 'SGD', 'NGN', 'KES', 'UGX', 'RWF', 'BRL', 'ARS', 'COP', 'CLP', 'PEN', 'MXN', 'VES', 'UYU', 'ZAR', 'GHS', 'TZS', 'XAF', 'XOF', 'EGP', 'MAD', 'RWF', 'ETB', 'ZMW', 'BWP', 'MUR', 'AOA', 'MZN', 'CDF'];

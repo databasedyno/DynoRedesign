@@ -8,7 +8,7 @@ import { apiLogger } from "../utils/loggers";
 import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
-import { convertToFiat, getCurrencySymbol, getUserDisplayCurrency, getUsdToFiatRate } from "../utils/currencyUtils";
+import { convertToFiat, fxMeta, getCurrencySymbol, getUserDisplayCurrency, resolveDisplayFx } from "../utils/currencyUtils";
 import { toNumber, num } from "../utils/money";
 import { PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { GROSS_USD, NET_USD, companyScopeSql, fromClause, OverviewScope } from "../services/dashboard/overviewQueries";
@@ -40,7 +40,7 @@ const getPeriodSummary = async (req: express.Request, res: express.Response) => 
     const now = new Date();
     const start = parseDate(start_date, new Date(2015, 0, 1));
     const end = parseDate(end_date, now);
-    const currency = await getUserDisplayCurrency(userId, (company_id as string) || null);
+    let currency = await getUserDisplayCurrency(userId, (company_id as string) || null);
     const cacheKey = `invoices:period:${userId}:${company_id || "all"}:${start.toISOString().slice(0, 10)}_${end.toISOString().slice(0, 10)}:${currency}:v1`;
     const cached = await getRedisItem(cacheKey);
     if (cached && Object.keys(cached).length > 0) {
@@ -82,7 +82,9 @@ const getPeriodSummary = async (req: express.Request, res: express.Response) => 
            AND inv.invoice_date >= :start AND inv.invoice_date <= :end`),
     ]);
 
-    const rate = currency === "USD" ? 1 : (await getUsdToFiatRate(currency)) || 1;
+    const dfx = await resolveDisplayFx(currency);
+    const rate = dfx.rate;
+    currency = dfx.currency;
     const fx = (usd: number) => toNumber(usd * rate, 2);
 
     let taxCollected = 0;
@@ -109,6 +111,7 @@ const getPeriodSummary = async (req: express.Request, res: express.Response) => 
       range: { start: start.toISOString(), end: end.toISOString() },
       currency,
       currency_symbol: getCurrencySymbol(currency),
+      fx: fxMeta(dfx),
       collected: fx(gross),
       net: fx(net),
       fees: fx(Math.max(0, gross - net)),
@@ -119,7 +122,7 @@ const getPeriodSummary = async (req: express.Request, res: express.Response) => 
       receipts_vat: fx(num(receipts[0]?.vat)),
       generated_at: now.toISOString(),
     };
-    await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
+    if (!dfx.fallback) await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
     return successResponseHelper(res, 200, "Period summary retrieved", data);
   } catch (e) {
     return handleControllerErrorReturn(res, e, apiLogger);

@@ -19,6 +19,8 @@ import { CustomRange, RangeId } from "./ranges";
 import RangeBar from "./command/RangeBar";
 import AttentionFeed from "./command/AttentionFeed";
 import MoneyRow from "./command/MoneyRow";
+import FxAsOfLabel from "@/Components/UI/FxAsOfLabel";
+
 import TopSourcesCard from "./command/TopSourcesCard";
 import PlanRow from "./command/PlanRow";
 import KycStatusCard from "./command/KycStatusCard";
@@ -157,7 +159,12 @@ const Dashboard2026: React.FC<{ onboarding?: boolean }> = ({ onboarding = true }
     />
   );
   const txRange = custom ? undefined : range === "1y" ? "all" : range;
-  const moneyRow = <MoneyRow overview={overview} loading={overviewLoading} rangeLabel={rangeLabel} txRange={txRange} />;
+  const moneyRow = (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+      <MoneyRow overview={overview} loading={overviewLoading} rangeLabel={rangeLabel} txRange={txRange} />
+      <FxAsOfLabel fx={overview?.fx} testId="dashboard-fx-as-of" />
+    </Box>
+  );
 
   // Until company + wallet + MFA have loaded we can't tell "setting up" from
   // "live" — hold a neutral skeleton so the page doesn't paint the full

@@ -1,6 +1,6 @@
 import asyncio
 
-BASE = "https://vault-setup-21.preview.emergentagent.com"
+BASE = "https://fiat-crypto-vault.preview.emergentagent.com"
 
 MARKETING = ["/", "/fees", "/for/freelancers", "/products", "/blog", "/about",
              "/pay?d=jgQQzL", "/pay/demo", "/auth/login", "/auth/signup", "/reset-password"]

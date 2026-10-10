@@ -9,7 +9,7 @@ import { apiLogger } from "../utils/loggers";
 import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { getRedisItem, setRedisItemWithTTL, invalidateCache } from "../utils/redisInstance";
-import { convertToFiat, getCurrencySymbol, getUserDisplayCurrency } from "../utils/currencyUtils";
+import { fxMeta, getUserDisplayCurrency, resolveDisplayFx } from "../utils/currencyUtils";
 import { toNumber, num } from "../utils/money";
 import { OverviewScope, coinsWithoutWallet } from "../services/dashboard/overviewQueries";
 import { resolveRange } from "./dashboardOverviewController";
@@ -81,20 +81,15 @@ const getPayouts = async (req: express.Request, res: express.Response) => {
       coinsWithoutWallet(scope),
     ]);
 
-    let rate = 1;
-    if (currency !== "USD") {
-      try {
-        rate = (await convertToFiat("USD", currency, 1)).rate || 1;
-      } catch {
-        rate = 1;
-      }
-    }
+    const dfx = await resolveDisplayFx(currency);
+    const rate = dfx.rate;
     const fx = (usd: number) => toNumber(usd * rate, 2);
 
     const data = {
       range: { period: range.period, start: range.start.toISOString(), end: range.end.toISOString() },
-      currency,
-      currency_symbol: getCurrencySymbol(currency),
+      currency: dfx.currency,
+      currency_symbol: dfx.symbol,
+      fx: fxMeta(dfx),
       totals: {
         forwarded_count: num(totals.fwd_count),
         forwarded_amount: fx(num(totals.fwd_amount)),
@@ -178,7 +173,7 @@ const getPayouts = async (req: express.Request, res: express.Response) => {
       generated_at: now.toISOString(),
     };
 
-    await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
+    if (!dfx.fallback) await setRedisItemWithTTL(cacheKey, data, CACHE_TTL);
     return successResponseHelper(res, 200, "Payouts retrieved", { ...data, viewer_is_ops: viewerIsOps });
   } catch (e) {
     return handleControllerErrorReturn(res, e, apiLogger);

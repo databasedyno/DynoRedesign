@@ -20,6 +20,6 @@
   "seed_data_creation": "none",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "Phase 3 v8 SEO redesign is production-ready. Verified on https://vault-setup-21.preview.emergentagent.com. When writing Playwright for i18n assertions, note that step labels & stat-band labels render via CSS text-transform:uppercase, so document.body.innerText returns 'PASSO'/'SCHRITT' (uppercased) not 'Passo'/'Schritt' - use case-insensitive matches. Preview env has a Cloudflare 429 rate limit so inter-page sleeps of ~2.5-2.8s were used; keep that pattern. Footer-v8 is intentionally the same near-black panel in both themes - do NOT flag that as a theme bug.",
+  "context_for_next_testing_agent": "Phase 3 v8 SEO redesign is production-ready. Verified on https://fiat-crypto-vault.preview.emergentagent.com. When writing Playwright for i18n assertions, note that step labels & stat-band labels render via CSS text-transform:uppercase, so document.body.innerText returns 'PASSO'/'SCHRITT' (uppercased) not 'Passo'/'Schritt' - use case-insensitive matches. Preview env has a Cloudflare 429 rate limit so inter-page sleeps of ~2.5-2.8s were used; keep that pattern. Footer-v8 is intentionally the same near-black panel in both themes - do NOT flag that as a theme bug.",
   "rca of the issue": "No defects found. Review request fully satisfied."
 }

@@ -11,6 +11,8 @@ import { CB_TOKENS } from "@/Components/Page/Dashboard/coinbase/styled";
 import { CardSx } from "./payoutsHelpers";
 import { useAutoConvertSettings } from "./useAutoConvertSettings";
 import { useDashboardPayouts } from "./useDashboardPayouts";
+import FxAsOfLabel from "@/Components/UI/FxAsOfLabel";
+
 import PayoutAttention from "./PayoutAttention";
 import PayoutTiles from "./PayoutTiles";
 import WalletsTimeline from "./WalletsTimeline";
@@ -73,6 +75,7 @@ const PayoutsPage: React.FC = () => {
         <Box sx={{ fontFamily: "var(--font-sans)", fontSize: 13.5, color: muted }}>
           {t("payouts.rangeLead", { defaultValue: "Showing payouts for" })}{" "}
           <Box component="span" sx={{ fontWeight: 700, color: isDark ? CB_TOKENS.ink.primaryDark : CB_TOKENS.ink.primaryLight }}>{rangeLabel}</Box>
+          <FxAsOfLabel fx={data?.fx} testId="payouts-fx-as-of" sx={{ ml: 1, verticalAlign: "middle" }} />
         </Box>
         <TxRangePresets
           range={range}

@@ -22,6 +22,7 @@ export interface DashboardOverview {
   range: { period: string; start: string; end: string };
   currency: string;
   currency_symbol: string;
+  fx?: import("@/Components/UI/FxAsOfLabel").FxInfo;
   pulse: { confirming_count: number; awaiting_count: number; last_paid_at: string | null };
   settled: {
     net: number;

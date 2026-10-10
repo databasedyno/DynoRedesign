@@ -13,7 +13,7 @@
 - Housekeeping: pod-bootstrap's `yarn install` rewrites `yarn.lock` (prunes ~450 stale entries) + `backend/yarn.lock`; restored both to HEAD so CI keeps building with the known-good lockfiles. Do the same on future pods (`git show HEAD:yarn.lock > yarn.lock`).
 
 ## 2026-10-07 (pod 94432dad) — SETUP via vault + STUCK DEPLOY UNBLOCKED — no code changes
-- Setup: `pod-bootstrap.sh --pass` → POD READY in 204s. preview_endpoint == supervisor APP_URL this pod (`https://vault-setup-21.preview.emergentagent.com`) → no `--url` re-sync needed. /health healthy, SAFE MODE on.
+- Setup: `pod-bootstrap.sh --pass` → POD READY in 204s. preview_endpoint == supervisor APP_URL this pod (`https://fiat-crypto-vault.preview.emergentagent.com`) → no `--url` re-sync needed. /health healthy, SAFE MODE on.
 - Stuck deploy RCA: run 37676976823 (sha 495d376b3) hung ~2h in step 10 "Hydration guard" (pre-timeout version of the workflow) AFTER deploy steps 5–8 had already succeeded. `concurrency: deploy-droplet` + `cancel-in-progress:false` → every newer push sat `pending` and the previous pending run got superseded ("cancelled"): c3c8a0d9a, 4913b21ab. Latest cc838cee6 (run 37687614574) was stuck `pending`.
 - Fix: cancelled 37676976823 via GitHub REST API (`POST /actions/runs/{id}/cancel`, took ~90s to settle) → 37687614574 started automatically → SUCCESS in 3 min (hydration guard 63s with the new 8-min/300s timeouts). Live: dynopay.com /health healthy (fresh uptime), /, /auth/login, /pay-links 200.
 - Recipe if it recurs: list runs `GET /repos/databasedyno/DynoRedesign/actions/runs?per_page=20`; cancel any `in_progress` Deploy run whose steps 5–8 are already `success`; use `/force-cancel` if `/cancel` doesn't settle in ~2 min. Token is user-supplied per session — never write it to the repo.
@@ -25,14 +25,14 @@
 
 
 ## 2026-10-05 session (pod 33379795, setup via vault) — SETUP + /pay-links TEST + IN-APP UX AUDIT — NO CODE CHANGES
-- Setup: `pod-bootstrap.sh --pass` → env restored, SAFE MODE on. Supervisor APP_URL was the UUID host; user-facing host = env `preview_endpoint` = https://vault-setup-21.preview.emergentagent.com → re-synced with `--url` (UUID host kept in CORS_ALLOWED_ORIGINS) + rebuilt `.next-prod`. /health healthy, 0 CORS errors.
+- Setup: `pod-bootstrap.sh --pass` → env restored, SAFE MODE on. Supervisor APP_URL was the UUID host; user-facing host = env `preview_endpoint` = https://fiat-crypto-vault.preview.emergentagent.com → re-synced with `--url` (UUID host kept in CORS_ALLOWED_ORIGINS) + rebuilt `.next-prod`. /health healthy, 0 CORS errors.
 - /pay-links polish (commit 0e575fa16) tested by testing_agent iteration_265: 15/15 flows PASS, but HIGH regression — at ≤1440 px the table (~1354 px) overflows its 1134 px card and the sticky ACTIONS column covers STATUS ("Ac/Pa/Ex") + LAST 30 DAYS. NOT fixed — waiting for the user's layout choice (options in the report §A).
 - Full ranked audit of 15 in-app pages: `memory/reports/INAPP_UX_AUDIT_2026-10-05.md` (screens in `test_reports/inapp_audit_2026-10-05/`, metrics script `scripts/qa/inapp_audit_metrics.js`).
 - Cloudflare shows a "verify you are human" page if you open ~15 preview pages in quick succession — pace screenshot sweeps (≥60 s pause).
 
 
 ## 2026-10-04 session (pod ed7125a5, setup via vault) — SETUP ONLY, no code changes
-- `pod-bootstrap.sh --pass` run → env restored from vault, URLs synced to `https://vault-setup-21.preview.emergentagent.com`, SAFE MODE on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
+- `pod-bootstrap.sh --pass` run → env restored from vault, URLs synced to `https://fiat-crypto-vault.preview.emergentagent.com`, SAFE MODE on (ENABLE_BACKGROUND_JOBS=false, WORKER_ROLE=secondary, DISABLE_OUTBOUND_EMAIL=true).
 - User paused mid-install → supervisor restarted; frontend/backend self-heal finished deps + `.next-prod` build on their own (env files survived).
 - Verified: /health healthy (db+redis connected, tatum ok, background_jobs.eligible=false); external landing + /auth/login 200, 0 console/CORS errors. No prod DB writes. No .env changes → no vault re-seal.
 
@@ -56,7 +56,7 @@
 
 ## 2026-10-04 session (pod 0b940d6a, setup via vault) — SETUP ONLY, no code changes
 - `pod-bootstrap.sh` run with the vault passphrase → env restored, SAFE MODE on (bg jobs off, outbound email off), prod build served.
-- Live preview = **https://vault-setup-21.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
+- Live preview = **https://fiat-crypto-vault.preview.emergentagent.com** (re-synced with `--url` + rebuilt; supervisor APP_URL is the UUID host 0b940d6a — see POD_SETUP.md "Preview hostname gotcha").
 - Verified: backend /health (db+redis connected, background_jobs.eligible=false), landing 0 CORS errors, merchant dashboard (company 1) loads live data via cached token, 0 console errors. No prod DB writes.
 
 ## 2026-10-02 session (pod setup via vault) — SHIPPED (code-complete, NOT yet deployed)

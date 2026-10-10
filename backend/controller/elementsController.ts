@@ -366,6 +366,32 @@ export const selectElementsCurrency = async (
       return;
     }
 
+    // Fiat → crypto amount conversion — STRICT and BEFORE reserving an address
+    // (audit 2026-06): never hand the payer an address with a 0 crypto amount.
+    let cryptoAmount = 0;
+    try {
+      const rateList = await currencyConvert({
+        currency: [cUp],
+        sourceCurrency: intent.base_currency,
+        amount: intent.amount,
+        fixedDecimal: false,
+        strict: true,
+      });
+      if (rateList && rateList[0] && Number.isFinite(Number((rateList[0] as { amount?: unknown }).amount))) {
+        cryptoAmount = Number((rateList[0] as { amount: number }).amount);
+      }
+    } catch (e) {
+      apiLogger.warn(`[Elements] fiat→crypto conversion failed: ${(e as Error).message}`);
+    }
+    if (!(cryptoAmount > 0)) {
+      res.status(503).json({
+        success: false,
+        code: "rate_unavailable",
+        message: "Exchange rates are temporarily unavailable. Please try again in a minute — nothing has been charged.",
+      });
+      return;
+    }
+
     // Reserve a merchant pool address for this currency
     const paymentId = crypto.randomUUID();
     const reserved = (await merchantPoolService.reserveAddress(
@@ -387,22 +413,6 @@ export const selectElementsCurrency = async (
     const temp_id = reserved.dataValues.temp_address_id;
     const destination_tag = reserved.dataValues.destination_tag || null;
     const cachedQR = reserved.dataValues.cached_qr_code;
-
-    // Fiat → crypto amount conversion
-    let cryptoAmount = 0;
-    try {
-      const rateList = await currencyConvert({
-        currency: [cUp],
-        sourceCurrency: intent.base_currency,
-        amount: intent.amount,
-        fixedDecimal: false,
-      });
-      if (rateList && rateList[0] && Number.isFinite(Number((rateList[0] as { amount?: unknown }).amount))) {
-        cryptoAmount = Number((rateList[0] as { amount: number }).amount);
-      }
-    } catch (e) {
-      apiLogger.warn(`[Elements] fiat→crypto conversion failed: ${(e as Error).message}`);
-    }
 
     // QR code — reuse cached if present
     let qr_code: string | undefined = cachedQR;
