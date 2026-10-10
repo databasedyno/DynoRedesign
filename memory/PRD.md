@@ -1,3 +1,13 @@
+# === 2026-06 (fork, pod a81d8386) — KYC CONFIDENCE UI DONE (user verification pending) + FIAT/CRYPTO AUDIT HANDED OFF — NOT STARTED ===
+# DONE: KYC visuals (volume meter to $10k, 3-stage journey "You are here", 90-day grace ring, "What works right now", FAQ),
+#   dashboard KycStatusCard, Settings "Identity verification" link, payout-lock wording + "paused" typo fix, 6 locales. Tested iteration_282.
+# NEXT (P0): FIAT/crypto display + refresh audit — full handoff with preliminary findings (F1-F10) + plan + ask_human questions:
+#   /app/memory/FIAT_CRYPTO_AUDIT_HANDOFF_2026-06.md . Top suspects: rate=1 fallback with non-USD symbol, currencyConvert returns 0 on
+#   provider failure (settlement paths), 2-dp truncation for crypto >1 unit, 10-min cron vs 180s cache TTL, NGN/CAD/AUD not pre-cached,
+#   client FX never refreshes, Redux stats/wallets not refreshed after payment.
+# P1: KYC Requirements card flashes during load for verified accounts.
+# ============================================================================================
+
 # === 2026-06 (fork, pod a81d8386) — END-TO-END WCAG 2.1 AA ACCESSIBILITY AUDIT + FIXES (SafeDeal + full Dynopay) — DONE & VERIFIED ===
 # METHOD: axe-core 4.10 (wcag2a/2aa/21a/21aa) via Playwright on the live prod build; SafeDeal (5 pages) + Dynopay PUBLIC (10) + Dynopay
 #   AUTHED/in-app (12, merchant token injected). Reusable approach (temp scripts removed after).
