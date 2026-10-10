@@ -1,0 +1,55 @@
+{
+  "summary": "Re-ran ALL 5 preflight CI gates locally after the main agent removed 4 unused imports (dashboardController convertToFiat, invoiceController getCurrencySymbol, wallet/transactionsDetail convertToFiat, wallet/walletRead convertToFiat). Every gate now exits 0, Jest unit suite is 836/836 green, and 4 of 5 regression smoke endpoints return 200 with no NaN. The next GitHub Preflight run will pass and the docker-build + deploy jobs will proceed.",
+  "preflight_gates": {
+    "G1_backend_tsc_noEmit": {"cmd": "cd /app/backend && ./node_modules/.bin/tsc --noEmit", "exit": 0, "log": "/app/memory/tmp/preflight/g1_backend_tsc.log"},
+    "G2_backend_strip_unused_check": {"cmd": "node scripts/qa/strip_unused_imports.cjs backend/tsconfig.json --check", "exit": 0, "result": "[dry] 0 files, 0 unused import bindings removed", "log": "/app/memory/tmp/preflight/g2_backend_unused.log"},
+    "G3_frontend_tsc_noEmit": {"cmd": "cd /app && ./node_modules/.bin/tsc --noEmit (next-env.d.ts present)", "exit": 0, "log": "/app/memory/tmp/preflight/g3_fe_tsc.log"},
+    "G4_frontend_strip_unused_check": {"cmd": "node scripts/qa/strip_unused_imports.cjs tsconfig.json --check --skip=backend,scripts", "exit": 0, "result": "[dry] 0 files, 0 unused import bindings removed", "log": "/app/memory/tmp/preflight/g4_fe_unused.log"},
+    "G5_yarn_lint_eslint": {"cmd": "yarn lint:eslint .", "exit": 0, "duration": "55.28s", "log": "/app/memory/tmp/preflight/g5_eslint.log"}
+  },
+  "jest_unit_suite": {"result": "54 suites / 836 tests PASSED", "exit": 0, "duration": "33.1s", "log": "/app/memory/tmp/preflight/jest_unit.log"},
+  "smoke_tests": {
+    "GET /api/dashboard?company_id=1": {"status": 200, "nan": 0, "size": 2523},
+    "GET /api/dashboard/overview?company_id=1&period=30d": {"status": 200, "nan": 0, "size": 2309},
+    "GET /api/wallet/getWallet?company_id=1": {"status": 200, "nan": 0, "size": 8213},
+    "GET /api/invoices/tax-report?company_id=1": {"status": 200, "nan": 0, "size": 862},
+    "POST /api/wallet/getWalletTransactions/1 (body {company_id:1,page:1,limit:5})": {"status": 500, "body": "{\"success\":false,\"message\":\"column Wallet.id does not exist\",\"statusCode\":500}", "note": "Pre-existing DB/model mismatch — Wallet model does not have an 'id' column; URL param ':id' is being matched against a non-existent column. Not caused by the import removal in walletRead.ts (that controller only lost an unused convertToFiat binding, no logic change). The imports fix did not regress this; it was likely already failing. Suggest invoking with the correct wallet UUID or fixing the SQL/Sequelize lookup in getWalletTransactions."}
+  },
+  "verification_of_removed_imports": {
+    "backend/controller/dashboardController.ts": "convertToFiat removed; getCurrencySymbol still imported and used at lines 65 and 755 (correct)",
+    "backend/controller/invoiceController.ts": "getCurrencySymbol removed; convertToFiat remains and is used at line 114 (correct)",
+    "backend/controller/wallet/transactionsDetail.ts": "convertToFiat binding removed (grep clean)",
+    "backend/controller/wallet/walletRead.ts": "convertToFiat binding removed (grep clean)"
+  },
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/wallet/getWalletTransactions/:id", "issue": "500 'column Wallet.id does not exist' when :id=1 — likely a route/model schema mismatch (Wallet PK is probably a UUID column other than 'id'). Unrelated to the import cleanup; flagged for awareness only."}
+    ]
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/memory/tmp/preflight/g1_backend_tsc.log",
+    "/app/memory/tmp/preflight/g2_backend_unused.log",
+    "/app/memory/tmp/preflight/g3_fe_tsc.log",
+    "/app/memory/tmp/preflight/g4_fe_unused.log",
+    "/app/memory/tmp/preflight/g5_eslint.log",
+    "/app/memory/tmp/preflight/jest_unit.log"
+  ],
+  "action_items": [
+    "Safe to push via Save to GitHub — all 5 CI preflight gates reproduce green locally, so the next Preflight workflow will pass and docker-build + Deploy to Droplet will proceed.",
+    "(Separate, pre-existing) Investigate POST /api/wallet/getWalletTransactions/:id 500 'column Wallet.id does not exist'; probably the route handler issues `Wallet.findOne({where:{id}})` when the model's PK is a UUID column name mismatch. Not blocking this ticket."
+  ],
+  "critical_code_review_comments": [
+    "Fix applied is minimal and correct: only unused named-import bindings removed, no logic changes in the 4 controllers. All downstream usages verified by grep.",
+    "Preflight gate G2 (strip_unused_imports --check) now reports 0 unused — matches the strict CI expectation that caused run 38068206044 to fail."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "100% (preflight gates + 836/836 unit tests); 4/5 smoke endpoints 200 (the 5th 500 is unrelated pre-existing DB bug)", "frontend": "N/A (skipped per request)"},
+  "test_credentials": "Merchant bearer from /app/memory/tmp/merchant_token.txt, company_id=1, UA header required",
+  "seed_data_creation": "none (SAFE MODE, read-only)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Preflight parity logs are stored at /app/memory/tmp/preflight/*.log. Reuse them. The pre-existing wallet getWalletTransactions 500 is tracked but outside the scope of the import-cleanup fix.",
+  "rca of the issue": "CI job 'backend tsc --noEmit' > step 'No unused imports (backend)' failed because scripts/qa/strip_unused_imports.cjs in --check mode treats any unused named import as a hard error. Four controllers imported symbols they no longer referenced (convertToFiat x3, getCurrencySymbol x1) after prior refactors. Mitigation: remove only the dead named-import bindings, keep the import statements for still-used symbols. Verified by rerunning the exact CI command locally — exit 0, 0 unused."
+}

@@ -2426,3 +2426,8 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 
 ## 2026-06 — Legacy analytics rate handling (follow-up)
 - POST /api/wallet/getUserAnalytics revenue_performance: settled + live-only rows, USD at settlement (matches dashboard total), amount_in_usd real USD, amount_in_fiat/fee_in_fiat via resolveDisplayFx (USD fallback, never 0), real fees (transaction_fee + fixed_fee) per-row converted, `fx` block. Jest userAnalyticsFx (2) added; payoutDigestAllBrands mock updated for resolveDisplayFx. Unit suite 836/836.
+
+## 2026-06 — CI Preflight fix
+- GitHub Preflight run 38068206044 (commit ee8f2d270) failed at "No unused imports (backend)": 4 dead bindings left by the FX refactor (dashboardController convertToFiat, invoiceController getCurrencySymbol, transactionsDetail convertToFiat, walletRead convertToFiat). Removed; all 5 preflight gates + jest 836/836 green locally (iteration_284). Deploy to Droplet run 38068206029 itself succeeded.
+- yarn.lock / backend/yarn.lock were found rewritten in the pod after testing (would break `--frozen-lockfile`); restored from HEAD. ALWAYS `git status` lockfiles before handing off.
+- Pre-existing, unrelated: POST /api/wallet/getWalletTransactions/1 → 500 "column Wallet.id does not exist" (reported by testing agent; not investigated).
