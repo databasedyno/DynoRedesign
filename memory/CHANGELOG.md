@@ -2431,3 +2431,14 @@ User approved scope (a): ALL customer-facing UI (auth, checkout, landing, chrome
 - GitHub Preflight run 38068206044 (commit ee8f2d270) failed at "No unused imports (backend)": 4 dead bindings left by the FX refactor (dashboardController convertToFiat, invoiceController getCurrencySymbol, transactionsDetail convertToFiat, walletRead convertToFiat). Removed; all 5 preflight gates + jest 836/836 green locally (iteration_284). Deploy to Droplet run 38068206029 itself succeeded.
 - yarn.lock / backend/yarn.lock were found rewritten in the pod after testing (would break `--frozen-lockfile`); restored from HEAD. ALWAYS `git status` lockfiles before handing off.
 - Pre-existing, unrelated: POST /api/wallet/getWalletTransactions/1 → 500 "column Wallet.id does not exist" (reported by testing agent; not investigated).
+
+## 2026-06 — Pre-existing issue survey (read-only)
+- scripts/qa/get_route_sweep.py: 125 param-free GET routes (merchant token): 94 2xx, 30 expected 4xx (missing params / SafeDeal session / API key / admin), 1 real 5xx: GET /api/pay/getBalance with a non-customer token → 500 "character varying = integer" (should be 401).
+- POST /api/wallet/getWalletTransactions/:id → always 500 (looks up non-existent Wallet.id; should be wallet_id), no ownership check (IDOR once fixed naively), display_amount = base_amount × USD rate (wrong for crypto). No in-app caller.
+- Preview crawl 429s + "Refused to execute script (text/html)" chunk errors = preview Cloudflare per-IP throttling during rapid crawls (no app limiter on those routes) — not app bugs.
+- Preview-only log noise: BinanceWS 451 (region block), Tatum rate timeouts (handled by last-known-rate logic).
+
+## 2026-06 — Hidden API bug fixes
+- POST /api/wallet/getWalletTransactions/:id: lookup by wallet_id (was non-existent `id` → 500 always), 400 bad id / 404 unknown, owner-or-team(view_wallets) check, amounts = settlement USD × display rate (unsettled rows estimated at unit price, null if unknown; `usd_estimated`, `amount_in_usd`, `fx`). Jest walletTransactionsAccess (6).
+- GET /api/pay/getBalance: resolves the customer from customer_id/id claims; any other login → 401 (was 500). Integration (read-only) __tests__/api/walletBalanceGuards.test.ts.
+- INCIDENT: `npx jest --selectProjects integration <path>` ignores <path> (flag is an array) and ran the whole live-DB integration suite → registered test user 438 test_1791652268759@dynopay-test.com (+ session/login rows, ~23 wallet rows, avatar backend/public/images/user_2xq3l7grv4.png). Older residue: users 418/419 (2026-10-08). Cleanup pending user approval. ALWAYS put the path BEFORE --selectProjects, or use --listTests first.

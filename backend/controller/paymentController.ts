@@ -766,11 +766,19 @@ const getCurrencyRates = async (
 const getBalance = async (_req: express.Request, res: express.Response) => {
   const userData = jwt.decode(res.locals.token) as PaymentUserJwtPayload;
   try {
-    const customer = await customerModel.findOne({
-      where: {
-        id: userData.user_id,
-      },
-    });
+    // Customer tokens carry customer_id (int) or id (UUID). Any other login
+    // (merchant/payment-link token) used to reach a mistyped query and 500.
+    const claims = (res.locals.user || {}) as { customer_id?: unknown; id?: unknown };
+    const customerWhere = Number.isInteger(Number(claims.customer_id)) && Number(claims.customer_id) > 0
+      ? { customer_id: Number(claims.customer_id) }
+      : typeof claims.id === "string" && claims.id
+        ? { id: claims.id }
+        : null;
+    if (!customerWhere) {
+      return errorResponseHelper(res, 401, "Please sign in as a customer to view this balance");
+    }
+
+    const customer = await customerModel.findOne({ where: customerWhere });
 
     if (!customer) {
       return errorResponseHelper(res, 404, "Customer not found");

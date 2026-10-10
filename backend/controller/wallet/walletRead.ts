@@ -6,11 +6,12 @@ import {
 import sequelize from "../../utils/dbInstance";
 import { QueryTypes } from "sequelize";
 import {
+  errorResponseHelper,
   successResponseHelper,
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
 import { parseSortAndPagination } from "../../helper/queryHelpers";
-import { formatAmountForDisplay, getCurrencyInfo, convertToMultiple, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, convertToMultiple, getUserDisplayCurrency, resolveDisplayFx, fxMeta, getUsdPerUnit } from "../../utils/currencyUtils";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import {
   getRedisItem,
@@ -219,28 +220,40 @@ export const getWalletTransactions = async (
 ) => {
   const userData = jwt.decode(res.locals.token) as IUserType;
   try {
-    const id = req.params.id;
+    const walletId = Number(req.params.id);
+    if (!Number.isInteger(walletId) || walletId <= 0) {
+      return errorResponseHelper(res, 400, "Invalid wallet id");
+    }
     const { rowsPerPage, page, filters } = req.body;
     const ALLOWED_SORT_COLUMNS: Record<string, string> = {
       createdAt: '"createdAt"', updatedAt: '"updatedAt"', base_amount: 'base_amount',
       status: 'status', id: 'id', transaction_reference: 'transaction_reference',
     };
     const sort = parseSortAndPagination(ALLOWED_SORT_COLUMNS, filters, rowsPerPage, page);
-    const walletData = await userWalletModel.findOne({
-      where: {
-        id,
-      },
-    });
+    // tbl_user_wallet's key is wallet_id (the old `id` lookup 500'd on every call).
+    const walletData = await userWalletModel.findOne({ where: { wallet_id: walletId } });
+    if (!walletData) return errorResponseHelper(res, 404, "Wallet not found");
 
-    const wallet_id = walletData.dataValues.wallet_id;
-    const company_id = walletData.dataValues.company_id;
+    const { wallet_id, company_id, user_id: walletOwnerId } = walletData.dataValues as {
+      wallet_id: number; company_id: number | null; user_id: number;
+    };
+
+    // Only the wallet owner, or a team member with view_wallets on its brand.
+    if (Number(walletOwnerId) !== Number(userData.user_id)) {
+      if (!company_id) return errorResponseHelper(res, 404, "Wallet not found");
+      const companyData = await validateCompanyOwnership(res, company_id, userData.user_id, "view_wallets");
+      if (!companyData) return; // 403 already sent
+      if (Number(companyData.user_id) !== Number(walletOwnerId)) {
+        return errorResponseHelper(res, 404, "Wallet not found");
+      }
+    }
     
     // Get company's preferred currency
     let preferredCurrency = 'USD';
     let conversionRate = 1;
     
     if (company_id) {
-      preferredCurrency = await getUserDisplayCurrency(userData?.user_id, company_id as string);
+      preferredCurrency = await getUserDisplayCurrency(Number(walletOwnerId), company_id);
     }
     
     // USD → brand currency; no rate → USD for symbol AND numbers.
@@ -258,7 +271,7 @@ export const getWalletTransactions = async (
     });
 
     let query = `
-      select ut.*,c.customer_name,c.email,cm.company_name,cm.company_id from tbl_user_transaction ut 
+      select ut.*, ${PROCESSED_USD_EXPR} as usd_amount, c.customer_name,c.email,cm.company_name,cm.company_id from tbl_user_transaction ut 
       join tbl_customer c on c.customer_id=ut.customer_id
       join tbl_company cm on cm.company_id=c.company_id where ut.wallet_id=:wallet_id`;
     query += ` order by ${sort.safeColumn} ${sort.safeSortType}`;
@@ -266,16 +279,29 @@ export const getWalletTransactions = async (
 
     const tempData = await sequelize.query(query, {
       type: QueryTypes.SELECT,
-      replacements: { wallet_id: parseInt(wallet_id, 10), offset: sort.offset, limit: sort.limit },
+      replacements: { wallet_id, offset: sort.offset, limit: sort.limit },
     });
 
+    // Display value = USD locked in at settlement × display rate (base_amount may
+    // be a coin quantity, so multiplying it by a USD rate was wrong). Unsettled
+    // rows have no locked USD yet → estimate at the current unit price; if no
+    // price is known the amount is null, never a fake 0.
+    const unitUsd = new Map<string, number>();
+    for (const cur of new Set(tempData.filter((x: Record<string, unknown>) => !(Number(x.usd_amount) > 0)).map((x: Record<string, unknown>) => String(x.base_currency || "")))) {
+      if (cur) unitUsd.set(cur, await getUsdPerUnit(cur));
+    }
     const customer_data = tempData.map((x: Record<string, unknown>) => {
-      const { wallet_id, transaction_id, ...rest } = x;
-      const baseAmount = Number(rest.base_amount || 0);
+      const { wallet_id, transaction_id, usd_amount, ...rest } = x;
+      const locked = Number(usd_amount) || 0;
+      const unit = unitUsd.get(String(rest.base_currency || "")) || 0;
+      const estimated = !(Number(rest.usd_value) > 0);
+      const usd = locked > 0 ? locked : unit > 0 ? Number(rest.base_amount || 0) * unit : null;
       return {
         ...rest,
-        display_amount: toNumber(baseAmount * conversionRate, 2),
+        amount_in_usd: usd === null ? null : toNumber(usd, 2),
+        display_amount: usd === null ? null : toNumber(usd * conversionRate, 2),
         display_currency: preferredCurrency,
+        usd_estimated: estimated,
       };
     });
 
@@ -288,6 +314,7 @@ export const getWalletTransactions = async (
       customers_transactions: customer_data,
       self_transactions: selfData,
       currency: preferredCurrency,
+      fx: fxMeta(txFx),
     });
   } catch (e) {
 
