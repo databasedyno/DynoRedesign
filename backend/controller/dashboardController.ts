@@ -12,7 +12,7 @@ import { IUserType } from "../utils/types";
 import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import sequelize from "../utils/dbInstance";
 import { getRedisItem, setRedisItemWithTTL } from "../utils/redisInstance";
-import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, convertToFiat, convertToUSD, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../utils/currencyUtils";
+import { getCurrencySymbol, getCurrencyInfo, formatAmountForDisplay, convertToUSD, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../utils/transactionSource";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../utils/processedVolume";
 import { deriveTxDisplayStatus, isPaymentDetected, FRESH_PENDING_SQL } from "../utils/transactionDisplayStatus";

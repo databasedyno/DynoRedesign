@@ -10,7 +10,7 @@ import {
   successResponseHelper,
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
-import { convertToUSD, convertToFiat, getUserDisplayCurrency, resolveDisplayFx } from "../../utils/currencyUtils";
+import { convertToUSD, getUserDisplayCurrency, resolveDisplayFx } from "../../utils/currencyUtils";
 import { resolveTransactionSource, SAFEDEAL_SOURCE_JOIN_SQL, SAFEDEAL_SOURCE_SELECT_SQL } from "../../utils/transactionSource";
 import {
   deriveTxDisplayStatus,

@@ -10,7 +10,7 @@ import {
 } from "../../helper";
 import { handleControllerError } from "../../helper/controllerErrorHandler";
 import { parseSortAndPagination } from "../../helper/queryHelpers";
-import { formatAmountForDisplay, getCurrencyInfo, convertToFiat, convertToMultiple, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../../utils/currencyUtils";
+import { formatAmountForDisplay, getCurrencyInfo, convertToMultiple, getUserDisplayCurrency, resolveDisplayFx, fxMeta } from "../../utils/currencyUtils";
 import { PROCESSED_USD_EXPR, PROCESSED_STATUS_SQL } from "../../utils/processedVolume";
 import {
   getRedisItem,

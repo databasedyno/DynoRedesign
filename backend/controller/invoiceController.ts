@@ -21,7 +21,6 @@ import { validateCompanyOwnership } from "../utils/validateCompanyOwnership";
 import { resolveMembership, membershipCan } from "../utils/permissions";
 import {
   getCompanyBaseCurrency,
-  getCurrencySymbol,
   convertToFiat,
   getUserDisplayCurrency,
   resolveDisplayFx,
