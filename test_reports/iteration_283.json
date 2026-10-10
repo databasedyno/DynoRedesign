@@ -1,0 +1,48 @@
+{
+  "summary": "Fiat/crypto display + refresh audit E2E verification. Backend: 11/11 pytest cases pass against the live preview (display-currency fx meta, fx block + currency_symbol consistency on dashboard/overview/payouts/brands/invoices/period-summary/dashboard-root/wallet getWallet, chart 200, fee-tiers tolerated, tax collected-report has summary.unconverted_currencies, no NaN anywhere, SSE /api/events/stream sends `event: connected`). Frontend (Playwright + route mocks on PROD Next build): stale EUR fallback shows €amount + 'Rate as of hh:mm' on /wallet and /transactions; NGN->USD fallback shows $amount + 'Shown in USD · NGN rate unavailable' and never mixes ₦ with $; live (unmocked) renders no label on /wallet, /dashboard, /payouts, /brands, /invoices (clean-session verified). dashboard-fx-as-of / payouts-fx-as-of / brands-fx-as-of / invoices-fx-as-of all render when fx.is_stale=true is injected via route.fetch+patch. 60s auto-refresh re-requests /api/user/display-currency (+1) and /api/dashboard/overview (+2 incl. SSE) within 70s with no skeleton flash. SSE money_update event triggers extra /api/dashboard/overview and /api/dashboard requests within ~3s. Currency change via settings PATCH mock works and toast shows 'Brand currency updated' but display-currency refetch after PATCH was NOT observed in a 4s window (needs confirmation). KYC flash: with 3s delay on /api/kyc/status, kyc-requirements never rendered during load (0 samples at 200ms cadence) while kyc-requirements-loading skeleton was visible; verified state after resolve correctly keeps requirements hidden. No horizontal overflow at 1920x800 or 390x844 across dashboard/wallet/transactions/payouts/brands/invoices.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Brand currency change (/settings Payments -> Brand currency -> EUR)", "issue": "After the PATCH /api/company/display-currency/1 completes (toast 'Brand currency updated' shown), /api/user/display-currency was NOT re-requested within the 4s observation window. Spec requires immediate re-fetch of display-currency and other amount endpoints. May be a counter/timing miss OR a missing dispatch of requestFiatRefresh / FIAT_REFRESH_EVENT in DisplayCurrencySelector's onSuccess path. Please verify in Components/UI/DisplayCurrencySelector/index.tsx.", "affected_selectors": ["display-currency-select", "display-currency-option-EUR"]}
+    ],
+    "design_issues": []
+  },
+  "test_matrix_passed": {
+    "backend_pytest_11_11": true,
+    "wallet_stale_eur": {"amount_prefix": "€", "label": "Rate as of 10:01 AM"},
+    "transactions_stale_eur": {"label": "Rate as of 10:01 AM", "contains_EUR_in_dom": true},
+    "wallet_fallback_ngn_to_usd": {"amount_prefix": "$", "label": "Shown in USD · NGN rate unavailable", "no_naira_in_amount": true},
+    "wallet_live_no_label": true,
+    "dashboard_fx_as_of_when_stale_mocked": "Rate as of 01:02 PM",
+    "payouts_fx_as_of_when_stale_mocked": "Rate as of 01:02 PM",
+    "brands_fx_as_of_when_stale_mocked": "Rate as of 01:02 PM",
+    "invoices_fx_as_of_when_stale_mocked": "Rate as of 01:02 PM",
+    "live_no_labels_on_four_pages_fresh_session": true,
+    "sse_money_update_triggers_overview_and_dashboard_refetch": {"overview_increment": 1, "dashboard_increment": 1},
+    "auto_refresh_60s": {"display_currency_increment_after_70s": 1, "overview_increment_after_70s": 2, "skeleton_blanking_during_wait": false},
+    "kyc_flash_prevention": {"kyc-requirements_samples_during_3s_load": 0, "kyc-requirements-loading_samples": 13, "kyc-requirements_after_verified_resolve": 0},
+    "regression_no_horizontal_overflow_1920_and_390": true
+  },
+  "notes_on_console_errors": "During the regression sweep several pages logged console errors (4-79 counts). The dashboard/wallet/transactions pages at desktop width logged 0. Investigation showed a toast 'Request failed with status code 429' present on multiple pages — this is Dynopay backend rate-limiting triggered by the testing script running back-to-back scenarios; not caused by the audit changes. On a fresh session (TEST 9 rerun) no label-render regressions were seen. Flagging for awareness only.",
+  "critical_code_review_comments": [
+    "DisplayCurrencySelector onSuccess should explicitly call requestFiatRefresh() (or dispatch FIAT_REFRESH_EVENT) so that /api/user/display-currency and all amount-bearing endpoints are re-fetched immediately after the merchant changes brand currency. Current observation: PATCH 200 + toast fired, but no refetch of /api/user/display-currency in the 4s window. Verify in Components/UI/DisplayCurrencySelector/index.tsx around the mutation success handler.",
+    "Preview backend is rate-limited on the merchant JWT; test tooling should throttle (reasonable in prod) — no code change required but QA should rate-pace."
+  ],
+  "test_report_links": [
+    "/app/tests/test_fiat_crypto_audit.py",
+    "/app/test_reports/pytest/iteration_283.xml"
+  ],
+  "action_items": [
+    "Confirm/implement immediate re-fetch of /api/user/display-currency and amount endpoints on brand-currency PATCH success (DisplayCurrencySelector onSuccess -> requestFiatRefresh)."
+  ],
+  "updated_files": [
+    "/app/tests/test_fiat_crypto_audit.py (new pytest suite)"
+  ],
+  "success_rate": { "backend": "100% (11/11)", "frontend": "~95% (12/13 behaviours confirmed; currency-change refresh needs verification)" },
+  "test_credentials": "Merchant JWT at /app/memory/tmp/merchant_token.txt (user 1, company 1 USD). TOTP via node /app/backend/scripts/print_totp.cjs 1 if re-login needed.",
+  "seed_data_creation": "none (SAFE MODE: all writes mocked via Playwright route; no changes to live DB)",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend endpoints at https://fiat-crypto-vault.preview.emergentagent.com/api/* carry an `fx` block {currency,requested_currency,rate,as_of,is_stale,fallback} and are rate-limited (429 after ~30 rapid calls). The frontend prod build is served from .next-prod via `yarn start`; HOT reload is NOT active there — editing frontend sources requires rebuild. Supervisor 'backend' process is a Python uvicorn that spawns a Node ts-node server (observed by watchfiles reloading on /app/backend/tests/* changes — DO NOT put python test files under /app/backend/tests, keep them in /app/tests). Pytest file lives at /app/tests/test_fiat_crypto_audit.py and runs in <20s. For currency-change retest, after PATCH success use setTimeout(10s) and listen for `request` events on /api/user/display-currency to confirm the re-fetch dispatch."
+}

@@ -1,6 +1,6 @@
 # FIAT / CRYPTO DISPLAY + REFRESH AUDIT — HANDOFF (2026-06, pod a81d8386)
 
-STATUS: NOT STARTED (analysis only begun). User asked: "analyze whether the manner in which we currently implement
+STATUS: DONE (2026-06, tested iteration_283) — see /app/memory/reports/FIAT_CRYPTO_AUDIT_2026-06.md. Original brief: User asked: "analyze whether the manner in which we currently implement
 FIAT currency and crypto for all types is correct and refresh correctly on UI behavior." User is NOT satisfied with this area.
 Respond to the user in ENGLISH. Preview URL: https://fiat-crypto-vault.preview.emergentagent.com (same-origin /api).
 Creds: /app/memory/test_credentials.md (merchant onarrival21@gmail.com, user 1 / company 1; browser UA required).

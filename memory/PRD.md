@@ -1,3 +1,11 @@
+# === 2026-06 (fork) — FIAT/CRYPTO AUDIT DONE (tested iteration_283; user verification pending) ===
+# Report: /app/memory/reports/FIAT_CRYPTO_AUDIT_2026-06.md (F1-F10 + KYC). Handoff doc: FIAT_CRYPTO_AUDIT_HANDOFF_2026-06.md (now DONE).
+# Backend: resolveDisplayFx/fxMeta on every display endpoint (`fx` block; no rate -> USD symbol+numbers), strict <30min rates on money
+#   paths, utils/merchantMoneyEvents.ts (cache invalidation + SSE money_update on payment notifications / currency change).
+# Frontend: useDisplayFx (effective currency, 60s), useFiatAutoRefresh (60s + focus + SSE + requestFiatRefresh) in Containers/Client,
+#   FxAsOfLabel ("Rate as of hh:mm" / "Shown in USD"), WalletTotalHero brand-rate fix, KYC Requirements flash fix (useKycGate.settled).
+# Backlog: Redis pub/sub fan-out for SSE across instances (P2); legacy wallet/analytics conversion (P2); USDT proxy for fiat->fiat (P2).
+# ============================================================================================
 # === 2026-06 (fork, pod a81d8386) — KYC CONFIDENCE UI DONE (user verification pending) + FIAT/CRYPTO AUDIT HANDED OFF — NOT STARTED ===
 # DONE: KYC visuals (volume meter to $10k, 3-stage journey "You are here", 90-day grace ring, "What works right now", FAQ),
 #   dashboard KycStatusCard, Settings "Identity verification" link, payout-lock wording + "paused" typo fix, 6 locales. Tested iteration_282.
